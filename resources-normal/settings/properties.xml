@@ -1,0 +1,86 @@
+<properties>
+
+    <property id="1" type="number">0</property>				<!-- background color -->
+    
+    <property id="2" type="number">1</property>				<!-- time on -->
+    <property id="3" type="boolean">false</property>		<!-- time military -->
+    <property id="36" type="number">-1</property>			<!-- time colon separator -->
+    <property id="4" type="number">4</property>				<!-- time hour font -->
+    <property id="5" type="number">3</property>				<!-- time hour color -->
+    <property id="6" type="number">2</property>				<!-- time minute font -->
+    <property id="7" type="number">3</property>				<!-- time minute color -->
+    <property id="8" type="boolean">false</property>		<!-- time italic -->
+    <property id="9" type="number">0</property>				<!-- time y offset -->
+
+    <property id="10" type="number">1</property>			<!-- second indicator on -->
+    <property id="11" type="number">0</property>			<!-- second indicator style -->
+    <property id="12" type="number">2</property>			<!-- second refresh style -->
+    <property id="13" type="number">1</property>			<!-- second color -->
+    <property id="14" type="number">2</property>			<!-- second color 5 -->
+    <property id="15" type="number">3</property>			<!-- second color 10 -->
+    <property id="16" type="number">10</property>			<!-- second color 15 -->
+    <property id="17" type="number">19</property>			<!-- second color 0 -->
+    <property id="18" type="boolean">false</property>		<!-- second color demo -->
+    <property id="19" type="boolean">false</property>		<!-- second move in a bit -->
+
+    <property id="20" type="number">0</property>			<!-- outer on -->
+    <property id="21" type="number">0</property>			<!-- outer mode -->
+    <property id="22" type="number">19</property>			<!-- outer color filled -->
+    <property id="23" type="number">63</property>			<!-- outer color unfilled -->
+
+    <property id="24" type="number">12</property>			<!-- field font -->
+    <property id="25" type="number">3</property>			<!-- field custom weight -->
+    <property id="26" type="number">0</property>			<!-- field system case -->
+    <property id="27" type="number">24</property>			<!-- field names font for unsupported languages -->
+    <property id="28" type="number">-1</property>			<!-- field move bar off color -->
+    <property id="29" type="number">1</property>			<!-- field move bar alert trigger level -->
+    <property id="30" type="number">75</property>			<!-- field battery high percentage -->
+    <property id="31" type="number">25</property>			<!-- field battery low percentage -->
+
+    <property id="FM" type="number">1</property>			<!-- field management -->
+    <property id="FN" type="number">1</property>			<!-- field number -->
+    <property id="F0" type="number">64</property>			<!-- field y offset -->
+    <property id="F1" type="number">0</property>			<!-- field x offset -->
+    <property id="F2" type="number">0</property>			<!-- field justification -->
+    <property id="F3" type="number">3</property>			<!-- field element 1 -->
+    <property id="F4" type="number">0</property>			<!-- visible if -->
+    <property id="F5" type="number">3</property>			<!-- color -->
+    <property id="F6" type="number">21</property>			<!-- field element 2 -->
+    <property id="F7" type="number">0</property>			<!-- visible if -->
+    <property id="F8" type="number">3</property>			<!-- color -->
+    <property id="F9" type="number">5</property>			<!-- field element 3 -->
+    <property id="F10" type="number">0</property>			<!-- visible if -->
+    <property id="F11" type="number">3</property>			<!-- color -->
+    <property id="F12" type="number">0</property>			<!-- field element 4 -->
+    <property id="F13" type="number">0</property>			<!-- visible if -->
+    <property id="F14" type="number">3</property>			<!-- color -->
+    <property id="F15" type="number">0</property>			<!-- field element 5 -->
+    <property id="F16" type="number">0</property>			<!-- visible if -->
+    <property id="F17" type="number">3</property>			<!-- color -->
+    <property id="F18" type="number">0</property>			<!-- field element 6 -->
+    <property id="F19" type="number">0</property>			<!-- visible if -->
+    <property id="F20" type="number">3</property>			<!-- color -->
+
+    <property id="32" type="boolean">false</property>		<!-- demo font styles -->
+    <property id="33" type="boolean">false</property>		<!-- demo second styles -->
+    <property id="34" type="boolean">false</property>		<!-- demo display -->
+
+    <property id="35" type="number">0</property>			<!-- glance profile -->
+    <property id="0" type="string"></property>				<!-- profile name -->
+
+    <property id="PM" type="number">0</property>			<!-- profile management -->
+    <property id="PN" type="number">1</property>			<!-- profile number -->
+    <property id="PD" type="number">0</property>			<!-- profile activation days -->
+    <property id="PS" type="string">HH:MM</property>		<!-- profile start time -->
+    <property id="PE" type="string">HH:MM</property>		<!-- profile end time -->
+    <property id="PB" type="boolean">false</property>		<!-- profile block random -->
+    <property id="PR" type="number">0</property>			<!-- profile random events -->
+
+    <property id="DP" type="boolean">false</property>		<!-- demo profiles -->
+    <property id="DR" type="string">25 99</property>		<!-- demo profiles range -->
+
+    <property id="EP" type="string"></property>				<!-- export import profile -->
+    <property id="EF" type="string"></property>				<!-- export import fields 1-3 -->
+    <property id="EG" type="string"></property>				<!-- export import fields 4-6 -->
+
+</properties>

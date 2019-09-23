@@ -1,0 +1,324 @@
+<strings>
+
+<!-- 
+    <string id="Unused1">X</string>
+ -->
+                
+    <string id="Unused1">X</string>
+    <string id="Unused2">X</string>
+
+    <string id="AppName">M1</string>
+<!-- 
+    <string id="AppName">M1</string>
+    <string id="AppName">M1beta</string>
+ -->
+
+    <string id="BackgroundColorTitle">Background Color</string>
+    
+    <string id="TimeOnTitle">Time Display</string>
+    <string id="TimeLeadingZeroTitle">Time Add Leading Zero</string>
+    <string id="TimeColonSeparatorTitle">Time Colon Separator</string>
+    <string id="TimeHourFontTitle">Time Hours Font</string>
+    <string id="TimeMinuteFontTitle">Time Minutes Font</string>
+    <string id="TimeItalicTitle">Time Custom Fonts Italic</string>
+    <string id="TimeYOffsetTitle">Time Vertical Offset (+-120 pixels from centre)</string>
+    
+    <string id="SecondOnTitle">Seconds Display</string>
+    <string id="SecondIndicatorStyleTitle">Seconds Indicator Style</string>
+    <string id="SecondRefreshStyleTitle">Seconds Refresh Style</string>
+    <string id="SecondColorTitle">Seconds Color</string>
+    <string id="SecondColor5Title">Seconds Color at 5, 15, 25, 35, 45, 55 (overrides above)</string>
+    <string id="SecondColor10Title">Seconds Color at 0, 10, 20, 30, 40, 50 (overrides above)</string>
+    <string id="SecondColor15Title">Seconds Color at 0, 15, 30, 45 (overrides above)</string>
+    <string id="SecondColor0Title">Seconds Color at 0 (overrides above)</string>
+    <string id="SecondColorDemoTitle">Seconds Color Demo (overrides above to show all 60 colors)</string>
+    <string id="SecondMoveInABitTitle">Seconds Move In A Bit (to be inside the ring display)</string>
+    
+    <string id="OuterOnTitle">Ring Display (outer ring around watchface)</string>
+    <string id="OuterModeTitle">Ring Mode</string>
+    <string id="OuterColorFilledTitle">Ring Color Filled</string>
+    <string id="OuterColorUnfilledTitle">Ring Color Unfilled</string>
+
+    <string id="FieldFontTitle">Field Font</string>
+    <string id="FieldFontWeightTitle">Field Custom Fonts Weight</string>
+    <string id="FieldFontCaseTitle">Field System Fonts Case Override</string>
+    <string id="FieldFontNotSupportedTitle">Field Name Font When Custom Unsupported (day and month names)</string>
+    <string id="FieldMoveBarOffColorTitle">Field Move Bar Off Color</string>
+	<string id="FieldMoveBarAlertTriggerLevelTitle">Status Move Bar Alert Trigger Level (1-5)</string>
+    <string id="FieldBatteryHighPercentageTitle">Status Battery High Percentage</string>
+    <string id="FieldBatteryLowPercentageTitle">Status Battery Low Percentage</string>
+
+    <string id="FieldManagementTitle">Field Management (turn off/on or retrieve the field settings below)</string>
+    <string id="FieldNumberTitle">Field Number To Manage (1-8, each field has 6 elements below)</string>
+    <string id="FieldYOffsetTitle">Field Vertical Offset (+-120 pixels from centre)</string>
+    <string id="FieldXOffsetTitle">Field Horizontal Offset (+-120 pixels from centre)</string>
+    <string id="FieldJustificationTitle">Field Horizontal Justification</string>
+    <string id="FieldElement1Title">Element 1 (of field)</string>
+    <string id="FieldElement2Title">Element 2 (of field)</string>
+    <string id="FieldElement3Title">Element 3 (of field)</string>
+    <string id="FieldElement4Title">Element 4 (of field)</string>
+    <string id="FieldElement5Title">Element 5 (of field)</string>
+    <string id="FieldElement6Title">Element 6 (of field)</string>
+
+    <string id="ItemVisibilityTitle">Visible If ... (for item above)</string>
+    <string id="ItemColorTitle">Color (of item above)</string>
+
+    <string id="FieldDoNotDisturbOn">Do Not Disturb On</string>
+    <string id="FieldDoNotDisturbOff">Do Not Disturb Off</string>
+    <string id="FieldAlarmOn">Alarm On</string>
+    <string id="FieldAlarmOff">Alarm Off</string>
+    <string id="FieldNotificationsPending">Notifications Pending</string>
+    <string id="FieldNotificationsNone">No Notifications</string>
+    <string id="FieldPhoneConnected">Phone Connected</string>
+    <string id="FieldPhoneNot">Phone Not Connected</string>
+    <string id="FieldLTEConnected">LTE Connected</string>
+    <string id="FieldLTENot">LTE Not Connected</string>
+    <string id="FieldBatteryHighOrMedium">Battery High Or Medium</string>
+    <string id="FieldBatteryHigh">Battery High</string>
+    <string id="FieldBatteryMedium">Battery Medium</string>
+    <string id="FieldBatteryLow">Battery Low</string>
+    <string id="FieldMoveBarAlertTriggered">Move Bar Alert Triggered</string>
+    <string id="FieldMoveBarAlertNot">Move Bar Alert Not Triggered</string>
+    <string id="FieldAM">AM (morning)</string>
+    <string id="FieldPM">PM (afternoon)</string>
+
+    <string id="DemoFontStylesTitle">Demo Font Styles (cycle through custom font styles)</string>
+    <string id="DemoSecondStylesTitle">Demo Second Styles (cycle through second indicator styles)</string>
+    <string id="DemoDisplayTitle">Demo Display (show all colors, shapes and icons)</string>
+
+    <string id="GlanceProfileTitle">Gesture Profile (0 for none, or profile number for gesture)</string>
+
+    <string id="ProfileNameTitle">Profile Name (limited to 20 characters)</string>
+    <string id="ProfileManagementTitle">Profile Management (save/load settings above to watch/profile)</string>
+    <string id="ProfileNumberTitle">Profile Number To Save/Load (1-24) (or presets 25+)</string>
+    <string id="ProfileDaysTitle">Profile Activation Days (of week 1-7, e.g. 456 or 71 or 1234567)</string>
+    <string id="ProfileStartTimeTitle">Profile Start Time (HH:MM activate from this time)</string>
+    <string id="ProfileEndTimeTitle">Profile End Time (HH:MM activate until this time)</string>
+    <string id="ProfileBlockTitle">Profile Block Random (while this profile is active, block random events)</string>
+    <string id="ProfileRandomTitle">Profile Random Events (number per day for this profile)</string>
+
+    <string id="DemoProfilesTitle">Demo Profiles (cycle profiles in specified range, if no other profile active)</string>
+    <string id="DemoProfilesRangeTitle">Demo Profiles Start And End (e.g. 25-99 for preset profiles)</string>
+
+    <string id="ExportProfileTitle">Export/Import Profile Text (use profile management above)</string>
+    <string id="ExportFieldsTitle">Export/Import Fields Text (use profile management above)</string>
+
+    <string id="FieldRetrieveSettings">Retrieve (settings will not be updated)</string>
+
+    <string id="ProfileUpdateSettings">Update Watch Settings</string>
+    <string id="ProfileRetrieveSettings">Retrieve Watch Settings</string>
+    <string id="ProfileSave">Save Profile</string>
+    <string id="ProfileLoad">Load Profile</string>
+    <string id="ProfileCopy">Copy Profile To Watch Settings</string>
+    <string id="ProfileExport">Export Profile (to text fields below)</string>
+    <string id="ProfileImport">Import Profile (from text fields below)</string>
+    <string id="ProfileWasActive">Profile Was Active (settings will not be updated)</string>
+
+    <string id="MenuNotSet">-Not Set-</string>
+    <string id="MenuBlank"> </string>
+    <string id="MenuLine">------------------------------------</string>
+    <string id="MenuSeparators">SEPARATORS</string>
+    <string id="MenuTimeDate">TIME AND DATE</string>
+    <string id="MenuValues">VALUES AND BARS</string>
+    <string id="MenuIcons">SHAPES AND ICONS</string>
+    <string id="MenuCustomFont">CUSTOM FONT</string>
+    <string id="MenuSystemFonts">SYSTEM FONTS</string>  
+    <string id="MenuBright">BRIGHT COLORS</string>
+    <string id="MenuDim">DIM COLORS</string>
+    <string id="MenuPale">PALE COLORS</string>
+    <string id="MenuPalest">PALEST COLORS</string>
+    <string id="MenuDark">DARK COLORS</string>
+    <string id="MenuDarkest">DARKEST COLORS</string>
+    
+    <string id="Color0">Black (0)</string>
+    <string id="Color1">Dark Gray (1)</string>
+    <string id="Color2">Light Gray (2)</string>
+	<string id="Color3">White (3)</string>
+    
+    <!-- Bright Colors -->
+    <string id="Color4">Yellow (4)</string>
+    <string id="Color5">Lime (5)</string>
+    <string id="Color6">Bright Green (6)</string>
+    <string id="Color7">Green (7)</string>
+    <string id="Color8">Spring Green (8)</string>
+    <string id="Color9">Bright Aquamarine (9)</string>
+    <string id="Color10">Cyan (10)</string>
+    <string id="Color11">Azure (11)</string>
+    <string id="Color12">Denim Blue (12)</string>
+    <string id="Color13">Blue (13)</string>
+    <string id="Color14">Electric Indigo (14)</string>
+    <string id="Color15">Violet (15)</string>
+    <string id="Color16">Magenta (16)</string>
+    <string id="Color17">Pink (17)</string>
+    <string id="Color18">Torch Red (18)</string>
+    <string id="Color19">Red (19)</string>
+    <string id="Color20">Strong Orange (20)</string>
+    <string id="Color21">Orange (21)</string>
+
+	<!-- Dim Colors -->
+    <string id="Color22">Olive Green (22)</string>
+    <string id="Color23">Fruit Salad (23)</string>
+    <string id="Color24">Tradewind Blue (24)</string>
+    <string id="Color25">Rich Blue (25)</string>
+    <string id="Color26">Tapestry Purple (26)</string>
+    <string id="Color27">Blossom Red (27)</string>
+
+    <!-- Pale Colors -->
+    <string id="Color28">Lemon (28)</string>
+    <string id="Color29">Green Yellow (29)</string>
+    <string id="Color30">Screamin' Green (30)</string>
+    <string id="Color31">Aquamarine (31)</string>
+    <string id="Color32">Baby Blue (32)</string>
+    <string id="Color33">Maya Blue (33)</string>
+    <string id="Color34">Neon Blue (34)</string>
+    <string id="Color35">Pale Violet (35)</string>
+    <string id="Color36">Flamingo (36)</string>
+    <string id="Color37">Brilliant Rose (37)</string>
+    <string id="Color38">Tomato (38)</string>
+    <string id="Color39">Pale Orange (39)</string>
+    
+    <!-- Palest Colors -->
+    <string id="Color40">Canary (40)</string>
+    <string id="Color41">Mint (41)</string>
+    <string id="Color42">Pale Blue (42)</string>
+    <string id="Color43">Lavender (43)</string>
+    <string id="Color44">Rose (44)</string>
+    <string id="Color45">Lilac (45)</string>
+
+    <!-- Dark Colors -->
+    <string id="Color46">Citrus (46)</string>
+    <string id="Color47">Limeade (47)</string>
+    <string id="Color48">Dark Green (48)</string>
+    <string id="Color49">Green Haze (49)</string>
+    <string id="Color50">Persian Green (50)</string>
+    <string id="Color51">Cobalt (51)</string>
+    <string id="Color52">Dark Blue (52)</string>
+    <string id="Color53">Purple (53)</string>
+    <string id="Color54">Dark Magenta (54)</string>
+    <string id="Color55">Lipstick (55)</string>
+    <string id="Color56">Dark Red (56)</string>    
+    <string id="Color57">Tawny Orange (57)</string>
+
+    <!-- Darkest Colors -->
+    <string id="Color58">Verdun Green (58)</string>
+    <string id="Color59">Darkest Green (59)</string>
+    <string id="Color60">Sherpa Blue (60)</string>
+    <string id="Color61">Navy Blue (61)</string>
+    <string id="Color62">Tyrian Purple (62)</string>
+    <string id="Color63">Maroon (63)</string>
+
+    <string id="SecondRefreshEverySecond">Every Second</string>
+    <string id="SecondRefreshEveryMinute">Every Minute</string>
+    <string id="SecondRefreshAlternateMinutes">Alternate Minutes</string>
+
+    <string id="FontXTiny">Extra Tiny</string>
+    <string id="FontTiny">Tiny</string>
+    <string id="FontSmall">Small</string>
+    <string id="FontMedium">Medium</string>
+    <string id="FontLarge">Large</string>
+
+    <string id="CustomFontUltraLight">Ultra Light</string>
+    <string id="CustomFontExtraLight">Extra Light</string>
+    <string id="CustomFontLight">Light</string>
+    <string id="CustomFontRegular">Regular</string>
+    <string id="CustomFontBold">Bold</string>
+    <string id="CustomFontHeavy">Heavy</string>
+       
+    <string id="SystemCaseUpper">Upper Case Names</string>
+    <string id="SystemCaseLower">Lower Case Names</string>
+
+    <string id="JustifyCentre">Centre</string>
+    <string id="JustifyLeft">Left</string>
+    <string id="JustifyRight">Right</string>
+
+   	<string id="ItemOff">Off</string>
+    <string id="ItemOn">On (always)</string>
+    <string id="ItemOnGlance">Show On Gesture</string>
+    
+    <string id="ItemSteps">Steps</string>
+    <!-- 
+    <string id="FieldStepsCount">Steps Count</string>
+    <string id="OuterModeSteps">Steps</string>
+    -->
+
+    <string id="ItemHours">Hours</string>
+    <!-- 
+    <string id="FieldHour">Hour</string>
+    <string id="OuterModeHours">Hours (and minutes)</string>
+    -->
+
+    <string id="ItemMinutes">Minutes</string>
+    <!-- 
+    <string id="FieldMinute">Minute</string>
+    <string id="OuterModeMinutes">Minutes</string>
+    -->
+
+    <string id="ItemBatteryPercentage">Battery Percentage</string>
+ 
+    <string id="FieldSeparatorSpace">-Space-</string>
+    <string id="FieldSeparatorSlashForward">-Forward Slash-</string>
+    <string id="FieldSeparatorSlashBack">-Backslash-</string>
+    <string id="FieldSeparatorColon">:</string>
+    <string id="FieldSeparatorMinus">-</string>
+    <string id="FieldSeparatorDot">.</string>
+    <string id="FieldSeparatorComma">,</string>
+    <string id="FieldSeparatorPercent">% Symbol</string>
+
+    <string id="FieldDayName">Day Name</string>
+    <string id="FieldDayOfWeek">Day Number (of week)</string>
+    <string id="FieldDayOfMonth">Day Number (of month)</string>
+    <string id="FieldDayOfMonthXX">Day Number (of month XX)</string>
+    <string id="FieldDayOfYear">Day Number (of year)</string>
+    <string id="FieldDayOfYearXXX">Day Number (of year XXX)</string>
+    <string id="FieldMonthName">Month Name</string>
+    <string id="FieldMonthOfYear">Month Number</string>
+    <string id="FieldMonthOfYearXX">Month Number (XX)</string>
+    <string id="FieldYearXX">Year (XX)</string>
+    <string id="FieldYearXXXX">Year (XXXX)</string>
+    <string id="FieldWeekISOXX">Week Number (ISO XX)</string>
+    <string id="FieldWeekISOWXX">Week Number (ISO WXX)</string>
+    <string id="FieldYearISOWeekXXXX">Year (ISO week year XXXX)</string>
+    <string id="FieldWeekCalendarXX">Week Number (calendar XX)</string>
+    <string id="FieldYearCalendarWeekXXXX">Year (calendar week year XXXX)</string>
+
+    <string id="FieldStepsGoal">Steps Goal</string>
+    <string id="FieldFloors">Floors</string>
+    <string id="FieldFloorsGoal">Floors Goal</string>
+    <string id="FieldNotificationsCount">Notifications Count</string>
+    <string id="FieldMoveBar">Move Bar</string>
+
+    <string id="OuterModeColor">Plain Color</string>
+
+    <string id="IconCircle">Circle</string>
+    <string id="IconCircleSolid">Circle (solid)</string>
+    <string id="IconRounded">Rounded</string>
+    <string id="IconRoundedSolid">Rounded (solid)</string>
+    <string id="IconSquare">Square</string>
+    <string id="IconSquareSolid">Square (solid)</string>
+    <string id="IconTriangle">Triangle</string>
+    <string id="IconTriangleSolid">Triangle (solid)</string>
+    <string id="IconDiamond">Diamond</string>
+    <string id="IconDiamondSolid">Diamond (solid)</string>
+    <string id="IconStar">Star</string>
+    <string id="IconStarSolid">Star (solid)</string>
+
+    <string id="IconAlarm">Alarm Icon</string>
+    <string id="IconLock">Lock Icon</string>
+    <string id="IconNotification">Notification Icon</string>
+    <string id="IconPhone">Phone Icon</string>
+    <string id="IconNetwork">Network Icon</string>
+    <string id="IconBattery">Battery Icon</string>
+    <string id="IconBatterySolid">Battery Icon (solid)</string>
+    <string id="IconFigure">Figure Icon</string>
+    <string id="IconBed">Bed Icon</string>
+    <string id="IconFootsteps">Footsteps Icon</string>
+    <string id="IconStairs">Stairs Icon</string>
+    <string id="IconFlower">Flower Icon</string>
+
+    <string id="SecondTriangle">Triangle</string>
+    <string id="SecondV">V</string>
+    <string id="SecondLine">Line</string>
+    <string id="SecondLineThin">Line (thin)</string>
+    <string id="SecondCircular">Circular</string>
+    <string id="SecondCircularThin">Circular (thin)</string>
+</strings>

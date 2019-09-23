@@ -1,0 +1,5 @@
+info face="Ring" size=48 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=4 padding=0,0,0,0 spacing=1,1 outline=0
+common lineHeight=48 base=16 scaleW=256 scaleH=256 pages=2 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0
+page id=0 file="ring_48x48.png"
+chars count=1
+char id=48 x=0 y=0 width=48 height=48 xoffset=0 yoffset=0 xadvance=48 page=0 chnl=15

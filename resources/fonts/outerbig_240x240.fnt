@@ -1,0 +1,13 @@
+info face="Outerbig" size=100 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=4 padding=0,0,0,0 spacing=1,1 outline=0
+common lineHeight=100 base=0 scaleW=256 scaleH=256 pages=2 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0
+page id=0 file="outerbig_even_240x240.png"
+page id=1 file="outerbig_odd_240x240.png"
+chars count=8
+char id=12 x=118 y=-2 width=88 height=42 xoffset=0 yoffset=0 xadvance=88 page=0 chnl=15
+char id=13 x=200 y=34 width=42 height=88 xoffset=0 yoffset=0 xadvance=42 page=1 chnl=15
+char id=14 x=200 y=118 width=42 height=88 xoffset=0 yoffset=0 xadvance=42 page=0 chnl=15
+char id=15 x=118 y=200 width=88 height=42 xoffset=0 yoffset=0 xadvance=88 page=1 chnl=15
+char id=16 x=34 y=200 width=88 height=42 xoffset=0 yoffset=0 xadvance=88 page=0 chnl=15
+char id=17 x=-2 y=118 width=42 height=88 xoffset=0 yoffset=0 xadvance=42 page=1 chnl=15
+char id=18 x=-2 y=34 width=42 height=88 xoffset=0 yoffset=0 xadvance=42 page=0 chnl=15
+char id=19 x=34 y=-2 width=88 height=42 xoffset=0 yoffset=0 xadvance=88 page=1 chnl=15

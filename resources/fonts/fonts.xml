@@ -1,0 +1,61 @@
+<fonts>
+	<font id="id_trivial_ultra_light" filename="TrivialUltraLight70.fnt" antialias="true"></font>
+	<font id="id_trivial_extra_light" filename="TrivialExtraLight70.fnt" antialias="true"></font>
+	<font id="id_trivial_light" filename="TrivialLight70.fnt" antialias="true"></font>
+	<font id="id_trivial_regular" filename="TrivialRegular70.fnt" antialias="true"></font>
+	<font id="id_trivial_bold" filename="TrivialBold70.fnt" antialias="true"></font>
+	<font id="id_trivial_heavy" filename="TrivialHeavy70.fnt" antialias="true"></font>
+
+	<font id="id_trivial_ultra_light_italic" filename="TrivialUltraLightItalic70.fnt" antialias="true"></font>
+	<font id="id_trivial_extra_light_italic" filename="TrivialExtraLightItalic70.fnt" antialias="true"></font>
+	<font id="id_trivial_light_italic" filename="TrivialLightItalic70.fnt" antialias="true"></font>
+	<font id="id_trivial_regular_italic" filename="TrivialRegularItalic70.fnt" antialias="true"></font>
+	<font id="id_trivial_bold_italic" filename="TrivialBoldItalic70.fnt" antialias="true"></font>
+	<font id="id_trivial_heavy_italic" filename="TrivialHeavyItalic70.fnt" antialias="true"></font>
+
+	<font id="id_trivial_ultra_light_tiny" filename="TrivialUltraLight20.fnt" antialias="true"></font>
+	<font id="id_trivial_extra_light_tiny" filename="TrivialExtraLight20.fnt" antialias="true"></font>
+	<font id="id_trivial_light_tiny" filename="TrivialLight20.fnt" antialias="true"></font>
+	<font id="id_trivial_regular_tiny" filename="TrivialRegular20.fnt" antialias="true"></font>
+	<font id="id_trivial_bold_tiny" filename="TrivialBold20.fnt" antialias="true"></font>
+	<font id="id_trivial_heavy_tiny" filename="TrivialHeavy20.fnt" antialias="true"></font>
+
+	<font id="id_trivial_ultra_light_small" filename="TrivialUltraLight25.fnt" antialias="true"></font>
+	<font id="id_trivial_extra_light_small" filename="TrivialExtraLight25.fnt" antialias="true"></font>
+	<font id="id_trivial_light_small" filename="TrivialLight25.fnt" antialias="true"></font>
+	<font id="id_trivial_regular_small" filename="TrivialRegular25.fnt" antialias="true"></font>
+	<font id="id_trivial_bold_small" filename="TrivialBold25.fnt" antialias="true"></font>
+	<font id="id_trivial_heavy_small" filename="TrivialHeavy25.fnt" antialias="true"></font>
+
+	<font id="id_trivial_ultra_light_medium" filename="TrivialUltraLight31.fnt" antialias="true"></font>
+	<font id="id_trivial_extra_light_medium" filename="TrivialExtraLight31.fnt" antialias="true"></font>
+	<font id="id_trivial_light_medium" filename="TrivialLight31.fnt" antialias="true"></font>
+	<font id="id_trivial_regular_medium" filename="TrivialRegular31.fnt" antialias="true"></font>
+	<font id="id_trivial_bold_medium" filename="TrivialBold31.fnt" antialias="true"></font>
+	<font id="id_trivial_heavy_medium" filename="TrivialHeavy31.fnt" antialias="true"></font>
+
+	<font id="id_icons" filename="icons.fnt" antialias="true"></font>
+
+	<font id="id_seconds_tri" filename="tri_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_v" filename="v_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_line" filename="line_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_linethin" filename="thin_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular" filename="circular_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_circularthin" filename="circularthin_240x240.fnt" antialias="true"></font>
+
+	<font id="id_seconds_tri_in" filename="triinshort_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_v_in" filename="vinshort_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_line_in" filename="lineinshort_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_linethin_in" filename="thininshort_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_in" filename="circularin_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_circularthin_in" filename="circularthinin_240x240.fnt" antialias="true"></font>
+
+	<font id="id_outer" filename="outer60_240x240.fnt" antialias="true"></font>
+
+<!-- 
+	<font id="id_circle" filename="circle_240x240.fnt" antialias="true"></font>
+	<font id="id_circle" filename="world.fnt" antialias="true"></font>
+	<font id="id_ring" filename="ring_48x48.fnt" antialias="true"></font>
+-->
+	
+</fonts>

@@ -1,0 +1,27 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+
+<!--
+    <bitmap id="id_world" filename="world.png" dithering="none" />
+-->
+
+<!-- 
+    <bitmap id="id_world" filename="world.png" dithering="none">
+		<palette disableTransparency="true">
+            <color>000000</color>
+            <color>FFFFFF</color>
+        </palette>
+     </bitmap>
+
+            <color>00FF00</color>
+            <color>0000FF</color>
+            <color>005500</color>
+            <color>555500</color>
+            <color>000055</color>
+            <color>55FFFF</color>
+            <color>550000</color>
+            <color>FF0000</color>
+            <color>555555</color>
+-->
+
+</drawables>
