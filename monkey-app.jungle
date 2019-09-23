@@ -1,0 +1,11 @@
+project.manifest = manifest-app.xml
+
+
+#m2app jungle file
+
+base.resourcePath = $(base.resourcePath);resources-app
+
+base.excludeAnnotations = exclude;m2face
+#fenix5xplus.excludeAnnotations = older
+
+

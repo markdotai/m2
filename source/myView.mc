@@ -1969,16 +1969,16 @@ class myView extends WatchUi.WatchFace
 		{
 			// if user is retrieving field settings, or turning on/off demo profiles, then don't accept any settings changes
 			// - instead load the currently active profile to override any changes
-			if (propertiesGetNumber("FM")==0x10/*ITEM_RETRIEVE*/ || demoProfilesOn!=demoProfilesOnPrev)
-			{
-				loadProfile(profileActive);			// sets field management property to retrieve
-//				getOrSetPropFieldDataProperties();
-			}
-			else
-			{
-//				getOrSetPropFieldDataProperties();
-//				saveProfile(PROFILE_PRIVATE_INDEX);		// do this after getOrSetPropFieldDataProperties - will set profileActive==PROFILE_PRIVATE_INDEX
-			}
+//			if (propertiesGetNumber("FM")==0x10/*ITEM_RETRIEVE*/ || demoProfilesOn!=demoProfilesOnPrev)
+//			{
+//				loadProfile(profileActive);			// sets field management property to retrieve
+////				getOrSetPropFieldDataProperties();
+//			}
+//			else
+//			{
+////				getOrSetPropFieldDataProperties();
+////				saveProfile(PROFILE_PRIVATE_INDEX);		// do this after getOrSetPropFieldDataProperties - will set profileActive==PROFILE_PRIVATE_INDEX
+//			}
 		}
 		
 		// special case for handling when demoProfiles is toggled from off to on - don't do any profile delay
