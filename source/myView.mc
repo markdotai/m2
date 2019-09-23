@@ -23,12 +23,12 @@ class myView extends WatchUi.WatchFace
 //	{
 //	}
 //	
-//	(:m1plus)	// in m1plus - excluded in m1normal
+//	(:m2face)	// in m2face - excluded in m2app
 //	function testExcludeFunction()
 //	{
 //	}
 //	
-//	(:m1normal)	// in m1normal - excluded in m1plus
+//	(:m2app)	// in m2app - excluded in m2face
 //	function testExcludeFunction()
 //	{
 //	}
@@ -73,6 +73,8 @@ class myView extends WatchUi.WatchFace
 	// prop or "property" variables - are the ones which we store in onUpdate, so they don't change when they are used in onPartialUpdate
 	var propBackgroundColor;
 
+	var propAddLeadingZero = false;
+
     var propTimeOn;
     var propTimeHourFont;
     var propTimeMinuteFont;
@@ -95,15 +97,28 @@ class myView extends WatchUi.WatchFace
 	var propSecondIndicatorStyle;
     
     var propFieldFont;
+    var propFieldFontSystemCase = 0;
     var propFieldFontUnsupported;
 
 	var propOuterOn;
+	var propOuterMode = 0;
 	var propOuterColorFilled;
 	var propOuterColorUnfilled;
 	
 	var propMoveBarOffColorIndex;
 	
+    var propMoveBarAlertTriggerLevel = 0; 
+	
+    var propBatteryHighPercentage = 75.0;
+	var propBatteryLowPercentage = 25.0;
+
+	var propDemoFontStylesOn = false;
+	var propDemoSecondStylesOn = false;
 	var propDemoDisplayOn;
+	
+	var prop2ndTimeZoneOffset = 0;
+	
+	var propGlanceProfile = -1;
 	
 	var propSunAltitudeAdjust = false;
 	
@@ -147,7 +162,227 @@ class myView extends WatchUi.WatchFace
     // "F20" = field color 6
     var propFieldData = new[FIELD_NUM*FIELD_NUM_PROPERTIES]b;		// don't initialize as it takes 1250 bytes of code ...
     
-    var propMyData = new[PROFILE_NUM_PROPERTIES];
+    const PROFILE_NUM_PROPERTIES = 38;
+    //const PROFILE_PROPERTY_COLON = 36;
+    //const PROFILE_PROPERTY_2ND_TIME_ZONE_OFFSET = 37;
+    // 0 = profile name
+    // 1 = background color
+    // 2 = time on
+    // 3 = add leading zero (time military)
+    // 4 = time hour font
+    // 5 = time hour color
+    // 6 = time minute font
+    // 7 = time minute color
+    // 8 = time italic
+    // 9 = time y offset
+    // 10 = second indicator on
+    // 11 = second indicator style
+    // 12 = second refresh style
+    // 13 = second color
+    // 14 = second color 5
+    // 15 = second color 10
+    // 16 = second color 15
+    // 17 = second color 0
+    // 18 = second color demo
+    // 19 = second move in a bit
+    // 20 = outer on
+    // 21 = outer mode
+    // 22 = outer color filled
+    // 23 = outer color unfilled
+    // 24 = field font
+    // 25 = field custom weight
+    // 26 = field system case
+    // 27 = field names font for unsupported languages
+    // 28 = field move bar off color
+    // 29 = field move bar alert trigger level
+    // 30 = field battery high percentage
+    // 31 = field battery low percentage
+    // 32 = demo font styles
+    // 33 = demo second styles
+    // 34 = demo display
+    // 35 = glance profile
+    // 36 = time colon separator
+    // 37 = 2nd time zone offset
+    
+	function getBooleanFromArray(pArray, p)
+	{
+		var v = false;
+		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && (pArray[p] instanceof Boolean))
+		{
+			v = pArray[p];
+		}
+		return v;
+	}
+	
+	function getNumberFromArray(pArray, p)
+	{
+		var v = 0;
+		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && !(pArray[p] instanceof Boolean))
+		{
+			v = pArray[p].toNumber();
+			if (v == null)
+			{
+				v = 0;
+			}
+		}
+		return v;
+	}
+		
+	function getColorIndexFromArray(pArray, p, minV)
+	{
+		return getMinMax(getNumberFromArray(pArray, p), minV, 63);
+	}
+
+	function getColorFromArray(pArray, p, minV)
+	{				
+		return getColor64(getColorIndexFromArray(pArray, p, minV));
+	}
+
+//	function getStringFromArray(pArray, p)
+//	{	
+//		var v = "";
+//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null))
+//		{
+//			v = pArray[p].toString();
+//		}
+//		return v;
+//	}
+	
+//	function getCharArrayFromArray(pArray, p)
+//	{	
+//		return getStringFromArray(p).toCharArray();
+//	}
+
+    function getPropertiesFromArray(pArray)
+    {
+		propBackgroundColor = getColorFromArray(pArray, 1/*"1"*/, 0);
+
+		propAddLeadingZero = getBooleanFromArray(pArray, 3/*"3"*/);
+
+    	propTimeOn = getNumberFromArray(pArray, 2/*"2"*/);
+   		propTimeHourFont = getNumberFromArray(pArray, 4/*"4"*/);
+	 	if (propTimeHourFont<0 || propTimeHourFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
+	 	{
+	 		propTimeHourFont = 3/*APPFONT_REGULAR*/;
+	 	}
+		propTimeHourColor = getColorFromArray(pArray, 5/*"5"*/, 0);
+   		propTimeMinuteFont = getNumberFromArray(pArray, 6/*"6"*/);
+		if (propTimeMinuteFont<0 || propTimeMinuteFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
+		{
+	 		propTimeMinuteFont = 3/*APPFONT_REGULAR*/;
+		}
+		propTimeMinuteColor = getColorFromArray(pArray, 7/*"7"*/, 0);
+		propTimeColon = getColorFromArray(pArray, 36/*"36"*/, -1);
+    	propTimeItalic = (getBooleanFromArray(pArray, 8/*"8"*/) && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));
+		propTimeYOffset = getNumberFromArray(pArray, 9/*"9"*/);
+    	
+    	propSecondIndicatorOn = getNumberFromArray(pArray, 10/*"10"*/);
+    	propSecondRefreshStyle = getNumberFromArray(pArray, 12/*"12"*/);
+    	propSecondMoveInABit = getBooleanFromArray(pArray, 19/*"19"*/);		// move in a bit
+    
+		propSecondIndicatorStyle = getNumberFromArray(pArray, 11/*"11"*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);
+	 	if (propSecondIndicatorStyle<0 || propSecondIndicatorStyle>=12/*SECONDFONT_UNUSED*/)
+	 	{
+	 		propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/;
+	 	}
+
+		if ((propSecondIndicatorOn&(0x01/*ITEM_ON*/|0x02/*ITEM_ONGLANCE*/))!=0)
+		{
+			// calculate the seconds color array
+	    	var secondColorIndex = getColorIndexFromArray(pArray, 13/*"13"*/, 0);		// second color
+	    	var secondColorIndex5 = getColorIndexFromArray(pArray, 14/*"14"*/, -1);
+	    	var secondColorIndex10 = getColorIndexFromArray(pArray, 15/*"15"*/, -1);
+	    	var secondColorIndex15 = getColorIndexFromArray(pArray, 16/*"16"*/, -1);
+	    	var secondColorIndex0 = getColorIndexFromArray(pArray, 17/*"17"*/, -1);
+	    	var secondColorDemo = getBooleanFromArray(pArray, 18/*"18"*/);		// second color demo
+	    	for (var i=0; i<60; i++)
+	    	{
+				var col;
+		
+		        if (secondColorDemo)		// second color demo
+		        {
+		        	col = 4 + i;
+		        }
+				else if (secondColorIndex0!=COLOR_NOTSET && i==0)
+				{
+					col = secondColorIndex0;
+				}
+				else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
+				{
+					col = secondColorIndex15;
+				}
+				else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
+				{
+					col = secondColorIndex10;
+				}
+				else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
+				{
+					col = secondColorIndex5;
+				}
+		        else
+		        {
+		        	col = secondColorIndex;		// second color
+		        }
+		        
+		        secondsColorIndexArray[i] = col;
+		    }
+
+// this test code now works out exactly the same size as the original above!
+//			// Initialising the array like this works out 100 bytes more expensive
+//			//var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
+//			var colArray = new [6];
+//			colArray[0] = propertiesGetColorIndex("13", 0);
+//			for (var i=2; i<6; i++)
+//			{
+//				colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
+//			}			
+//	    	var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
+//		
+//			// this for loop is 30 bytes cheaper than original
+//	    	for (var i=0; i<60; i++)
+//	    	{
+//				colArray[1] = 4+i;
+//				var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
+//				secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
+//			}		
+		}
+		
+		propOuterOn = getNumberFromArray(pArray, 20/*"20"*/);		// outer ring on
+		propOuterMode = getNumberFromArray(pArray, 21/*"21"*/);
+		propOuterColorFilled = getColorFromArray(pArray, 22/*"22"*/, -1);
+		propOuterColorUnfilled = getColorFromArray(pArray, 23/*"23"*/, -1);
+
+    	propFieldFont = getNumberFromArray(pArray, 24/*"24"*/);
+   		propFieldFont += ((propFieldFont<24/*APPFONT_SYSTEM_XTINY*/) ? getNumberFromArray(pArray, 25/*"25"*/) : 0);		// add weight to non system fonts 
+		if (propFieldFont<6/*APPFONT_ULTRA_LIGHT_TINY*/ || propFieldFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
+		{
+			propFieldFont = 15/*APPFONT_REGULAR_SMALL*/;
+		}
+		
+		propFieldFontSystemCase = getNumberFromArray(pArray, 26/*"26"*/);		// get case for system fonts
+    	propFieldFontUnsupported = getNumberFromArray(pArray, 27/*"27"*/);
+		
+		propMoveBarOffColorIndex = getColorIndexFromArray(pArray, 28/*"28"*/, -1);
+
+    	propMoveBarAlertTriggerLevel = getNumberFromArray(pArray, 29/*"29"*/); 
+
+	    propBatteryHighPercentage = getNumberFromArray(pArray, 30/*"30"*/);
+	    propBatteryLowPercentage = getNumberFromArray(pArray, 31/*"31"*/);
+
+		propDemoFontStylesOn = getBooleanFromArray(pArray, 32/*"32"*/);
+		propDemoSecondStylesOn = getBooleanFromArray(pArray, 33/*"33"*/);		// demo second styles on
+
+		propDemoDisplayOn = getBooleanFromArray(pArray, 34/*"34"*/);
+		
+		propGlanceProfile = getNumberFromArray(pArray, 35/*"35"*/);
+		
+		prop2ndTimeZoneOffset = getNumberFromArray(pArray, 37/*"37"*/);
+    }
+    
+    (:m2app)
+    function copyPropertiesToArray(pArray)
+    {
+    }
     
 	var hasDoNotDisturb;
 	var hasLTE;
@@ -160,10 +395,6 @@ class myView extends WatchUi.WatchFace
 	var fieldActiveNotificationsCount = null;
 	var fieldActiveLTEStatus = null;
 
-    const PROFILE_NUM_PROPERTIES = 38;
-    //const PROFILE_PROPERTY_COLON = 36;
-    //const PROFILE_PROPERTY_2ND_TIME_ZONE_OFFSET = 37;
-	
 //	const PROFILE_PRIVATE_INDEX = -1;			// only used for temporary storage while app is running
 
 	// Time is stored as hour*60 + minutes
@@ -381,7 +612,7 @@ class myView extends WatchUi.WatchFace
 
 	const COLOR_NOTSET = -1;	// just used in the code to indicate no color set
 	
-	function getColorArray(i)
+	function getColor64(i)
 	{
 		if (i<0)
 		{
@@ -912,63 +1143,6 @@ class myView extends WatchUi.WatchFace
 		return ((v != null) ? v : 0);
 	}
 
-	function propMyDataSetValue(p, v)
-	{
-		if ((p>=0) && (p<propMyData.size()))
-		{
-			propMyData[p] = v;
-		}
-	}
-	
-	function propMyDataGetBoolean(p)
-	{
-		var v = false;
-		if ((p>=0) && (p<propMyData.size()) && (propMyData[p]!=null) && (propMyData[p] instanceof Boolean))
-		{
-			v = propMyData[p];
-		}
-		return v;
-	}
-	
-	function propMyDataGetNumber(p)
-	{
-		var v = 0;
-		if ((p>=0) && (p<propMyData.size()) && (propMyData[p]!=null) && !(propMyData[p] instanceof Boolean))
-		{
-			v = propMyData[p].toNumber();
-			if (v == null)
-			{
-				v = 0;
-			}
-		}
-		return v;
-	}
-	
-	function propMyDataGetString(p)
-	{	
-		var v = "";
-		if ((p>=0) && (p<propMyData.size()) && (propMyData[p]!=null))
-		{
-			v = propMyData[p].toString();
-		}
-		return v;
-	}
-	
-	function propMyDataGetCharArray(p)
-	{	
-		return propMyDataGetString(p).toCharArray();
-	}
-	
-	function propMyDataGetColor(p, minV)
-	{				
-		return getColorArray(propMyDataGetColorIndex(p, minV));
-	}
-
-	function propMyDataGetColorIndex(p, minV)
-	{
-		return getMinMax(propMyDataGetNumber(p), minV, 63);
-	}
-
 	function propertiesGetBoolean(p)
 	{
 		// this test code for null works fine
@@ -1074,7 +1248,7 @@ class myView extends WatchUi.WatchFace
 
 //	function propertiesGetColor(p, minV)
 //	{				
-//		return getColorArray(propertiesGetColorIndex(p, minV));
+//		return getColor64(propertiesGetColorIndex(p, minV));
 //	}
 //
 //	(:m1normal)
@@ -1439,8 +1613,10 @@ class myView extends WatchUi.WatchFace
 			tempResource = null;
 		}
 
-		// initialize propFieldData
+		// load the profile to display
 		loadProfile(26);
+
+//		// initialize propFieldData
 //		{
 //			var sArray = storage.getValue("F");		// load saved prop field data from storage
 //		 	var sArraySize = ((sArray!=null) ? sArray.size() : 0);
@@ -1538,7 +1714,7 @@ class myView extends WatchUi.WatchFace
 		applicationStorage.setValue("C", saveData);
 		
 		// store the current field data to storage - used only when watchface next loaded
-		applicationStorage.setValue("F", propFieldData);	// seems to work storing a byte array ...
+//		applicationStorage.setValue("F", propFieldData);	// seems to work storing a byte array ...
 	}
 
 	// called from the app when it is being ended
@@ -2008,29 +2184,27 @@ class myView extends WatchUi.WatchFace
 	{
 		var changed = false;
         
-        if (propMyDataGetBoolean(32/*"32"*/) /*|| forceDemoFontStyles*/)		// demo font styles on
+        if (propDemoFontStylesOn /*|| forceDemoFontStyles*/)		// demo font styles on
         {
 	        if ((index%3)==0 || forceChange)
 	        { 
 	        	var index3 = index/3;
 	        
-				propMyDataSetValue(4 /*"4"*/, (index3/6)%6);		// time hour font
-				propMyDataSetValue(6 /*"6"*/, index3%6);			// time minute font
+				propTimeHourFont = ((index3/6)%6);		// time hour font
+				propTimeMinuteFont = (index3%6);			// time minute font
+				propTimeItalic = (((index3/36)%2)==1); // && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));		// italic
 		
-		    	propMyDataSetValue(24 /*"24"*/, 6/*APPFONT_ULTRA_LIGHT_TINY*/ + 6*(index3%3));		// field font
-		    	propMyDataSetValue(25 /*"25"*/, (index3/3)%6);	// field custom weight
+		    	propFieldFont = (6/*APPFONT_ULTRA_LIGHT_TINY*/ + (6*(index3%3)) + ((index3/3)%6));		// field font & weight
 		
-				propMyDataSetValue(8 /*"8"*/, ((index3/36)%2)==1);		// italic
-
 		    	changed = true;
 		    }
 		}
 			    
-        if (propMyDataGetBoolean(33/*"33"*/))		// demo second styles on
+        if (propDemoSecondStylesOn)		// demo second styles on
         {
 	        if ((index%3)==0 || forceChange)
 	        { 
-		    	propMyDataSetValue(11 /*"11"*/, (index/3)%6/*SECONDFONT_TRI_IN*/);		// second indicator style - cycles every 18
+		    	propSecondIndicatorStyle = ((index/3)%6/*SECONDFONT_TRI_IN*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);		// second indicator style - cycles every 18
 		
 		    	changed = true;
 		    }
@@ -2039,7 +2213,7 @@ class myView extends WatchUi.WatchFace
 			// 4, 5, 6, 7 -> 0/*REFRESH_EVERY_SECOND*/
 			// 8, 9, 10 -> 1/*REFRESH_EVERY_MINUTE*/
         	// prime number to be out of sync with indicator style
-			propMyDataSetValue(12 /*"12"*/, ((index%11)/4 + 2)%3);		// second refresh style
+			propSecondRefreshStyle = (((index%11)/4 + 2)%3);		// second refresh style
 
 //        	var srs = index%11;		// prime number to be out of sync with indicator style
 //        	if (srs<3)		// 0, 1, 2
@@ -2139,113 +2313,6 @@ class myView extends WatchUi.WatchFace
     function getGlobalProperties()
     {
 		propSunAltitudeAdjust = propertiesGetBoolean("SA");
-    
-		propBackgroundColor = propMyDataGetColor(1/*"1"*/, 0);
-
-    	propTimeOn = propMyDataGetNumber(2/*"2"*/);
-   		propTimeHourFont = propMyDataGetNumber(4/*"4"*/);
-	 	if (propTimeHourFont<0 || propTimeHourFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
-	 	{
-	 		propTimeHourFont = 3/*APPFONT_REGULAR*/;
-	 	}
-		propTimeHourColor = propMyDataGetColor(5/*"5"*/, 0);
-   		propTimeMinuteFont = propMyDataGetNumber(6/*"6"*/);
-		if (propTimeMinuteFont<0 || propTimeMinuteFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
-		{
-	 		propTimeMinuteFont = 3/*APPFONT_REGULAR*/;
-		}
-		propTimeMinuteColor = propMyDataGetColor(7/*"7"*/, 0);
-		propTimeColon = propMyDataGetColor(36/*"36"*/, -1);
-    	propTimeItalic = (propMyDataGetBoolean(8/*"8"*/) && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));
-		propTimeYOffset = propMyDataGetNumber(9/*"9"*/);
-    	
-    	propSecondIndicatorOn = propMyDataGetNumber(10/*"10"*/);
-    	propSecondRefreshStyle = propMyDataGetNumber(12/*"12"*/);
-    	propSecondMoveInABit = propMyDataGetBoolean(19/*"19"*/);		// move in a bit
-    
-		propSecondIndicatorStyle = propMyDataGetNumber(11/*"11"*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);
-	 	if (propSecondIndicatorStyle<0 || propSecondIndicatorStyle>=12/*SECONDFONT_UNUSED*/)
-	 	{
-	 		propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/;
-	 	}
-
-		if ((propSecondIndicatorOn&(0x01/*ITEM_ON*/|0x02/*ITEM_ONGLANCE*/))!=0)
-		{
-			// calculate the seconds color array
-	    	var secondColorIndex = propMyDataGetColorIndex(13/*"13"*/, 0);		// second color
-	    	var secondColorIndex5 = propMyDataGetColorIndex(14/*"14"*/, -1);
-	    	var secondColorIndex10 = propMyDataGetColorIndex(15/*"15"*/, -1);
-	    	var secondColorIndex15 = propMyDataGetColorIndex(16/*"16"*/, -1);
-	    	var secondColorIndex0 = propMyDataGetColorIndex(17/*"17"*/, -1);
-	    	var secondColorDemo = propMyDataGetBoolean(18/*"18"*/);		// second color demo
-	    	for (var i=0; i<60; i++)
-	    	{
-				var col;
-		
-		        if (secondColorDemo)		// second color demo
-		        {
-		        	col = 4 + i;
-		        }
-				else if (secondColorIndex0!=COLOR_NOTSET && i==0)
-				{
-					col = secondColorIndex0;
-				}
-				else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
-				{
-					col = secondColorIndex15;
-				}
-				else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
-				{
-					col = secondColorIndex10;
-				}
-				else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
-				{
-					col = secondColorIndex5;
-				}
-		        else
-		        {
-		        	col = secondColorIndex;		// second color
-		        }
-		        
-		        secondsColorIndexArray[i] = col;
-		    }
-
-// this test code now works out exactly the same size as the original above!
-//			// Initialising the array like this works out 100 bytes more expensive
-//			//var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
-//			var colArray = new [6];
-//			colArray[0] = propertiesGetColorIndex("13", 0);
-//			for (var i=2; i<6; i++)
-//			{
-//				colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
-//			}			
-//	    	var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
-//		
-//			// this for loop is 30 bytes cheaper than original
-//	    	for (var i=0; i<60; i++)
-//	    	{
-//				colArray[1] = 4+i;
-//				var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
-//				secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
-//			}		
-		}
-		
-    	propFieldFont = propMyDataGetNumber(24/*"24"*/);
-   		propFieldFont += ((propFieldFont<24/*APPFONT_SYSTEM_XTINY*/) ? propMyDataGetNumber(25/*"25"*/) : 0);		// add weight to non system fonts 
-		if (propFieldFont<6/*APPFONT_ULTRA_LIGHT_TINY*/ || propFieldFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
-		{
-			propFieldFont = 15/*APPFONT_REGULAR_SMALL*/;
-		}
-		
-    	propFieldFontUnsupported = propMyDataGetNumber(27/*"27"*/);
-		
-		propOuterOn = propMyDataGetNumber(20/*"20"*/);		// outer ring on
-		propOuterColorFilled = propMyDataGetColor(22/*"22"*/, -1);
-		propOuterColorUnfilled = propMyDataGetColor(23/*"23"*/, -1);
-
-		propMoveBarOffColorIndex = propMyDataGetColorIndex(28/*"28"*/, -1);
-
-		propDemoDisplayOn = propMyDataGetBoolean(34/*"34"*/);
 	}
     
     function releaseDynamicResources()
@@ -2519,7 +2586,7 @@ class myView extends WatchUi.WatchFace
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		var dayNumberOfWeek = (((dateInfoShort.day_of_week - firstDayOfWeek + 7) % 7) + 1);		// 1-7
 		
-		var hour2nd = (hour - clockTime.timeZoneOffset/3600 + propMyDataGetNumber(37/*"37"*/) + 24)%24;		// 2nd time zone
+		var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 24)%24;		// 2nd time zone
 
 		// check for position every onUpdate - this is so we can get and store a position from the latest activity
 		// (even if that position isn't currently being used by anything)
@@ -2534,8 +2601,7 @@ class myView extends WatchUi.WatchFace
 		//System.println("hour2=" + gregorian.info(Time.getCurrentTime(null), Time.FORMAT_SHORT).hour + " utc2=" + gregorian.utcInfo(Time.getCurrentTime(null), Time.FORMAT_SHORT).hour);
         
         // Get the current time and format it correctly
-        var addLeadingZero = propMyDataGetBoolean(3/*"3"*/);
-    	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, addLeadingZero);
+    	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
         var minuteString = minute.format("%02d");
 
 		// calculate main time display
@@ -2613,10 +2679,8 @@ class myView extends WatchUi.WatchFace
 	    visibilityStatus[9/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
 	    visibilityStatus[10/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
 	    var batteryLevel = systemStats.battery;
-	    var batteryHighPercentage = propMyDataGetNumber(30/*"30"*/);
-	    var batteryLowPercentage = propMyDataGetNumber(31/*"31"*/);
-	    visibilityStatus[12/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=batteryHighPercentage);
-	    visibilityStatus[14/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=batteryLowPercentage);
+	    visibilityStatus[12/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
+	    visibilityStatus[14/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
 	    visibilityStatus[13/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[14/*STATUS_BATTERY_LOW*/]);
 	    visibilityStatus[11/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[14/*STATUS_BATTERY_LOW*/];
 		// moveBarLevel 0 = not triggered
@@ -2624,7 +2688,7 @@ class myView extends WatchUi.WatchFace
 		// propFieldMoveAlarmTriggerTime has range 1 to 5
 		var activityTrackingOn = deviceSettings.activityTrackingOn;
 		var activityMonitorMoveBarLevel = getNullCheckZero(activityMonitorInfo.moveBarLevel);
-	    var moveBarAlertTriggered = (activityMonitorMoveBarLevel >= propMyDataGetNumber(29/*"29"*/)); 
+	    var moveBarAlertTriggered = (activityMonitorMoveBarLevel >= propMoveBarAlertTriggerLevel); 
 	    visibilityStatus[15/*STATUS_MOVEBARALERT_TRIGGERED*/] = (activityTrackingOn && moveBarAlertTriggered);
 	    visibilityStatus[16/*STATUS_MOVEBARALERT_NOT*/] = (activityTrackingOn && !moveBarAlertTriggered);
 	    visibilityStatus[17/*STATUS_AM*/] = (hour < 12);
@@ -2645,7 +2709,6 @@ class myView extends WatchUi.WatchFace
 		fieldActiveNotificationsCount = null;
 		fieldActiveLTEStatus = null;
 
-		var fontSystemCase = propMyDataGetNumber(26/*"26"*/);		// get case for system fonts
 		var fieldFontIsCustom = (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/);
 		
     	for (var f=0; f<FIELD_NUM; f++)
@@ -2748,11 +2811,11 @@ class myView extends WatchUi.WatchFace
 												eFlags |= 0x2000/*eUseUnsupportedFont*/;
 											
 												// will be using system font - so use case for that as specified by user
-												if (fontSystemCase==1)	// APPCASE_UPPER = 1
+												if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
 												{
 													eStr = tempStr;
 												}
-												else if (fontSystemCase==2)	// APPCASE_LOWER = 2
+												else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
 												{
 													eStr = eStr.toLower();
 												}
@@ -2769,11 +2832,11 @@ class myView extends WatchUi.WatchFace
 										}
 										else
 										{
-											if (fontSystemCase==1)	// APPCASE_UPPER = 1
+											if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
 											{
 												makeUpperCase = true;
 											}
-											else if (fontSystemCase==2)	// APPCASE_LOWER = 2
+											else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
 											{
 												eStr = eStr.toLower();
 											}
@@ -3014,7 +3077,7 @@ class myView extends WatchUi.WatchFace
 											}
 											else
 											{
-    											eStr = formatHourForDisplayString((t/60)%24, deviceSettings.is24Hour, addLeadingZero);	// hours
+    											eStr = formatHourForDisplayString((t/60)%24, deviceSettings.is24Hour, propAddLeadingZero);	// hours
 											}
 	        							}
 	        							else
@@ -3027,7 +3090,7 @@ class myView extends WatchUi.WatchFace
 
 									case 88/*FIELD_2ND_HOUR*/:
 									{
-										eStr = formatHourForDisplayString(hour2nd, deviceSettings.is24Hour, addLeadingZero);	// hours
+										eStr = formatHourForDisplayString(hour2nd, deviceSettings.is24Hour, propAddLeadingZero);	// hours
 										break;
 									}
 
@@ -3144,19 +3207,17 @@ class myView extends WatchUi.WatchFace
 		{
 			backgroundOuterFillStart = -1;
 
-			var outerMode = propMyDataGetNumber(21/*"21"*/);
-	
-			if (outerMode==1)		// steps
+			if (propOuterMode==1)		// steps
 			{
 				getValueOuterFillStartEnd(activityMonitorSteps, activityMonitorStepGoal);
 			}
-			else if (outerMode==2)			// minutes
+			else if (propOuterMode==2)			// minutes
 			{
 	    		backgroundOuterFillEnd = minute - 1;
 			}
-			else if (outerMode==3 || outerMode==5)		// hours or 2nd time zone hours
+			else if (propOuterMode==3 || propOuterMode==5)		// hours or 2nd time zone hours
 			{
-				var useHour = ((outerMode==3) ? hour : hour2nd);  
+				var useHour = ((propOuterMode==3) ? hour : hour2nd);  
 		        if (deviceSettings.is24Hour)
 		        {
 	        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
@@ -3167,34 +3228,34 @@ class myView extends WatchUi.WatchFace
 	        		backgroundOuterFillEnd = ((useHour%12)*60 + minute) / 12 - 1;
 		        }
 	   		}
-	   		else if (outerMode==4)		// battery percentage
+	   		else if (propOuterMode==4)		// battery percentage
 	   		{
 				backgroundOuterFillEnd = (systemStats.battery * 60).toNumber() / 100 - 1;
 	   		}
-	   		else if (outerMode==6)		// sunrise & sunset now top
+	   		else if (propOuterMode==6)		// sunrise & sunset now top
 	   		{
 				getSunOuterFillStartEnd(timeNowInMinutesToday, dateInfoShort);
 	   		}
-	   		else if (outerMode==7)		// sunrise & sunset midnight top
+	   		else if (propOuterMode==7)		// sunrise & sunset midnight top
 	   		{
 				getSunOuterFillStartEnd(0, dateInfoShort);
 	   		}
-	   		else if (outerMode==8)		// sunrise & sunset noon top
+	   		else if (propOuterMode==8)		// sunrise & sunset noon top
 	   		{
 				getSunOuterFillStartEnd(12*60, dateInfoShort);
 	   		}
-			else if (outerMode==9 || outerMode==10)		// intensity
+			else if (propOuterMode==9 || propOuterMode==10)		// intensity
 			{
 				// intensity minutes (weekly)
 				// smart intensity minutes
-				getValueOuterFillStartEnd(activityMonitorActiveMinutesWeekTotal, (outerMode==9) ? activityMonitorActiveMinutesWeekGoal : activeMinutesWeekSmartGoal);
+				getValueOuterFillStartEnd(activityMonitorActiveMinutesWeekTotal, (propOuterMode==9) ? activityMonitorActiveMinutesWeekGoal : activeMinutesWeekSmartGoal);
 			}
-	   		else if (outerMode==11)			// heart rate
+	   		else if (propOuterMode==11)			// heart rate
 	   		{
 				calculateHeartRate(minute, second);
 				backgroundOuterFillEnd = getMinMax((heartDisplayLatest * 60) / heartMaxZone5, 0, 60) - 1;
 	   		}
-			else /*if (outerMode==0)*/		// plain color
+			else /*if (propOuterMode==0)*/		// plain color
 			{
 				backgroundOuterFillEnd = 59;
 			}
@@ -3383,7 +3444,7 @@ class myView extends WatchUi.WatchFace
 		// test draw background of offscreen buffer in a different color
 		//if (toBuffer)
 		//{
-	    //	useDc.setColor(-1/*COLOR_TRANSPARENT*/, getColorArray(4+42+(bufferIndex*4)%12));
+	    //	useDc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferIndex*4)%12));
 		//}
         useDc.clear();
 		
@@ -3441,7 +3502,7 @@ class myView extends WatchUi.WatchFace
 							if (eHeart!=0)
 							{
 								curFont = null;
-								drawHeartChart(useDc, dateX, dateY+6, getColorArray(backgroundFieldInfoColorIndex[i]), eHeart);		// draw heart rate chart
+								drawHeartChart(useDc, dateX, dateY+6, getColor64(backgroundFieldInfoColorIndex[i]), eHeart);		// draw heart rate chart
 							}
 							else if ((w&0x1000/*eIsIcon*/)!=0)		// isIcon
 							{
@@ -3481,7 +3542,7 @@ class myView extends WatchUi.WatchFace
 			
 							if (curFont!=null)
 							{
-						        useDc.setColor(getColorArray(backgroundFieldInfoColorIndex[i]), -1/*COLOR_TRANSPARENT*/);
+						        useDc.setColor(getColor64(backgroundFieldInfoColorIndex[i]), -1/*COLOR_TRANSPARENT*/);
 	
 								var s = StringUtil.charArrayToString(backgroundFieldInfoCharArray.slice(sLen, eLen));
 				        		useDc.drawText(dateX, dateY, curFont, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -3681,7 +3742,7 @@ class myView extends WatchUi.WatchFace
 						var x = 120 + j * 20 - dcX;
 						if (x<=dcWidth && (x+20)>=0)
 						{
-				   			useDc.setColor(getColorArray(4 + (i+3) + (j+5)*6), -1/*COLOR_TRANSPARENT*/);
+				   			useDc.setColor(getColor64(4 + (i+3) + (j+5)*6), -1/*COLOR_TRANSPARENT*/);
 							useDc.drawText(x, y, iconsFontResource, "F", 2/*TEXT_JUSTIFY_LEFT*/);	// solid squares
 						}
 					}
@@ -3941,7 +4002,7 @@ class myView extends WatchUi.WatchFace
 	   		var xyIndex = startIndex + (propSecondMoveInABit ? 60 : 0);
 	    	for (var index=startIndex; index<=endIndex; index++, xyIndex++)
 	    	{
-				var col = getColorArray(secondsColorIndexArray[index]);
+				var col = getColor64(secondsColorIndexArray[index]);
 		
 		        if (curCol != col)
 		        {
@@ -3949,7 +4010,7 @@ class myView extends WatchUi.WatchFace
 		       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
 		       	}
 		       	//dc.setColor(col, graphics.COLOR_GREEN);
-		       	//dc.setColor(getColorArray(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
+		       	//dc.setColor(getColor64(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 		       	
 		       	//var s = characterString.substring(index+9, index+10);
 				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
@@ -4033,11 +4094,10 @@ class myView extends WatchUi.WatchFace
 		{
 			if (profileGlance<0)
 			{
-				var check = propMyDataGetNumber(35/*"35"*/) - 1;		// 0 (goes to -1) which means none
-				if (check>=0 && check<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+				if (propGlanceProfile>=0 && propGlanceProfile<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 				{
-					doActivate = check;
-					doActivateGlanceCheck = check;
+					doActivate = propGlanceProfile;
+					doActivateGlanceCheck = propGlanceProfile;
 					profileGlanceReturn = profileActive;	// return to this profile after glance 
 				}
 			}
@@ -4412,39 +4472,6 @@ class myView extends WatchUi.WatchFace
 //		}
 //	}
 
-	function loadProperties(profileIndex, propertiesOrFields)
-	{
-		var pArray = applicationStorage.getValue((propertiesOrFields ? "P" : "PF") + profileIndex);
-		if (pArray != null)
-		{
-			var size = (propertiesOrFields ? PROFILE_NUM_PROPERTIES : (FIELD_NUM*FIELD_NUM_PROPERTIES));
-			if (pArray.size() < size)
-			{
-				size = pArray.size();
-			}
-
-			for (var i=0; i<size; i++)
-			{
-				if (propertiesOrFields)
-				{
-					//propertiesSetValueForProfile(i, pArray[i]);
-					propMyData[i] = pArray[i];
-				}
-				else
-				{
-					// ok not to check byte value range as loading from byte array (user profile)
-					propFieldData[i] = pArray[i];
-				}
-			}
-
-//			// special code to turn off colon separator for older (shorter) profiles
-//			if (propertiesOrFields && size==36/*PROFILE_PROPERTY_COLON*/)
-//			{
-//				propertiesSetColor("36", -1);
-//			}
-		}
-	}
-
 	function loadGetProfileTimeString(t, isSunrise, isSunset)
 	{
 		var s = "";
@@ -4479,8 +4506,32 @@ class myView extends WatchUi.WatchFace
 
 		if (profileIndex>=0 /*PROFILE_PRIVATE_INDEX*/ && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 		{
-			loadProperties(profileIndex, true);
-			loadProperties(profileIndex, false);
+			// load normal properties
+			{
+				var pArray = applicationStorage.getValue("P"+profileIndex);
+				if (pArray != null)
+				{
+					getPropertiesFromArray(pArray);
+
+					pArray = null;
+				}
+			}
+			
+			// load field data
+			{
+				var pArray = applicationStorage.getValue("PF"+profileIndex);
+				if (pArray != null)
+				{
+					var size = ((pArray.size() < (FIELD_NUM*FIELD_NUM_PROPERTIES)) ? pArray.size() : (FIELD_NUM*FIELD_NUM_PROPERTIES));
+					for (var i=0; i<size; i++)
+					{
+						// ok not to check byte value range as loading from byte array (user profile)
+						propFieldData[i] = pArray[i];
+					}
+
+					pArray = null;
+				}
+			}
 			
 //			properties.setValue("FM", 0x10/*ITEM_RETRIEVE*/);	// set field management to retrieve - so that properties are updated to match field settings
 			
