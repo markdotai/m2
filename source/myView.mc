@@ -390,6 +390,11 @@ class myView extends WatchUi.WatchFace
 	var hasPressureHistory;
 	var hasHeartRateHistory;
 
+	function lteConnected()
+	{
+		return (hasLTE && (System.getDeviceSettings().connectionInfo[:lte].state==System.CONNECTION_STATE_CONNECTED));
+    }
+        	
 	var fieldActivePhoneStatus = null;
 	var fieldActiveNotificationsStatus = null;
 	var fieldActiveNotificationsCount = null;
@@ -417,10 +422,10 @@ class myView extends WatchUi.WatchFace
 	//const PROFILE_END_SUNRISE = 0x0400;
 	//const PROFILE_END_SUNSET = 0x0800;
 	
-	var profileActive = 26 /*PROFILE_PRIVATE_INDEX*/;	// currently active profile
-	var profileDelayEnd = 0;		// after manually changing settings then any automatic profile loads get delayed until this moment
+	var profileActive = 26;		// currently active profile
+	var profileDelayEnd = 0;	// after manually changing settings then any automatic profile loads get delayed until this moment
 	var profileGlance = -1;		// -1 means no glance profile active
-	var profileGlanceReturn = 26 /*PROFILE_PRIVATE_INDEX*/;
+	var profileGlanceReturn = 0;
 	var profileRandom = -1;		// -1 means no random profile active
 	var profileRandomEnd = 0;
 	var profileRandomLastMin = -1;		// last minute number that we did the random checks
@@ -863,6 +868,16 @@ class myView extends WatchUi.WatchFace
 	var backgroundOuterFillStart;	// first segment of outer ring to draw as filled (-1 to 59)
 	var backgroundOuterFillEnd;		// last segment of outer ring to draw as filled (-1 to 59)
 
+	function getMinMax(v, min, max)
+	{
+		return (v<min) ? min : ((v>max) ? max : v);
+	}
+
+	function getNullCheckZero(v)
+	{
+		return ((v != null) ? v : 0);
+	}
+
 	//enum
 	//{
 	//	//!APPFONT_ULTRA_LIGHT = 0,
@@ -1128,21 +1143,6 @@ class myView extends WatchUi.WatchFace
 		return [c, diacritic];
 	}
 	
-	function lteConnected()
-	{
-		return (hasLTE && (System.getDeviceSettings().connectionInfo[:lte].state==System.CONNECTION_STATE_CONNECTED));
-    }
-        	
-	function getMinMax(v, min, max)
-	{
-		return (v<min) ? min : ((v>max) ? max : v);
-	}
-
-	function getNullCheckZero(v)
-	{
-		return ((v != null) ? v : 0);
-	}
-
 	function propertiesGetBoolean(p)
 	{
 		// this test code for null works fine
@@ -1613,9 +1613,6 @@ class myView extends WatchUi.WatchFace
 			tempResource = null;
 		}
 
-		// load the profile to display
-		loadProfile(26);
-
 //		// initialize propFieldData
 //		{
 //			var sArray = storage.getValue("F");		// load saved prop field data from storage
@@ -1651,6 +1648,8 @@ class myView extends WatchUi.WatchFace
 //		}
 						
 		var timeNowValue = Time.now().value();
+
+		initHeartSamples(timeNowValue);
 
 		// remember which profile was active and also any profileDelayEnd value
 		// - then checkProfiles will know whether to restore the private profile or not
@@ -1696,9 +1695,15 @@ class myView extends WatchUi.WatchFace
 			saveData = null;
 		}
 
-		initProfiles();			// load profile times and save out a first version of the private profile to storage if it doesn't exist
-		
-		initHeartSamples(timeNowValue);
+		// load profile times from storage
+		{
+			var sArray = storage.getValue("PT");			// profile times
+			var sArraySize = ((sArray!=null) ? sArray.size() : 0);
+			for (var i=0; i<PROFILE_NUM_USER*2; i++)
+			{
+				profileTimes[i] = ((i<sArraySize) ? sArray[i] : 0);
+			}
+		}
     }
 
 	function saveDataForStop()
@@ -2108,7 +2113,7 @@ class myView extends WatchUi.WatchFace
 			}
 			else if (profileManagement == 3)		// load from profile
 			{
-				loadProfile(profileNumber);			// will set profileActive
+//				loadProfile(profileNumber);			// will set profileActive
 			}
 			else if (profileManagement == 7)		// copy profile to watch settings
 			{
@@ -2117,14 +2122,14 @@ class myView extends WatchUi.WatchFace
 			}
 			else if (profileManagement == 4)
 			{
-				exportProfile(profileNumber);
-				loadProfile(profileNumber);			// also load it to show the user what they exported
+//				exportProfile(profileNumber);
+//				loadProfile(profileNumber);			// also load it to show the user what they exported
 			}
 			else if (profileManagement == 5)
 			{
-				importProfile(profileNumber);
-				clearExportImportStrings();			// clear the export/import strings before load 
-				loadProfile(profileNumber);			// also load it to show the user what they imported
+//				importProfile(profileNumber);
+//				clearExportImportStrings();			// clear the export/import strings before load 
+//				loadProfile(profileNumber);			// also load it to show the user what they imported
 			}
 			else //if (profileManagement == 6)		// profile was active (so settings won't get changed)
 			{
@@ -2132,7 +2137,7 @@ class myView extends WatchUi.WatchFace
 
 				// always load this even though it was currently active
 				// - otherwise whatever settings are in the users window get applied, which is confusing! 
-				loadProfile(profileActive);			// sets field management property to retrieve
+//				loadProfile(profileActive);			// sets field management property to retrieve
 				
 				// if we didn't have this setting, then whenever the user leaves the watchface (e.g. to a widget)
 				// and returns while a profile was active, then those profile settings would get saved to the 
@@ -2176,6 +2181,8 @@ class myView extends WatchUi.WatchFace
 			profileRandomEnd = 0;							// clear this
 			demoProfilesCurrentEnd = 0;
 		}
+
+		propSunAltitudeAdjust = propertiesGetBoolean("SA");
 	}
 		
 	// forceChange is set to true when either the settings have been changed by the user or a new profile has loaded
@@ -2309,12 +2316,6 @@ class myView extends WatchUi.WatchFace
 //    	}
 //	}
 		
-    // Get values for all our settings
-    function getGlobalProperties()
-    {
-		propSunAltitudeAdjust = propertiesGetBoolean("SA");
-	}
-    
     function releaseDynamicResources()
     {
 		// allow all old resources to be freed immediately and at same time
@@ -2495,7 +2496,7 @@ class myView extends WatchUi.WatchFace
         var timeNowInMinutesToday = hour*60 + minute;
 		var profileToActivate;
 		var demoSettingsChanged;
-		var doGetPropertiesAndDynamicResources = false;
+		var doLoadDynamicResources = false;
 		var forceDemoSettingsChange = false;
 
         //View.onUpdate(dc);        // Call the parent onUpdate function to redraw the layout
@@ -2519,39 +2520,40 @@ class myView extends WatchUi.WatchFace
 			profileRandomLastMin = minute;	// don't do a random profile change on first minute (after initialize or settings change)
 
 			releaseDynamicResources();						// also done in onSettingsChanged()
-			doGetPropertiesAndDynamicResources = true;
+			doLoadDynamicResources = true;
 			forceDemoSettingsChange = true;
 			
 			handleSettingsChanged(second);		// save/load/export/import etc
-
-			settingsHaveChanged = false;			// clear the flag now as it has been handled (do after handleSettingsChanged)
-			firstUpdateSinceInitialize = false;		// and make sure this is cleared now also
 		}
 					
 		profileToActivate = checkProfileToActivate(timeNow);
 		if (profileToActivate != profileActive)
 		{
 			releaseDynamicResources();
-			doGetPropertiesAndDynamicResources = true;
+			doLoadDynamicResources = true;
 			forceDemoSettingsChange = true;
 			
 			clearExportImportStrings();				// clear the export/import strings before load (won't match properties or watch display after load anyway) 
 			loadProfile(profileToActivate);			// will set profileActive
-//			getOrSetPropFieldDataProperties();
 			profileGlance = doActivateGlanceCheck;		// set this after loadProfile, so it gets remembered
 		}
+		else if (firstUpdateSinceInitialize)
+		{
+			loadProfile(profileActive);
+		}
+
+		settingsHaveChanged = false;			// clear the flag now as it has been handled (do after handleSettingsChanged)
+		firstUpdateSinceInitialize = false;		// and make sure this is cleared now also
 
     	demoSettingsChanged = checkDemoSettings(timeNowInMinutesToday, forceDemoSettingsChange);
     	if (demoSettingsChanged)
     	{
 			releaseDynamicResources();
-			doGetPropertiesAndDynamicResources = true;
+			doLoadDynamicResources = true;
 		}
 
-        if (doGetPropertiesAndDynamicResources)
+        if (doLoadDynamicResources)
         {
-   			getGlobalProperties();
-   			
 			loadDynamicResources();
         }
         
@@ -4020,27 +4022,6 @@ class myView extends WatchUi.WatchFace
 		}
     }
 
-	function initProfiles()
-	{
-       	var storage = applicationStorage;
-
-		// load times from storage
-		var sArray = storage.getValue("PT");			// profile times
-		var sArraySize = ((sArray!=null) ? sArray.size() : 0);
-		for (var i=0; i<PROFILE_NUM_USER*2; i++)
-		{
-			profileTimes[i] = ((i<sArraySize) ? sArray[i] : 0);
-		}
-
-//		// and also save out a first version of the private profile to storage (so it is always available later on)
-//		// Note this would probably get done in onUpdate first time after initialize anyway - but wouldn't if someone changed the profile
-//		// management property before ever running the watchface.
-//		if (storage.getValue("P" + PROFILE_PRIVATE_INDEX) == null)
-//		{
-//			saveProfile(PROFILE_PRIVATE_INDEX);		// remember current watch settings
-//		}
-   	}
-	
 	function getProfileSunTime(time, t1, startEndShift)
 	{
 		t1 >>= startEndShift;
