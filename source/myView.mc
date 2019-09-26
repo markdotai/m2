@@ -14,7 +14,7 @@ class myView extends WatchUi.WatchFace
 	//var forceMemoryTest = new[512 /*1024*6*/]b;
 	//const forceTestFont = false;
 	//const forceTestLocation = true;
-	//const forceClearStorage = false;
+	//const forceClearStorage = true;
 	//const forceDemoProfiles = false;
 	//const forceDemoFontStyles = false;
 
@@ -33,7 +33,7 @@ class myView extends WatchUi.WatchFace
 //	{
 //	}
 
-	const PROFILE_VERSION = 20;			// a version number
+	const PROFILE_VERSION = 21;			// a version number
 	const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
 
 	var updateTimeNowValue;
@@ -1200,7 +1200,7 @@ class myView extends WatchUi.WatchFace
 		return propertiesGetString(p).toCharArray();
 	}
 	
-	// Parse 2 numbers (number seperator number) from a string
+	// Parse 2 numbers (number separator number) from a string
 	function propertiesGetTwoNumbers(p)
 	{
 		var charArray = propertiesGetCharArray(p);
@@ -1485,18 +1485,7 @@ class myView extends WatchUi.WatchFace
 		var tempResource = watchUi.loadResource(id);
 		for (var i=0; i<tempResource.size(); i++)
 		{
-			storage.setValue("P" + profileIndex, tempResource[i][0]);
-			
-			// use propFieldData byte array temporarily (it gets initialized later anyway)
-			// we convert all the resource field data to a byte array so that it is in the same format (and memory size) as any user saved profiles
-			// - then we don't need to worry about presets and user profiles acting differently when loaded/exported
-			var fArray = tempResource[i][1];
-			var fArraySize = fArray.size();					
-			for (var j=0; j<FIELD_NUM*FIELD_NUM_PROPERTIES; j++)
-			{
-				propFieldData[j] = ((j<fArraySize) ? fArray[j] : 0);
-			}
-			storage.setValue("PF" + profileIndex, propFieldData);
+			storage.setValue("P" + profileIndex, tempResource[i]);
 
 			profileIndex++;
 		}
@@ -1695,9 +1684,28 @@ class myView extends WatchUi.WatchFace
 			saveData = null;
 		}
 
+//{
+//	for (var ki=0; ki<PROFILE_NUM_USER*2; ki++)
+//	{
+//		profileTimes[ki] = 0;
+//	}
+//	applicationStorage.setValue("PT", profileTimes);
+//	var timeStamp = System.getTimer();
+//	
+//	//var sArray = applicationStorage.getValue("PT");			// 156ms
+//	
+//	for (var kk=0; kk<PROFILE_NUM_USER*2; kk++)		// 4.7ms
+//	{
+//		applicationProperties.getValue("35");
+//	}
+//
+//	System.println("PT load time = " + (System.getTimer()-timeStamp) + "ms");
+//}
+
 		// load profile times from storage
 		{
-			var sArray = storage.getValue("PT");			// profile times
+
+			var sArray = storage.getValue("PT");			// profile times (156ms)
 			var sArraySize = ((sArray!=null) ? sArray.size() : 0);
 			for (var i=0; i<PROFILE_NUM_USER*2; i++)
 			{
@@ -2076,8 +2084,6 @@ class myView extends WatchUi.WatchFace
 	function clearExportImportStrings()
 	{
 		applicationProperties.setValue("EP", "");
-		applicationProperties.setValue("EF", "");
-		applicationProperties.setValue("EG", "");
 	}
 	
 	function handleSettingsChanged(second)
@@ -2525,6 +2531,14 @@ class myView extends WatchUi.WatchFace
 			
 			handleSettingsChanged(second);		// save/load/export/import etc
 		}
+		
+//{
+//	var timeStamp = System.getTimer();
+//
+//	loadProfile(26);		// 328ms
+//	
+//	System.println("Profile26 load time = " + (System.getTimer()-timeStamp) + "ms");
+//}
 					
 		profileToActivate = checkProfileToActivate(timeNow);
 		if (profileToActivate != profileActive)
@@ -4296,19 +4310,22 @@ class myView extends WatchUi.WatchFace
 	{
 		var v = 0;
 		var vMult = 1;
+    	var allowSkip = true;    	// skip over unknown characters before first numeric character or minus or comma
 	
     	for (; parseIndex<charArraySize; parseIndex++)
     	{
     		var c = charArray[parseIndex].toNumber();
     		if (c>=48/*APPCHAR_0*/ && c<=57/*APPCHAR_9*/)
     		{
-    			v = v*10 + (c-48/*APPCHAR_0*/); 
+    			v = v*10 + (c-48/*APPCHAR_0*/);
+    			allowSkip = false; 
     		}
     		else if (c==45/*APPCHAR_MINUS*/)
     		{
     			vMult = -1;
+    			allowSkip = false; 
     		}
-    		else
+    		else if (c==44/*APPCHAR_COMMA*/ || !allowSkip)
     		{
     			break;
     		}
@@ -4325,19 +4342,8 @@ class myView extends WatchUi.WatchFace
 		n[0] = parseNumber(charArray, charArraySize);
 
 		// reached non-numeric character
-
 		parseIndex++;		// step over the separator
 		
-    	// then find next numeric character
-    	for (; parseIndex<charArraySize; parseIndex++)
-    	{
-    		var c = charArray[parseIndex].toNumber();
-       		if (c>=48/*APPCHAR_0*/ && c<=57/*APPCHAR_9*/)
-    		{
-    			break;
-    		}
-    	}
-
 		n[1] = parseNumber(charArray, charArraySize);
 		
 		//System.println("parseTwoNumbers=" + n[0] + " and " + n[1]);
@@ -4480,41 +4486,254 @@ class myView extends WatchUi.WatchFace
 		return s;
 	}
 
+//	function importPropertiesTest()	// 4.7ms
+//	{
+//applicationProperties.setValue("EP", "0,0,Icons,0,1,false,4,3,2,3,false,0,1,0,2,1,2,3,10,19,false,false,0,0,19,63,6,3,0,24,-1,1,75,25,false,false,false,0,-1");
+//		// main bulk of profile properties
+//		var charArray = propertiesGetCharArray("EP");
+//		var charArraySize = charArray.size();
+//		parseIndex = 0;
+//
+//		parseNumberComma(charArray, charArraySize);
+//		parseNumberComma(charArray, charArraySize);
+//		//applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
+//
+//		var pNum = 0;
+//		for (; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
+//		{
+//			if (pNum==0)		// "0" profile name
+//			{
+//				parseStringComma(charArray, charArraySize);
+//			}
+//			else if ((((0x1l<<3) | (0x1l<<8) | (0x1l<<18) | (0x1l<<19) | (0x1l<<32) | (0x1l<<33) | (0x1l<<34)) & (0x1l<<pNum)) != 0)
+//			{
+//				// "3" time military
+//				// "8" time italic font
+//				// "18" seconds color demo
+//				// "19" seconds move in a bit
+//				// "32" demo font styles
+//				// "33" demo second styles
+//				// "34" demo display
+//				parseBooleanComma(charArray, charArraySize);
+//			}
+//			else
+//			{
+//				parseNumberComma(charArray, charArraySize);
+//			}
+//		}
+//	}
+//	
+//var timeStamp = System.getTimer();
+//for (var jj=0; jj<15; jj++)
+//{
+//		importPropertiesTest();
+//}
+//System.println("importPropertiesTest time = " + (System.getTimer()-timeStamp) + "ms");
+		
+//	function loadProfileOld(profileIndex)
+//	{	
+//		profileActive = profileIndex;		// profile now active
+//		profileGlance = -1;					// clear glance profile if it was active
+//
+//		if (profileIndex>=0 /*PROFILE_PRIVATE_INDEX*/ && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+//		{
+//			// load normal properties
+//			{
+////var timeStamp = System.getTimer();
+//				var pArray = applicationStorage.getValue("P"+profileIndex);		// 156ms
+////System.println("P load time = " + (System.getTimer()-timeStamp) + "ms");
+//				if (pArray != null)
+//				{
+//					getPropertiesFromArray(pArray);
+//
+//					pArray = null;
+//				}
+//			}
+//
+////{
+////var timeStamp = System.getTimer();
+////	var testArray = new[FIELD_NUM*FIELD_NUM_PROPERTIES*10];	// 10 times larger but still same time
+////	applicationStorage.setValue("TEST", testArray);			// 109-172ms
+////System.println("TEST save time = " + (System.getTimer()-timeStamp) + "ms");
+////}
+////			
+////{
+////var timeStamp = System.getTimer();
+////	var testArray = applicationStorage.getValue("TEST");		// 156ms
+////System.println("TEST load time = " + (System.getTimer()-timeStamp) + "ms");
+////}
+//			
+//			// load field data
+//			{
+////var timeStamp = System.getTimer();
+//				var pArray = applicationStorage.getValue("PF"+profileIndex);		// 157ms
+////System.println("PF load time = " + (System.getTimer()-timeStamp) + "ms");
+//				if (pArray != null)
+//				{
+//					var size = ((pArray.size() < (FIELD_NUM*FIELD_NUM_PROPERTIES)) ? pArray.size() : (FIELD_NUM*FIELD_NUM_PROPERTIES));
+//					for (var i=0; i<size; i++)
+//					{
+//						// ok not to check byte value range as loading from byte array (user profile)
+//						propFieldData[i] = pArray[i];
+//					}
+//
+//					pArray = null;
+//				}
+//			}
+//			
+////			properties.setValue("FM", 0x10/*ITEM_RETRIEVE*/);	// set field management to retrieve - so that properties are updated to match field settings
+//			
+//			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
+//			{
+//				// set the profile properties from our profile times array
+//				var t0 = profileTimes[profileIndex];
+//				var t1 = profileTimes[profileIndex+PROFILE_NUM_USER];
+//				var days = (t0&0x7F/*PROFILE_DAYS_MASK*/);
+//				var startTime = (t0>>10/*PROFILE_START_SHIFT*/)&0x7FF/*PROFILE_START_MASK*/;
+//				var endTime = (t0>>21/*PROFILE_END_SHIFT*/)&0x7FF/*PROFILE_END_MASK*/;
+//		
+//				var daysNumber = 0;
+//				for (var i=0; i<7; i++)
+//				{
+//					if ((days&(0x1<<i))!=0)
+//					{
+//						daysNumber *= 10;
+//						daysNumber += i+1;
+//					}
+//				}
+//				applicationProperties.setValue("PD", daysNumber);
+//		
+//				applicationProperties.setValue("PS", loadGetProfileTimeString(startTime, (t1&0x0100/*PROFILE_START_SUNRISE*/)!=0, (t1&0x0200/*PROFILE_START_SUNSET*/)!=0));
+//				applicationProperties.setValue("PE", loadGetProfileTimeString(endTime, (t1&0x0400/*PROFILE_END_SUNRISE*/)!=0, (t1&0x0800/*PROFILE_END_SUNSET*/)!=0));
+//
+//				applicationProperties.setValue("PB", ((t0&0x80/*PROFILE_BLOCK_MASK*/)!=0));
+//				applicationProperties.setValue("PR", (t1&0xFF/*PROFILE_EVENTS_MASK*/));		
+//			}
+//		}
+//	}
+
+//	function exportPropertiesFillCharArray(profileIndex, toArray, toMax)
+//	{
+//		var toLen = 0;
+//		
+//		var pArray = applicationStorage.getValue("P" + profileIndex);
+//		if (pArray != null)
+//		{
+//			// profile activation times
+//			var sTimes;
+//			if (profileIndex<PROFILE_NUM_USER)
+//			{			
+//        		sTimes = Lang.format("$1$,$2$,", [profileTimes[profileIndex], profileTimes[profileIndex+PROFILE_NUM_USER]]);
+//			}
+//			else
+//			{
+//				sTimes = "0,0,";
+//			}
+//			toLen = addStringToCharArray(sTimes, toArray, toLen, toMax);
+//				
+//			toLen = addArrayToCharArray(pArray, toArray, toLen, toMax);
+//		}
+//
+//		return toLen;
+//	}
+//
+//	function exportPropertiesGetString(profileIndex)
+//	{
+//		var charArray = new[255];
+//		var charArrayLen = exportPropertiesFillCharArray(profileIndex, charArray, 255);
+//		charArray = charArray.slice(0, charArrayLen);
+//
+//		return StringUtil.charArrayToString(charArray);
+//	}
+//
+//	function exportFieldDataGetString(fArray, start, end)
+//	{
+//		var tempArray = fArray.slice(start, end);
+//		var charArray = new[255];
+//		var charArrayLen = addArrayToCharArray(tempArray, charArray, 0, 255);
+//		tempArray = null;
+//		
+//		charArray = charArray.slice(0, charArrayLen);
+//
+//		return StringUtil.charArrayToString(charArray);
+//	}
+//	
+//	function exportProfileOld(profileIndex)
+//	{
+//		if (profileIndex>=0 && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+//		{
+//			var s = exportPropertiesGetString(profileIndex);
+//			applicationProperties.setValue("EP", s);
+//			s = null;
+//	
+//			var fArray = applicationStorage.getValue("PF" + profileIndex);
+//			
+//			s = exportFieldDataGetString(fArray, 0, (FIELD_NUM*FIELD_NUM_PROPERTIES)/2);
+//			applicationProperties.setValue("EF", s);
+//			s = null;
+//			
+//			s = exportFieldDataGetString(fArray, (FIELD_NUM*FIELD_NUM_PROPERTIES)/2, FIELD_NUM*FIELD_NUM_PROPERTIES);
+//			applicationProperties.setValue("EG", s);
+//		}
+//	}
+
 	function loadProfile(profileIndex)
 	{
 		profileActive = profileIndex;		// profile now active
 		profileGlance = -1;					// clear glance profile if it was active
 
-		if (profileIndex>=0 /*PROFILE_PRIVATE_INDEX*/ && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+		if (profileIndex>=0 && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 		{
-			// load normal properties
+			var s = applicationStorage.getValue("P" + profileIndex);
+			if (s!=null && (s instanceof String))
 			{
-				var pArray = applicationStorage.getValue("P"+profileIndex);
-				if (pArray != null)
-				{
-					getPropertiesFromArray(pArray);
+				var charArray = s.toCharArray();
+				var charArraySize = charArray.size();
+				parseIndex = 0;
 
-					pArray = null;
-				}
-			}
+				s = null;	// free mem			
 			
-			// load field data
-			{
-				var pArray = applicationStorage.getValue("PF"+profileIndex);
-				if (pArray != null)
+				// normal properties
 				{
-					var size = ((pArray.size() < (FIELD_NUM*FIELD_NUM_PROPERTIES)) ? pArray.size() : (FIELD_NUM*FIELD_NUM_PROPERTIES));
-					for (var i=0; i<size; i++)
+					var pArray = new[PROFILE_NUM_PROPERTIES];
+	
+					// profile times?
+					//profileTimes[profileIndex] = parseNumberComma(charArray, charArraySize);
+					//profileTimes[profileIndex+PROFILE_NUM_USER] = parseNumberComma(charArray, charArraySize);
+					//applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
+			
+					for (var pNum=0; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
 					{
-						// ok not to check byte value range as loading from byte array (user profile)
-						propFieldData[i] = pArray[i];
+						if (pNum==0)		// "0" profile name
+						{
+							pArray[pNum] = parseStringComma(charArray, charArraySize);
+						}
+						else if ((((0x1l<<3) | (0x1l<<8) | (0x1l<<18) | (0x1l<<19) | (0x1l<<32) | (0x1l<<33) | (0x1l<<34)) & (0x1l<<pNum)) != 0)
+						{
+							// "3" time military
+							// "8" time italic font
+							// "18" seconds color demo
+							// "19" seconds move in a bit
+							// "32" demo font styles
+							// "33" demo second styles
+							// "34" demo display
+							pArray[pNum] = parseBooleanComma(charArray, charArraySize);
+						}
+						else
+						{
+							pArray[pNum] = parseNumberComma(charArray, charArraySize);
+						}
 					}
-
-					pArray = null;
+	
+					getPropertiesFromArray(pArray);
+				}
+				
+				// field data
+				for (var fNum=0; fNum<FIELD_NUM*FIELD_NUM_PROPERTIES && parseIndex<charArraySize; fNum++)
+				{
+					propFieldData[fNum] = getMinMax(parseNumberComma(charArray, charArraySize), 0, 255); 
 				}
 			}
-			
-//			properties.setValue("FM", 0x10/*ITEM_RETRIEVE*/);	// set field management to retrieve - so that properties are updated to match field settings
 			
 			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
 			{
@@ -4544,141 +4763,25 @@ class myView extends WatchUi.WatchFace
 			}
 		}
 	}
-
-	function exportPropertiesFillCharArray(profileIndex, toArray, toMax)
-	{
-		var toLen = 0;
-		
-		var pArray = applicationStorage.getValue("P" + profileIndex);
-		if (pArray != null)
-		{
-			// profile activation times
-			var sTimes;
-			if (profileIndex<PROFILE_NUM_USER)
-			{			
-        		sTimes = Lang.format("$1$,$2$,", [profileTimes[profileIndex], profileTimes[profileIndex+PROFILE_NUM_USER]]);
-			}
-			else
-			{
-				sTimes = "0,0,";
-			}
-			toLen = addStringToCharArray(sTimes, toArray, toLen, toMax);
-				
-			toLen = addArrayToCharArray(pArray, toArray, toLen, toMax);
-		}
-
-		return toLen;
-	}
-
-	function exportPropertiesGetString(profileIndex)
-	{
-		var charArray = new[255];
-		var charArrayLen = exportPropertiesFillCharArray(profileIndex, charArray, 255);
-		charArray = charArray.slice(0, charArrayLen);
-
-		return StringUtil.charArrayToString(charArray);
-	}
-
-	function exportFieldDataGetString(fArray, start, end)
-	{
-		var tempArray = fArray.slice(start, end);
-		var charArray = new[255];
-		var charArrayLen = addArrayToCharArray(tempArray, charArray, 0, 255);
-		tempArray = null;
-		
-		charArray = charArray.slice(0, charArrayLen);
-
-		return StringUtil.charArrayToString(charArray);
-	}
 	
 	function exportProfile(profileIndex)
 	{
 		if (profileIndex>=0 && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 		{
-			var s = exportPropertiesGetString(profileIndex);
-			applicationProperties.setValue("EP", s);
-			s = null;
-	
-			var fArray = applicationStorage.getValue("PF" + profileIndex);
-			
-			s = exportFieldDataGetString(fArray, 0, (FIELD_NUM*FIELD_NUM_PROPERTIES)/2);
-			applicationProperties.setValue("EF", s);
-			s = null;
-			
-			s = exportFieldDataGetString(fArray, (FIELD_NUM*FIELD_NUM_PROPERTIES)/2, FIELD_NUM*FIELD_NUM_PROPERTIES);
-			applicationProperties.setValue("EG", s);
+			var s = applicationStorage.getValue("P" + profileIndex);
+			if (s!=null && (s instanceof String))
+			{
+				applicationProperties.setValue("EP", s);
+			}
 		}
 	}
 
-	function importPropertiesFillArray(profileIndex, pArray)
-	{
-		// main bulk of profile properties
-		var charArray = propertiesGetCharArray("EP");
-		var charArraySize = charArray.size();
-		parseIndex = 0;
-
-		profileTimes[profileIndex] = parseNumberComma(charArray, charArraySize);
-		profileTimes[profileIndex+PROFILE_NUM_USER] = parseNumberComma(charArray, charArraySize);
-		applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
-
-		var pNum = 0;
-		for (; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
-		{
-			if (pNum==0)		// "0" profile name
-			{
-				pArray[pNum] = parseStringComma(charArray, charArraySize);
-			}
-			else if ((((0x1l<<3) | (0x1l<<8) | (0x1l<<18) | (0x1l<<19) | (0x1l<<32) | (0x1l<<33) | (0x1l<<34)) & (0x1l<<pNum)) != 0)
-			{
-				// "3" time military
-				// "8" time italic font
-				// "18" seconds color demo
-				// "19" seconds move in a bit
-				// "32" demo font styles
-				// "33" demo second styles
-				// "34" demo display
-				pArray[pNum] = parseBooleanComma(charArray, charArraySize);
-			}
-			else
-			{
-				pArray[pNum] = parseNumberComma(charArray, charArraySize);
-			}
-		}
-		
-		return pNum;
-	}
-			
-	function importFieldDataAddToByteArray(fArray, fNum, propertyStr)
-	{
-		// field data properties
-		var charArray = propertiesGetCharArray(propertyStr);
-		var charArraySize = charArray.size();
-		parseIndex = 0;
-
-		for (; fNum<FIELD_NUM*FIELD_NUM_PROPERTIES && parseIndex<charArraySize; fNum++)
-		{
-			fArray[fNum] = getMinMax(parseNumberComma(charArray, charArraySize), 0, 255); 
-		}
-				
-		return fNum;
-	}
-	
 	function importProfile(profileIndex)
 	{
 		if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)
 		{
-			var pArray = new[PROFILE_NUM_PROPERTIES];
-			var pNum = importPropertiesFillArray(profileIndex, pArray);
-			pArray = pArray.slice(0, pNum);
-			applicationStorage.setValue("P" + profileIndex, pArray);
-			pArray = null;
-
-			var fArray = new[FIELD_NUM*FIELD_NUM_PROPERTIES]b;
-			var fNum = 0;
-			fNum = importFieldDataAddToByteArray(fArray, fNum, "EF");
-			fNum = importFieldDataAddToByteArray(fArray, fNum, "EG");
-			fArray = fArray.slice(0, fNum);
-			applicationStorage.setValue("PF" + profileIndex, fArray);
+			var s = propertiesGetString("EP");
+			applicationStorage.setValue("P" + profileIndex, s);
 		}
 	}
 

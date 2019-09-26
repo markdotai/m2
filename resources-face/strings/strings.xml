@@ -358,7 +358,6 @@ Feature from M1+
     <string id="DemoProfilesRangeTitle">Demo Profiles Start And End (e.g. 25-99 for preset profiles)</string>
 
     <string id="ExportProfileTitle">Export/Import Profile Text (use profile management above)</string>
-    <string id="ExportFieldsTitle">Export/Import Fields Text (use profile management above)</string>
 
 	<string id="SunAltitudeAdjustTitle">Sunrise/Sunset Altitude Adjustment</string>
 	<string id="NonActiveCalorieOverrideTitle">Non-Active Calorie Override (0 for not set, or BMR x 1.2)</string>

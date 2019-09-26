@@ -15,8 +15,6 @@
     <property id="DR" type="string">25 99</property>		<!-- demo profiles range -->
 
     <property id="EP" type="string"></property>				<!-- export import profile -->
-    <property id="EF" type="string"></property>				<!-- export import fields 1-4 -->
-    <property id="EG" type="string"></property>				<!-- export import fields 5-8 -->
 
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
     <property id="NC" type="number">0</property>			<!-- non-active calorie override -->

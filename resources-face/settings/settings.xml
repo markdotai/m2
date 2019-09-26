@@ -54,15 +54,7 @@
     </setting>
 
     <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
-        <settingConfig type="alphaNumeric" maxLength="255" />
-    </setting>
-
-    <setting propertyKey="@Properties.EF" title="@Strings.ExportFieldsTitle">
-        <settingConfig type="alphaNumeric" maxLength="255" />
-    </setting>
-
-    <setting propertyKey="@Properties.EG" title="@Strings.ExportFieldsTitle">
-        <settingConfig type="alphaNumeric" maxLength="255" />
+        <settingConfig type="alphaNumeric" maxLength="1024" />
     </setting>
 
     <setting propertyKey="@Properties.SA" title="@Strings.SunAltitudeAdjustTitle">
