@@ -5,6 +5,7 @@ using Toybox.Lang;
 using Toybox.Application;
 using Toybox.StringUtil;
 using Toybox.Time;
+using Toybox.Timer;
 
 using Application.Properties as applicationProperties;
 using Application.Storage as applicationStorage;
@@ -1477,9 +1478,6 @@ class myView
     function initialize()
     {
         //System.println("initialize");
-
-        //WatchFace.initialize();
-		//View.initialize();
     }
 
     // Load your resources here
@@ -5374,6 +5372,208 @@ class myView
 		}
 		return t;
 	}
+}
+
+(:m2app)
+class myEditorView extends myView
+{
+/*
+	profile name
+	background color
+	default field color
+	default date font
+	default value font
+	
+	add leading zero
+	
+	2nd time zone offset
+	move bar alert trigger level
+	battery high percentage
+	battery low percentage
+	
+	select field
+		edit elements
+			select element
+				edit
+					data
+					visibility
+					color
+						next
+						previous
+						tap
+					font
+				delete element
+			add element
+		field glance
+		position
+			x adjust
+			y adjust
+			tap
+		alignment
+			left edge
+			right edge
+			centre
+		delete field
+		move field up
+		move field down
+		
+	add blank field
+	quick add
+		time
+		date
+		steps as text
+		steps as ring
+		heart rate as text
+		seconds indicator
+		digital seconds
+
+	save profile
+	load profile
+	reset (delete all)
+*/	
+
+	var timer;
+
+    function initialize()
+    {
+		myView.initialize();
+    }
+
+	function onLayout(dc)
+	{
+		myView.onLayout(dc);
+		
+		timer = new Timer.Timer();
+		timer.start(method(:timerCallback), 1000, true);
+	}
+
+	function timerCallback()
+	{
+    	WatchUi.requestUpdate();
+	}
+
+    function onMenu()	// hold left middle button
+    {   
+    	WatchUi.requestUpdate();
+
+        return true;
+    }
+
+    function onBack()	// tap right bottom
+    {
+    	// return false here to exit the app
+
+    	WatchUi.requestUpdate();
+    
+        return true;
+    }
+
+    function onNextPage()	// tap left bottom
+    {
+    	propTimeYOffset -= 1;
+    
+    	WatchUi.requestUpdate();
+    
+        return true;
+    }
+
+    function onPreviousPage()	// tap left middle
+    {
+    	propTimeYOffset += 1;
+
+    	WatchUi.requestUpdate();
+    
+        return true;
+    }
+
+    function onSelect()		// tap right top
+    {
+    	WatchUi.requestUpdate();
+    
+        return true;
+    }
+
+    function onKey(keyEvent) 	// a physical button has been pressed and released. 
+    {
+		//keyEvent.getKey();
+		//KEY_POWER = power key
+		//KEY_LIGHT = light key
+		//KEY_ZIN = zoom in key
+		//KEY_ZOUT = zoom out key
+		//KEY_ENTER = enter key
+		//KEY_ESC = escape key
+		//KEY_FIND = find key
+		//KEY_MENU = menu key
+		//KEY_DOWN = down key
+		//KEY_DOWN_LEFT = down left key
+		//KEY_DOWN_RIGHT = down right key
+		//KEY_LEFT = left key
+		//KEY_RIGHT = right key
+		//KEY_UP = up key
+		//KEY_UP_LEFT = up left key
+		//KEY_UP_RIGHT = up right key
+
+		//keyEvent.getType();
+		//PRESS_TYPE_DOWN = key is pressed down
+		//PRESS_TYPE_UP = key is released
+		//PRESS_TYPE_ACTION = key's action is performed
+    
+    	return false;
+    }
+    
+    function onKeyPressed(keyEvent) 	// a physical button has been pressed down. 
+    {
+    	return false;
+    }
+    
+    function onKeyReleased(keyEvent) 	// a physical button has been released. 
+    {
+    	return false;
+    }
+        
+    function onTap(clickEvent)		// a screen tap event has occurred. 
+    {
+    	//clickEvent.getCoordinates();
+    	//clickEvent.getType();
+    	//CLICK_TYPE_TAP = tap on the screen
+		//CLICK_TYPE_HOLD = press and hold on the screen
+		//CLICK_TYPE_RELEASE = release of a hold on the screen
+
+    	return false;
+    }
+
+    function onHold(clickEvent)		// a touch screen hold event has occurred. 
+    {
+    	//clickEvent.getCoordinates();
+    	//clickEvent.getType();
+    	//CLICK_TYPE_TAP = tap on the screen
+		//CLICK_TYPE_HOLD = press and hold on the screen
+		//CLICK_TYPE_RELEASE = release of a hold on the screen
+
+    	return false;
+    }
+    
+    function onRelease(clickEvent) 		// a touch screen release event has occurred. 
+    {
+    	//clickEvent.getCoordinates();
+    	//clickEvent.getType();
+    	//CLICK_TYPE_TAP = tap on the screen
+		//CLICK_TYPE_HOLD = press and hold on the screen
+		//CLICK_TYPE_RELEASE = release of a hold on the screen
+
+    	return false;
+    }
+    
+    function onSwipe(swipeEvent) 	// a touch screen swipe event has occurred. 
+    {
+    	//swipeEvent.getDirection();
+ 		//SWIPE_UP = swipe in the upward direction
+		//SWIPE_RIGHT = swipe towards the right
+		//SWIPE_DOWN = swipe in the downward direction
+		//SWIPE_LEFT = swipe towards the left
+    	
+    	return false;
+    }    
 }
 
 //class TestDelegate extends WatchUi.WatchFaceDelegate

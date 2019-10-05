@@ -47,14 +47,11 @@ class myApp extends Application.AppBase
         //System.println("mPropertiesChanged=" + mPropertiesChanged);
 
     	mainView = new myAppView();
-        //if (Toybox.WatchUi has :WatchFaceDelegate)
-        //{
-        //	return [mainView, new TestDelegate()];
-        //}
-        //else
-        {
-        	return [mainView, new myAppDelegate()];
-        }
+    	
+    	var appDelegate = new myAppDelegate();
+    	appDelegate.setView(mainView.sharedView);
+
+       	return [mainView, appDelegate];
     }
 
     function onSettingsChanged()    // New app settings have been received so trigger a UI update
@@ -132,7 +129,7 @@ class myFaceView extends WatchUi.WatchFace
 (:m2app)
 class myAppView extends WatchUi.View
 {
-	var sharedView = new myView(); 
+	var sharedView = new myEditorView(); 
 
     function initialize()
     {
@@ -177,6 +174,13 @@ class myAppView extends WatchUi.View
 (:m2app)
 class myAppDelegate extends WatchUi.BehaviorDelegate
 {
+	var mainView;
+
+	function setView(sharedView)
+	{
+		mainView = sharedView;
+	}
+
     function initialize()
     {
         BehaviorDelegate.initialize();
@@ -184,46 +188,28 @@ class myAppDelegate extends WatchUi.BehaviorDelegate
 
     function onMenu()	// hold left middle button
     {
-    	WatchUi.requestUpdate();
-    
-        //WatchUi.pushView(new Rez.Menus.MainMenu(), new testAppMenuDelegate(), WatchUi.SLIDE_UP);
-        return true;
+    	return mainView.onMenu();
     }
 
     function onBack()	// tap right bottom
     {
-    	WatchUi.requestUpdate();
-    
     	// return false here to exit the app
-    
-        return true;
+    	return mainView.onBack();
     }
 
     function onNextPage()	// tap left bottom
     {
-        //System.println("onNextPage");
-
-    	WatchUi.requestUpdate();
-    
-        return true;
+    	return mainView.onNextPage();
     }
 
     function onPreviousPage()	// tap left middle
     {
-        //System.println("onPreviousPage");
-
-    	WatchUi.requestUpdate();
-    
-        return true;
+    	return mainView.onPreviousPage();
     }
 
     function onSelect()		// tap right top
     {
-        //System.println("onSelect");
-
-    	WatchUi.requestUpdate();
-    
-        return true;
+    	return mainView.onSelect();
     }
 
     //function onNextMode()
@@ -243,4 +229,39 @@ class myAppDelegate extends WatchUi.BehaviorDelegate
     //
     //    return true;
     //}
+
+    function onKey(keyEvent) 	// a physical button has been pressed and released. 
+    {
+    	return mainView.onKey(keyEvent);
+    }
+    
+    function onKeyPressed(keyEvent) 	// a physical button has been pressed down. 
+    {
+    	return mainView.onKeyPressed(keyEvent);
+    }
+    
+    function onKeyReleased(keyEvent) 	// a physical button has been released. 
+    {
+    	return mainView.onKeyReleased(keyEvent);
+    }
+        
+    function onTap(clickEvent)		// a screen tap event has occurred. 
+    {
+    	return mainView.onTap(clickEvent);
+    }
+
+    function onHold(clickEvent)		// a touch screen hold event has occurred. 
+    {
+    	return mainView.onHold(clickEvent);
+    }
+    
+    function onRelease(clickEvent) 		// a touch screen release event has occurred. 
+    {
+    	return mainView.onRelease(clickEvent);
+    }
+    
+    function onSwipe(swipeEvent) 	// a touch screen swipe event has occurred. 
+    {
+    	return mainView.onSwipe(swipeEvent);
+    }    
 }
