@@ -9,7 +9,8 @@ using Toybox.Time;
 using Application.Properties as applicationProperties;
 using Application.Storage as applicationStorage;
 
-class myView extends WatchUi.WatchFace
+//class myView extends WatchUi.WatchFace
+class myView
 {
 	//var forceMemoryTest = new[512 /*1024*6*/]b;
 	//const forceTestFont = false;
@@ -1477,21 +1478,9 @@ class myView extends WatchUi.WatchFace
     {
         //System.println("initialize");
 
-        WatchFace.initialize();
+        //WatchFace.initialize();
+		//View.initialize();
     }
-
-	function importJsonData(id, profileIndex, watchUi, storage)
-	{
-		var tempResource = watchUi.loadResource(id);
-		for (var i=0; i<tempResource.size(); i++)
-		{
-			storage.setValue("P" + profileIndex, tempResource[i]);
-
-			profileIndex++;
-		}
-		
-		return profileIndex;
-	}
 
     // Load your resources here
     function onLayout(dc)
@@ -1543,29 +1532,6 @@ class myView extends WatchUi.WatchFace
 		// load in character string (for seconds & outer ring)
 		//characterString = WatchUi.loadResource(Rez.JsonData.id_characterString);
 
-		// make sure preset profiles are saved to storage (from jsondata)
-		{
-			var sVersion = storage.getValue("V");
-			if (sVersion==null || sVersion!=PROFILE_VERSION)
-			{
-				var jsonData = Rez.JsonData;
-				var profileIndex = PROFILE_NUM_USER;
-
-				// less code to just call 3 times instead of loop				
-				//var loadPreset = [jsonData.id_preset, jsonData.id_preset2, jsonData.id_preset3];
-				//for (var i=0; i<loadPreset.size(); i++)
-				//{
-				//	profileIndex = importJsonData(loadPreset[i], profileIndex, watchUi, storage);
-				//}
-				
-				profileIndex = importJsonData(jsonData.id_preset, profileIndex, watchUi, storage);
-				profileIndex = importJsonData(jsonData.id_preset2, profileIndex, watchUi, storage);
-				profileIndex = importJsonData(jsonData.id_preset3, profileIndex, watchUi, storage);
-									
-				storage.setValue("V", PROFILE_VERSION);
-			}
-		}
-		
 		// load in data values which are stored as byte arrays (to save memory) 
 		{
 			var tempResource = watchUi.loadResource(Rez.JsonData.id_dataBytes);
@@ -1735,7 +1701,7 @@ class myView extends WatchUi.WatchFace
 	{
         //System.println("onStop");
 
-		saveDataForStop();
+//		saveDataForStop();
 
 //		if (profileActive>=0)	// not the private profile (watch settings)
 //		{
@@ -2054,6 +2020,7 @@ class myView extends WatchUi.WatchFace
 	}
 
     // The user has just looked at their watch. Timers and animations may be started here.
+    (:m2face)
     function onExitSleep()
     {
         //System.println("Glance");
@@ -2062,6 +2029,7 @@ class myView extends WatchUi.WatchFace
     }
 
     // Terminate any active timers and prepare for slow updates.
+    (:m2face)
     function onEnterSleep()
     {
         //System.println("Sleep");
@@ -3795,6 +3763,7 @@ class myView extends WatchUi.WatchFace
 //    var bufferPosY;
     var bufferValues = new[36]b;
 
+    (:m2face)
 	function drawBuffer(secondsIndex, dc)
 	{
 						  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
@@ -3897,6 +3866,7 @@ class myView extends WatchUi.WatchFace
 // display = 49920
 
     // Handle the partial update event - not called during high power mode (glance active)
+    (:m2face)
     function onPartialUpdate(dc)
     {
     	var clockTime = System.getClockTime();
@@ -3941,6 +3911,7 @@ class myView extends WatchUi.WatchFace
         }
     }
 
+    (:m2face)
     function doPartialUpdateSec(dc, secondsIndex, minuteIndex)
     {
     	if (secondsIndex!=lastPartialUpdateSec)		// check whether everything is up to date already (from doUpdate)
@@ -4004,6 +3975,7 @@ class myView extends WatchUi.WatchFace
 		}
     }
 
+    (:m2face)
     function setSecondClip(dc, index)
     {
     	index += (propSecondMoveInABit ? 60 : 0);
@@ -4677,6 +4649,18 @@ class myView extends WatchUi.WatchFace
 //		}
 //	}
 
+	function getPresetProfileString(profileIndex)
+	{
+		var jsonData = Rez.JsonData;
+		var loadPreset = [jsonData.id_preset0, jsonData.id_preset1, jsonData.id_preset2, jsonData.id_preset3, jsonData.id_preset4, jsonData.id_preset5, jsonData.id_preset6, jsonData.id_preset7, jsonData.id_preset8, jsonData.id_preset9, jsonData.id_preset10, jsonData.id_preset11, jsonData.id_preset12, jsonData.id_preset13, jsonData.id_preset14, jsonData.id_preset15, jsonData.id_preset16];
+		return WatchUi.loadResource(loadPreset[profileIndex - PROFILE_NUM_USER]);
+	}
+
+	function getProfileString(profileIndex)
+	{
+		return ((profileIndex<PROFILE_NUM_USER) ? applicationStorage.getValue("P" + profileIndex) : getPresetProfileString(profileIndex));
+	}
+			
 	function loadProfile(profileIndex)
 	{
 		profileActive = profileIndex;		// profile now active
@@ -4684,7 +4668,7 @@ class myView extends WatchUi.WatchFace
 
 		if (profileIndex>=0 && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 		{
-			var s = applicationStorage.getValue("P" + profileIndex);
+			var s = getProfileString(profileIndex);
 			if (s!=null && (s instanceof String))
 			{
 				var charArray = s.toCharArray();
@@ -4768,7 +4752,7 @@ class myView extends WatchUi.WatchFace
 	{
 		if (profileIndex>=0 && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 		{
-			var s = applicationStorage.getValue("P" + profileIndex);
+			var s = getProfileString(profileIndex);
 			if (s!=null && (s instanceof String))
 			{
 				applicationProperties.setValue("EP", s);
