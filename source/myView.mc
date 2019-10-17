@@ -116,7 +116,7 @@ class myView
 
 	var propDemoFontStylesOn = false;
 	var propDemoSecondStylesOn = false;
-	var propDemoDisplayOn;
+	//var propDemoDisplayOn;
 	
 	var prop2ndTimeZoneOffset = 0;
 	
@@ -374,7 +374,7 @@ class myView
 		propDemoFontStylesOn = getBooleanFromArray(pArray, 32/*"32"*/);
 		propDemoSecondStylesOn = getBooleanFromArray(pArray, 33/*"33"*/);		// demo second styles on
 
-		propDemoDisplayOn = getBooleanFromArray(pArray, 34/*"34"*/);
+		//propDemoDisplayOn = getBooleanFromArray(pArray, 34/*"34"*/);
 		
 		propGlanceProfile = getNumberFromArray(pArray, 35/*"35"*/);
 		
@@ -809,13 +809,13 @@ class myView
 
 	//var worldBitmap;
 
-    var backgroundTimeArrayLength;
-	var backgroundTimeArrayMinuteStart;
-    var backgroundTimeCharArray = new[5];
-    var backgroundTimeColorArray = new[5];
-    var backgroundTimeWidthArray = new[5];
-	var backgroundTimeTotalWidth;
-	var backgroundTimeXOffset;
+//    var backgroundTimeArrayLength;
+//	var backgroundTimeArrayMinuteStart;
+//    var backgroundTimeCharArray = new[5];
+//    var backgroundTimeColorArray = new[5];
+//    var backgroundTimeWidthArray = new[5];
+//	var backgroundTimeTotalWidth;
+//	var backgroundTimeXOffset;
 
 	const FIELD_INFO_CHAR_MAX_LEN = 16;		// 20 characters seems plenty - widest element might be step count, but normally day or month name = 3*6
 	var backgroundFieldInfoIndex = new[FIELD_NUM]b;		// index into backgroundFieldInfo arrays
@@ -2586,62 +2586,64 @@ class myView
     	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
         var minuteString = minute.format("%02d");
 
-		// calculate main time display
-		if ((propTimeOn & onOrGlanceActive)!=0 && !propDemoDisplayOn)
-        {
-        	var hasColon = (propTimeColon!=COLOR_NOTSET);
-        	
-			backgroundTimeColorArray[0] = propTimeHourColor;
-			backgroundTimeColorArray[1] = propTimeHourColor;	// set element 1 even if hour is only 1 digit - saves having an if statement
-			var curLength = addStringToCharArray(hourString, backgroundTimeCharArray, 0, 5);
-			if (hasColon)
-			{
-				backgroundTimeColorArray[curLength] = propTimeColon;
-				curLength = addStringToCharArray(":", backgroundTimeCharArray, curLength, 5);
-				backgroundTimeArrayMinuteStart = ((propTimeHourFont <= propTimeMinuteFont) ? curLength : (curLength-1));
-			}
-			else
-			{
-				backgroundTimeArrayMinuteStart = curLength;
-			}
-			backgroundTimeColorArray[curLength] = propTimeMinuteColor;
-			backgroundTimeColorArray[curLength+1] = propTimeMinuteColor;
-			backgroundTimeArrayLength = addStringToCharArray(minuteString, backgroundTimeCharArray, curLength, 5);
-			
-			backgroundTimeTotalWidth = 0;
-			backgroundTimeXOffset = (propTimeItalic ? 1 : 0);
+		gfxOnUpdate(dc, clockTime, timeNow);
 
-	        for (var i=0; i<backgroundTimeArrayLength; i++)
-	        {
-	        	var w = dc.getTextWidthInPixels(backgroundTimeCharArray[i].toString(), ((i<backgroundTimeArrayMinuteStart) ? fontTimeHourResource : fontTimeMinuteResource));
-
-				// make sure both fonts are our custom ones
-				if (propTimeHourFont<=5/*APPFONT_HEAVY*/ && propTimeMinuteFont<=5/*APPFONT_HEAVY*/)
-				{
-					var curNum = backgroundTimeCharArray[i].toNumber() - 48/*APPCHAR_0*/;
-
-	    			if (i < backgroundTimeArrayLength-1)
-	    			{
-						var nextNum = backgroundTimeCharArray[i+1].toNumber() - 48/*APPCHAR_0*/;
-						var appFontCur = ((i<backgroundTimeArrayMinuteStart) ? propTimeHourFont : propTimeMinuteFont);
-						var appFontNext = ((i<(backgroundTimeArrayMinuteStart-1)) ? propTimeHourFont : propTimeMinuteFont);
-						
-						w -= getKern(curNum, nextNum, appFontCur, appFontNext, hasColon);
-				    }
-				    else
-				    {
-				    	// last digit - if it's a 4 then shift whole number right a bit
-				    	if (curNum==4)
-				    	{
-				    		backgroundTimeXOffset += 1;
-				    	}
-				    }
-				}
-							    
-		       	backgroundTimeWidthArray[i] = w;
-	        	backgroundTimeTotalWidth += w;
-			}
-		}
+//		// calculate main time display
+//		if ((propTimeOn & onOrGlanceActive)!=0)
+//        {
+//        	var hasColon = (propTimeColon!=COLOR_NOTSET);
+//        	
+//			backgroundTimeColorArray[0] = propTimeHourColor;
+//			backgroundTimeColorArray[1] = propTimeHourColor;	// set element 1 even if hour is only 1 digit - saves having an if statement
+//			var curLength = addStringToCharArray(hourString, backgroundTimeCharArray, 0, 5);
+//			if (hasColon)
+//			{
+//				backgroundTimeColorArray[curLength] = propTimeColon;
+//				curLength = addStringToCharArray(":", backgroundTimeCharArray, curLength, 5);
+//				backgroundTimeArrayMinuteStart = ((propTimeHourFont <= propTimeMinuteFont) ? curLength : (curLength-1));
+//			}
+//			else
+//			{
+//				backgroundTimeArrayMinuteStart = curLength;
+//			}
+//			backgroundTimeColorArray[curLength] = propTimeMinuteColor;
+//			backgroundTimeColorArray[curLength+1] = propTimeMinuteColor;
+//			backgroundTimeArrayLength = addStringToCharArray(minuteString, backgroundTimeCharArray, curLength, 5);
+//			
+//			backgroundTimeTotalWidth = 0;
+//			backgroundTimeXOffset = (propTimeItalic ? 1 : 0);
+//
+//	        for (var i=0; i<backgroundTimeArrayLength; i++)
+//	        {
+//	        	var w = dc.getTextWidthInPixels(backgroundTimeCharArray[i].toString(), ((i<backgroundTimeArrayMinuteStart) ? fontTimeHourResource : fontTimeMinuteResource));
+//
+//				// make sure both fonts are our custom ones
+//				if (propTimeHourFont<=5/*APPFONT_HEAVY*/ && propTimeMinuteFont<=5/*APPFONT_HEAVY*/)
+//				{
+//					var curNum = backgroundTimeCharArray[i].toNumber() - 48/*APPCHAR_0*/;
+//
+//	    			if (i < backgroundTimeArrayLength-1)
+//	    			{
+//						var nextNum = backgroundTimeCharArray[i+1].toNumber() - 48/*APPCHAR_0*/;
+//						var appFontCur = ((i<backgroundTimeArrayMinuteStart) ? propTimeHourFont : propTimeMinuteFont);
+//						var appFontNext = ((i<(backgroundTimeArrayMinuteStart-1)) ? propTimeHourFont : propTimeMinuteFont);
+//						
+//						w -= getKern(curNum, nextNum, appFontCur, appFontNext, hasColon);
+//				    }
+//				    else
+//				    {
+//				    	// last digit - if it's a 4 then shift whole number right a bit
+//				    	if (curNum==4)
+//				    	{
+//				    		backgroundTimeXOffset += 1;
+//				    	}
+//				    }
+//				}
+//							    
+//		       	backgroundTimeWidthArray[i] = w;
+//	        	backgroundTimeTotalWidth += w;
+//			}
+//		}
 
 		// calculate fields to display
 		var visibilityStatus = new[23/*STATUS_NUM*/];
@@ -2697,7 +2699,7 @@ class myView
     	{
     		var dataStart = f*FIELD_NUM_PROPERTIES;
     		var fJustification = propFieldData[dataStart + 2/*FIELD_INDEX_JUSTIFICATION*/];
-			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0 && !propDemoDisplayOn)
+			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0)
 			{
 				backgroundFieldInfoIndex[f] = f*FIELD_NUM_ELEMENTS_DRAW;	// index into backgroundFieldInfo arrays
 				backgroundFieldInfoCharArrayLength[f] = f*FIELD_INFO_CHAR_MAX_LEN;
@@ -3430,12 +3432,14 @@ class myView
 		//}
         useDc.clear();
 		
+		gfxDrawBackground(useDc, dcX, dcY);
+
 		// draw all the fields
     	for (var f=0; f<FIELD_NUM; f++)
     	{
     		var dataStart = f*FIELD_NUM_PROPERTIES;
     		var fJustification = propFieldData[dataStart + 2/*FIELD_INDEX_JUSTIFICATION*/];
-			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0 && !propDemoDisplayOn)
+			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0)
 			{
 				// draw the date        
 			    //const SCREEN_CENTRE_X = 120;
@@ -3542,51 +3546,51 @@ class myView
 			}
 		}
 
-		// draw the main time (after / on top of fields)
-		if ((propTimeOn & onOrGlanceActive)!=0 && !propDemoDisplayOn)
-        {
-	        // draw time
-		    //const SCREEN_CENTRE_X = 120;
-		    //const SCREEN_CENTRE_Y = 120;
-			var timeXStart = 120 - backgroundTimeTotalWidth/2 + backgroundTimeXOffset;
-			var timeYStart = 120 - propTimeYOffset;
-	
-			var timeX = timeXStart - dcX;
-			var timeYOffset = timeYStart - dcY;
-	
-			if (timeX<=dcWidth && (timeX+backgroundTimeTotalWidth)>=0 && 
-					(timeYOffset-32)<=dcHeight && (timeYOffset-32+64)>=0)
-			{
-				//System.println("timedraw=" + i);
-	
-				// show where the text bounding box is
-			    //useDc.setColor(graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
-				//useDc.fillRectangle(timeX, (timeYOffset-32), backgroundTimeTotalWidth, 64);
-		
-		        for (var i=0; i<backgroundTimeArrayLength; i++)
-		        {
-					if (timeX<=dcWidth && (timeX+backgroundTimeWidthArray[i])>=0)		// check digit x overlaps buffer
-					{
-						var beforeMinuteStart = (i<backgroundTimeArrayMinuteStart); 
-			        	var fontTimeResource = (beforeMinuteStart ? fontTimeHourResource : fontTimeMinuteResource);			// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
-			   			var fontTypeCur = (beforeMinuteStart ? propTimeHourFont : propTimeMinuteFont);
-
-						if (fontTimeResource!=null)
-						{			   			
-							// align bottom of text
-							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
-							//const timeYAdjustFontCustom = -32;
-							//const timeYAdjustFontSystem = 30;
-							var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontTimeResource)));
-				       		useDc.setColor(backgroundTimeColorArray[i], -1/*COLOR_TRANSPARENT*/);
-			        		useDc.drawText(timeX, timeY, fontTimeResource, backgroundTimeCharArray[i].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-			        	}
-					}
-							
-		        	timeX += backgroundTimeWidthArray[i];
-				}
-			}
-		}
+//		// draw the main time (after / on top of fields)
+//		if ((propTimeOn & onOrGlanceActive)!=0)
+//        {
+//	        // draw time
+//		    //const SCREEN_CENTRE_X = 120;
+//		    //const SCREEN_CENTRE_Y = 120;
+//			var timeXStart = 120 - backgroundTimeTotalWidth/2 + backgroundTimeXOffset;
+//			var timeYStart = 120 - propTimeYOffset;
+//	
+//			var timeX = timeXStart - dcX;
+//			var timeYOffset = timeYStart - dcY;
+//	
+//			if (timeX<=dcWidth && (timeX+backgroundTimeTotalWidth)>=0 && 
+//					(timeYOffset-32)<=dcHeight && (timeYOffset-32+64)>=0)
+//			{
+//				//System.println("timedraw=" + i);
+//	
+//				// show where the text bounding box is
+//			    //useDc.setColor(graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
+//				//useDc.fillRectangle(timeX, (timeYOffset-32), backgroundTimeTotalWidth, 64);
+//		
+//		        for (var i=0; i<backgroundTimeArrayLength; i++)
+//		        {
+//					if (timeX<=dcWidth && (timeX+backgroundTimeWidthArray[i])>=0)		// check digit x overlaps buffer
+//					{
+//						var beforeMinuteStart = (i<backgroundTimeArrayMinuteStart); 
+//			        	var fontTimeResource = (beforeMinuteStart ? fontTimeHourResource : fontTimeMinuteResource);			// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+//			   			var fontTypeCur = (beforeMinuteStart ? propTimeHourFont : propTimeMinuteFont);
+//
+//						if (fontTimeResource!=null)
+//						{			   			
+//							// align bottom of text
+//							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
+//							//const timeYAdjustFontCustom = -32;
+//							//const timeYAdjustFontSystem = 30;
+//							var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontTimeResource)));
+//				       		useDc.setColor(backgroundTimeColorArray[i], -1/*COLOR_TRANSPARENT*/);
+//			        		useDc.drawText(timeX, timeY, fontTimeResource, backgroundTimeCharArray[i].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//			        	}
+//					}
+//							
+//		        	timeX += backgroundTimeWidthArray[i];
+//				}
+//			}
+//		}
 
 		// draw the outer ring
 		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
@@ -3661,95 +3665,95 @@ class myView
 			}
 		}
 
-		if (propDemoDisplayOn)
-		{
-//	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
-//	   		if (fontTimeHourResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
-//	   		{
-//				useDc.drawText(120 - dcX, 120 - 105 - dcY, fontTimeHourResource, "012", graphics.TEXT_JUSTIFY_CENTER);
-//				useDc.drawText(120 - dcX, 120 - 35 - dcY, fontTimeHourResource, "3456", graphics.TEXT_JUSTIFY_CENTER);
-//				useDc.drawText(120 - dcX, 120 + 35 - dcY, fontTimeHourResource, "789:", graphics.TEXT_JUSTIFY_CENTER);
-//			}
-
-//	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
-//	   		if (fontFieldResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
-//	   		{
-//				//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
-//				//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
+//		if (propDemoDisplayOn)
+//		{
+////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
+////	   		if (fontTimeHourResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+////	   		{
+////				useDc.drawText(120 - dcX, 120 - 105 - dcY, fontTimeHourResource, "012", graphics.TEXT_JUSTIFY_CENTER);
+////				useDc.drawText(120 - dcX, 120 - 35 - dcY, fontTimeHourResource, "3456", graphics.TEXT_JUSTIFY_CENTER);
+////				useDc.drawText(120 - dcX, 120 + 35 - dcY, fontTimeHourResource, "789:", graphics.TEXT_JUSTIFY_CENTER);
+////			}
 //
-//	   			var yOffsets = [-120, -95, -70, -45, -20, 10, 40, 70];
-//	   			var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-//
-//				for (var i=0; i<sArray.size(); i++)
+////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
+////	   		if (fontFieldResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+////	   		{
+////				//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
+////				//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
+////
+////	   			var yOffsets = [-120, -95, -70, -45, -20, 10, 40, 70];
+////	   			var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+////
+////				for (var i=0; i<sArray.size(); i++)
+////				{
+////					var charArray = sArray[i].toCharArray();
+////					
+////					// calculate total width first
+////					var totalWidth = 0;
+////					for (var j=0; j<charArray.size(); j++)
+////					{
+////						var c = getMyCharDiacritic(charArray[j]);
+////	        			totalWidth += useDc.getTextWidthInPixels(c[0].toString(), fontFieldResource);
+////					}
+////					
+////					// draw each character + any diacritic
+////					var xOffset = 0;
+////					for (var j=0; j<charArray.size(); j++)
+////					{
+////						var c = getMyCharDiacritic(charArray[j]);						
+////						useDc.drawText(120 - dcX - totalWidth/2 + xOffset, 120 - dcY + yOffsets[i], fontFieldResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+////		    			if (c[1]>700)
+////		    			{
+////							useDc.drawText(120 - dcX - totalWidth/2 + xOffset, 120 - dcY + yOffsets[i], fontFieldResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+////		    			}
+////						xOffset += useDc.getTextWidthInPixels(c[0].toString(), fontFieldResource);
+////					}
+////				}
+////			}
+// 
+// 			// draw demo grid of all colors
+//			for (var i=-3; i<3; i++)
+//			{
+//				var y = 130 + i * 20 - dcY;
+//				if (y<=dcHeight && (y+20)>=0)
 //				{
-//					var charArray = sArray[i].toCharArray();
-//					
-//					// calculate total width first
-//					var totalWidth = 0;
-//					for (var j=0; j<charArray.size(); j++)
+//					for (var j=-5; j<5; j++)
 //					{
-//						var c = getMyCharDiacritic(charArray[j]);
-//	        			totalWidth += useDc.getTextWidthInPixels(c[0].toString(), fontFieldResource);
-//					}
-//					
-//					// draw each character + any diacritic
-//					var xOffset = 0;
-//					for (var j=0; j<charArray.size(); j++)
-//					{
-//						var c = getMyCharDiacritic(charArray[j]);						
-//						useDc.drawText(120 - dcX - totalWidth/2 + xOffset, 120 - dcY + yOffsets[i], fontFieldResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-//		    			if (c[1]>700)
-//		    			{
-//							useDc.drawText(120 - dcX - totalWidth/2 + xOffset, 120 - dcY + yOffsets[i], fontFieldResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-//		    			}
-//						xOffset += useDc.getTextWidthInPixels(c[0].toString(), fontFieldResource);
+//						var x = 120 + j * 20 - dcX;
+//						if (x<=dcWidth && (x+20)>=0)
+//						{
+//				   			useDc.setColor(getColor64(4 + (i+3) + (j+5)*6), -1/*COLOR_TRANSPARENT*/);
+//							useDc.drawText(x, y, iconsFontResource, "F", 2/*TEXT_JUSTIFY_LEFT*/);	// solid squares
+//						}
 //					}
 //				}
 //			}
- 
- 			// draw demo grid of all colors
-			for (var i=-3; i<3; i++)
-			{
-				var y = 130 + i * 20 - dcY;
-				if (y<=dcHeight && (y+20)>=0)
-				{
-					for (var j=-5; j<5; j++)
-					{
-						var x = 120 + j * 20 - dcX;
-						if (x<=dcWidth && (x+20)>=0)
-						{
-				   			useDc.setColor(getColor64(4 + (i+3) + (j+5)*6), -1/*COLOR_TRANSPARENT*/);
-							useDc.drawText(x, y, iconsFontResource, "F", 2/*TEXT_JUSTIFY_LEFT*/);	// solid squares
-						}
-					}
-				}
-			}
-
-			// draw demo grid of all shapes & icons
-	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
-
-			var x = 120 - dcX;
-			var y;
-			
-			var iconStrings = ["ACEGKI", "BDFHLJ", "NMPOYWRS", "QTVX", "[Z\\]^_`aU"];		// 60 code bytes to initialise
-			//var iconOffsets = [180, 200, 40, 20];		// 60 code bytes to initialise
-				
-			for (var i=0; i<5; i++)
-			{
-				//y = iconOffsets[i] - dcY;
-				y = (((0xBEl | (0xD2l<<8) | (0x1El<<16) | (0x0Al<<24) | (0x32l<<32))>>(i*8))&0xFF) - dcY;
-				if (y<=dcHeight && (y+20)>=0)
-				{
-					useDc.drawText(x, y, iconsFontResource, iconStrings[i], 1/*TEXT_JUSTIFY_CENTER*/);
-				}
-			}
-		}
+//
+//			// draw demo grid of all shapes & icons
+//	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
+//
+//			var x = 120 - dcX;
+//			var y;
+//			
+//			var iconStrings = ["ACEGKI", "BDFHLJ", "NMPOYWRS", "QTVX", "[Z\\]^_`aU"];		// 60 code bytes to initialise
+//			//var iconOffsets = [180, 200, 40, 20];		// 60 code bytes to initialise
+//				
+//			for (var i=0; i<5; i++)
+//			{
+//				//y = iconOffsets[i] - dcY;
+//				y = (((0xBEl | (0xD2l<<8) | (0x1El<<16) | (0x0Al<<24) | (0x32l<<32))>>(i*8))&0xFF) - dcY;
+//				if (y<=dcHeight && (y+20)>=0)
+//				{
+//					useDc.drawText(x, y, iconsFontResource, iconStrings[i], 1/*TEXT_JUSTIFY_CENTER*/);
+//				}
+//			}
+//		}
 	}
 
 //	<!-- seconds buffer values (bufferSeconds, bufferPosX, bufferPosY) -->
@@ -5372,13 +5376,25 @@ class myView
 		}
 		return t;
 	}
-}
 
-(:m2app)
-class myEditorView extends myView
-{
+/* profile string > parsed profile array > background draw data */
+/*
+	array of data
+		item type
+		item data
+			{ field string: string start, string end, width, font, color }
+			{ icon: }
+			{ chart: }
+			{ ring: ring identifier & font, start, end, start fill, end fill, col fill, col unfill }
+			{ rectangle: }
+			{ seconds: }
+	char array - for calculated strings
+*/
 /*
 	profile name
+	
+	<list of fonts & jsondata to load>
+	
 	background color
 	default field color
 	default date font
@@ -5386,7 +5402,7 @@ class myEditorView extends myView
 	
 	add leading zero
 	
-	2nd time zone offset
+	override 2nd time zone offset
 	move bar alert trigger level
 	battery high percentage
 	battery low percentage
@@ -5420,6 +5436,7 @@ class myEditorView extends myView
 	add blank field
 	quick add
 		time
+		time with colon
 		date
 		steps as text
 		steps as ring
@@ -5432,6 +5449,441 @@ class myEditorView extends myView
 	reset (delete all)
 */	
 
+	// id
+	// 0 = hour large
+	// 1 = hour large
+	// 2 = minute large
+	// 3 = colon large
+
+	var gfxNum = 0;
+	var gfxData = new[512];
+
+	function gfxSize(id)
+	{
+		return [5, 7, 7, 7][id];
+	}
+
+	function gfxAddField(index)
+	{
+		gfxData[index] = 0;		// id
+		gfxData[index+1] = 0;	// x
+		gfxData[index+2] = 0;	// y
+		gfxData[index+3] = 0;	// justification
+		gfxData[index+4] = 0;	// total width
+	}
+
+	function gfxAddHourLarge(index)
+	{
+		gfxData[index] = 1;		// id
+		gfxData[index+1] = 3;	// color
+		gfxData[index+2] = 0;	// font
+		// string 0
+		// width 0
+		// string 1
+		// width 1
+	}
+
+	function gfxAddMinuteLarge(index)
+	{
+		gfxData[index] = 2;		// id
+		gfxData[index+1] = 3;	// color
+		gfxData[index+2] = 0;	// font
+		// string 0
+		// width 0
+		// string 1
+		// width 1
+	}
+
+	function gfxAddColonLarge(index)
+	{
+		gfxData[index] = 3;		// id
+		gfxData[index+1] = 3;	// color
+		gfxData[index+2] = 0;	// font
+		// string 0 dummy
+		// width 0 dummy
+		// string 1
+		// width 1
+	}
+
+	function gfxDelete(index)
+	{
+		var id = gfxData[index];
+		var size = gfxSize(id);
+		for (var i=index+size; i<gfxNum; i++)
+		{
+			gfxData[i-size] = gfxData[i];
+		}
+		gfxNum -= size;
+	}
+
+	function gfxInsert(index, id)
+	{
+		var size = gfxSize(id);
+		for (var i=gfxNum-1; i>=index; i--)
+		{
+			gfxData[i+size] = gfxData[i];
+		}
+		
+		gfxData[index] = id;
+		for (var i=index+1; i<index+size; i++)
+		{
+			gfxData[i] = 0;
+		}
+		
+		gfxNum += size;
+	}
+
+//		// calculate main time display
+//		if ((propTimeOn & onOrGlanceActive)!=0)
+//        {
+//        	var hasColon = (propTimeColon!=COLOR_NOTSET);
+//        	
+//			backgroundTimeColorArray[0] = propTimeHourColor;
+//			backgroundTimeColorArray[1] = propTimeHourColor;	// set element 1 even if hour is only 1 digit - saves having an if statement
+//			var curLength = addStringToCharArray(hourString, backgroundTimeCharArray, 0, 5);
+//			if (hasColon)
+//			{
+//				backgroundTimeColorArray[curLength] = propTimeColon;
+//				curLength = addStringToCharArray(":", backgroundTimeCharArray, curLength, 5);
+//				backgroundTimeArrayMinuteStart = ((propTimeHourFont <= propTimeMinuteFont) ? curLength : (curLength-1));
+//			}
+//			else
+//			{
+//				backgroundTimeArrayMinuteStart = curLength;
+//			}
+//			backgroundTimeColorArray[curLength] = propTimeMinuteColor;
+//			backgroundTimeColorArray[curLength+1] = propTimeMinuteColor;
+//			backgroundTimeArrayLength = addStringToCharArray(minuteString, backgroundTimeCharArray, curLength, 5);
+//			
+//			backgroundTimeTotalWidth = 0;
+//			backgroundTimeXOffset = (propTimeItalic ? 1 : 0);
+//
+//	        for (var i=0; i<backgroundTimeArrayLength; i++)
+//	        {
+//	        	var w = dc.getTextWidthInPixels(backgroundTimeCharArray[i].toString(), ((i<backgroundTimeArrayMinuteStart) ? fontTimeHourResource : fontTimeMinuteResource));
+//
+//				// make sure both fonts are our custom ones
+//				if (propTimeHourFont<=5/*APPFONT_HEAVY*/ && propTimeMinuteFont<=5/*APPFONT_HEAVY*/)
+//				{
+//					var curNum = backgroundTimeCharArray[i].toNumber() - 48/*APPCHAR_0*/;
+//
+//	    			if (i < backgroundTimeArrayLength-1)
+//	    			{
+//						var nextNum = backgroundTimeCharArray[i+1].toNumber() - 48/*APPCHAR_0*/;
+//						var appFontCur = ((i<backgroundTimeArrayMinuteStart) ? propTimeHourFont : propTimeMinuteFont);
+//						var appFontNext = ((i<(backgroundTimeArrayMinuteStart-1)) ? propTimeHourFont : propTimeMinuteFont);
+//						
+//						w -= getKern(curNum, nextNum, appFontCur, appFontNext, hasColon);
+//				    }
+//				    else
+//				    {
+//				    	// last digit - if it's a 4 then shift whole number right a bit
+//				    	if (curNum==4)
+//				    	{
+//				    		backgroundTimeXOffset += 1;
+//				    	}
+//				    }
+//				}
+//							    
+//		       	backgroundTimeWidthArray[i] = w;
+//	        	backgroundTimeTotalWidth += w;
+//			}
+//		}
+
+//		// draw the main time (after / on top of fields)
+//		if ((propTimeOn & onOrGlanceActive)!=0)
+//        {
+//	        // draw time
+//		    //const SCREEN_CENTRE_X = 120;
+//		    //const SCREEN_CENTRE_Y = 120;
+//			var timeXStart = 120 - backgroundTimeTotalWidth/2 + backgroundTimeXOffset;
+//			var timeYStart = 120 - propTimeYOffset;
+//	
+//			var timeX = timeXStart - dcX;
+//			var timeYOffset = timeYStart - dcY;
+//	
+//			if (timeX<=dcWidth && (timeX+backgroundTimeTotalWidth)>=0 && 
+//					(timeYOffset-32)<=dcHeight && (timeYOffset-32+64)>=0)
+//			{
+//				//System.println("timedraw=" + i);
+//	
+//				// show where the text bounding box is
+//			    //useDc.setColor(graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
+//				//useDc.fillRectangle(timeX, (timeYOffset-32), backgroundTimeTotalWidth, 64);
+//		
+//		        for (var i=0; i<backgroundTimeArrayLength; i++)
+//		        {
+//					if (timeX<=dcWidth && (timeX+backgroundTimeWidthArray[i])>=0)		// check digit x overlaps buffer
+//					{
+//						var beforeMinuteStart = (i<backgroundTimeArrayMinuteStart); 
+//			        	var fontTimeResource = (beforeMinuteStart ? fontTimeHourResource : fontTimeMinuteResource);			// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+//			   			var fontTypeCur = (beforeMinuteStart ? propTimeHourFont : propTimeMinuteFont);
+//
+//						if (fontTimeResource!=null)
+//						{			   			
+//							// align bottom of text
+//							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
+//							//const timeYAdjustFontCustom = -32;
+//							//const timeYAdjustFontSystem = 30;
+//							var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontTimeResource)));
+//				       		useDc.setColor(backgroundTimeColorArray[i], -1/*COLOR_TRANSPARENT*/);
+//			        		useDc.drawText(timeX, timeY, fontTimeResource, backgroundTimeCharArray[i].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//			        	}
+//					}
+//							
+//		        	timeX += backgroundTimeWidthArray[i];
+//				}
+//			}
+//		}
+
+	function gfxOnUpdate(dc, clockTime, timeNow)
+	{
+        var hour = clockTime.hour;
+        var minute = clockTime.min;
+        var second = clockTime.sec;
+        var timeNowInMinutesToday = hour*60 + minute;
+
+        var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
+		var activityMonitorInfo = ActivityMonitor.getInfo();  	// 560 bytes, but uses less code memory
+		var systemStats = System.getSystemStats();				// 168 bytes, but uses less code memory
+        var firstDayOfWeek = deviceSettings.firstDayOfWeek;
+		var gregorian = Time.Gregorian;
+		var dateInfoShort = gregorian.info(timeNow, Time.FORMAT_SHORT);
+		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
+		var dayNumberOfWeek = (((dateInfoShort.day_of_week - firstDayOfWeek + 7) % 7) + 1);		// 1-7
+
+        // Get the current time and format it correctly
+    	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
+        var minuteString = minute.format("%02d");
+
+		gfxNum = 0;
+		gfxInsert(gfxNum, 0);
+		gfxInsert(gfxNum, 1);	// large hour 
+		gfxInsert(gfxNum, 3);	// large colon
+		gfxInsert(gfxNum, 2);	// large minute
+	
+		var indexCurField = -1;
+		
+		var indexPrevLargeWidth = -1;
+		var prevLargeNumber = -1;
+		var prevLargeFontType = -1;
+	
+		for (var index=0; index<gfxNum; )
+		{
+			var id = gfxData[index];
+			
+			switch(id)
+			{
+				case 0:		// field
+				{
+        			System.println("gfxOnUpdate field");
+
+					indexCurField = index;
+
+					// calculate total width
+					//gfxData[index] = 0;		// id
+					//gfxData[index+1] = 0;	// x
+					//gfxData[index+2] = 0;	// y
+					//gfxData[index+3] = 0;	// justification & narrow spacing (colon)
+					gfxData[index+4] = 0;	// total width
+					
+					break;
+				}
+
+				case 1:		// hour large
+				case 2:		// minute large
+				case 3:		// colon large
+				{
+        			System.println("gfxOnUpdate large");
+				
+					// calculate string and widths
+					//gfxData[index] = 1;		// id
+					gfxData[index+1] = 3;	// color
+					gfxData[index+2] = 0;	// font
+
+					var fontResource;
+					var fontTypeCur;
+					var charArray;
+					
+					if (id==1)
+					{
+						fontResource = fontTimeHourResource;
+						fontTypeCur = propTimeHourFont;
+						charArray = hourString.toCharArray();
+					}
+					else if (id==2)
+					{
+						fontResource = fontTimeMinuteResource;
+						fontTypeCur = propTimeMinuteFont;
+						charArray = minuteString.toCharArray();
+					}
+					else //if (id==3)
+					{
+						fontResource = fontTimeMinuteResource;
+						fontTypeCur = propTimeMinuteFont;
+						charArray = ":".toCharArray();
+					}
+					
+					var charArraySize = charArray.size();
+					var charArrayIndex = 0;
+
+					if (charArraySize==1)
+					{
+						//gfxData[index+3] = 0;	// string 0
+						gfxData[index+4] = 0;	// width 0
+					}
+					else
+					{
+						var c = charArray[charArrayIndex];
+						charArrayIndex++;
+						gfxData[index+3] = c;	// string 0
+						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), fontResource);	// width 0
+						gfxData[indexCurField+4] += gfxData[index+4];	// total width
+						
+						if (indexPrevLargeWidth>=0)
+						{
+							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontType, fontTypeCur, false);
+							gfxData[indexPrevLargeWidth] -= k;
+							gfxData[indexCurField+4] -= k;	// total width
+						}
+						
+						indexPrevLargeWidth = index+4;
+						prevLargeNumber = c.toNumber();
+						prevLargeFontType = fontTypeCur;
+					}
+
+					{
+						var c = charArray[charArrayIndex];
+						gfxData[index+5] = c;	// string 1
+						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), fontResource);	// width 1
+						gfxData[indexCurField+4] += gfxData[index+6];	// total width
+	
+						if (indexPrevLargeWidth>=0)
+						{
+							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontType, fontTypeCur, false);
+							gfxData[indexPrevLargeWidth] -= k;
+							gfxData[indexCurField+4] -= k;	// total width
+						}
+
+						indexPrevLargeWidth = index+6;
+						prevLargeNumber = c.toNumber();
+						prevLargeFontType = fontTypeCur;
+					}
+					
+					break;
+				}
+			}
+			
+			index += gfxSize(id);
+		}
+	}
+	
+	function gfxDrawBackground(dc, dcX, dcY)
+	{
+		var graphics = Graphics;
+
+		var dcWidth = dc.getWidth();
+		var dcHeight = dc.getHeight();
+
+		var fieldDraw = false;
+		var fieldXStart = 120;
+		var fieldYStart = 120 - propTimeYOffset;
+
+		var timeX = 120;
+		var timeYOffset = 120;
+
+		for (var index=0; index<gfxNum; )
+		{
+			var id = gfxData[index];
+			
+			switch(id)
+			{
+				case 0:		// field
+				{
+        			System.println("gfxDraw field");
+
+					var totalWidth = gfxData[index+4];
+
+					fieldXStart -= totalWidth/2 - gfxData[index+1] + dcX;
+					fieldYStart -= gfxData[index+2] + dcY;
+			
+					fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-32)<=dcHeight && (fieldYStart-32+64)>=0));
+			
+					timeX = fieldXStart;
+					timeYOffset = fieldYStart;
+
+					break;
+				}
+
+				case 1:		// hour large
+				case 2:		// minute large
+				case 3:		// colon large
+				{
+        			System.println("gfxDraw large");
+
+					if (fieldDraw)
+					{
+						var fontResource;
+						var fontTypeCur;
+						
+						if (id==1)
+						{
+							fontResource = fontTimeHourResource;
+							fontTypeCur = propTimeHourFont;
+						}
+						else if (id==2)
+						{
+							fontResource = fontTimeMinuteResource;
+							fontTypeCur = propTimeMinuteFont;
+						}
+						else //if (id==3)
+						{
+							fontResource = fontTimeMinuteResource;
+							fontTypeCur = propTimeMinuteFont;
+						}
+	
+						if (gfxData[index+4]>0)	// width 1
+						{
+							if (timeX<=dcWidth && (timeX+gfxData[index+4])>=0)		// check digit x overlaps buffer
+							{
+								// align bottom of text
+								// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
+								//const timeYAdjustFontCustom = -32;
+								//const timeYAdjustFontSystem = 30;
+								var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
+					       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+				        		dc.drawText(timeX, timeY, fontResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+							}
+														
+			        		timeX += gfxData[index+4];
+			        	}
+
+						if (timeX<=dcWidth && (timeX+gfxData[index+6])>=0)		// check digit x overlaps buffer
+						{
+							// align bottom of text
+							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
+							//const timeYAdjustFontCustom = -32;
+							//const timeYAdjustFontSystem = 30;
+							var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
+				       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+			        		dc.drawText(timeX, timeY, fontResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+						}
+
+			        	timeX += gfxData[index+6];
+					}
+
+					break;
+				}
+			}
+			
+			index += gfxSize(id);
+		}
+	}
+}
+
+(:m2app)
+class myEditorView extends myView
+{
 	var timer;
 
     function initialize()
