@@ -77,12 +77,12 @@ class myView
 
 	var propAddLeadingZero = false;
 
-    var propTimeOn;
+//    var propTimeOn;
     var propTimeHourFont;
     var propTimeMinuteFont;
-	var propTimeHourColor;
-	var propTimeMinuteColor;
-	var propTimeColon;
+//	var propTimeHourColor;
+//	var propTimeMinuteColor;
+//	var propTimeColon;
 	var propTimeItalic;
 	var propTimeYOffset;
     
@@ -102,21 +102,21 @@ class myView
     var propFieldFontSystemCase = 0;
     var propFieldFontUnsupported;
 
-	var propOuterOn;
-	var propOuterMode = 0;
-	var propOuterColorFilled;
-	var propOuterColorUnfilled;
+//	var propOuterOn;
+//	var propOuterMode = 0;
+//	var propOuterColorFilled;
+//	var propOuterColorUnfilled;
 	
-	var propMoveBarOffColorIndex;
+//	var propMoveBarOffColorIndex;
 	
     var propMoveBarAlertTriggerLevel = 0; 
 	
     var propBatteryHighPercentage = 75.0;
 	var propBatteryLowPercentage = 25.0;
 
-	var propDemoFontStylesOn = false;
-	var propDemoSecondStylesOn = false;
-	//var propDemoDisplayOn;
+//	var propDemoFontStylesOn = false;
+//	var propDemoSecondStylesOn = false;
+//	var propDemoDisplayOn;
 	
 	var prop2ndTimeZoneOffset = 0;
 	
@@ -124,21 +124,21 @@ class myView
 	
 	var propSunAltitudeAdjust = false;
 	
-	const FIELD_NUM = 8;		// number of fields
-	const FIELD_NUM_ELEMENTS = 6;
-	const FIELD_NUM_ELEMENTS_DRAW = 10;		// 4 extra for 5 move bar icons + 5 other icons
-	// We pack justifcation and field management (off/on/glance) into 1 char:
-	// (and it has a single digit value for export string to fit into 255 chars)
-	// a=0,1,2 & b=0,1,2, then (a + 3*b)=0 to 8
-	//const FIELD_MANAGEMENT_MODULO = 3;
-	enum
-	{
-	//	FIELD_INDEX_YOFFSET = 0,
-	//	FIELD_INDEX_XOFFSET = 1,
-	//	FIELD_INDEX_JUSTIFICATION = 2,
-	//	FIELD_INDEX_ELEMENTS = 3,
-		FIELD_NUM_PROPERTIES = 21,
-	}	
+//	const FIELD_NUM = 8;		// number of fields
+//	const FIELD_NUM_ELEMENTS = 6;
+//	const FIELD_NUM_ELEMENTS_DRAW = 10;		// 4 extra for 5 move bar icons + 5 other icons
+//	// We pack justifcation and field management (off/on/glance) into 1 char:
+//	// (and it has a single digit value for export string to fit into 255 chars)
+//	// a=0,1,2 & b=0,1,2, then (a + 3*b)=0 to 8
+//	//const FIELD_MANAGEMENT_MODULO = 3;
+//	enum
+//	{
+//	//	FIELD_INDEX_YOFFSET = 0,
+//	//	FIELD_INDEX_XOFFSET = 1,
+//	//	FIELD_INDEX_JUSTIFICATION = 2,
+//	//	FIELD_INDEX_ELEMENTS = 3,
+//		FIELD_NUM_PROPERTIES = 21,
+//	}	
     // "FM" = field management
     // "FN" = field number
     // "F0" = field y offset
@@ -162,7 +162,7 @@ class myView
     // "F18" = field element 6
     // "F19" = field visibility 6
     // "F20" = field color 6
-    var propFieldData = new[FIELD_NUM*FIELD_NUM_PROPERTIES]b;		// don't initialize as it takes 1250 bytes of code ...
+//    var propFieldData = new[FIELD_NUM*FIELD_NUM_PROPERTIES]b;		// don't initialize as it takes 1250 bytes of code ...
     
     const PROFILE_NUM_PROPERTIES = 38;
     //const PROFILE_PROPERTY_COLON = 36;
@@ -261,98 +261,98 @@ class myView
 
 		propAddLeadingZero = getBooleanFromArray(pArray, 3/*"3"*/);
 
-    	propTimeOn = getNumberFromArray(pArray, 2/*"2"*/);
+//    	propTimeOn = getNumberFromArray(pArray, 2/*"2"*/);
    		propTimeHourFont = getNumberFromArray(pArray, 4/*"4"*/);
 	 	if (propTimeHourFont<0 || propTimeHourFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
 	 	{
 	 		propTimeHourFont = 3/*APPFONT_REGULAR*/;
 	 	}
-		propTimeHourColor = getColorFromArray(pArray, 5/*"5"*/, 0);
+//		propTimeHourColor = getColorFromArray(pArray, 5/*"5"*/, 0);
    		propTimeMinuteFont = getNumberFromArray(pArray, 6/*"6"*/);
 		if (propTimeMinuteFont<0 || propTimeMinuteFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
 		{
 	 		propTimeMinuteFont = 3/*APPFONT_REGULAR*/;
 		}
-		propTimeMinuteColor = getColorFromArray(pArray, 7/*"7"*/, 0);
-		propTimeColon = getColorFromArray(pArray, 36/*"36"*/, -1);
+//		propTimeMinuteColor = getColorFromArray(pArray, 7/*"7"*/, 0);
+//		propTimeColon = getColorFromArray(pArray, 36/*"36"*/, -1);
     	propTimeItalic = (getBooleanFromArray(pArray, 8/*"8"*/) && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));
 		propTimeYOffset = getNumberFromArray(pArray, 9/*"9"*/);
     	
-    	propSecondIndicatorOn = getNumberFromArray(pArray, 10/*"10"*/);
-    	propSecondRefreshStyle = getNumberFromArray(pArray, 12/*"12"*/);
-    	propSecondMoveInABit = getBooleanFromArray(pArray, 19/*"19"*/);		// move in a bit
-    
-		propSecondIndicatorStyle = getNumberFromArray(pArray, 11/*"11"*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);
-	 	if (propSecondIndicatorStyle<0 || propSecondIndicatorStyle>=12/*SECONDFONT_UNUSED*/)
-	 	{
-	 		propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/;
-	 	}
-
-		if ((propSecondIndicatorOn&(0x01/*ITEM_ON*/|0x02/*ITEM_ONGLANCE*/))!=0)
-		{
-			// calculate the seconds color array
-	    	var secondColorIndex = getColorIndexFromArray(pArray, 13/*"13"*/, 0);		// second color
-	    	var secondColorIndex5 = getColorIndexFromArray(pArray, 14/*"14"*/, -1);
-	    	var secondColorIndex10 = getColorIndexFromArray(pArray, 15/*"15"*/, -1);
-	    	var secondColorIndex15 = getColorIndexFromArray(pArray, 16/*"16"*/, -1);
-	    	var secondColorIndex0 = getColorIndexFromArray(pArray, 17/*"17"*/, -1);
-	    	var secondColorDemo = getBooleanFromArray(pArray, 18/*"18"*/);		// second color demo
-	    	for (var i=0; i<60; i++)
-	    	{
-				var col;
-		
-		        if (secondColorDemo)		// second color demo
-		        {
-		        	col = 4 + i;
-		        }
-				else if (secondColorIndex0!=COLOR_NOTSET && i==0)
-				{
-					col = secondColorIndex0;
-				}
-				else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
-				{
-					col = secondColorIndex15;
-				}
-				else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
-				{
-					col = secondColorIndex10;
-				}
-				else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
-				{
-					col = secondColorIndex5;
-				}
-		        else
-		        {
-		        	col = secondColorIndex;		// second color
-		        }
-		        
-		        secondsColorIndexArray[i] = col;
-		    }
-
-// this test code now works out exactly the same size as the original above!
-//			// Initialising the array like this works out 100 bytes more expensive
-//			//var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
-//			var colArray = new [6];
-//			colArray[0] = propertiesGetColorIndex("13", 0);
-//			for (var i=2; i<6; i++)
-//			{
-//				colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
-//			}			
-//	    	var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
-//		
-//			// this for loop is 30 bytes cheaper than original
+//    	propSecondIndicatorOn = getNumberFromArray(pArray, 10/*"10"*/);
+//    	propSecondRefreshStyle = getNumberFromArray(pArray, 12/*"12"*/);
+//    	propSecondMoveInABit = getBooleanFromArray(pArray, 19/*"19"*/);		// move in a bit
+//    
+//		propSecondIndicatorStyle = getNumberFromArray(pArray, 11/*"11"*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);
+//	 	if (propSecondIndicatorStyle<0 || propSecondIndicatorStyle>=12/*SECONDFONT_UNUSED*/)
+//	 	{
+//	 		propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/;
+//	 	}
+//
+//		if ((propSecondIndicatorOn&(0x01/*ITEM_ON*/|0x02/*ITEM_ONGLANCE*/))!=0)
+//		{
+//			// calculate the seconds color array
+//	    	var secondColorIndex = getColorIndexFromArray(pArray, 13/*"13"*/, 0);		// second color
+//	    	var secondColorIndex5 = getColorIndexFromArray(pArray, 14/*"14"*/, -1);
+//	    	var secondColorIndex10 = getColorIndexFromArray(pArray, 15/*"15"*/, -1);
+//	    	var secondColorIndex15 = getColorIndexFromArray(pArray, 16/*"16"*/, -1);
+//	    	var secondColorIndex0 = getColorIndexFromArray(pArray, 17/*"17"*/, -1);
+//	    	var secondColorDemo = getBooleanFromArray(pArray, 18/*"18"*/);		// second color demo
 //	    	for (var i=0; i<60; i++)
 //	    	{
-//				colArray[1] = 4+i;
-//				var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
-//				secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
-//			}		
-		}
+//				var col;
+//		
+//		        if (secondColorDemo)		// second color demo
+//		        {
+//		        	col = 4 + i;
+//		        }
+//				else if (secondColorIndex0!=COLOR_NOTSET && i==0)
+//				{
+//					col = secondColorIndex0;
+//				}
+//				else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
+//				{
+//					col = secondColorIndex15;
+//				}
+//				else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
+//				{
+//					col = secondColorIndex10;
+//				}
+//				else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
+//				{
+//					col = secondColorIndex5;
+//				}
+//		        else
+//		        {
+//		        	col = secondColorIndex;		// second color
+//		        }
+//		        
+//		        secondsColorIndexArray[i] = col;
+//		    }
+//
+//// this test code now works out exactly the same size as the original above!
+////			// Initialising the array like this works out 100 bytes more expensive
+////			//var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
+////			var colArray = new [6];
+////			colArray[0] = propertiesGetColorIndex("13", 0);
+////			for (var i=2; i<6; i++)
+////			{
+////				colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
+////			}			
+////	    	var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
+////		
+////			// this for loop is 30 bytes cheaper than original
+////	    	for (var i=0; i<60; i++)
+////	    	{
+////				colArray[1] = 4+i;
+////				var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
+////				secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
+////			}		
+//		}
 		
-		propOuterOn = getNumberFromArray(pArray, 20/*"20"*/);		// outer ring on
-		propOuterMode = getNumberFromArray(pArray, 21/*"21"*/);
-		propOuterColorFilled = getColorFromArray(pArray, 22/*"22"*/, -1);
-		propOuterColorUnfilled = getColorFromArray(pArray, 23/*"23"*/, -1);
+//		propOuterOn = getNumberFromArray(pArray, 20/*"20"*/);		// outer ring on
+//		propOuterMode = getNumberFromArray(pArray, 21/*"21"*/);
+//		propOuterColorFilled = getColorFromArray(pArray, 22/*"22"*/, -1);
+//		propOuterColorUnfilled = getColorFromArray(pArray, 23/*"23"*/, -1);
 
     	propFieldFont = getNumberFromArray(pArray, 24/*"24"*/);
    		propFieldFont += ((propFieldFont<24/*APPFONT_SYSTEM_XTINY*/) ? getNumberFromArray(pArray, 25/*"25"*/) : 0);		// add weight to non system fonts 
@@ -364,15 +364,15 @@ class myView
 		propFieldFontSystemCase = getNumberFromArray(pArray, 26/*"26"*/);		// get case for system fonts
     	propFieldFontUnsupported = getNumberFromArray(pArray, 27/*"27"*/);
 		
-		propMoveBarOffColorIndex = getColorIndexFromArray(pArray, 28/*"28"*/, -1);
+//		propMoveBarOffColorIndex = getColorIndexFromArray(pArray, 28/*"28"*/, -1);
 
     	propMoveBarAlertTriggerLevel = getNumberFromArray(pArray, 29/*"29"*/); 
 
 	    propBatteryHighPercentage = getNumberFromArray(pArray, 30/*"30"*/);
 	    propBatteryLowPercentage = getNumberFromArray(pArray, 31/*"31"*/);
 
-		propDemoFontStylesOn = getBooleanFromArray(pArray, 32/*"32"*/);
-		propDemoSecondStylesOn = getBooleanFromArray(pArray, 33/*"33"*/);		// demo second styles on
+//		propDemoFontStylesOn = getBooleanFromArray(pArray, 32/*"32"*/);
+//		propDemoSecondStylesOn = getBooleanFromArray(pArray, 33/*"33"*/);		// demo second styles on
 
 		//propDemoDisplayOn = getBooleanFromArray(pArray, 34/*"34"*/);
 		
@@ -817,58 +817,58 @@ class myView
 //	var backgroundTimeTotalWidth;
 //	var backgroundTimeXOffset;
 
-	const FIELD_INFO_CHAR_MAX_LEN = 16;		// 20 characters seems plenty - widest element might be step count, but normally day or month name = 3*6
-	var backgroundFieldInfoIndex = new[FIELD_NUM]b;		// index into backgroundFieldInfo arrays
-	var backgroundFieldInfoCharArray = new[FIELD_NUM*FIELD_INFO_CHAR_MAX_LEN];
-	var backgroundFieldInfoCharArrayLength = new[FIELD_NUM]b;
-	var backgroundFieldInfoData = new[FIELD_NUM*FIELD_NUM_ELEMENTS_DRAW];	// pixel width, string start, string end, is icon, use unsupported font
-	var backgroundFieldInfoColorIndex = new[FIELD_NUM*FIELD_NUM_ELEMENTS_DRAW]b;
-	var backgroundFieldTotalWidth = new[FIELD_NUM];
+//	const FIELD_INFO_CHAR_MAX_LEN = 16;		// 20 characters seems plenty - widest element might be step count, but normally day or month name = 3*6
+//	var backgroundFieldInfoIndex = new[FIELD_NUM]b;		// index into backgroundFieldInfo arrays
+//	var backgroundFieldInfoCharArray = new[FIELD_NUM*FIELD_INFO_CHAR_MAX_LEN];
+//	var backgroundFieldInfoCharArrayLength = new[FIELD_NUM]b;
+//	var backgroundFieldInfoData = new[FIELD_NUM*FIELD_NUM_ELEMENTS_DRAW];	// pixel width, string start, string end, is icon, use unsupported font
+//	var backgroundFieldInfoColorIndex = new[FIELD_NUM*FIELD_NUM_ELEMENTS_DRAW]b;
+//	var backgroundFieldTotalWidth = new[FIELD_NUM];
 
-	// index 0==day, 1==month
-	var backgroundFieldDiacriticsArray = new[2*5];
-	var backgroundFieldDiacriticsWidth = new[2*5]b;
+//	// index 0==day, 1==month
+//	var backgroundFieldDiacriticsArray = new[2*5];
+//	var backgroundFieldDiacriticsWidth = new[2*5]b;
 
-	function addBackgroundFieldDiacritics(dc, fontResource, sLen, eLen, nameIndex)
-	{
-		var startIndex = nameIndex*5;
-		var i = 0;
-		var width = 0;
-		for (var k=sLen; k<eLen; k++)
-		{
-			var c = getMyCharDiacritic(backgroundFieldInfoCharArray[k]);
-
-			backgroundFieldInfoCharArray[k] = c[0];	// replace the character
-
-			if (i<5)
-			{
-				backgroundFieldDiacriticsArray[startIndex+i] = ((c[1]>700) ? c[1].toChar() : 0);
-				backgroundFieldDiacriticsWidth[startIndex+i] = width;
-			}
-						
-			width += dc.getTextWidthInPixels(c[0].toString(), fontResource);
-			i++;
-		}
-		
-		return width;
-	}
+//	function addBackgroundFieldDiacritics(dc, fontResource, sLen, eLen, nameIndex)
+//	{
+//		var startIndex = nameIndex*5;
+//		var i = 0;
+//		var width = 0;
+//		for (var k=sLen; k<eLen; k++)
+//		{
+//			var c = getMyCharDiacritic(backgroundFieldInfoCharArray[k]);
+//
+//			backgroundFieldInfoCharArray[k] = c[0];	// replace the character
+//
+//			if (i<5)
+//			{
+//				backgroundFieldDiacriticsArray[startIndex+i] = ((c[1]>700) ? c[1].toChar() : 0);
+//				backgroundFieldDiacriticsWidth[startIndex+i] = width;
+//			}
+//						
+//			width += dc.getTextWidthInPixels(c[0].toString(), fontResource);
+//			i++;
+//		}
+//		
+//		return width;
+//	}
 	
-	function drawBackgroundFieldDiacritics(dc, fontResource, len, nameIndex, dateX, dateY)
-	{
-		var startIndex = nameIndex*5;
-		len = ((len<=5) ? len : 5);
-		for (var i=0; i<len; i++)
-		{ 
-			var c = backgroundFieldDiacriticsArray[startIndex+i];
-			if (c!=0)
-			{
-				dc.drawText(dateX + backgroundFieldDiacriticsWidth[startIndex+i], dateY, fontResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-			}
-		}
-	}	
+//	function drawBackgroundFieldDiacritics(dc, fontResource, len, nameIndex, dateX, dateY)
+//	{
+//		var startIndex = nameIndex*5;
+//		len = ((len<=5) ? len : 5);
+//		for (var i=0; i<len; i++)
+//		{ 
+//			var c = backgroundFieldDiacriticsArray[startIndex+i];
+//			if (c!=0)
+//			{
+//				dc.drawText(dateX + backgroundFieldDiacriticsWidth[startIndex+i], dateY, fontResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//			}
+//		}
+//	}	
 
-	var backgroundOuterFillStart;	// first segment of outer ring to draw as filled (-1 to 59)
-	var backgroundOuterFillEnd;		// last segment of outer ring to draw as filled (-1 to 59)
+//	var backgroundOuterFillStart;	// first segment of outer ring to draw as filled (-1 to 59)
+//	var backgroundOuterFillEnd;		// last segment of outer ring to draw as filled (-1 to 59)
 
 	function getMinMax(v, min, max)
 	{
@@ -1431,40 +1431,40 @@ class myView
 		return toLen;
 	}
 	
-	function addArrayToCharArray(sArray, toArray, toLen, toMax)
-	{
-		var lastComma = toLen;
-		var charArray = sArray.toString().toCharArray();
-		var charArraySize = charArray.size();
-		var cPrev = 0;
-		for (var i=0; i<charArraySize; i++)
-		{
-			var c = charArray[i];
-			var cNumber = c.toNumber();
-			// remove square brackets
-			// remove spaces immediately after commas (leave spaces in middle of profile names!)
-			if (cNumber!=91/*APPCHAR_OPEN_SQUARE_BRACKET*/ && cNumber!=93/*APPCHAR_CLOSE_SQUARE_BRACKET*/ && !(cNumber==32/*APPCHAR_SPACE*/ && cPrev==44/*APPCHAR_COMMA*/))
-			{
-				if (toLen >= toMax)
-				{
-					toLen = lastComma;
-					break;
-				}
-
-				if (cNumber==44/*APPCHAR_COMMA*/)
-				{
-					lastComma = toLen;
-				}
-
-				toArray[toLen] = c;
-				toLen += 1;
-			}
-			
-			cPrev = cNumber;
-		}
-
-		return toLen;
-	}
+//	function addArrayToCharArray(sArray, toArray, toLen, toMax)
+//	{
+//		var lastComma = toLen;
+//		var charArray = sArray.toString().toCharArray();
+//		var charArraySize = charArray.size();
+//		var cPrev = 0;
+//		for (var i=0; i<charArraySize; i++)
+//		{
+//			var c = charArray[i];
+//			var cNumber = c.toNumber();
+//			// remove square brackets
+//			// remove spaces immediately after commas (leave spaces in middle of profile names!)
+//			if (cNumber!=91/*APPCHAR_OPEN_SQUARE_BRACKET*/ && cNumber!=93/*APPCHAR_CLOSE_SQUARE_BRACKET*/ && !(cNumber==32/*APPCHAR_SPACE*/ && cPrev==44/*APPCHAR_COMMA*/))
+//			{
+//				if (toLen >= toMax)
+//				{
+//					toLen = lastComma;
+//					break;
+//				}
+//
+//				if (cNumber==44/*APPCHAR_COMMA*/)
+//				{
+//					lastComma = toLen;
+//				}
+//
+//				toArray[toLen] = c;
+//				toLen += 1;
+//			}
+//			
+//			cPrev = cNumber;
+//		}
+//
+//		return toLen;
+//	}
 
     // Order of calling on start up
 	// initialize() → onLayout() → onShow() → onUpdate()
@@ -2157,62 +2157,62 @@ class myView
 		propSunAltitudeAdjust = propertiesGetBoolean("SA");
 	}
 		
-	// forceChange is set to true when either the settings have been changed by the user or a new profile has loaded
-	// - in these situations if any of the demo settings flags are set then we need to set the relevant properties straight away
-	function checkDemoSettings(index, forceChange)
-	{
-		var changed = false;
-        
-        if (propDemoFontStylesOn /*|| forceDemoFontStyles*/)		// demo font styles on
-        {
-	        if ((index%3)==0 || forceChange)
-	        { 
-	        	var index3 = index/3;
-	        
-				propTimeHourFont = ((index3/6)%6);		// time hour font
-				propTimeMinuteFont = (index3%6);			// time minute font
-				propTimeItalic = (((index3/36)%2)==1); // && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));		// italic
-		
-		    	propFieldFont = (6/*APPFONT_ULTRA_LIGHT_TINY*/ + (6*(index3%3)) + ((index3/3)%6));		// field font & weight
-		
-		    	changed = true;
-		    }
-		}
-			    
-        if (propDemoSecondStylesOn)		// demo second styles on
-        {
-	        if ((index%3)==0 || forceChange)
-	        { 
-		    	propSecondIndicatorStyle = ((index/3)%6/*SECONDFONT_TRI_IN*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);		// second indicator style - cycles every 18
-		
-		    	changed = true;
-		    }
-
-			// 0, 1, 2, 3 -> 2/*REFRESH_ALTERNATE_MINUTES*/
-			// 4, 5, 6, 7 -> 0/*REFRESH_EVERY_SECOND*/
-			// 8, 9, 10 -> 1/*REFRESH_EVERY_MINUTE*/
-        	// prime number to be out of sync with indicator style
-			propSecondRefreshStyle = (((index%11)/4 + 2)%3);		// second refresh style
-
-//        	var srs = index%11;		// prime number to be out of sync with indicator style
-//        	if (srs<3)		// 0, 1, 2
-//        	{
-//        		srs = 1/*REFRESH_EVERY_MINUTE*/;
-//        	}
-//        	else if (srs<7)	// 3, 4, 5, 6
-//        	{
-//        		srs = 2/*REFRESH_ALTERNATE_MINUTES*/;
-//        	}
-//        	else			// 7, 8, 9, 10
-//        	{
-//        		srs = 0/*REFRESH_EVERY_SECOND*/;
-//        	}
-//	    	properties.setValue("12", srs);		// second refresh style
-	    	//changed = true;	don't need to set changed for this
-		}
-			    
-	    return changed;
-	}
+//	// forceChange is set to true when either the settings have been changed by the user or a new profile has loaded
+//	// - in these situations if any of the demo settings flags are set then we need to set the relevant properties straight away
+//	function checkDemoSettings(index, forceChange)
+//	{
+//		var changed = false;
+//        
+//        if (propDemoFontStylesOn /*|| forceDemoFontStyles*/)		// demo font styles on
+//        {
+//	        if ((index%3)==0 || forceChange)
+//	        { 
+//	        	var index3 = index/3;
+//	        
+//				propTimeHourFont = ((index3/6)%6);		// time hour font
+//				propTimeMinuteFont = (index3%6);			// time minute font
+//				propTimeItalic = (((index3/36)%2)==1); // && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));		// italic
+//		
+//		    	propFieldFont = (6/*APPFONT_ULTRA_LIGHT_TINY*/ + (6*(index3%3)) + ((index3/3)%6));		// field font & weight
+//		
+//		    	changed = true;
+//		    }
+//		}
+//			    
+//        if (propDemoSecondStylesOn)		// demo second styles on
+//        {
+//	        if ((index%3)==0 || forceChange)
+//	        { 
+//		    	propSecondIndicatorStyle = ((index/3)%6/*SECONDFONT_TRI_IN*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);		// second indicator style - cycles every 18
+//		
+//		    	changed = true;
+//		    }
+//
+//			// 0, 1, 2, 3 -> 2/*REFRESH_ALTERNATE_MINUTES*/
+//			// 4, 5, 6, 7 -> 0/*REFRESH_EVERY_SECOND*/
+//			// 8, 9, 10 -> 1/*REFRESH_EVERY_MINUTE*/
+//        	// prime number to be out of sync with indicator style
+//			propSecondRefreshStyle = (((index%11)/4 + 2)%3);		// second refresh style
+//
+////        	var srs = index%11;		// prime number to be out of sync with indicator style
+////        	if (srs<3)		// 0, 1, 2
+////        	{
+////        		srs = 1/*REFRESH_EVERY_MINUTE*/;
+////        	}
+////        	else if (srs<7)	// 3, 4, 5, 6
+////        	{
+////        		srs = 2/*REFRESH_ALTERNATE_MINUTES*/;
+////        	}
+////        	else			// 7, 8, 9, 10
+////        	{
+////        		srs = 0/*REFRESH_EVERY_SECOND*/;
+////        	}
+////	    	properties.setValue("12", srs);		// second refresh style
+//	    	//changed = true;	don't need to set changed for this
+//		}
+//			    
+//	    return changed;
+//	}
 
 //	function getOrSetPropFieldDataProperties()
 //	{
@@ -2357,22 +2357,6 @@ class myView
 			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY
 		];
 
-		var secondFontLoad = [
-			fonts.id_seconds_tri,			// SECONDFONT_TRI
-			fonts.id_seconds_v,				// SECONDFONT_V
-			fonts.id_seconds_line,			// SECONDFONT_LINE
-			fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
-			fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
-			fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
-			
-			fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
-			fonts.id_seconds_v_in,			// SECONDFONT_V_IN
-			fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
-			fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
-			fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
-			fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
-		];
-
 	 	//if (forceTestFont)
 	 	//{
 	 	//	propTimeHourFont = 1/*APPFONT_EXTRA_LIGHT*/;
@@ -2417,8 +2401,6 @@ class myView
 //		   	fontTimeMinuteResource = fontSystem[propTimeMinuteFont - 24/*APPFONT_SYSTEM_XTINY*/];
 //		}
 			
-   		propSecondFontResource = watchUi.loadResource(secondFontLoad[propSecondIndicatorStyle]);
-			
 		fontFieldUnsupportedResource = ((propFieldFontUnsupported>=24/*APPFONT_SYSTEM_XTINY*/ && propFieldFontUnsupported<=28/*APPFONT_SYSTEM_LARGE*/) ? fontSystem[propFieldFontUnsupported-24/*APPFONT_SYSTEM_XTINY*/] : fontSystem[25/*APPFONT_SYSTEM_TINY*/-24/*APPFONT_SYSTEM_XTINY*/]); 
     }
     
@@ -2459,17 +2441,17 @@ class myView
         var clockTime = System.getClockTime();	// get as first thing so we know it is correct and won't change later on
 		var timeNow = Time.now();
 		// don't do anything with gregorian.info time formatting up here - as the returned data could allocate different amounts of memory each time
-		updateTimeNowValue = timeNow.value();
-		updateTimeTodayValue = Time.today().value();
-		updateTimeZoneOffset = clockTime.timeZoneOffset;
         var hour = clockTime.hour;
         var minute = clockTime.min;
         var second = clockTime.sec;
-        var timeNowInMinutesToday = hour*60 + minute;
+		updateTimeNowValue = timeNow.value();
+		updateTimeTodayValue = Time.today().value();
+		updateTimeZoneOffset = clockTime.timeZoneOffset;
+//        var timeNowInMinutesToday = hour*60 + minute;
 		var profileToActivate;
-		var demoSettingsChanged;
+//		var demoSettingsChanged;
 		var doLoadDynamicResources = false;
-		var forceDemoSettingsChange = false;
+//		var forceDemoSettingsChange = false;
 
         //View.onUpdate(dc);        // Call the parent onUpdate function to redraw the layout
 
@@ -2493,7 +2475,7 @@ class myView
 
 			releaseDynamicResources();						// also done in onSettingsChanged()
 			doLoadDynamicResources = true;
-			forceDemoSettingsChange = true;
+//			forceDemoSettingsChange = true;
 			
 			handleSettingsChanged(second);		// save/load/export/import etc
 		}
@@ -2511,7 +2493,7 @@ class myView
 		{
 			releaseDynamicResources();
 			doLoadDynamicResources = true;
-			forceDemoSettingsChange = true;
+//			forceDemoSettingsChange = true;
 			
 			clearExportImportStrings();				// clear the export/import strings before load (won't match properties or watch display after load anyway) 
 			loadProfile(profileToActivate);			// will set profileActive
@@ -2525,16 +2507,17 @@ class myView
 		settingsHaveChanged = false;			// clear the flag now as it has been handled (do after handleSettingsChanged)
 		firstUpdateSinceInitialize = false;		// and make sure this is cleared now also
 
-    	demoSettingsChanged = checkDemoSettings(timeNowInMinutesToday, forceDemoSettingsChange);
-    	if (demoSettingsChanged)
-    	{
-			releaseDynamicResources();
-			doLoadDynamicResources = true;
-		}
+//    	demoSettingsChanged = checkDemoSettings(timeNowInMinutesToday, forceDemoSettingsChange);
+//    	if (demoSettingsChanged)
+//    	{
+//			releaseDynamicResources();
+//			doLoadDynamicResources = true;
+//		}
 
         if (doLoadDynamicResources)
         {
 			loadDynamicResources();
+			gfxLoadDynamicResources();
         }
         
         //System.println("onUpdate sec=" + second);
@@ -2559,17 +2542,6 @@ class myView
 		//dc.setPenWidth(4);		  
 		//dc.drawCircle(120, 120 + 74, 25);		  
 
-        var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
-		var activityMonitorInfo = ActivityMonitor.getInfo();  	// 560 bytes, but uses less code memory
-		var systemStats = System.getSystemStats();				// 168 bytes, but uses less code memory
-        var firstDayOfWeek = deviceSettings.firstDayOfWeek;
-		var gregorian = Time.Gregorian;
-		var dateInfoShort = gregorian.info(timeNow, Time.FORMAT_SHORT);
-		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
-		var dayNumberOfWeek = (((dateInfoShort.day_of_week - firstDayOfWeek + 7) % 7) + 1);		// 1-7
-		
-		var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 24)%24;		// 2nd time zone
-
 		// check for position every onUpdate - this is so we can get and store a position from the latest activity
 		// (even if that position isn't currently being used by anything)
 		calculatePosition();
@@ -2582,10 +2554,6 @@ class myView
 		// does not change with time simulation in simulator:
 		//System.println("hour2=" + gregorian.info(Time.getCurrentTime(null), Time.FORMAT_SHORT).hour + " utc2=" + gregorian.utcInfo(Time.getCurrentTime(null), Time.FORMAT_SHORT).hour);
         
-        // Get the current time and format it correctly
-    	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
-        var minuteString = minute.format("%02d");
-
 		gfxOnUpdate(dc, clockTime, timeNow);
 
 //		// calculate main time display
@@ -2645,605 +2613,64 @@ class myView
 //			}
 //		}
 
-		// calculate fields to display
-		var visibilityStatus = new[23/*STATUS_NUM*/];
-		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
-	    visibilityStatus[1/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && deviceSettings.doNotDisturb);
-	    visibilityStatus[2/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !deviceSettings.doNotDisturb);
-	    var alarmCount = deviceSettings.alarmCount;
-	    visibilityStatus[3/*STATUS_ALARM_ON*/] = (alarmCount > 0);
-	    visibilityStatus[4/*STATUS_ALARM_OFF*/] = (alarmCount == 0);
-	    var notificationCount = deviceSettings.notificationCount;
-	    visibilityStatus[5/*STATUS_NOTIFICATIONS_PENDING*/] = (notificationCount > 0);
-	    visibilityStatus[6/*STATUS_NOTIFICATIONS_NONE*/] = (notificationCount == 0);
-	    var phoneConnected = deviceSettings.phoneConnected;
-	    visibilityStatus[7/*STATUS_PHONE_CONNECTED*/] = phoneConnected;
-	    visibilityStatus[8/*STATUS_PHONE_NOT*/] = !phoneConnected;
-	    var lteState = lteConnected();
-	    visibilityStatus[9/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
-	    visibilityStatus[10/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
-	    var batteryLevel = systemStats.battery;
-	    visibilityStatus[12/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
-	    visibilityStatus[14/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
-	    visibilityStatus[13/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[14/*STATUS_BATTERY_LOW*/]);
-	    visibilityStatus[11/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[14/*STATUS_BATTERY_LOW*/];
-		// moveBarLevel 0 = not triggered
-		// moveBarLevel has range 1 to 5
-		// propFieldMoveAlarmTriggerTime has range 1 to 5
-		var activityTrackingOn = deviceSettings.activityTrackingOn;
-		var activityMonitorMoveBarLevel = getNullCheckZero(activityMonitorInfo.moveBarLevel);
-	    var moveBarAlertTriggered = (activityMonitorMoveBarLevel >= propMoveBarAlertTriggerLevel); 
-	    visibilityStatus[15/*STATUS_MOVEBARALERT_TRIGGERED*/] = (activityTrackingOn && moveBarAlertTriggered);
-	    visibilityStatus[16/*STATUS_MOVEBARALERT_NOT*/] = (activityTrackingOn && !moveBarAlertTriggered);
-	    visibilityStatus[17/*STATUS_AM*/] = (hour < 12);
-	    visibilityStatus[18/*STATUS_PM*/] = (hour >= 12);
-	    visibilityStatus[19/*STATUS_2ND_AM*/] = (hour2nd < 12);
-	    visibilityStatus[20/*STATUS_2ND_PM*/] = (hour2nd >= 12);
-	    visibilityStatus[21/*STATUS_SUNEVENT_RISE*/] = null;	// calculated on demand
-	    visibilityStatus[22/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
-
-		var activityMonitorSteps = getNullCheckZero(activityMonitorInfo.steps);
-		var activityMonitorStepGoal = getNullCheckZero(activityMonitorInfo.stepGoal);
-		var activityMonitorActiveMinutesWeekTotal = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
-		var activityMonitorActiveMinutesWeekGoal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
-		var activeMinutesWeekSmartGoal = ((activityMonitorActiveMinutesWeekGoal * dayNumberOfWeek) / 7);
-
-		fieldActivePhoneStatus = null;
-		fieldActiveNotificationsStatus = null;
-		fieldActiveNotificationsCount = null;
-		fieldActiveLTEStatus = null;
-
-		var fieldFontIsCustom = (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/);
-		
-    	for (var f=0; f<FIELD_NUM; f++)
-    	{
-    		var dataStart = f*FIELD_NUM_PROPERTIES;
-    		var fJustification = propFieldData[dataStart + 2/*FIELD_INDEX_JUSTIFICATION*/];
-			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0)
-			{
-				backgroundFieldInfoIndex[f] = f*FIELD_NUM_ELEMENTS_DRAW;	// index into backgroundFieldInfo arrays
-				backgroundFieldInfoCharArrayLength[f] = f*FIELD_INFO_CHAR_MAX_LEN;
-				backgroundFieldTotalWidth[f] = 0;
-
-				var fieldInfoIndexEnd = backgroundFieldInfoIndex[f] + FIELD_NUM_ELEMENTS_DRAW; 
-
-				var moveBarNum = 0;
-				var heartAxesNum = 0;
-
-				for (var i=0; i<FIELD_NUM_ELEMENTS; i++)
-				{
-					var elementStart = dataStart + 3/*FIELD_INDEX_ELEMENTS*/ + i*3;
-					var eDisplay = propFieldData[elementStart];
-					var eVisible = propFieldData[elementStart + 1];
-
-					// don't need to test >=0 as it's a byte array
-					if (eDisplay!=0/*FIELD_EMPTY*/ && /*eVisible>=0 &&*/ eVisible<23/*STATUS_NUM*/)
-					{
-						// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
-						// So make sure to do these tests before the visibility test
-						if (eVisible==5/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==6/*STATUS_NOTIFICATIONS_NONE*/)
-						{
-							fieldActiveNotificationsStatus = (notificationCount > 0);
-						} 
-						if (eVisible==7/*STATUS_PHONE_CONNECTED*/ || eVisible==8/*STATUS_PHONE_NOT*/)
-						{
-							fieldActivePhoneStatus = phoneConnected;
-						} 
-						if (eVisible==9/*STATUS_LTE_CONNECTED*/ || eVisible==10/*STATUS_LTE_NOT*/)
-						{
-							fieldActiveLTEStatus = lteState;
-						}
-
- 						if (getVisibilityStatus(visibilityStatus, eVisible, dateInfoShort))
-						{ 
-							var eColorIndex = propFieldData[elementStart + 2];
-
-	 						var eStr = null;		// null means empty if nothing below sets it
-							var eKern = 0;
-							var eFlags = 0;
-							var makeUpperCase = false;
-		
-							//if (e==FIELD_EMPTY)			// empty
-						    //{
-						    //	eStr = null;
-							//}
-							//else
-						    if (eDisplay>=21/*FIELD_SEPARATOR_SPACE*/ && eDisplay<=28/*FIELD_SEPARATOR_PERCENT*/)
-						    {
-								var separatorString = " /\\:-.,%";
-			        			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
-						    }
-						    else if (eDisplay>=41/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=73/*FIELD_SHAPE_MOUNTAIN*/)
-						    {			    	
-								//var iconsString = "ABCDEFGHIJKLMNOPQRSTUVWX";
-								//eStr = iconsString.substring(e-FIELD_SHAPE_CIRCLE, e-FIELD_SHAPE_CIRCLE+1);
-								//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
-								//eStr = StringUtil.charArrayToString(charArray);
-								//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
-								eStr = (eDisplay - 41/*FIELD_SHAPE_CIRCLE*/ + 65/*ICONS_FIRST_CHAR_ID*/).toChar().toString();
-						    	eFlags |= 0x1000/*eIsIcon*/;
-						    }
-							else
-							{
-								switch(eDisplay)
-								{
-									case 1/*FIELD_HOUR*/:			// hour
-								    {
-										eStr = hourString;
-										break;
-									}
-				
-									case 2/*FIELD_MINUTE*/:			// minute
-								    {
-										eStr = minuteString;
-										break;
-									}
-				
-									case 3/*FIELD_DAY_NAME*/:		// day name
-									case 9/*FIELD_MONTH_NAME*/:		// month name
-								    {
-										eStr = ((eDisplay==3/*FIELD_DAY_NAME*/) ? dateInfoMedium.day_of_week : dateInfoMedium.month);
-			
-										//eStr = "\u0158\u015a\u00c7Z\u0179\u0104";		// test string for diacritics & bounding rectangle (use system large)
-										//eStr = "A\u042d\u03b8\u05e9\u069b";			// test string for other languages
-			
-										if (fieldFontIsCustom)		// custom font
-										{ 
-											var tempStr = eStr.toUpper();				// custom fonts always upper case
-											if (useUnsupportedFieldFont(tempStr))
-											{
-												eFlags |= 0x2000/*eUseUnsupportedFont*/;
-											
-												// will be using system font - so use case for that as specified by user
-												if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
-												{
-													eStr = tempStr;
-												}
-												else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
-												{
-													eStr = eStr.toLower();
-												}
-												//else
-												//{
-												//	eStr = eStr;	// keep case as is
-												//}
-											}
-											else
-											{
-												eStr = tempStr;		// ok to use
-												eFlags |= ((eDisplay==3/*FIELD_DAY_NAME*/) ? 0x4000/*eDiacritics*/ : 0x8000/*eDiacritics*/);
-											}
-										}
-										else
-										{
-											if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
-											{
-												makeUpperCase = true;
-											}
-											else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
-											{
-												eStr = eStr.toLower();
-											}
-										}
-										break;
-									}
-				
-									case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
-								    {
-										eStr = "" + dayNumberOfWeek;	// 1-7
-										break;
-									}
-				
-									case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
-								    {
-										eStr = "" + dateInfoMedium.day;
-										break;
-									}
-				
-									case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
-								    {
-										eStr = dateInfoMedium.day.format("%02d");
-										break;
-									}
-				
-									case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
-									case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
-									{
-										calculateDayWeekYearData(0, firstDayOfWeek, dateInfoMedium);
-			
-			    						eStr = dayOfYear.format((eDisplay == 7/*FIELD_DAY_OF_YEAR*/) ? "%d" : "%03d");        					
-			        					break;
-			        				}
-			
-									case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
-								    {
-										eStr = "" + dateInfoShort.month;
-										break;
-									}
-				
-									case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
-								    {
-										eStr = dateInfoShort.month.format("%02d");
-										break;
-									}
-				
-									case 12/*FIELD_YEAR_XX*/:		// year XX
-									{
-										eStr = (dateInfoMedium.year % 100).format("%02d");
-										break;
-									}
-				
-									case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
-								    {
-										eStr = "" + dateInfoMedium.year;
-										break;
-									}
-			
-									case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
-									case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
-									case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
-									{
-										calculateDayWeekYearData(1, firstDayOfWeek, dateInfoMedium);							
-									
-										if (eDisplay == 16/*FIELD_YEAR_ISO_WEEK_XXXX*/)
-										{
-				        					eStr = "" + ISOYear;
-										}
-										else
-										{
-				        					eStr = ((eDisplay == 14/*FIELD_WEEK_ISO_XX*/) ? "" : "W") + ISOWeek.format("%02d");
-				        				}
-			    						break;
-									}
-				
-									case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
-									case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
-									{
-										calculateDayWeekYearData(2, firstDayOfWeek, dateInfoMedium);							
-									    eStr = ((eDisplay==17/*FIELD_WEEK_CALENDAR_XX*/) ? CalendarWeek.format("%02d") : "" + CalendarYear);
-										break;
-									}
-				
-									case 19/*FIELD_AM*/:
-								    {
-										eStr = "AM";
-										break;
-									}
-				
-									case 20/*FIELD_PM*/:
-								    {
-										eStr = "PM";
-										break;
-									}
-				
-									case 31/*FIELD_STEPSCOUNT*/:
-									{
-										eStr = "" + activityMonitorSteps;
-										break;
-									}
-			
-									case 32/*FIELD_STEPSGOAL*/:
-									{
-										eStr = "" + activityMonitorStepGoal;
-										break;
-									}
-			
-									case 33/*FIELD_FLOORSCOUNT*/:
-									{
-										eStr = "" + getNullCheckZero(activityMonitorInfo.floorsClimbed);
-										break;
-									}
-			
-									case 34/*FIELD_FLOORSGOAL*/:
-									{
-										eStr = "" + getNullCheckZero(activityMonitorInfo.floorsClimbedGoal);
-										break;
-									}
-			
-									case 35/*FIELD_NOTIFICATIONSCOUNT*/:
-									{
-										fieldActiveNotificationsCount = deviceSettings.notificationCount; 
-										eStr = "" + fieldActiveNotificationsCount;
-										break;
-									}
-									
-									case 36/*FIELD_BATTERYPERCENTAGE*/:
-									{
-										eStr = "" + systemStats.battery.toNumber();
-										break;
-									}
-									
-									case 37/*FIELD_MOVEBAR*/:
-									{
-										// check how many in rest of field
-										// and if next element is a movebar for kerning
-										var checkNextMoveBar = checkNextElementType(dataStart, i, visibilityStatus, 37/*FIELD_MOVEBAR*/, dateInfoShort);
-										var nextIsMoveBar = checkNextMoveBar[0];
-										var numToAdd = ((moveBarNum!=0) ? 1 : (5 - checkNextMoveBar[1]));	// if first in this field check for adding extra ones
-										
-										for (var j=0; j<numToAdd; j++)
-										{
-											moveBarNum++;
-			
-											// moveBarLevel 0 = not triggered
-											// moveBarLevel has range 1 to 5
-											// moveBarNum goes from 1 to 5
-											var barIsOn = (moveBarNum <= activityMonitorMoveBarLevel);
-											var tempKern = ((j<numToAdd-1 || nextIsMoveBar) ? -5 : 0);
-											addBackgroundField(dc, f, fieldInfoIndexEnd, (barIsOn ? "1" : "0"), ((barIsOn || propMoveBarOffColorIndex==COLOR_NOTSET) ? eColorIndex : propMoveBarOffColorIndex), tempKern, 0x1000/*eIsIcon*/);
-										}
-										
-										// leave eStr as null so doesn't get added again below
-										// eStr = null;
-										
-										break;
-									}
-									
-									case 76/*FIELD_HEART_MIN*/:
-									case 77/*FIELD_HEART_MAX*/:
-									case 78/*FIELD_HEART_AVERAGE*/:
-									case 79/*FIELD_HEART_LATEST*/:
-									case 80/*FIELD_HEART_BARS*/:
-									case 81/*FIELD_HEART_AXES*/:
-									{
-										calculateHeartRate(minute, second);
-
-										if (eDisplay==80/*FIELD_HEART_BARS*/ || eDisplay==81/*FIELD_HEART_AXES*/)
-										{
-											heartChartVisible = true;	// we know it is visible now
-										
-											eStr = "0";		// just a placeholder in the field array
-
-											var checkNextHeart = checkNextElementType(dataStart, i, visibilityStatus, 80/*FIELD_HEART_BARS*/+81/*FIELD_HEART_AXES*/-eDisplay, dateInfoShort);	// check for other type
-
-											if (eDisplay==80/*FIELD_HEART_BARS*/)
-											{
-												if (checkNextHeart[0] || heartAxesNum>0)	// bars need to be drawn at same width as axes
-												{
-													eFlags |= (0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/);
-													eKern = 55/*heartAxesWidth*/;
-												}
-												else
-												{
-													eFlags |= 0x0400/*eHeartBars*/;
-													eKern = 51/*heartBarsWidth*/;
-												}
-											}
-											else
-											{
-												// if axes are after the bars (i.e. not bars next) then draw bottom of axes
-												eFlags |= (checkNextHeart[0] ? 0x0800/*eHeartAxes*/ : (0x0800/*eHeartAxes*/|0x0200/*eHeartBottom*/));
-												eKern = 55/*heartAxesWidth*/;
-												heartAxesNum++;
-											}
-
-											if (checkNextHeart[0])	// bars followed by axes or axes followed by bars
-											{
-												eKern = 0;
-											}
-										}
-										else
-										{
-											var heartVal = (eDisplay==79/*FIELD_HEART_LATEST*/) ? heartDisplayLatest : 
-														((eDisplay==76/*FIELD_HEART_MIN*/) ? heartDisplayMin : ((eDisplay==77/*FIELD_HEART_MAX*/) ? heartDisplayMax : heartDisplayAverage));
-											eStr = (heartVal!=null) ? heartVal.format("%d") : "--";
-										}
-										
-										break;
-									}
-
-									case 82/*FIELD_SUNRISE_HOUR*/:
-									case 83/*FIELD_SUNRISE_MINUTE*/:
-									case 84/*FIELD_SUNSET_HOUR*/:
-									case 85/*FIELD_SUNSET_MINUTE*/:
-									case 86/*FIELD_SUNEVENT_HOUR*/:
-									case 87/*FIELD_SUNEVENT_MINUTE*/:
-									{
-										calculateSun(dateInfoShort);
-
-										var t = null;
-										if (eDisplay>=86/*FIELD_SUNEVENT_HOUR*/)	// next sun event?
-										{
-											t = sunTimes[6];	// null or time of next sun event
-										}
-										else
-										{
-											// sunrise or sunset today
-											t = ((eDisplay<=83/*FIELD_SUNRISE_MINUTE*/) ? sunTimes[0] : sunTimes[1]);
-										}
-																				
-										if (t!=null)
-										{
-											t += 24*60;		// add 24 hours to make sure it is a positive number (if sunrise was before midnight ...) 
-											if ((eDisplay-82/*FIELD_SUNRISE_HOUR*/)%2==1)
-											{
-												eStr = (t%60).format("%02d");		// minutes
-											}
-											else
-											{
-    											eStr = formatHourForDisplayString((t/60)%24, deviceSettings.is24Hour, propAddLeadingZero);	// hours
-											}
-	        							}
-	        							else
-	        							{
-											eStr = "--";
-	        							}
-	        							
-										break;
-									}
-
-									case 88/*FIELD_2ND_HOUR*/:
-									{
-										eStr = formatHourForDisplayString(hour2nd, deviceSettings.is24Hour, propAddLeadingZero);	// hours
-										break;
-									}
-
-									case 89/*FIELD_CALORIES*/:
-									{
-										eStr = "" + getNullCheckZero(activityMonitorInfo.calories);
-										break;
-									}
-
-									case 90/*FIELD_ACTIVE_CALORIES*/:
-									{
-										var nonActiveCalories = propertiesGetNumber("NC");
-										if (nonActiveCalories<=0)
-										{
-											var userProfile = UserProfile.getProfile();
-											var BMR = (10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161));
-											nonActiveCalories = (BMR*1.2).toNumber();
-										}
-										var calories = getNullCheckZero(activityMonitorInfo.calories) - (nonActiveCalories * timeNowInMinutesToday) / (24*60); 
-										eStr = "" + ((calories<0) ? "--" : calories);
-										break;
-									}
-
-									case 91/*FIELD_INTENSITY*/:
-									{
-										eStr = "" + activityMonitorActiveMinutesWeekTotal;
-										break;
-									}
-
-									case 92/*FIELD_INTENSITY_GOAL*/:
-									{
-										eStr = "" + activityMonitorActiveMinutesWeekGoal;
-										break;
-									}
-
-									case 93/*FIELD_SMART_GOAL*/:
-									{
-										eStr = "" + activeMinutesWeekSmartGoal;
-										break;
-									}
-
-									case 94/*FIELD_DISTANCE*/:
-									{
-										// convert cm to miles or km
-										var d = getNullCheckZero(activityMonitorInfo.distance) / ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? 160934.4 : 100000.0);
-										eStr = d.format("%.1f");
-										break;
-									}
-
-									case 95/*FIELD_DISTANCE_UNITS*/:
-									{
-										eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
-										makeUpperCase = fieldFontIsCustom;
-										break;
-									}
-
-									case 96/*FIELD_PRESSURE*/:
-									{
-										if (hasPressureHistory)
-										{
-											var pressureSample = SensorHistory.getPressureHistory({:period => 1}).next();
-											if (pressureSample!=null && pressureSample.data!=null)
-											{ 
-												eStr = (pressureSample.data / 100.0).format("%.1f");	// convert Pa to mbar
-											}
-											else
-											{
-												eStr = "---";
-											}
-										}
-										break;
-									}
-
-									case 97/*FIELD_PRESSURE_UNITS*/:
-									{
-										eStr = "mb"; 	// mbar
-										makeUpperCase = fieldFontIsCustom;
-										break;
-									}
-
-									case 98/*FIELD_ALTITUDE*/:
-									{
-										// convert m to feet or m
-										eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
-										break;
-									}
-
-									case 99/*FIELD_ALTITUDE_UNITS*/:
-									{
-										eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "ft" : "m");
-										makeUpperCase = fieldFontIsCustom;
-										break;
-									}
-			   					}
-							}
-							
-							if (eStr != null)
-							{
-								if (makeUpperCase)
-								{
-									eStr = eStr.toUpper();
-								}
-							
-								addBackgroundField(dc, f, fieldInfoIndexEnd, eStr, eColorIndex, eKern, eFlags);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// calculate outer ring data
-		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
-		{
-			backgroundOuterFillStart = -1;
-
-			if (propOuterMode==1)		// steps
-			{
-				getValueOuterFillStartEnd(activityMonitorSteps, activityMonitorStepGoal);
-			}
-			else if (propOuterMode==2)			// minutes
-			{
-	    		backgroundOuterFillEnd = minute - 1;
-			}
-			else if (propOuterMode==3 || propOuterMode==5)		// hours or 2nd time zone hours
-			{
-				var useHour = ((propOuterMode==3) ? hour : hour2nd);  
-		        if (deviceSettings.is24Hour)
-		        {
-	        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
-	        		backgroundOuterFillEnd = (useHour*60 + minute) / 24 - 1;
-		        }
-		        else        	// 12 hours
-		        {
-	        		backgroundOuterFillEnd = ((useHour%12)*60 + minute) / 12 - 1;
-		        }
-	   		}
-	   		else if (propOuterMode==4)		// battery percentage
-	   		{
-				backgroundOuterFillEnd = (systemStats.battery * 60).toNumber() / 100 - 1;
-	   		}
-	   		else if (propOuterMode==6)		// sunrise & sunset now top
-	   		{
-				getSunOuterFillStartEnd(timeNowInMinutesToday, dateInfoShort);
-	   		}
-	   		else if (propOuterMode==7)		// sunrise & sunset midnight top
-	   		{
-				getSunOuterFillStartEnd(0, dateInfoShort);
-	   		}
-	   		else if (propOuterMode==8)		// sunrise & sunset noon top
-	   		{
-				getSunOuterFillStartEnd(12*60, dateInfoShort);
-	   		}
-			else if (propOuterMode==9 || propOuterMode==10)		// intensity
-			{
-				// intensity minutes (weekly)
-				// smart intensity minutes
-				getValueOuterFillStartEnd(activityMonitorActiveMinutesWeekTotal, (propOuterMode==9) ? activityMonitorActiveMinutesWeekGoal : activeMinutesWeekSmartGoal);
-			}
-	   		else if (propOuterMode==11)			// heart rate
-	   		{
-				calculateHeartRate(minute, second);
-				backgroundOuterFillEnd = getMinMax((heartDisplayLatest * 60) / heartMaxZone5, 0, 60) - 1;
-	   		}
-			else /*if (propOuterMode==0)*/		// plain color
-			{
-				backgroundOuterFillEnd = 59;
-			}
-		}
+//		// calculate outer ring data
+//		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
+//		{
+//			backgroundOuterFillStart = -1;
+//
+//			if (propOuterMode==1)		// steps
+//			{
+//				getValueOuterFillStartEnd(activityMonitorSteps, activityMonitorStepGoal);
+//			}
+//			else if (propOuterMode==2)			// minutes
+//			{
+//	    		backgroundOuterFillEnd = minute - 1;
+//			}
+//			else if (propOuterMode==3 || propOuterMode==5)		// hours or 2nd time zone hours
+//			{
+//				var useHour = ((propOuterMode==3) ? hour : hour2nd);  
+//		        if (deviceSettings.is24Hour)
+//		        {
+//	        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
+//	        		backgroundOuterFillEnd = (useHour*60 + minute) / 24 - 1;
+//		        }
+//		        else        	// 12 hours
+//		        {
+//	        		backgroundOuterFillEnd = ((useHour%12)*60 + minute) / 12 - 1;
+//		        }
+//	   		}
+//	   		else if (propOuterMode==4)		// battery percentage
+//	   		{
+//				backgroundOuterFillEnd = (systemStats.battery * 60).toNumber() / 100 - 1;
+//	   		}
+//	   		else if (propOuterMode==6)		// sunrise & sunset now top
+//	   		{
+//				getSunOuterFillStartEnd(timeNowInMinutesToday, dateInfoShort);
+//	   		}
+//	   		else if (propOuterMode==7)		// sunrise & sunset midnight top
+//	   		{
+//				getSunOuterFillStartEnd(0, dateInfoShort);
+//	   		}
+//	   		else if (propOuterMode==8)		// sunrise & sunset noon top
+//	   		{
+//				getSunOuterFillStartEnd(12*60, dateInfoShort);
+//	   		}
+//			else if (propOuterMode==9 || propOuterMode==10)		// intensity
+//			{
+//				// intensity minutes (weekly)
+//				// smart intensity minutes
+//				getValueOuterFillStartEnd(activityMonitorActiveMinutesWeekTotal, (propOuterMode==9) ? activityMonitorActiveMinutesWeekGoal : activeMinutesWeekSmartGoal);
+//			}
+//	   		else if (propOuterMode==11)			// heart rate
+//	   		{
+//				calculateHeartRate(minute, second);
+//				backgroundOuterFillEnd = getMinMax((heartDisplayLatest * 60) / heartMaxZone5, 0, 60) - 1;
+//	   		}
+//			else /*if (propOuterMode==0)*/		// plain color
+//			{
+//				backgroundOuterFillEnd = 59;
+//			}
+//		}
 		
 		// draw the background to main display
         drawBackgroundToDc(dc);
@@ -3276,31 +2703,31 @@ class myView
 		}
     }
 
-	function getValueOuterFillStartEnd(steps, stepGoal)
-	{
-		backgroundOuterFillEnd = ((stepGoal>0) ? ((60 * steps) / stepGoal - 1) : -1);
-		if (backgroundOuterFillEnd>=60)
-		{
-			backgroundOuterFillEnd++;	// add that 1 back on again so multiples of stepGoal correctly align at start 
-			
-			// once past steps goal then use a different style - draw just two unfilled blocks moving around
-			//var multiple = steps / stepGoal;
-			backgroundOuterFillStart = (backgroundOuterFillEnd + (steps/stepGoal))%60;
-			backgroundOuterFillEnd = (backgroundOuterFillEnd + 59)%60;	// same as -1
-		}
-	}
-	
-	function getSunOuterFill(t, defaultValue, timeOffsetInMinutes, segmentAdjust)
-	{
-		return ((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) / 24 + segmentAdjust)%60;
-	}
-
-	function getSunOuterFillStartEnd(timeOffsetInMinutes, dateInfoShort)
-	{
-		calculateSun(dateInfoShort);
-		backgroundOuterFillStart = getSunOuterFill(sunTimes[0], 0, timeOffsetInMinutes, 0);
-		backgroundOuterFillEnd = getSunOuterFill(sunTimes[1], 24*60, timeOffsetInMinutes, -1);
-	}
+//	function getValueOuterFillStartEnd(steps, stepGoal)
+//	{
+//		backgroundOuterFillEnd = ((stepGoal>0) ? ((60 * steps) / stepGoal - 1) : -1);
+//		if (backgroundOuterFillEnd>=60)
+//		{
+//			backgroundOuterFillEnd++;	// add that 1 back on again so multiples of stepGoal correctly align at start 
+//			
+//			// once past steps goal then use a different style - draw just two unfilled blocks moving around
+//			//var multiple = steps / stepGoal;
+//			backgroundOuterFillStart = (backgroundOuterFillEnd + (steps/stepGoal))%60;
+//			backgroundOuterFillEnd = (backgroundOuterFillEnd + 59)%60;	// same as -1
+//		}
+//	}
+//	
+//	function getSunOuterFill(t, defaultValue, timeOffsetInMinutes, segmentAdjust)
+//	{
+//		return ((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) / 24 + segmentAdjust)%60;
+//	}
+//
+//	function getSunOuterFillStartEnd(timeOffsetInMinutes, dateInfoShort)
+//	{
+//		calculateSun(dateInfoShort);
+//		backgroundOuterFillStart = getSunOuterFill(sunTimes[0], 0, timeOffsetInMinutes, 0);
+//		backgroundOuterFillEnd = getSunOuterFill(sunTimes[1], 24*60, timeOffsetInMinutes, -1);
+//	}
 
 	// eFlags:
 	// eUnused1 = 0x0100
@@ -3310,80 +2737,80 @@ class myView
 	// eIsIcon = 0x1000
 	// eUseUnsupportedFont = 0x2000
 	// eDiacritics = 0x4000 and 0x8000
-	function addBackgroundField(dc, f, fieldInfoIndexEnd, eStr, eColorIndex, eKern, eFlags)
-	{
-		// add the background field info (precalculate stuff so don't need to do it for the offscreen buffer)
-		var fieldInfoIndex = backgroundFieldInfoIndex[f];
-		if (fieldInfoIndex < fieldInfoIndexEnd)
-		{
-			var sLen = backgroundFieldInfoCharArrayLength[f];
-			var eLen = addStringToCharArray(eStr, backgroundFieldInfoCharArray, sLen, (f+1)*FIELD_INFO_CHAR_MAX_LEN);
-			if (eLen>sLen)
-			{
-				backgroundFieldInfoCharArrayLength[f] = eLen;
-	
-				var infoData = (sLen << 24) | (eLen << 16) | eFlags;
-								
-				var width = eKern;
-				if ((eFlags&(0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/))==0)
-				{
-					var fontResource = ((eFlags&0x1000/*eIsIcon*/)!=0 ? iconsFontResource : ((eFlags&0x2000/*eUseUnsupportedFont*/)!=0 ? fontFieldUnsupportedResource : fontFieldResource));
-					var eDiacritics = (eFlags&(0x4000|0x8000/*eDiacritics*/))/0x4000; 
-					if (eDiacritics>0)
-					{
-						width += addBackgroundFieldDiacritics(dc, fontResource, sLen, eLen, eDiacritics-1);
-					}
-					else
-					{
-						width += dc.getTextWidthInPixels(eStr, fontResource);
-					}
-				}
-				width = getMinMax(width, 0, 255);		// max width of 255 pixels per element
-				
-				backgroundFieldInfoData[fieldInfoIndex] = (width | infoData);
-	
-				backgroundFieldInfoColorIndex[fieldInfoIndex] = eColorIndex;
-		
-				backgroundFieldTotalWidth[f] += width;
-				backgroundFieldInfoIndex[f] += 1;		// increase the counter
-			}
-		}
-	}
+//	function addBackgroundField(dc, f, fieldInfoIndexEnd, eStr, eColorIndex, eKern, eFlags)
+//	{
+//		// add the background field info (precalculate stuff so don't need to do it for the offscreen buffer)
+//		var fieldInfoIndex = backgroundFieldInfoIndex[f];
+//		if (fieldInfoIndex < fieldInfoIndexEnd)
+//		{
+//			var sLen = backgroundFieldInfoCharArrayLength[f];
+//			var eLen = addStringToCharArray(eStr, backgroundFieldInfoCharArray, sLen, (f+1)*FIELD_INFO_CHAR_MAX_LEN);
+//			if (eLen>sLen)
+//			{
+//				backgroundFieldInfoCharArrayLength[f] = eLen;
+//	
+//				var infoData = (sLen << 24) | (eLen << 16) | eFlags;
+//								
+//				var width = eKern;
+//				if ((eFlags&(0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/))==0)
+//				{
+//					var fontResource = ((eFlags&0x1000/*eIsIcon*/)!=0 ? iconsFontResource : ((eFlags&0x2000/*eUseUnsupportedFont*/)!=0 ? fontFieldUnsupportedResource : fontFieldResource));
+//					var eDiacritics = (eFlags&(0x4000|0x8000/*eDiacritics*/))/0x4000; 
+//					if (eDiacritics>0)
+//					{
+//						width += addBackgroundFieldDiacritics(dc, fontResource, sLen, eLen, eDiacritics-1);
+//					}
+//					else
+//					{
+//						width += dc.getTextWidthInPixels(eStr, fontResource);
+//					}
+//				}
+//				width = getMinMax(width, 0, 255);		// max width of 255 pixels per element
+//				
+//				backgroundFieldInfoData[fieldInfoIndex] = (width | infoData);
+//	
+//				backgroundFieldInfoColorIndex[fieldInfoIndex] = eColorIndex;
+//		
+//				backgroundFieldTotalWidth[f] += width;
+//				backgroundFieldInfoIndex[f] += 1;		// increase the counter
+//			}
+//		}
+//	}
 
-	function checkNextElementType(dataStart, i, visibilityStatus, testType, dateInfoShort)
-	{
-		var count = 0;
-		var nextIsType = -1;
-
-		for (var j=i+1; j<FIELD_NUM_ELEMENTS; j++)
-		{
-			var jStart = dataStart + 3/*FIELD_INDEX_ELEMENTS*/ + j*3;
-			var jDisplay = propFieldData[jStart];
-			var jVisible = propFieldData[jStart + 1];
-			// don't need to test >=0 as it's a byte array
-			if (jDisplay!=0/*FIELD_EMPTY*/ && /*jVisible>=0 &&*/ jVisible<23/*STATUS_NUM*/ && getVisibilityStatus(visibilityStatus, jVisible, dateInfoShort))
-			{
-				if (jDisplay==testType)
-				{
-					count++;
-					
-					if (nextIsType<0)	// not set yet
-					{
-						nextIsType = 1;		// true
-					}
-				}
-				else
-				{
-					if (nextIsType<0)	// not set yet
-					{
-						nextIsType = 0;		// false
-					}
-				}
-			}
-		}
-		
-		return [nextIsType==1, count];
-	}
+//	function checkNextElementType(dataStart, i, visibilityStatus, testType, dateInfoShort)
+//	{
+//		var count = 0;
+//		var nextIsType = -1;
+//
+//		for (var j=i+1; j<FIELD_NUM_ELEMENTS; j++)
+//		{
+//			var jStart = dataStart + 3/*FIELD_INDEX_ELEMENTS*/ + j*3;
+//			var jDisplay = propFieldData[jStart];
+//			var jVisible = propFieldData[jStart + 1];
+//			// don't need to test >=0 as it's a byte array
+//			if (jDisplay!=0/*FIELD_EMPTY*/ && /*jVisible>=0 &&*/ jVisible<23/*STATUS_NUM*/ && getVisibilityStatus(visibilityStatus, jVisible, dateInfoShort))
+//			{
+//				if (jDisplay==testType)
+//				{
+//					count++;
+//					
+//					if (nextIsType<0)	// not set yet
+//					{
+//						nextIsType = 1;		// true
+//					}
+//				}
+//				else
+//				{
+//					if (nextIsType<0)	// not set yet
+//					{
+//						nextIsType = 0;		// false
+//					}
+//				}
+//			}
+//		}
+//		
+//		return [nextIsType==1, count];
+//	}
 
 //	<!-- outer ring values (outerBigXY, outerOffscreenStart, outerOffscreenEnd) -->
 //	[118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3],
@@ -3432,119 +2859,119 @@ class myView
 		//}
         useDc.clear();
 		
-		gfxDrawBackground(useDc, dcX, dcY);
+		gfxDrawBackground(useDc, dcX, dcY, toBuffer);
 
-		// draw all the fields
-    	for (var f=0; f<FIELD_NUM; f++)
-    	{
-    		var dataStart = f*FIELD_NUM_PROPERTIES;
-    		var fJustification = propFieldData[dataStart + 2/*FIELD_INDEX_JUSTIFICATION*/];
-			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0)
-			{
-				// draw the date        
-			    //const SCREEN_CENTRE_X = 120;
-			    //const SCREEN_CENTRE_Y = 120;
-				var dateYStart = propFieldData[dataStart + 0/*FIELD_INDEX_YOFFSET*/].toNumber();		// field y offset
-				var dateXStart = propFieldData[dataStart + 1/*FIELD_INDEX_XOFFSET*/].toNumber();		// field x offset
-
-				fJustification = fJustification/3/*FIELD_MANAGEMENT_MODULO*/;	// field justification
-				if (fJustification==0)		// centre justify
-				{
-					dateXStart -= backgroundFieldTotalWidth[f]/2;
-				}
-				else if (fJustification==2)	// right justify
-				{
-					dateXStart -= backgroundFieldTotalWidth[f];
-				}
-				//else if (fJustification==1)	// left justify
-				//{
-		    	//	// ok as is
-				//}
-		
-				var dateX = dateXStart - dcX;
-				var dateYOffset = dateYStart - dcY;
-
-				if (dateX<=dcWidth && (dateX+backgroundFieldTotalWidth[f])>=0 && 
-						(dateYOffset-23)<=dcHeight && (dateYOffset-23+38)>=0)
-				{
-					// show where the text bounding box is
-				    //useDc.setColor(graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
-					//useDc.fillRectangle(dateX, (dateYOffset-23), backgroundFieldTotalWidth[f], 38);
-
-					var fieldInfoIndexStart = f*FIELD_NUM_ELEMENTS_DRAW;
-					var fieldInfoIndexEnd = backgroundFieldInfoIndex[f];
-					for (var i=fieldInfoIndexStart; i<fieldInfoIndexEnd; i++)
-					{
-						var w = backgroundFieldInfoData[i];
-						var eWidth = (w & 0x00FF);
-						
-						if (dateX<=dcWidth && (dateX+eWidth)>=0)	// check element x overlaps buffer
-						{ 
-							var sLen = ((w>>24) & 0xFF);
-							var eLen = ((w>>16) & 0xFF);
-							var curFont;
-							var dateY = dateYOffset;
-							var eHeart = (w & (0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/|0x0200/*eHeartBottom*/));
-							if (eHeart!=0)
-							{
-								curFont = null;
-								drawHeartChart(useDc, dateX, dateY+6, getColor64(backgroundFieldInfoColorIndex[i]), eHeart);		// draw heart rate chart
-							}
-							else if ((w&0x1000/*eIsIcon*/)!=0)		// isIcon
-							{
-								curFont = iconsFontResource;
-								dateY -= 10;
-							}
-							else if ((w&0x2000/*eUseUnsupportedFont*/)!=0)	// use the system font for unsupported languages
-							{
-								curFont = fontFieldUnsupportedResource;
-								//const fieldYAdjustFontSystem = 6;
-								dateY += 6 - graphics.getFontAscent(curFont);
-							}
-							else
-							{
-								curFont = fontFieldResource;	// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
-								if (curFont!=null)
-								{
-									// align bottom of text with bottom of icons
-									if (propFieldFont<24/*APPFONT_SYSTEM_XTINY*/)		// custom font?
-									{
-										//var fieldYAdjustFontCustom = [			// 60 code bytes to initialise
-										//	0,	// APPFONT_ULTRA_LIGHT
-										//	12,	// APPFONT_ULTRA_LIGHT_TINY
-										//	16,	// APPFONT_ULTRA_LIGHT_SMALL
-										//	21,	// APPFONT_ULTRA_LIGHT_MEDIUM
-										//];
-										//dateY -= fieldYAdjustFontCustom[propFieldFont/6];
-										dateY -= ((((0x15<<24) | (0x10<<16) | (0x0C<<8) | 0) >> ((propFieldFont/6)*8)) & 0xFF);
-									}
-									else
-									{
-										//const fieldYAdjustFontSystem = 6;
-										dateY += 6 - graphics.getFontAscent(curFont);
-									}
-								}						
-							}					
-			
-							if (curFont!=null)
-							{
-						        useDc.setColor(getColor64(backgroundFieldInfoColorIndex[i]), -1/*COLOR_TRANSPARENT*/);
-	
-								var s = StringUtil.charArrayToString(backgroundFieldInfoCharArray.slice(sLen, eLen));
-				        		useDc.drawText(dateX, dateY, curFont, s, 2/*TEXT_JUSTIFY_LEFT*/);
-				        		
-				        		if ((w&(0x4000|0x8000))!=0)
-				        		{
-				        			drawBackgroundFieldDiacritics(useDc, curFont, eLen-sLen, ((w&(0x4000|0x8000/*eDiacritics*/))/0x4000)-1, dateX, dateY);
-				        		}
-				        	}
-						}
-								
-			        	dateX += eWidth;
-					}
-				}
-			}
-		}
+//		// draw all the fields
+//    	for (var f=0; f<FIELD_NUM; f++)
+//    	{
+//    		var dataStart = f*FIELD_NUM_PROPERTIES;
+//    		var fJustification = propFieldData[dataStart + 2/*FIELD_INDEX_JUSTIFICATION*/];
+//			if (((fJustification%3/*FIELD_MANAGEMENT_MODULO*/) & onOrGlanceActive)!=0)
+//			{
+//				// draw the date        
+//			    //const SCREEN_CENTRE_X = 120;
+//			    //const SCREEN_CENTRE_Y = 120;
+//				var dateYStart = propFieldData[dataStart + 0/*FIELD_INDEX_YOFFSET*/].toNumber();		// field y offset
+//				var dateXStart = propFieldData[dataStart + 1/*FIELD_INDEX_XOFFSET*/].toNumber();		// field x offset
+//
+//				fJustification = fJustification/3/*FIELD_MANAGEMENT_MODULO*/;	// field justification
+//				if (fJustification==0)		// centre justify
+//				{
+//					dateXStart -= backgroundFieldTotalWidth[f]/2;
+//				}
+//				else if (fJustification==2)	// right justify
+//				{
+//					dateXStart -= backgroundFieldTotalWidth[f];
+//				}
+//				//else if (fJustification==1)	// left justify
+//				//{
+//		    	//	// ok as is
+//				//}
+//		
+//				var dateX = dateXStart - dcX;
+//				var dateYOffset = dateYStart - dcY;
+//
+//				if (dateX<=dcWidth && (dateX+backgroundFieldTotalWidth[f])>=0 && 
+//						(dateYOffset-23)<=dcHeight && (dateYOffset-23+38)>=0)
+//				{
+//					// show where the text bounding box is
+//				    //useDc.setColor(graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
+//					//useDc.fillRectangle(dateX, (dateYOffset-23), backgroundFieldTotalWidth[f], 38);
+//
+//					var fieldInfoIndexStart = f*FIELD_NUM_ELEMENTS_DRAW;
+//					var fieldInfoIndexEnd = backgroundFieldInfoIndex[f];
+//					for (var i=fieldInfoIndexStart; i<fieldInfoIndexEnd; i++)
+//					{
+//						var w = backgroundFieldInfoData[i];
+//						var eWidth = (w & 0x00FF);
+//						
+//						if (dateX<=dcWidth && (dateX+eWidth)>=0)	// check element x overlaps buffer
+//						{ 
+//							var sLen = ((w>>24) & 0xFF);
+//							var eLen = ((w>>16) & 0xFF);
+//							var curFont;
+//							var dateY = dateYOffset;
+//							var eHeart = (w & (0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/|0x0200/*eHeartBottom*/));
+//							if (eHeart!=0)
+//							{
+//								curFont = null;
+//								drawHeartChart(useDc, dateX, dateY+6, getColor64(backgroundFieldInfoColorIndex[i]), eHeart);		// draw heart rate chart
+//							}
+//							else if ((w&0x1000/*eIsIcon*/)!=0)		// isIcon
+//							{
+//								curFont = iconsFontResource;
+//								dateY -= 10;
+//							}
+//							else if ((w&0x2000/*eUseUnsupportedFont*/)!=0)	// use the system font for unsupported languages
+//							{
+//								curFont = fontFieldUnsupportedResource;
+//								//const fieldYAdjustFontSystem = 6;
+//								dateY += 6 - graphics.getFontAscent(curFont);
+//							}
+//							else
+//							{
+//								curFont = fontFieldResource;	// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+//								if (curFont!=null)
+//								{
+//									// align bottom of text with bottom of icons
+//									if (propFieldFont<24/*APPFONT_SYSTEM_XTINY*/)		// custom font?
+//									{
+//										//var fieldYAdjustFontCustom = [			// 60 code bytes to initialise
+//										//	0,	// APPFONT_ULTRA_LIGHT
+//										//	12,	// APPFONT_ULTRA_LIGHT_TINY
+//										//	16,	// APPFONT_ULTRA_LIGHT_SMALL
+//										//	21,	// APPFONT_ULTRA_LIGHT_MEDIUM
+//										//];
+//										//dateY -= fieldYAdjustFontCustom[propFieldFont/6];
+//										dateY -= ((((0x15<<24) | (0x10<<16) | (0x0C<<8) | 0) >> ((propFieldFont/6)*8)) & 0xFF);
+//									}
+//									else
+//									{
+//										//const fieldYAdjustFontSystem = 6;
+//										dateY += 6 - graphics.getFontAscent(curFont);
+//									}
+//								}						
+//							}					
+//			
+//							if (curFont!=null)
+//							{
+//						        useDc.setColor(getColor64(backgroundFieldInfoColorIndex[i]), -1/*COLOR_TRANSPARENT*/);
+//	
+//								var s = StringUtil.charArrayToString(backgroundFieldInfoCharArray.slice(sLen, eLen));
+//				        		useDc.drawText(dateX, dateY, curFont, s, 2/*TEXT_JUSTIFY_LEFT*/);
+//				        		
+//				        		if ((w&(0x4000|0x8000))!=0)
+//				        		{
+//				        			drawBackgroundFieldDiacritics(useDc, curFont, eLen-sLen, ((w&(0x4000|0x8000/*eDiacritics*/))/0x4000)-1, dateX, dateY);
+//				        		}
+//				        	}
+//						}
+//								
+//			        	dateX += eWidth;
+//					}
+//				}
+//			}
+//		}
 
 //		// draw the main time (after / on top of fields)
 //		if ((propTimeOn & onOrGlanceActive)!=0)
@@ -3592,78 +3019,78 @@ class myView
 //			}
 //		}
 
-		// draw the outer ring
-		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
-		{
-			// positions of the outerBig segments (from fnt file)
-			// y are all adjusted -1 as usual
-			//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
-			//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
-
-			var jStart;
-			var jEnd;
-	
-			if (!toBuffer)		// main display
-			{
-				jStart = 0;
-				jEnd = 59;		// all segments
-			}
-			else				// offscreen buffer
-			{
-				// these arrays contain outer ring segment numbers (0-119) for the offscreen buffer positions
-									  		// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
-				//var outerOffscreenStart = 	[  -2,   7,  19,  28,  37,  49,  58,  67,  79,  88,  97, 109 ];
-				//var outerOffscreenEnd = 	[   9,  22,  30,  39,  52,  59,  69,  82,  89,  99, 112, 120 ];
-			
-    			jStart = outerValues[bufferIndex] - 10;
-    			jEnd = outerValues[bufferIndex + 12];
-			}
-	
-			//jStart = 0;	// test draw all
-			//jEnd = 119;
-
-			var colFilled = propOuterColorFilled;
-			var colUnfilled = propOuterColorUnfilled;
-			var fillStart = backgroundOuterFillStart;
-			var fillEnd = backgroundOuterFillEnd;
-			if (backgroundOuterFillEnd < backgroundOuterFillStart)
-			{
-				colFilled = propOuterColorUnfilled;
-				colUnfilled = propOuterColorFilled;
-				fillStart = (backgroundOuterFillEnd+1)%60;		// + 1
-				fillEnd = (backgroundOuterFillStart+59)%60;	// - 1
-			}
-
-			var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
-			var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/;
-			var curCol = COLOR_NOTSET;
-	
-			// draw the correct segments
-			for (var j=jStart; j<=jEnd; )
-			{
-				var index = (j+60)%60;	// handle segments <0 and >=60
-				
-				var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
-
-				// draw the segment (if a color is set)
-				if (indexCol != COLOR_NOTSET)
-				{
-					if (curCol!=indexCol)
-					{
-						curCol = indexCol;
-	       				useDc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
-	       			}
-
-					//var s = characterString.substring(index, index+1);
-					//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
-					//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
-					var index2 = index*2;
-		        	useDc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], outerFontResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-		        }
-			    
-			    j++;	// next segment
-			}
-		}
+//		// draw the outer ring
+//		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
+//		{
+//			// positions of the outerBig segments (from fnt file)
+//			// y are all adjusted -1 as usual
+//			//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
+//			//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
+//
+//			var jStart;
+//			var jEnd;
+//	
+//			if (!toBuffer)		// main display
+//			{
+//				jStart = 0;
+//				jEnd = 59;		// all segments
+//			}
+//			else				// offscreen buffer
+//			{
+//				// these arrays contain outer ring segment numbers (0-119) for the offscreen buffer positions
+//									  		// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
+//				//var outerOffscreenStart = 	[  -2,   7,  19,  28,  37,  49,  58,  67,  79,  88,  97, 109 ];
+//				//var outerOffscreenEnd = 	[   9,  22,  30,  39,  52,  59,  69,  82,  89,  99, 112, 120 ];
+//			
+//    			jStart = outerValues[bufferIndex] - 10;
+//    			jEnd = outerValues[bufferIndex + 12];
+//			}
+//	
+//			//jStart = 0;	// test draw all
+//			//jEnd = 119;
+//
+//			var colFilled = propOuterColorFilled;
+//			var colUnfilled = propOuterColorUnfilled;
+//			var fillStart = backgroundOuterFillStart;
+//			var fillEnd = backgroundOuterFillEnd;
+//			if (backgroundOuterFillEnd < backgroundOuterFillStart)
+//			{
+//				colFilled = propOuterColorUnfilled;
+//				colUnfilled = propOuterColorFilled;
+//				fillStart = (backgroundOuterFillEnd+1)%60;		// + 1
+//				fillEnd = (backgroundOuterFillStart+59)%60;	// - 1
+//			}
+//
+//			var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
+//			var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/;
+//			var curCol = COLOR_NOTSET;
+//	
+//			// draw the correct segments
+//			for (var j=jStart; j<=jEnd; )
+//			{
+//				var index = (j+60)%60;	// handle segments <0 and >=60
+//				
+//				var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
+//
+//				// draw the segment (if a color is set)
+//				if (indexCol != COLOR_NOTSET)
+//				{
+//					if (curCol!=indexCol)
+//					{
+//						curCol = indexCol;
+//	       				useDc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
+//	       			}
+//
+//					//var s = characterString.substring(index, index+1);
+//					//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
+//					//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
+//					var index2 = index*2;
+//		        	useDc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], outerFontResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//		        }
+//			    
+//			    j++;	// next segment
+//			}
+//		}
 
 //		if (propDemoDisplayOn)
 //		{
@@ -4715,10 +4142,10 @@ class myView
 				}
 				
 				// field data
-				for (var fNum=0; fNum<FIELD_NUM*FIELD_NUM_PROPERTIES && parseIndex<charArraySize; fNum++)
-				{
-					propFieldData[fNum] = getMinMax(parseNumberComma(charArray, charArraySize), 0, 255); 
-				}
+//				for (var fNum=0; fNum<FIELD_NUM*FIELD_NUM_PROPERTIES && parseIndex<charArraySize; fNum++)
+//				{
+//					propFieldData[fNum] = getMinMax(parseNumberComma(charArray, charArraySize), 0, 255); 
+//				}
 			}
 			
 			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
@@ -5382,7 +4809,7 @@ class myView
 	array of data
 		item type
 		item data
-			{ field string: string start, string end, width, font, color }
+			{ field string: type, color, font, string start, string end, width }
 			{ icon: }
 			{ chart: }
 			{ ring: ring identifier & font, start, end, start fill, end fill, col fill, col unfill }
@@ -5450,17 +4877,39 @@ class myView
 */	
 
 	// id
-	// 0 = hour large
+	// 0 = field
 	// 1 = hour large
 	// 2 = minute large
 	// 3 = colon large
+	// 4 = string
+	// 5 = icon
+	// 6 = movebar
+	// 7 = chart
+	// 8 = rectangle
+	// 9 = ring
+	// 10 = seconds
 
 	var gfxNum = 0;
 	var gfxData = new[512];
 
+	var gfxCharArray = new[256];
+	var gfxCharArrayLen = 0;
+
 	function gfxSize(id)
 	{
-		return [5, 7, 7, 7][id];
+		return [
+			5,		// field
+			7,		// hour large
+			7,		// minute large
+			7,		// colon large
+			7,		// string
+			4,		// icon
+			1,		// movebar
+			1,		// chart
+			1,		// rectangle
+			8,		// ring
+			1,		// seconds
+		][id];
 	}
 
 	function gfxAddField(index)
@@ -5503,6 +4952,76 @@ class myView
 		// width 0 dummy
 		// string 1
 		// width 1
+	}
+
+	function gfxAddString(index)
+	{
+		gfxData[index] = 4;		// id
+		gfxData[index+1] = 0;	// type
+		gfxData[index+2] = 3;	// color
+		gfxData[index+3] = 0;	// font & makeUpperCase
+		// string start
+		// string end
+		// width
+	}
+
+	function gfxAddIcon(index)
+	{
+		gfxData[index] = 5;		// id
+		gfxData[index+1] = 0;	// type
+		gfxData[index+2] = 3;	// color
+		gfxData[index+3] = 0;	// font
+		// char
+		// width
+	}
+
+	function gfxAddMoveBar(index)
+	{
+		gfxData[index] = 6;		// id
+		// color 1
+		// color 2
+		// color 3
+		// color 4
+		// color 5
+		// width
+	}
+
+	function gfxAddChart(index)
+	{
+		gfxData[index] = 7;		// id
+		// type?
+		// color chart
+		// color axes
+		// bar width?
+		// bar height?
+		// width
+	}
+
+	function gfxAddRectangle(index)
+	{
+		gfxData[index] = 8;		// id
+		// color
+		// x
+		// y
+		// width
+		// height
+	}
+
+	function gfxAddRing(index)
+	{
+		gfxData[index] = 9;		// id
+		gfxData[index+1] = 0;	// type
+		gfxData[index+2] = 0;	// start
+		gfxData[index+3] = 59;	// end
+		gfxData[index+4] = 3;	// color filled
+		gfxData[index+5] = 0;	// color unfilled
+		// start fill
+		// end fill
+	}
+
+	function gfxAddSeconds(index)
+	{
+		gfxData[index] = 10;	// id
 	}
 
 	function gfxDelete(index)
@@ -5636,6 +5155,322 @@ class myView
 //			}
 //		}
 
+//		// calculate outer ring data
+//		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
+//		{
+//			backgroundOuterFillStart = -1;
+//
+//			if (propOuterMode==1)		// steps
+//			{
+//				getValueOuterFillStartEnd(activityMonitorSteps, activityMonitorStepGoal);
+//			}
+//			else if (propOuterMode==2)			// minutes
+//			{
+//	    		backgroundOuterFillEnd = minute - 1;
+//			}
+//			else if (propOuterMode==3 || propOuterMode==5)		// hours or 2nd time zone hours
+//			{
+//				var useHour = ((propOuterMode==3) ? hour : hour2nd);  
+//		        if (deviceSettings.is24Hour)
+//		        {
+//	        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
+//	        		backgroundOuterFillEnd = (useHour*60 + minute) / 24 - 1;
+//		        }
+//		        else        	// 12 hours
+//		        {
+//	        		backgroundOuterFillEnd = ((useHour%12)*60 + minute) / 12 - 1;
+//		        }
+//	   		}
+//	   		else if (propOuterMode==4)		// battery percentage
+//	   		{
+//				backgroundOuterFillEnd = (systemStats.battery * 60).toNumber() / 100 - 1;
+//	   		}
+//	   		else if (propOuterMode==6)		// sunrise & sunset now top
+//	   		{
+//				getSunOuterFillStartEnd(timeNowInMinutesToday, dateInfoShort);
+//	   		}
+//	   		else if (propOuterMode==7)		// sunrise & sunset midnight top
+//	   		{
+//				getSunOuterFillStartEnd(0, dateInfoShort);
+//	   		}
+//	   		else if (propOuterMode==8)		// sunrise & sunset noon top
+//	   		{
+//				getSunOuterFillStartEnd(12*60, dateInfoShort);
+//	   		}
+//			else if (propOuterMode==9 || propOuterMode==10)		// intensity
+//			{
+//				// intensity minutes (weekly)
+//				// smart intensity minutes
+//				getValueOuterFillStartEnd(activityMonitorActiveMinutesWeekTotal, (propOuterMode==9) ? activityMonitorActiveMinutesWeekGoal : activeMinutesWeekSmartGoal);
+//			}
+//	   		else if (propOuterMode==11)			// heart rate
+//	   		{
+//				calculateHeartRate(minute, second);
+//				backgroundOuterFillEnd = getMinMax((heartDisplayLatest * 60) / heartMaxZone5, 0, 60) - 1;
+//	   		}
+//			else /*if (propOuterMode==0)*/		// plain color
+//			{
+//				backgroundOuterFillEnd = 59;
+//			}
+//		}
+
+//		// draw the outer ring
+//		if ((propOuterOn & onOrGlanceActive)!=0)		// outer ring on
+//		{
+//			// positions of the outerBig segments (from fnt file)
+//			// y are all adjusted -1 as usual
+//			//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
+//			//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
+//
+//			var jStart;
+//			var jEnd;
+//	
+//			if (!toBuffer)		// main display
+//			{
+//				jStart = 0;
+//				jEnd = 59;		// all segments
+//			}
+//			else				// offscreen buffer
+//			{
+//				// these arrays contain outer ring segment numbers (0-119) for the offscreen buffer positions
+//									  		// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
+//				//var outerOffscreenStart = 	[  -2,   7,  19,  28,  37,  49,  58,  67,  79,  88,  97, 109 ];
+//				//var outerOffscreenEnd = 	[   9,  22,  30,  39,  52,  59,  69,  82,  89,  99, 112, 120 ];
+//			
+//    			jStart = outerValues[bufferIndex] - 10;
+//    			jEnd = outerValues[bufferIndex + 12];
+//			}
+//	
+//			//jStart = 0;	// test draw all
+//			//jEnd = 119;
+//
+//			var colFilled = propOuterColorFilled;
+//			var colUnfilled = propOuterColorUnfilled;
+//			var fillStart = backgroundOuterFillStart;
+//			var fillEnd = backgroundOuterFillEnd;
+//			if (backgroundOuterFillEnd < backgroundOuterFillStart)
+//			{
+//				colFilled = propOuterColorUnfilled;
+//				colUnfilled = propOuterColorFilled;
+//				fillStart = (backgroundOuterFillEnd+1)%60;		// + 1
+//				fillEnd = (backgroundOuterFillStart+59)%60;	// - 1
+//			}
+//
+//			var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
+//			var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/;
+//			var curCol = COLOR_NOTSET;
+//	
+//			// draw the correct segments
+//			for (var j=jStart; j<=jEnd; )
+//			{
+//				var index = (j+60)%60;	// handle segments <0 and >=60
+//				
+//				var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
+//
+//				// draw the segment (if a color is set)
+//				if (indexCol != COLOR_NOTSET)
+//				{
+//					if (curCol!=indexCol)
+//					{
+//						curCol = indexCol;
+//	       				useDc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
+//	       			}
+//
+//					//var s = characterString.substring(index, index+1);
+//					//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
+//					//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
+//					var index2 = index*2;
+//		        	useDc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], outerFontResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//		        }
+//			    
+//			    j++;	// next segment
+//			}
+//		}
+
+	function gfxLoadDynamicResources()
+	{
+    	var watchUi = WatchUi;
+    	var fonts = Rez.Fonts;
+
+		gfxNum = 0;
+		gfxCharArrayLen = 0;
+		
+		gfxInsert(gfxNum, 0);	// field	
+		gfxInsert(gfxNum, 1);	// large hour 
+		gfxInsert(gfxNum, 3);	// large colon
+		gfxInsert(gfxNum, 2);	// large minute
+	
+		gfxInsert(gfxNum, 0);	// field
+		gfxInsert(gfxNum, 4);	// string
+
+		gfxInsert(gfxNum, 0);	// field
+		gfxInsert(gfxNum, 9);	// ring
+
+		gfxInsert(gfxNum, 10);	// seconds
+
+    	propSecondIndicatorOn = false;
+
+		for (var index=0; index<gfxNum; )
+		{
+			var id = gfxData[index];
+			
+			switch(id)
+			{
+				case 0:		// field
+				{
+					break;
+				}
+				
+				case 1:		// hour large
+				case 2:		// minute large
+				case 3:		// colon large
+				{
+					gfxData[index+1] = 3;	// color
+					gfxData[index+2] = 0;	// font
+					
+					break;
+				}
+
+				case 4:		// string
+				{
+					gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
+					gfxData[index+2] = 3;	// color
+					gfxData[index+3] = 0;	// font
+					
+					break;
+				}
+				
+				case 5:		// icon
+				{
+					break;
+				}
+				
+				case 6:		// movebar
+				{
+					break;
+				}
+				
+				case 7:		// chart
+				{
+					break;
+				}
+				
+				case 8:		// rectangle
+				{
+					break;
+				}
+				
+				case 9:		// ring
+				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 0;	// start
+					gfxData[index+3] = 59;	// end
+					gfxData[index+4] = 3;	// color filled
+					gfxData[index+5] = 0;	// color unfilled
+
+					break;
+				}
+				
+				case 10:	// seconds
+				{
+			    	propSecondIndicatorOn = 0x01/*ITEM_ON*/;
+			    	propSecondRefreshStyle = 2/*REFRESH_ALTERNATE_MINUTES*/;
+			    	propSecondMoveInABit = false;
+			    
+					propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/ + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);
+				 	if (propSecondIndicatorStyle<0 || propSecondIndicatorStyle>=12/*SECONDFONT_UNUSED*/)
+				 	{
+				 		propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/;
+				 	}
+			
+					// calculate the seconds color array
+			    	var secondColorIndex = getMinMax(3, 0, 63);		// second color
+			    	var secondColorIndex5 = getMinMax(-1, -1, 63);
+			    	var secondColorIndex10 = getMinMax(-1, -1, 63);
+			    	var secondColorIndex15 = getMinMax(-1, -1, 63);
+			    	var secondColorIndex0 = getMinMax(-1, -1, 63);
+			    	var secondColorDemo = false;		// second color demo
+			    	
+			    	for (var i=0; i<60; i++)
+			    	{
+						var col;
+				
+				        if (secondColorDemo)		// second color demo
+				        {
+				        	col = 4 + i;
+				        }
+						else if (secondColorIndex0!=COLOR_NOTSET && i==0)
+						{
+							col = secondColorIndex0;
+						}
+						else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
+						{
+							col = secondColorIndex15;
+						}
+						else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
+						{
+							col = secondColorIndex10;
+						}
+						else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
+						{
+							col = secondColorIndex5;
+						}
+				        else
+				        {
+				        	col = secondColorIndex;		// second color
+				        }
+				        
+				        secondsColorIndexArray[i] = col;
+				    }
+			
+					//this test code now works out exactly the same size as the original above!
+					//// Initialising the array like this works out 100 bytes more expensive
+					////var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
+					//var colArray = new [6];
+					//colArray[0] = propertiesGetColorIndex("13", 0);
+					//for (var i=2; i<6; i++)
+					//{
+					//	colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
+					//}			
+					//var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
+					//
+					//// this for loop is 30 bytes cheaper than original
+					//for (var i=0; i<60; i++)
+					//{
+					//	colArray[1] = 4+i;
+					//	var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
+					//	secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
+					//}		
+					
+					break;
+				}
+			}
+			
+			index += gfxSize(id);
+		}
+		
+		if (propSecondIndicatorOn)
+		{	
+			var secondFontLoad = [
+				fonts.id_seconds_tri,			// SECONDFONT_TRI
+				fonts.id_seconds_v,				// SECONDFONT_V
+				fonts.id_seconds_line,			// SECONDFONT_LINE
+				fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
+				fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
+				fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
+				
+				fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
+				fonts.id_seconds_v_in,			// SECONDFONT_V_IN
+				fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
+				fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
+				fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
+				fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
+			];
+	
+	   		propSecondFontResource = watchUi.loadResource(secondFontLoad[propSecondIndicatorStyle]);			
+		}
+	}
+	
 	function gfxOnUpdate(dc, clockTime, timeNow)
 	{
         var hour = clockTime.hour;
@@ -5651,17 +5486,60 @@ class myView
 		var dateInfoShort = gregorian.info(timeNow, Time.FORMAT_SHORT);
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		var dayNumberOfWeek = (((dateInfoShort.day_of_week - firstDayOfWeek + 7) % 7) + 1);		// 1-7
+		var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 24)%24;		// 2nd time zone
 
         // Get the current time and format it correctly
     	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
         var minuteString = minute.format("%02d");
 
-		gfxNum = 0;
-		gfxInsert(gfxNum, 0);
-		gfxInsert(gfxNum, 1);	// large hour 
-		gfxInsert(gfxNum, 3);	// large colon
-		gfxInsert(gfxNum, 2);	// large minute
-	
+		var activityMonitorSteps = getNullCheckZero(activityMonitorInfo.steps);
+		var activityMonitorStepGoal = getNullCheckZero(activityMonitorInfo.stepGoal);
+		var activityMonitorActiveMinutesWeekTotal = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
+		var activityMonitorActiveMinutesWeekGoal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
+		var activeMinutesWeekSmartGoal = ((activityMonitorActiveMinutesWeekGoal * dayNumberOfWeek) / 7);
+
+		// calculate fields to display
+		var visibilityStatus = new[23/*STATUS_NUM*/];
+		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
+	    visibilityStatus[1/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && deviceSettings.doNotDisturb);
+	    visibilityStatus[2/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !deviceSettings.doNotDisturb);
+	    var alarmCount = deviceSettings.alarmCount;
+	    visibilityStatus[3/*STATUS_ALARM_ON*/] = (alarmCount > 0);
+	    visibilityStatus[4/*STATUS_ALARM_OFF*/] = (alarmCount == 0);
+	    var notificationCount = deviceSettings.notificationCount;
+	    visibilityStatus[5/*STATUS_NOTIFICATIONS_PENDING*/] = (notificationCount > 0);
+	    visibilityStatus[6/*STATUS_NOTIFICATIONS_NONE*/] = (notificationCount == 0);
+	    var phoneConnected = deviceSettings.phoneConnected;
+	    visibilityStatus[7/*STATUS_PHONE_CONNECTED*/] = phoneConnected;
+	    visibilityStatus[8/*STATUS_PHONE_NOT*/] = !phoneConnected;
+	    var lteState = lteConnected();
+	    visibilityStatus[9/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
+	    visibilityStatus[10/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
+	    var batteryLevel = systemStats.battery;
+	    visibilityStatus[12/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
+	    visibilityStatus[14/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
+	    visibilityStatus[13/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[14/*STATUS_BATTERY_LOW*/]);
+	    visibilityStatus[11/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[14/*STATUS_BATTERY_LOW*/];
+		// moveBarLevel 0 = not triggered
+		// moveBarLevel has range 1 to 5
+		// propFieldMoveAlarmTriggerTime has range 1 to 5
+		var activityTrackingOn = deviceSettings.activityTrackingOn;
+		var activityMonitorMoveBarLevel = getNullCheckZero(activityMonitorInfo.moveBarLevel);
+	    var moveBarAlertTriggered = (activityMonitorMoveBarLevel >= propMoveBarAlertTriggerLevel); 
+	    visibilityStatus[15/*STATUS_MOVEBARALERT_TRIGGERED*/] = (activityTrackingOn && moveBarAlertTriggered);
+	    visibilityStatus[16/*STATUS_MOVEBARALERT_NOT*/] = (activityTrackingOn && !moveBarAlertTriggered);
+	    visibilityStatus[17/*STATUS_AM*/] = (hour < 12);
+	    visibilityStatus[18/*STATUS_PM*/] = (hour >= 12);
+	    visibilityStatus[19/*STATUS_2ND_AM*/] = (hour2nd < 12);
+	    visibilityStatus[20/*STATUS_2ND_PM*/] = (hour2nd >= 12);
+	    visibilityStatus[21/*STATUS_SUNEVENT_RISE*/] = null;	// calculated on demand
+	    visibilityStatus[22/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
+
+		fieldActivePhoneStatus = null;
+		fieldActiveNotificationsStatus = null;
+		fieldActiveNotificationsCount = null;
+		fieldActiveLTEStatus = null;
+		
 		var indexCurField = -1;
 		
 		var indexPrevLargeWidth = -1;
@@ -5671,20 +5549,39 @@ class myView
 		for (var index=0; index<gfxNum; )
 		{
 			var id = gfxData[index];
+
+// every gfx needs to have potential visibility status? Store with id? And store if it is visible this update
+//			// don't need to test >=0 as it's a byte array
+//			if (eVisible<23/*STATUS_NUM*/)
+//			{
+//				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
+//				// So make sure to do these tests before the visibility test
+//				if (eVisible==5/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==6/*STATUS_NOTIFICATIONS_NONE*/)
+//				{
+//					fieldActiveNotificationsStatus = (notificationCount > 0);
+//				} 
+//				if (eVisible==7/*STATUS_PHONE_CONNECTED*/ || eVisible==8/*STATUS_PHONE_NOT*/)
+//				{
+//					fieldActivePhoneStatus = phoneConnected;
+//				} 
+//				if (eVisible==9/*STATUS_LTE_CONNECTED*/ || eVisible==10/*STATUS_LTE_NOT*/)
+//				{
+//					fieldActiveLTEStatus = lteState;
+//				}
+//
+//				if (getVisibilityStatus(visibilityStatus, eVisible, dateInfoShort))
+//				{ 
+//				}
+//			}
 			
 			switch(id)
 			{
 				case 0:		// field
 				{
-        			System.println("gfxOnUpdate field");
+        			//System.println("gfxOnUpdate field");
 
 					indexCurField = index;
 
-					// calculate total width
-					//gfxData[index] = 0;		// id
-					//gfxData[index+1] = 0;	// x
-					//gfxData[index+2] = 0;	// y
-					//gfxData[index+3] = 0;	// justification & narrow spacing (colon)
 					gfxData[index+4] = 0;	// total width
 					
 					break;
@@ -5694,13 +5591,8 @@ class myView
 				case 2:		// minute large
 				case 3:		// colon large
 				{
-        			System.println("gfxOnUpdate large");
+        			//System.println("gfxOnUpdate large");
 				
-					// calculate string and widths
-					//gfxData[index] = 1;		// id
-					gfxData[index+1] = 3;	// color
-					gfxData[index+2] = 0;	// font
-
 					var fontResource;
 					var fontTypeCur;
 					var charArray;
@@ -5772,13 +5664,508 @@ class myView
 					
 					break;
 				}
+				
+				case 4:		// string
+				{
+					var fontResource = fontFieldResource;
+
+					gfxData[index+4] = 0;	// string start
+					gfxData[index+5] = 0;	// string end
+					gfxData[index+6] = 0;	// width
+
+					var eStr = null;
+					var eDisplay = gfxData[index+1];
+					var makeUpperCase = false;
+					
+					switch(eDisplay)	// type of string
+					{
+						case 1/*FIELD_HOUR*/:			// hour
+					    {
+							eStr = hourString;
+							break;
+						}
+	
+						case 2/*FIELD_MINUTE*/:			// minute
+					    {
+							eStr = minuteString;
+							break;
+						}
+	
+						case 3/*FIELD_DAY_NAME*/:		// day name
+						case 9/*FIELD_MONTH_NAME*/:		// month name
+					    {
+							eStr = ((eDisplay==3/*FIELD_DAY_NAME*/) ? dateInfoMedium.day_of_week : dateInfoMedium.month);
+
+							//eStr = "\u0158\u015a\u00c7Z\u0179\u0104";		// test string for diacritics & bounding rectangle (use system large)
+							//eStr = "A\u042d\u03b8\u05e9\u069b";			// test string for other languages
+
+							//var fieldFontIsCustom = (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/);
+							//if (fieldFontIsCustom)		// custom font
+							//{ 
+							//	var tempStr = eStr.toUpper();				// custom fonts always upper case
+							//	if (useUnsupportedFieldFont(tempStr))
+							//	{
+							//		eFlags |= 0x2000/*eUseUnsupportedFont*/;
+							//	
+							//		// will be using system font - so use case for that as specified by user
+							//		if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
+							//		{
+							//			eStr = tempStr;
+							//		}
+							//		else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
+							//		{
+							//			eStr = eStr.toLower();
+							//		}
+							//		//else
+							//		//{
+							//		//	eStr = eStr;	// keep case as is
+							//		//}
+							//	}
+							//	else
+							//	{
+							//		eStr = tempStr;		// ok to use
+							//		eFlags |= ((eDisplay==3/*FIELD_DAY_NAME*/) ? 0x4000/*eDiacritics*/ : 0x8000/*eDiacritics*/);
+							//	}
+							//}
+							//else
+							//{
+							//	if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
+							//	{
+							//		makeUpperCase = true;
+							//	}
+							//	else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
+							//	{
+							//		eStr = eStr.toLower();
+							//	}
+							//}
+
+							makeUpperCase = true;
+							
+							break;
+						}
+
+						case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
+					    {
+							eStr = "" + dayNumberOfWeek;	// 1-7
+							break;
+						}
+	
+						case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
+					    {
+							eStr = "" + dateInfoMedium.day;
+							break;
+						}
+	
+						case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
+					    {
+							eStr = dateInfoMedium.day.format("%02d");
+							break;
+						}
+	
+						case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
+						case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
+						{
+							calculateDayWeekYearData(0, firstDayOfWeek, dateInfoMedium);
+
+    						eStr = dayOfYear.format((eDisplay == 7/*FIELD_DAY_OF_YEAR*/) ? "%d" : "%03d");        					
+        					break;
+        				}
+
+						case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
+					    {
+							eStr = "" + dateInfoShort.month;
+							break;
+						}
+	
+						case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
+					    {
+							eStr = dateInfoShort.month.format("%02d");
+							break;
+						}
+	
+						case 12/*FIELD_YEAR_XX*/:		// year XX
+						{
+							eStr = (dateInfoMedium.year % 100).format("%02d");
+							break;
+						}
+	
+						case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
+					    {
+							eStr = "" + dateInfoMedium.year;
+							break;
+						}
+
+						case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
+						case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
+						case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
+						{
+							calculateDayWeekYearData(1, firstDayOfWeek, dateInfoMedium);							
+						
+							if (eDisplay == 16/*FIELD_YEAR_ISO_WEEK_XXXX*/)
+							{
+	        					eStr = "" + ISOYear;
+							}
+							else
+							{
+	        					eStr = ((eDisplay == 14/*FIELD_WEEK_ISO_XX*/) ? "" : "W") + ISOWeek.format("%02d");
+	        				}
+    						break;
+						}
+	
+						case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
+						case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
+						{
+							calculateDayWeekYearData(2, firstDayOfWeek, dateInfoMedium);							
+						    eStr = ((eDisplay==17/*FIELD_WEEK_CALENDAR_XX*/) ? CalendarWeek.format("%02d") : "" + CalendarYear);
+							break;
+						}
+	
+						case 19/*FIELD_AM*/:
+					    {
+							eStr = "AM";
+							break;
+						}
+	
+						case 20/*FIELD_PM*/:
+					    {
+							eStr = "PM";
+							break;
+						}
+	
+					    case 21/*FIELD_SEPARATOR_SPACE*/:
+					    case 22:
+					    case 23:
+					    case 24:
+					    case 25:
+					    case 26:
+					    case 27:
+					    case 28/*FIELD_SEPARATOR_PERCENT*/:
+					    {
+							var separatorString = " /\\:-.,%";
+		        			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
+		        			break;
+					    }
+
+						case 31/*FIELD_STEPSCOUNT*/:
+						{
+							eStr = "" + activityMonitorSteps;
+							break;
+						}
+
+						case 32/*FIELD_STEPSGOAL*/:
+						{
+							eStr = "" + activityMonitorStepGoal;
+							break;
+						}
+
+						case 33/*FIELD_FLOORSCOUNT*/:
+						{
+							eStr = "" + getNullCheckZero(activityMonitorInfo.floorsClimbed);
+							break;
+						}
+
+						case 34/*FIELD_FLOORSGOAL*/:
+						{
+							eStr = "" + getNullCheckZero(activityMonitorInfo.floorsClimbedGoal);
+							break;
+						}
+
+						case 35/*FIELD_NOTIFICATIONSCOUNT*/:
+						{
+							fieldActiveNotificationsCount = deviceSettings.notificationCount; 
+							eStr = "" + fieldActiveNotificationsCount;
+							break;
+						}
+						
+						case 36/*FIELD_BATTERYPERCENTAGE*/:
+						{
+							eStr = "" + systemStats.battery.toNumber();
+							break;
+						}
+						
+						case 76/*FIELD_HEART_MIN*/:
+						case 77/*FIELD_HEART_MAX*/:
+						case 78/*FIELD_HEART_AVERAGE*/:
+						case 79/*FIELD_HEART_LATEST*/:
+						{
+							calculateHeartRate(minute, second);
+
+							var heartVal = (eDisplay==79/*FIELD_HEART_LATEST*/) ? heartDisplayLatest : 
+										((eDisplay==76/*FIELD_HEART_MIN*/) ? heartDisplayMin : ((eDisplay==77/*FIELD_HEART_MAX*/) ? heartDisplayMax : heartDisplayAverage));
+							eStr = (heartVal!=null) ? heartVal.format("%d") : "--";
+							break;
+						}
+
+						case 82/*FIELD_SUNRISE_HOUR*/:
+						case 83/*FIELD_SUNRISE_MINUTE*/:
+						case 84/*FIELD_SUNSET_HOUR*/:
+						case 85/*FIELD_SUNSET_MINUTE*/:
+						case 86/*FIELD_SUNEVENT_HOUR*/:
+						case 87/*FIELD_SUNEVENT_MINUTE*/:
+						{
+							calculateSun(dateInfoShort);
+
+							var t = null;
+							if (eDisplay>=86/*FIELD_SUNEVENT_HOUR*/)	// next sun event?
+							{
+								t = sunTimes[6];	// null or time of next sun event
+							}
+							else
+							{
+								// sunrise or sunset today
+								t = ((eDisplay<=83/*FIELD_SUNRISE_MINUTE*/) ? sunTimes[0] : sunTimes[1]);
+							}
+																	
+							if (t!=null)
+							{
+								t += 24*60;		// add 24 hours to make sure it is a positive number (if sunrise was before midnight ...) 
+								if ((eDisplay-82/*FIELD_SUNRISE_HOUR*/)%2==1)
+								{
+									eStr = (t%60).format("%02d");		// minutes
+								}
+								else
+								{
+									eStr = formatHourForDisplayString((t/60)%24, deviceSettings.is24Hour, propAddLeadingZero);	// hours
+								}
+							}
+							else
+							{
+								eStr = "--";
+							}
+							
+							break;
+						}
+
+						case 88/*FIELD_2ND_HOUR*/:
+						{
+							eStr = formatHourForDisplayString(hour2nd, deviceSettings.is24Hour, propAddLeadingZero);	// hours
+							break;
+						}
+
+						case 89/*FIELD_CALORIES*/:
+						{
+							eStr = "" + getNullCheckZero(activityMonitorInfo.calories);
+							break;
+						}
+
+						case 90/*FIELD_ACTIVE_CALORIES*/:
+						{
+							var nonActiveCalories = propertiesGetNumber("NC");
+							if (nonActiveCalories<=0)
+							{
+								var userProfile = UserProfile.getProfile();
+								var BMR = (10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161));
+								nonActiveCalories = (BMR*1.2).toNumber();
+							}
+							var calories = getNullCheckZero(activityMonitorInfo.calories) - (nonActiveCalories * timeNowInMinutesToday) / (24*60); 
+							eStr = "" + ((calories<0) ? "--" : calories);
+							break;
+						}
+
+						case 91/*FIELD_INTENSITY*/:
+						{
+							eStr = "" + activityMonitorActiveMinutesWeekTotal;
+							break;
+						}
+
+						case 92/*FIELD_INTENSITY_GOAL*/:
+						{
+							eStr = "" + activityMonitorActiveMinutesWeekGoal;
+							break;
+						}
+
+						case 93/*FIELD_SMART_GOAL*/:
+						{
+							eStr = "" + activeMinutesWeekSmartGoal;
+							break;
+						}
+
+						case 94/*FIELD_DISTANCE*/:
+						{
+							// convert cm to miles or km
+							var d = getNullCheckZero(activityMonitorInfo.distance) / ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? 160934.4 : 100000.0);
+							eStr = d.format("%.1f");
+							break;
+						}
+
+						case 95/*FIELD_DISTANCE_UNITS*/:
+						{
+							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
+							makeUpperCase = true; //fieldFontIsCustom;
+							break;
+						}
+
+						case 96/*FIELD_PRESSURE*/:
+						{
+							if (hasPressureHistory)
+							{
+								var pressureSample = SensorHistory.getPressureHistory({:period => 1}).next();
+								if (pressureSample!=null && pressureSample.data!=null)
+								{ 
+									eStr = (pressureSample.data / 100.0).format("%.1f");	// convert Pa to mbar
+								}
+								else
+								{
+									eStr = "---";
+								}
+							}
+							break;
+						}
+
+						case 97/*FIELD_PRESSURE_UNITS*/:
+						{
+							eStr = "mb"; 	// mbar
+							makeUpperCase = true; //fieldFontIsCustom;
+							break;
+						}
+
+						case 98/*FIELD_ALTITUDE*/:
+						{
+							// convert m to feet or m
+							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
+							break;
+						}
+
+						case 99/*FIELD_ALTITUDE_UNITS*/:
+						{
+							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "ft" : "m");
+							makeUpperCase = true; //fieldFontIsCustom;
+							break;
+						}
+					}
+					
+					if (eStr != null)
+					{
+						if (makeUpperCase)
+						{
+							eStr = eStr.toUpper();
+						}
+
+						var sLen = gfxCharArrayLen;
+						var eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
+	
+						gfxData[index+4] = sLen;	// string start
+						gfxData[index+5] = eLen;	// string end
+						gfxData[index+6] = dc.getTextWidthInPixels(eStr, fontResource);
+						gfxData[indexCurField+4] += gfxData[index+6];	// total width					
+					}
+					break;
+				}
+				
+				case 5:		// icon
+				{
+//				    if (eDisplay>=41/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=73/*FIELD_SHAPE_MOUNTAIN*/)
+//				    {
+						//var iconsString = "ABCDEFGHIJKLMNOPQRSTUVWX";
+						//eStr = iconsString.substring(e-FIELD_SHAPE_CIRCLE, e-FIELD_SHAPE_CIRCLE+1);
+						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
+						//eStr = StringUtil.charArrayToString(charArray);
+						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
+//						eStr = (eDisplay - 41/*FIELD_SHAPE_CIRCLE*/ + 65/*ICONS_FIRST_CHAR_ID*/).toChar().toString();
+//				    }
+					break;
+				}
+				
+				case 6:		// movebar
+				{
+					//case 37/*FIELD_MOVEBAR*/:
+					//{
+					//	// check how many in rest of field
+					//	// and if next element is a movebar for kerning
+					//	var checkNextMoveBar = checkNextElementType(dataStart, i, visibilityStatus, 37/*FIELD_MOVEBAR*/, dateInfoShort);
+					//	var nextIsMoveBar = checkNextMoveBar[0];
+					//	var numToAdd = ((moveBarNum!=0) ? 1 : (5 - checkNextMoveBar[1]));	// if first in this field check for adding extra ones
+					//	
+					//	for (var j=0; j<numToAdd; j++)
+					//	{
+					//		moveBarNum++;
+					//
+					//		// moveBarLevel 0 = not triggered
+					//		// moveBarLevel has range 1 to 5
+					//		// moveBarNum goes from 1 to 5
+					//		var barIsOn = (moveBarNum <= activityMonitorMoveBarLevel);
+					//		var tempKern = ((j<numToAdd-1 || nextIsMoveBar) ? -5 : 0);
+					//		addBackgroundField(dc, f, fieldInfoIndexEnd, (barIsOn ? "1" : "0"), ((barIsOn || propMoveBarOffColorIndex==COLOR_NOTSET) ? eColorIndex : propMoveBarOffColorIndex), tempKern, 0x1000/*eIsIcon*/);
+					//	}
+					//	
+					//	// leave eStr as null so doesn't get added again below
+					//	// eStr = null;
+					//	
+					//	break;
+					//}
+
+					break;
+				}
+				
+				case 7:		// chart
+				{
+					//case 80/*FIELD_HEART_BARS*/:
+					//case 81/*FIELD_HEART_AXES*/:
+					//{
+					//	calculateHeartRate(minute, second);
+					//
+					//		heartChartVisible = true;	// we know it is visible now
+					//	
+					//		eStr = "0";		// just a placeholder in the field array
+					//
+					//		var checkNextHeart = checkNextElementType(dataStart, i, visibilityStatus, 80/*FIELD_HEART_BARS*/+81/*FIELD_HEART_AXES*/-eDisplay, dateInfoShort);	// check for other type
+					//
+					//		if (eDisplay==80/*FIELD_HEART_BARS*/)
+					//		{
+					//			if (checkNextHeart[0] || heartAxesNum>0)	// bars need to be drawn at same width as axes
+					//			{
+					//				eFlags |= (0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/);
+					//				eKern = 55/*heartAxesWidth*/;
+					//			}
+					//			else
+					//			{
+					//				eFlags |= 0x0400/*eHeartBars*/;
+					//				eKern = 51/*heartBarsWidth*/;
+					//			}
+					//		}
+					//		else
+					//		{
+					//			// if axes are after the bars (i.e. not bars next) then draw bottom of axes
+					//			eFlags |= (checkNextHeart[0] ? 0x0800/*eHeartAxes*/ : (0x0800/*eHeartAxes*/|0x0200/*eHeartBottom*/));
+					//			eKern = 55/*heartAxesWidth*/;
+					//			heartAxesNum++;
+					//		}
+					//
+					//		if (checkNextHeart[0])	// bars followed by axes or axes followed by bars
+					//		{
+					//			eKern = 0;
+					//		}
+					//	
+					//	break;
+					//}
+
+					break;
+				}
+				
+				case 8:		// rectangle
+				{
+					break;
+				}
+				
+				case 9:		// ring
+				{
+					gfxData[index+6] = 0;	// start fill
+					gfxData[index+7] = 29;	// end fill
+
+					break;
+				}
+				
+				case 10:	// seconds
+				{
+					break;
+				}
 			}
 			
 			index += gfxSize(id);
 		}
 	}
 	
-	function gfxDrawBackground(dc, dcX, dcY)
+	function gfxDrawBackground(dc, dcX, dcY, toBuffer)
 	{
 		var graphics = Graphics;
 
@@ -5787,10 +6174,9 @@ class myView
 
 		var fieldDraw = false;
 		var fieldXStart = 120;
-		var fieldYStart = 120 - propTimeYOffset;
+		var fieldYStart = 120;
 
-		var timeX = 120;
-		var timeYOffset = 120;
+		var fieldX = 120;
 
 		for (var index=0; index<gfxNum; )
 		{
@@ -5800,17 +6186,19 @@ class myView
 			{
 				case 0:		// field
 				{
-        			System.println("gfxDraw field");
+        			//System.println("gfxDraw field");
 
 					var totalWidth = gfxData[index+4];
 
-					fieldXStart -= totalWidth/2 - gfxData[index+1] + dcX;
-					fieldYStart -= gfxData[index+2] + dcY;
+					fieldXStart = 120 - totalWidth/2 + gfxData[index+1] - dcX;
+					fieldYStart = 120 - gfxData[index+2] - dcY;
 			
 					fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-32)<=dcHeight && (fieldYStart-32+64)>=0));
+					
+					// should check height of data in field (large or small font etc)
+					//Old field check: if (dateX<=dcWidth && (dateX+backgroundFieldTotalWidth[f])>=0 && (dateYOffset-23)<=dcHeight && (dateYOffset-23+38)>=0)
 			
-					timeX = fieldXStart;
-					timeYOffset = fieldYStart;
+					fieldX = fieldXStart;
 
 					break;
 				}
@@ -5819,7 +6207,7 @@ class myView
 				case 2:		// minute large
 				case 3:		// colon large
 				{
-        			System.println("gfxDraw large");
+        			//System.println("gfxDraw large");
 
 					if (fieldDraw)
 					{
@@ -5844,34 +6232,179 @@ class myView
 	
 						if (gfxData[index+4]>0)	// width 1
 						{
-							if (timeX<=dcWidth && (timeX+gfxData[index+4])>=0)		// check digit x overlaps buffer
+							if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 							{
 								// align bottom of text
 								// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
 								//const timeYAdjustFontCustom = -32;
 								//const timeYAdjustFontSystem = 30;
-								var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
+								var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
 					       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-				        		dc.drawText(timeX, timeY, fontResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+				        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 							}
 														
-			        		timeX += gfxData[index+4];
+			        		fieldX += gfxData[index+4];
 			        	}
 
-						if (timeX<=dcWidth && (timeX+gfxData[index+6])>=0)		// check digit x overlaps buffer
+						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
 							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
 							//const timeYAdjustFontCustom = -32;
 							//const timeYAdjustFontSystem = 30;
-							var timeY = timeYOffset + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
+							var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
 				       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(timeX, timeY, fontResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 
-			        	timeX += gfxData[index+6];
+			        	fieldX += gfxData[index+6];
 					}
 
+					break;
+				}
+				
+				case 4: 	// string
+				{
+					if (fieldDraw)
+					{
+						var sLen = gfxData[index+4];
+						var eLen = gfxData[index+5];
+						if (eLen > sLen)
+						{
+							if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
+							{ 
+								var fontResource = fontFieldResource;
+								var fontTypeCur = propFieldFont;
+							
+								var dateY = fieldYStart;
+	
+								// align bottom of text with bottom of icons
+								if (fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/)		// custom font?
+								{
+									//var fieldYAdjustFontCustom = [			// 60 code bytes to initialise
+									//	0,	// APPFONT_ULTRA_LIGHT
+									//	12,	// APPFONT_ULTRA_LIGHT_TINY
+									//	16,	// APPFONT_ULTRA_LIGHT_SMALL
+									//	21,	// APPFONT_ULTRA_LIGHT_MEDIUM
+									//];
+									//dateY -= fieldYAdjustFontCustom[propFieldFont/6];
+									dateY -= ((((0x15<<24) | (0x10<<16) | (0x0C<<8) | 0) >> ((fontTypeCur/6)*8)) & 0xFF);
+								}
+								else
+								{
+									//const fieldYAdjustFontSystem = 6;
+									dateY += 6 - graphics.getFontAscent(fontResource);
+								}
+				
+						        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
+	
+								var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+				        		dc.drawText(fieldX, dateY, fontResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
+							}
+									
+				        	fieldX += gfxData[index+6];
+				        }
+					}
+
+					break;
+				}
+				
+				case 5:		// icon
+				{
+					break;
+				}
+				
+				case 6:		// movebar
+				{
+					break;
+				}
+				
+				case 7:		// chart
+				{
+					break;
+				}
+				
+				case 8:		// rectangle
+				{
+					break;
+				}
+				
+				case 9:		// ring
+				{
+					// positions of the outerBig segments (from fnt file)
+					// y are all adjusted -1 as usual
+					//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
+					//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
+		
+					var jStart;
+					var jEnd;
+			
+					if (!toBuffer)		// main display
+					{
+						jStart = 0;
+						jEnd = 59;		// all segments
+					}
+					else				// offscreen buffer
+					{
+						// these arrays contain outer ring segment numbers (0-119) for the offscreen buffer positions
+											  		// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
+						//var outerOffscreenStart = 	[  -2,   7,  19,  28,  37,  49,  58,  67,  79,  88,  97, 109 ];
+						//var outerOffscreenEnd = 	[   9,  22,  30,  39,  52,  59,  69,  82,  89,  99, 112, 120 ];
+					
+		    			jStart = outerValues[bufferIndex] - 10;
+		    			jEnd = outerValues[bufferIndex + 12];
+					}
+			
+					//jStart = 0;	// test draw all
+					//jEnd = 119;
+		
+					var colFilled = getColor64(gfxData[index+4]);
+					var colUnfilled = getColor64(gfxData[index+5]);
+					var fillStart = gfxData[index+6];
+					var fillEnd = gfxData[index+7];
+					if (fillEnd < fillStart)
+					{
+						colFilled = getColor64(gfxData[index+5]);
+						colUnfilled = getColor64(gfxData[index+4]);
+						fillStart = (gfxData[index+7]+1)%60;		// + 1
+						fillEnd = (gfxData[index+6]+59)%60;	// - 1
+					}
+		
+					var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
+					var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/;
+					var curCol = COLOR_NOTSET;
+			
+					// draw the correct segments
+					for (var j=jStart; j<=jEnd; )
+					{
+						var index = (j+60)%60;	// handle segments <0 and >=60
+						
+						var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
+		
+						// draw the segment (if a color is set)
+						if (indexCol != COLOR_NOTSET)
+						{
+							if (curCol!=indexCol)
+							{
+								curCol = indexCol;
+			       				dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
+			       			}
+		
+							//var s = characterString.substring(index, index+1);
+							//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
+							//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
+							var index2 = index*2;
+				        	dc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], outerFontResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+				        }
+					    
+					    j++;	// next segment
+					}
+
+					break;
+				}
+				
+				case 10:	// seconds
+				{
 					break;
 				}
 			}
