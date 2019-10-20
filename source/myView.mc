@@ -5026,7 +5026,7 @@ class myView
 
 	function gfxDelete(index)
 	{
-		var id = gfxData[index];
+		var id = (gfxData[index] & 0xFF);
 		var size = gfxSize(id);
 		for (var i=index+size; i<gfxNum; i++)
 		{
@@ -5312,7 +5312,7 @@ class myView
 
 		for (var index=0; index<gfxNum; )
 		{
-			var id = gfxData[index];
+			var id = (gfxData[index] & 0xFF);
 			
 			switch(id)
 			{
@@ -5541,6 +5541,7 @@ class myView
 		fieldActiveLTEStatus = null;
 		
 		var indexCurField = -1;
+		var fieldVisible = false;
 		
 		var indexPrevLargeWidth = -1;
 		var prevLargeNumber = -1;
@@ -5548,31 +5549,41 @@ class myView
 	
 		for (var index=0; index<gfxNum; )
 		{
-			var id = gfxData[index];
+			var id = (gfxData[index] & 0xFF);
+			var isVisible = true;
+			
+			var eVisible = ((gfxData[index] & 0xEF00) >> 8);
+			if (eVisible>=0 && eVisible<23/*STATUS_NUM*/)
+			{
+				isVisible = visibilityStatus[eVisible];
 
-// every gfx needs to have potential visibility status? Store with id? And store if it is visible this update
-//			// don't need to test >=0 as it's a byte array
-//			if (eVisible<23/*STATUS_NUM*/)
-//			{
-//				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
-//				// So make sure to do these tests before the visibility test
-//				if (eVisible==5/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==6/*STATUS_NOTIFICATIONS_NONE*/)
-//				{
-//					fieldActiveNotificationsStatus = (notificationCount > 0);
-//				} 
-//				if (eVisible==7/*STATUS_PHONE_CONNECTED*/ || eVisible==8/*STATUS_PHONE_NOT*/)
-//				{
-//					fieldActivePhoneStatus = phoneConnected;
-//				} 
-//				if (eVisible==9/*STATUS_LTE_CONNECTED*/ || eVisible==10/*STATUS_LTE_NOT*/)
-//				{
-//					fieldActiveLTEStatus = lteState;
-//				}
-//
-//				if (getVisibilityStatus(visibilityStatus, eVisible, dateInfoShort))
-//				{ 
-//				}
-//			}
+				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
+				// So make sure to do these tests before the visibility test
+				if (eVisible==5/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==6/*STATUS_NOTIFICATIONS_NONE*/)
+				{
+					fieldActiveNotificationsStatus = (notificationCount > 0);
+				} 
+				if (eVisible==7/*STATUS_PHONE_CONNECTED*/ || eVisible==8/*STATUS_PHONE_NOT*/)
+				{
+					fieldActivePhoneStatus = phoneConnected;
+				} 
+				if (eVisible==9/*STATUS_LTE_CONNECTED*/ || eVisible==10/*STATUS_LTE_NOT*/)
+				{
+					fieldActiveLTEStatus = lteState;
+				}
+
+				isVisible = getVisibilityStatus(visibilityStatus, eVisible, dateInfoShort);
+			}
+			
+			// remember visibility for this update
+			if (isVisible)
+			{
+				gfxData[index] |= 0x8000;
+			}
+			else
+			{
+				gfxData[index] &= ~0x8000;
+			}
 			
 			switch(id)
 			{
@@ -5581,6 +5592,7 @@ class myView
         			//System.println("gfxOnUpdate field");
 
 					indexCurField = index;
+					fieldVisible = isVisible;
 
 					gfxData[index+4] = 0;	// total width
 					
@@ -5593,6 +5605,11 @@ class myView
 				{
         			//System.println("gfxOnUpdate large");
 				
+					if (!(fieldVisible && isVisible))
+					{
+						break;
+					}
+					
 					var fontResource;
 					var fontTypeCur;
 					var charArray;
@@ -5667,6 +5684,11 @@ class myView
 				
 				case 4:		// string
 				{
+					if (!(fieldVisible && isVisible))
+					{
+						break;
+					}
+
 					var fontResource = fontFieldResource;
 
 					gfxData[index+4] = 0;	// string start
@@ -6054,6 +6076,11 @@ class myView
 				
 				case 5:		// icon
 				{
+					if (!(fieldVisible && isVisible))
+					{
+						break;
+					}
+
 //				    if (eDisplay>=41/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=73/*FIELD_SHAPE_MOUNTAIN*/)
 //				    {
 						//var iconsString = "ABCDEFGHIJKLMNOPQRSTUVWX";
@@ -6068,6 +6095,11 @@ class myView
 				
 				case 6:		// movebar
 				{
+					if (!(fieldVisible && isVisible))
+					{
+						break;
+					}
+
 					//case 37/*FIELD_MOVEBAR*/:
 					//{
 					//	// check how many in rest of field
@@ -6099,6 +6131,11 @@ class myView
 				
 				case 7:		// chart
 				{
+					if (!(fieldVisible && isVisible))
+					{
+						break;
+					}
+
 					//case 80/*FIELD_HEART_BARS*/:
 					//case 81/*FIELD_HEART_AXES*/:
 					//{
@@ -6144,11 +6181,21 @@ class myView
 				
 				case 8:		// rectangle
 				{
+					if (!isVisible)
+					{
+						break;
+					}
+
 					break;
 				}
 				
 				case 9:		// ring
 				{
+					if (!isVisible)
+					{
+						break;
+					}
+
 					gfxData[index+6] = 0;	// start fill
 					gfxData[index+7] = 29;	// end fill
 
@@ -6180,13 +6227,20 @@ class myView
 
 		for (var index=0; index<gfxNum; )
 		{
-			var id = gfxData[index];
+			var id = (gfxData[index] & 0xFF);
+			var isVisible = ((gfxData[index] & 0x8000) != 0);
 			
 			switch(id)
 			{
 				case 0:		// field
 				{
         			//System.println("gfxDraw field");
+
+					if (!isVisible)
+					{
+						fieldDraw = false;
+						break;
+					}
 
 					var totalWidth = gfxData[index+4];
 
@@ -6209,44 +6263,33 @@ class myView
 				{
         			//System.println("gfxDraw large");
 
-					if (fieldDraw)
+					if (!(fieldDraw && isVisible))
 					{
-						var fontResource;
-						var fontTypeCur;
-						
-						if (id==1)
-						{
-							fontResource = fontTimeHourResource;
-							fontTypeCur = propTimeHourFont;
-						}
-						else if (id==2)
-						{
-							fontResource = fontTimeMinuteResource;
-							fontTypeCur = propTimeMinuteFont;
-						}
-						else //if (id==3)
-						{
-							fontResource = fontTimeMinuteResource;
-							fontTypeCur = propTimeMinuteFont;
-						}
-	
-						if (gfxData[index+4]>0)	// width 1
-						{
-							if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
-							{
-								// align bottom of text
-								// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
-								//const timeYAdjustFontCustom = -32;
-								//const timeYAdjustFontSystem = 30;
-								var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
-					       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-				        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-							}
-														
-			        		fieldX += gfxData[index+4];
-			        	}
+						break;
+					}
 
-						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
+					var fontResource;
+					var fontTypeCur;
+					
+					if (id==1)
+					{
+						fontResource = fontTimeHourResource;
+						fontTypeCur = propTimeHourFont;
+					}
+					else if (id==2)
+					{
+						fontResource = fontTimeMinuteResource;
+						fontTypeCur = propTimeMinuteFont;
+					}
+					else //if (id==3)
+					{
+						fontResource = fontTimeMinuteResource;
+						fontTypeCur = propTimeMinuteFont;
+					}
+
+					if (gfxData[index+4]>0)	// width 1
+					{
+						if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
 							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
@@ -6254,56 +6297,71 @@ class myView
 							//const timeYAdjustFontSystem = 30;
 							var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
 				       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
+													
+		        		fieldX += gfxData[index+4];
+		        	}
 
-			        	fieldX += gfxData[index+6];
+					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
+					{
+						// align bottom of text
+						// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
+						//const timeYAdjustFontCustom = -32;
+						//const timeYAdjustFontSystem = 30;
+						var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
+			       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+		        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
+
+		        	fieldX += gfxData[index+6];
 
 					break;
 				}
 				
 				case 4: 	// string
 				{
-					if (fieldDraw)
+					if (!(fieldDraw && isVisible))
 					{
-						var sLen = gfxData[index+4];
-						var eLen = gfxData[index+5];
-						if (eLen > sLen)
-						{
-							if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
-							{ 
-								var fontResource = fontFieldResource;
-								var fontTypeCur = propFieldFont;
-							
-								var dateY = fieldYStart;
-	
-								// align bottom of text with bottom of icons
-								if (fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/)		// custom font?
-								{
-									//var fieldYAdjustFontCustom = [			// 60 code bytes to initialise
-									//	0,	// APPFONT_ULTRA_LIGHT
-									//	12,	// APPFONT_ULTRA_LIGHT_TINY
-									//	16,	// APPFONT_ULTRA_LIGHT_SMALL
-									//	21,	// APPFONT_ULTRA_LIGHT_MEDIUM
-									//];
-									//dateY -= fieldYAdjustFontCustom[propFieldFont/6];
-									dateY -= ((((0x15<<24) | (0x10<<16) | (0x0C<<8) | 0) >> ((fontTypeCur/6)*8)) & 0xFF);
-								}
-								else
-								{
-									//const fieldYAdjustFontSystem = 6;
-									dateY += 6 - graphics.getFontAscent(fontResource);
-								}
-				
-						        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
-	
-								var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
-				        		dc.drawText(fieldX, dateY, fontResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
+						break;
+					}
+
+					var sLen = gfxData[index+4];
+					var eLen = gfxData[index+5];
+					if (eLen > sLen)
+					{
+						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
+						{ 
+							var fontResource = fontFieldResource;
+							var fontTypeCur = propFieldFont;
+						
+							var dateY = fieldYStart;
+
+							// align bottom of text with bottom of icons
+							if (fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/)		// custom font?
+							{
+								//var fieldYAdjustFontCustom = [			// 60 code bytes to initialise
+								//	0,	// APPFONT_ULTRA_LIGHT
+								//	12,	// APPFONT_ULTRA_LIGHT_TINY
+								//	16,	// APPFONT_ULTRA_LIGHT_SMALL
+								//	21,	// APPFONT_ULTRA_LIGHT_MEDIUM
+								//];
+								//dateY -= fieldYAdjustFontCustom[propFieldFont/6];
+								dateY -= ((((0x15<<24) | (0x10<<16) | (0x0C<<8) | 0) >> ((fontTypeCur/6)*8)) & 0xFF);
 							}
-									
-				        	fieldX += gfxData[index+6];
-				        }
+							else
+							{
+								//const fieldYAdjustFontSystem = 6;
+								dateY += 6 - graphics.getFontAscent(fontResource);
+							}
+			
+					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
+
+							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+			        		dc.drawText(fieldX, dateY, fontResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
+						}
+								
+			        	fieldX += gfxData[index+6];
 					}
 
 					break;
@@ -6311,26 +6369,51 @@ class myView
 				
 				case 5:		// icon
 				{
+					if (!(fieldDraw && isVisible))
+					{
+						break;
+					}
+
 					break;
 				}
 				
 				case 6:		// movebar
 				{
+					if (!(fieldDraw && isVisible))
+					{
+						break;
+					}
+
 					break;
 				}
 				
 				case 7:		// chart
 				{
+					if (!(fieldDraw && isVisible))
+					{
+						break;
+					}
+
 					break;
 				}
 				
 				case 8:		// rectangle
 				{
+					if (!isVisible)
+					{
+						break;
+					}
+
 					break;
 				}
 				
 				case 9:		// ring
 				{
+					if (!isVisible)
+					{
+						break;
+					}
+
 					// positions of the outerBig segments (from fnt file)
 					// y are all adjusted -1 as usual
 					//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
