@@ -59,12 +59,11 @@ class myView
 	//	
 	//	//ITEM_RETRIEVE = 0x10
 	//}
-	var onOrGlanceActive = 0x01/*ITEM_ON*/;
+	var glanceActive = false;
 	
-	var fontTimeHourResource = null;
-	var fontTimeMinuteResource = null;
-	var fontFieldResource = null;
-	var fontFieldUnsupportedResource = null;
+//	var fontTimeHourResource = null;
+//	var fontTimeMinuteResource = null;
+//	var fontFieldResource = null;
 	//enum
 	//{
 	//	//!APPCASE_ANY = 0,
@@ -78,29 +77,30 @@ class myView
 	var propAddLeadingZero = false;
 
 //    var propTimeOn;
-    var propTimeHourFont;
-    var propTimeMinuteFont;
+//    var propTimeHourFont;
+//    var propTimeMinuteFont;
 //	var propTimeHourColor;
 //	var propTimeMinuteColor;
 //	var propTimeColon;
-	var propTimeItalic;
+//	var propTimeItalic;
 	var propTimeYOffset;
     
-    var propSecondIndicatorOn = 0;
-	var propSecondFontResource = null;
+    var propSecondIndicatorOn = false;
+	var propSecondResourceIndex = 0;
+	var propSecondMoveInABit;
+    var propSecondRefreshStyle;
 	//enum
 	//{
 	//	REFRESH_EVERY_SECOND = 0,
 	//	REFRESH_EVERY_MINUTE = 1,
 	//	REFRESH_ALTERNATE_MINUTES = 2
 	//}
-    var propSecondRefreshStyle;
-	var propSecondMoveInABit;
-	var propSecondIndicatorStyle;
+	//var propSecondIndicatorStyle;
     
-    var propFieldFont;
+//    var propFieldFont;
     var propFieldFontSystemCase = 0;
     var propFieldFontUnsupported;
+	var fontFieldUnsupportedResource = null;
 
 //	var propOuterOn;
 //	var propOuterMode = 0;
@@ -262,20 +262,20 @@ class myView
 		propAddLeadingZero = getBooleanFromArray(pArray, 3/*"3"*/);
 
 //    	propTimeOn = getNumberFromArray(pArray, 2/*"2"*/);
-   		propTimeHourFont = getNumberFromArray(pArray, 4/*"4"*/);
-	 	if (propTimeHourFont<0 || propTimeHourFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
-	 	{
-	 		propTimeHourFont = 3/*APPFONT_REGULAR*/;
-	 	}
+//   		propTimeHourFont = getNumberFromArray(pArray, 4/*"4"*/);
+//	 	if (propTimeHourFont<0 || propTimeHourFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
+//	 	{
+//	 		propTimeHourFont = 3/*APPFONT_REGULAR*/;
+//	 	}
 //		propTimeHourColor = getColorFromArray(pArray, 5/*"5"*/, 0);
-   		propTimeMinuteFont = getNumberFromArray(pArray, 6/*"6"*/);
-		if (propTimeMinuteFont<0 || propTimeMinuteFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
-		{
-	 		propTimeMinuteFont = 3/*APPFONT_REGULAR*/;
-		}
+//   		propTimeMinuteFont = getNumberFromArray(pArray, 6/*"6"*/);
+//		if (propTimeMinuteFont<0 || propTimeMinuteFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
+//		{
+//	 		propTimeMinuteFont = 3/*APPFONT_REGULAR*/;
+//		}
 //		propTimeMinuteColor = getColorFromArray(pArray, 7/*"7"*/, 0);
 //		propTimeColon = getColorFromArray(pArray, 36/*"36"*/, -1);
-    	propTimeItalic = (getBooleanFromArray(pArray, 8/*"8"*/) && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));
+//    	propTimeItalic = (getBooleanFromArray(pArray, 8/*"8"*/) && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));
 		propTimeYOffset = getNumberFromArray(pArray, 9/*"9"*/);
     	
 //    	propSecondIndicatorOn = getNumberFromArray(pArray, 10/*"10"*/);
@@ -354,12 +354,12 @@ class myView
 //		propOuterColorFilled = getColorFromArray(pArray, 22/*"22"*/, -1);
 //		propOuterColorUnfilled = getColorFromArray(pArray, 23/*"23"*/, -1);
 
-    	propFieldFont = getNumberFromArray(pArray, 24/*"24"*/);
-   		propFieldFont += ((propFieldFont<24/*APPFONT_SYSTEM_XTINY*/) ? getNumberFromArray(pArray, 25/*"25"*/) : 0);		// add weight to non system fonts 
-		if (propFieldFont<6/*APPFONT_ULTRA_LIGHT_TINY*/ || propFieldFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
-		{
-			propFieldFont = 15/*APPFONT_REGULAR_SMALL*/;
-		}
+//    	propFieldFont = getNumberFromArray(pArray, 24/*"24"*/);
+//   		propFieldFont += ((propFieldFont<24/*APPFONT_SYSTEM_XTINY*/) ? getNumberFromArray(pArray, 25/*"25"*/) : 0);		// add weight to non system fonts 
+//		if (propFieldFont<6/*APPFONT_ULTRA_LIGHT_TINY*/ || propFieldFont>=33/*APPFONT_NUMBER_OF_FONTS*/)
+//		{
+//			propFieldFont = 15/*APPFONT_REGULAR_SMALL*/;
+//		}
 		
 		propFieldFontSystemCase = getNumberFromArray(pArray, 26/*"26"*/);		// get case for system fonts
     	propFieldFontUnsupported = getNumberFromArray(pArray, 27/*"27"*/);
@@ -507,8 +507,10 @@ class myView
 	//	STATUS_2ND_PM = 20,
 	//	STATUS_SUNEVENT_RISE = 21,
 	//	STATUS_SUNEVENT_SET = 22,
+	//	STATUS_GLANCE_ON = 23,
+	//	STATUS_GLANCE_OFF = 24,
 	//
-	//	STATUS_NUM = 23
+	//	STATUS_NUM = 25
 	//}
 	
 	//enum
@@ -1095,7 +1097,7 @@ class myView
 //		
 //		System.println("bits = " + bits.toString());
         
-		if (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/)		// custom fonts
+//		if (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/)		// custom fonts
 		{
 	        //var bitsSupported = [0, 134213665, 402653182, 0, 0, 0, 1028141746, 0, 67112976, 536870912, 83951626, 570425345];
 	        var bitsSize = bitsSupported.size();
@@ -2022,7 +2024,7 @@ class myView
     function onExitSleep()
     {
         //System.println("Glance");
-        onOrGlanceActive = (0x01/*ITEM_ON*/|0x02/*ITEM_ONGLANCE*/);		// on + show on glance
+        glanceActive = true;
         //WatchUi.requestUpdate();
     }
 
@@ -2031,7 +2033,7 @@ class myView
     function onEnterSleep()
     {
         //System.println("Sleep");
-        onOrGlanceActive = 0x01/*ITEM_ON*/;			// on only
+        glanceActive = false;			// on only
         WatchUi.requestUpdate();
     }
 
@@ -2287,75 +2289,132 @@ class myView
 //	    	}	    	
 //    	}
 //	}
+	
+	// seconds, ring, hour, minute, icon, field
+	const MAX_DYNAMIC_RESOURCES = 16;
+	
+	var dynResNum = 0;
+	var dynResList = new[MAX_DYNAMIC_RESOURCES];
+	var dynResResource = new[MAX_DYNAMIC_RESOURCES];
+
+	function addDynamicResource(r)
+	{
+		for (var i=0; i<dynResNum; i++)
+		{
+			if (r==dynResList[i])
+			{
+				return i;
+			}
+		}
 		
+		if (dynResNum < MAX_DYNAMIC_RESOURCES)
+		{
+			dynResList[dynResNum] = r;
+			dynResNum++;
+			
+			return dynResNum-1;
+		}
+		
+		return MAX_DYNAMIC_RESOURCES;
+	}
+
+	function getDynamicResource(i)
+	{
+		return ((i < dynResNum) ? dynResResource[i] : null);
+	}
+
     function releaseDynamicResources()
     {
-		// allow all old resources to be freed immediately and at same time
-	   	fontFieldResource = null;
-    	fontTimeHourResource = null;
-    	fontTimeMinuteResource = null;
-		propSecondFontResource = null;
+		for (var i=0; i<dynResNum; i++)
+		{
+			dynResResource[i] = null;
+		}
+		
+		dynResNum = 0;
     }
 
-	function loadCustomOrSystemFont(f, fontLoad, fontSystem)
-	{    
-													// custom fonts						system fonts
-		return (f < 24/*APPFONT_SYSTEM_XTINY*/) ? WatchUi.loadResource(fontLoad[f]) : fontSystem[f - 24/*APPFONT_SYSTEM_XTINY*/];
-    }
-    
     function loadDynamicResources()
     {
-    	var watchUi = WatchUi;
-    	var fonts = Rez.Fonts;
-		var graphics = Graphics;
+		for (var i=0; i<dynResNum; i++)
+		{
+			var r = dynResList[i];
+			dynResResource[i] = (isSystemFont(r) ? r : WatchUi.loadResource(r));
+		}
+    }
+    
+    function isSystemFont(r)
+    {
+    	return (r<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT);
+    }
 
-		var fontLoad = [
-			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
-			fonts.id_trivial_extra_light,		// APPFONT_EXTRA_LIGHT
-			fonts.id_trivial_light,				// APPFONT_LIGHT
-			fonts.id_trivial_regular,			// APPFONT_REGULAR
-			fonts.id_trivial_bold,				// APPFONT_BOLD
-			fonts.id_trivial_heavy,				// APPFONT_HEAVY
-			fonts.id_trivial_ultra_light_tiny,	// APPFONT_ULTRA_LIGHT_TINY
-			fonts.id_trivial_extra_light_tiny,	// APPFONT_EXTRA_LIGHT_TINY
-			fonts.id_trivial_light_tiny,		// APPFONT_LIGHT_TINY
-			fonts.id_trivial_regular_tiny,		// APPFONT_REGULAR_TINY
-			fonts.id_trivial_bold_tiny,			// APPFONT_BOLD_TINY
-			fonts.id_trivial_heavy_tiny,		// APPFONT_HEAVY_TINY
-			fonts.id_trivial_ultra_light_small,	// APPFONT_ULTRA_LIGHT_SMALL
-			fonts.id_trivial_extra_light_small,	// APPFONT_EXTRA_LIGHT_SMALL
-			fonts.id_trivial_light_small,		// APPFONT_LIGHT_SMALL
-			fonts.id_trivial_regular_small,		// APPFONT_REGULAR_SMALL
-			fonts.id_trivial_bold_small,		// APPFONT_BOLD_SMALL
-			fonts.id_trivial_heavy_small,		// APPFONT_HEAVY_SMALL
-			fonts.id_trivial_ultra_light_medium,// APPFONT_ULTRA_LIGHT_MEDIUM
-			fonts.id_trivial_extra_light_medium,// APPFONT_EXTRA_LIGHT_MEDIUM
-			fonts.id_trivial_light_medium,		// APPFONT_LIGHT_MEDIUM
-			fonts.id_trivial_regular_medium,	// APPFONT_REGULAR_MEDIUM
-			fonts.id_trivial_bold_medium,		// APPFONT_BOLD_MEDIUM
-			fonts.id_trivial_heavy_medium,		// APPFONT_HEAVY_MEDIUM
-		];
-				
-		var fontSystem = [
-			graphics.FONT_SYSTEM_XTINY, 			// APPFONT_SYSTEM_XTINY
-			graphics.FONT_SYSTEM_TINY, 				// APPFONT_SYSTEM_TINY
-			graphics.FONT_SYSTEM_SMALL, 			// APPFONT_SYSTEM_SMALL
-			graphics.FONT_SYSTEM_MEDIUM,			// APPFONT_SYSTEM_MEDIUM
-			graphics.FONT_SYSTEM_LARGE,				// APPFONT_SYSTEM_LARGE
-			graphics.FONT_SYSTEM_NUMBER_MILD,		// APPFONT_SYSTEM_NUMBER_NORMAL 
-			graphics.FONT_SYSTEM_NUMBER_MEDIUM,		// APPFONT_SYSTEM_NUMBER_MEDIUM 
-			graphics.FONT_SYSTEM_NUMBER_HOT,		// APPFONT_SYSTEM_NUMBER_LARGE 
-			graphics.FONT_SYSTEM_NUMBER_THAI_HOT,	// APPFONT_SYSTEM_NUMBER_HUGE 
-		];
-	
-		var fontLoadItalic = [
-			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT
-			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT
-			fonts.id_trivial_light_italic,			// APPFONT_LIGHT
-			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR
-			fonts.id_trivial_bold_italic,			// APPFONT_BOLD
-			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY
-		];
+//    function releaseDynamicResourcesOld()
+//    {
+//		// allow all old resources to be freed immediately and at same time
+//	   	fontFieldResource = null;
+//    	fontTimeHourResource = null;
+//    	fontTimeMinuteResource = null;
+//		//propSecondFontResource = null;
+//    }
+
+//	function loadCustomOrSystemFont(f, fontLoad, fontSystem)
+//	{    
+//													// custom fonts						system fonts
+//		return (f < 24/*APPFONT_SYSTEM_XTINY*/) ? WatchUi.loadResource(fontLoad[f]) : fontSystem[f - 24/*APPFONT_SYSTEM_XTINY*/];
+//    }
+    
+//    function loadDynamicResourcesOld()
+//    {
+//    	var watchUi = WatchUi;
+//    	var fonts = Rez.Fonts;
+//		var graphics = Graphics;
+
+//		var fontLoad = [
+//			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
+//			fonts.id_trivial_extra_light,		// APPFONT_EXTRA_LIGHT
+//			fonts.id_trivial_light,				// APPFONT_LIGHT
+//			fonts.id_trivial_regular,			// APPFONT_REGULAR
+//			fonts.id_trivial_bold,				// APPFONT_BOLD
+//			fonts.id_trivial_heavy,				// APPFONT_HEAVY
+//			fonts.id_trivial_ultra_light_tiny,	// APPFONT_ULTRA_LIGHT_TINY
+//			fonts.id_trivial_extra_light_tiny,	// APPFONT_EXTRA_LIGHT_TINY
+//			fonts.id_trivial_light_tiny,		// APPFONT_LIGHT_TINY
+//			fonts.id_trivial_regular_tiny,		// APPFONT_REGULAR_TINY
+//			fonts.id_trivial_bold_tiny,			// APPFONT_BOLD_TINY
+//			fonts.id_trivial_heavy_tiny,		// APPFONT_HEAVY_TINY
+//			fonts.id_trivial_ultra_light_small,	// APPFONT_ULTRA_LIGHT_SMALL
+//			fonts.id_trivial_extra_light_small,	// APPFONT_EXTRA_LIGHT_SMALL
+//			fonts.id_trivial_light_small,		// APPFONT_LIGHT_SMALL
+//			fonts.id_trivial_regular_small,		// APPFONT_REGULAR_SMALL
+//			fonts.id_trivial_bold_small,		// APPFONT_BOLD_SMALL
+//			fonts.id_trivial_heavy_small,		// APPFONT_HEAVY_SMALL
+//			fonts.id_trivial_ultra_light_medium,// APPFONT_ULTRA_LIGHT_MEDIUM
+//			fonts.id_trivial_extra_light_medium,// APPFONT_EXTRA_LIGHT_MEDIUM
+//			fonts.id_trivial_light_medium,		// APPFONT_LIGHT_MEDIUM
+//			fonts.id_trivial_regular_medium,	// APPFONT_REGULAR_MEDIUM
+//			fonts.id_trivial_bold_medium,		// APPFONT_BOLD_MEDIUM
+//			fonts.id_trivial_heavy_medium,		// APPFONT_HEAVY_MEDIUM
+//		];
+//				
+//		var fontSystem = [
+//			graphics.FONT_SYSTEM_XTINY, 			// APPFONT_SYSTEM_XTINY
+//			graphics.FONT_SYSTEM_TINY, 				// APPFONT_SYSTEM_TINY
+//			graphics.FONT_SYSTEM_SMALL, 			// APPFONT_SYSTEM_SMALL
+//			graphics.FONT_SYSTEM_MEDIUM,			// APPFONT_SYSTEM_MEDIUM
+//			graphics.FONT_SYSTEM_LARGE,				// APPFONT_SYSTEM_LARGE
+//			graphics.FONT_SYSTEM_NUMBER_MILD,		// APPFONT_SYSTEM_NUMBER_NORMAL 
+//			graphics.FONT_SYSTEM_NUMBER_MEDIUM,		// APPFONT_SYSTEM_NUMBER_MEDIUM 
+//			graphics.FONT_SYSTEM_NUMBER_HOT,		// APPFONT_SYSTEM_NUMBER_LARGE 
+//			graphics.FONT_SYSTEM_NUMBER_THAI_HOT,	// APPFONT_SYSTEM_NUMBER_HUGE 
+//		];
+//	
+//		var fontLoadItalic = [
+//			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT
+//			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT
+//			fonts.id_trivial_light_italic,			// APPFONT_LIGHT
+//			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR
+//			fonts.id_trivial_bold_italic,			// APPFONT_BOLD
+//			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY
+//		];
 
 	 	//if (forceTestFont)
 	 	//{
@@ -2369,7 +2428,7 @@ class myView
 		//}
 		
 		// field font	
-		fontFieldResource = loadCustomOrSystemFont(propFieldFont, fontLoad, fontSystem);
+//		fontFieldResource = loadCustomOrSystemFont(propFieldFont, fontLoad, fontSystem);
 //		if (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/)		// custom fonts
 //		{
 //			fontFieldResource = watchUi.loadResource(fontLoad[propFieldFont]);
@@ -2380,7 +2439,7 @@ class myView
 //		}
 
 		// hour font		 	
-		fontTimeHourResource = loadCustomOrSystemFont(propTimeHourFont, propTimeItalic ? fontLoadItalic : fontLoad, fontSystem);
+//		fontTimeHourResource = loadCustomOrSystemFont(propTimeHourFont, propTimeItalic ? fontLoadItalic : fontLoad, fontSystem);
 //		if (propTimeHourFont < 24/*APPFONT_SYSTEM_XTINY*/)		// custom fonts
 //		{
 //			fontTimeHourResource = watchUi.loadResource(propTimeItalic ? fontLoadItalic[propTimeHourFont] : fontLoad[propTimeHourFont]);
@@ -2391,7 +2450,7 @@ class myView
 //		}
 
 		// minute font			
-		fontTimeMinuteResource = loadCustomOrSystemFont(propTimeMinuteFont, propTimeItalic ? fontLoadItalic : fontLoad, fontSystem);
+//		fontTimeMinuteResource = loadCustomOrSystemFont(propTimeMinuteFont, propTimeItalic ? fontLoadItalic : fontLoad, fontSystem);
 //		if (propTimeMinuteFont < 24/*APPFONT_SYSTEM_XTINY*/)		// custom fonts
 //		{
 //			fontTimeMinuteResource = watchUi.loadResource(propTimeItalic ? fontLoadItalic[propTimeMinuteFont] : fontLoad[propTimeMinuteFont]);
@@ -2401,8 +2460,8 @@ class myView
 //		   	fontTimeMinuteResource = fontSystem[propTimeMinuteFont - 24/*APPFONT_SYSTEM_XTINY*/];
 //		}
 			
-		fontFieldUnsupportedResource = ((propFieldFontUnsupported>=24/*APPFONT_SYSTEM_XTINY*/ && propFieldFontUnsupported<=28/*APPFONT_SYSTEM_LARGE*/) ? fontSystem[propFieldFontUnsupported-24/*APPFONT_SYSTEM_XTINY*/] : fontSystem[25/*APPFONT_SYSTEM_TINY*/-24/*APPFONT_SYSTEM_XTINY*/]); 
-    }
+//		fontFieldUnsupportedResource = ((propFieldFontUnsupported>=24/*APPFONT_SYSTEM_XTINY*/ && propFieldFontUnsupported<=28/*APPFONT_SYSTEM_LARGE*/) ? fontSystem[propFieldFontUnsupported-24/*APPFONT_SYSTEM_XTINY*/] : fontSystem[25/*APPFONT_SYSTEM_TINY*/-24/*APPFONT_SYSTEM_XTINY*/]); 
+//    }
     
     function formatHourForDisplayString(h, is24Hour, addLeadingZero)
     {
@@ -2516,8 +2575,8 @@ class myView
 
         if (doLoadDynamicResources)
         {
-			loadDynamicResources();
 			gfxLoadDynamicResources();
+			loadDynamicResources();
         }
         
         //System.println("onUpdate sec=" + second);
@@ -2679,7 +2738,7 @@ class myView
 		bufferIndex = -1;		// clear any background buffer being known
 
 		// draw the seconds indicator to the screen
-		if ((propSecondIndicatorOn & onOrGlanceActive)!=0)
+		if (propSecondIndicatorOn)
 		{
         	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
         	{
@@ -2788,7 +2847,7 @@ class myView
 //			var jDisplay = propFieldData[jStart];
 //			var jVisible = propFieldData[jStart + 1];
 //			// don't need to test >=0 as it's a byte array
-//			if (jDisplay!=0/*FIELD_EMPTY*/ && /*jVisible>=0 &&*/ jVisible<23/*STATUS_NUM*/ && getVisibilityStatus(visibilityStatus, jVisible, dateInfoShort))
+//			if (jDisplay!=0/*FIELD_EMPTY*/ && /*jVisible>=0 &&*/ jVisible<25/*STATUS_NUM*/ && getVisibilityStatus(visibilityStatus, jVisible, dateInfoShort))
 //			{
 //				if (jDisplay==testType)
 //				{
@@ -3318,7 +3377,7 @@ class myView
 	    	}
 	    }
     
-		if ((propSecondIndicatorOn&0x01/*ITEM_ON*/)!=0)
+		if (propSecondIndicatorOn)
 		{ 
 	 		// it seems as though occasionally onPartialUpdate can skip a second
 	 		// so check whether that has happened, and within the same minute since last full update
@@ -3413,7 +3472,7 @@ class myView
 
     function drawSecond(dc, startIndex, endIndex)
     {
-		if (propSecondFontResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+		if (propSecondResourceIndex<dynResNum)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
 	    	var curCol = COLOR_NOTSET;
 	   		var xyIndex = startIndex + (propSecondMoveInABit ? 60 : 0);
@@ -3432,7 +3491,7 @@ class myView
 		       	//var s = characterString.substring(index+9, index+10);
 				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
 				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
-	        	dc.drawText(-8/*SECONDS_SIZE_HALF*/ + secondsX[xyIndex], -8/*SECONDS_SIZE_HALF*/ + secondsY[xyIndex], propSecondFontResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	        	dc.drawText(-8/*SECONDS_SIZE_HALF*/ + secondsX[xyIndex], -8/*SECONDS_SIZE_HALF*/ + secondsY[xyIndex], getDynamicResource(propSecondResourceIndex), (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 			}
 		}
     }
@@ -3486,7 +3545,7 @@ class myView
 		var doActivate = profileActive;		// stick with current profile until told otherwise
 		doActivateGlanceCheck = -1;			// -1 used to clear profileGlance once glance is finished
 		
-		if ((onOrGlanceActive&0x02/*ITEM_ONGLANCE*/)!=0)		// during glance
+		if (glanceActive)		// during glance
 		{
 			if (profileGlance<0)
 			{
@@ -4908,7 +4967,7 @@ class myView
 			1,		// chart
 			1,		// rectangle
 			8,		// ring
-			1,		// seconds
+			2,		// seconds
 		][id];
 	}
 
@@ -5022,6 +5081,7 @@ class myView
 	function gfxAddSeconds(index)
 	{
 		gfxData[index] = 10;	// id
+		gfxData[index+1] = 0;	// font
 	}
 
 	function gfxDelete(index)
@@ -5291,6 +5351,7 @@ class myView
 	{
     	var watchUi = WatchUi;
     	var fonts = Rez.Fonts;
+		var graphics = Graphics;
 
 		gfxNum = 0;
 		gfxCharArrayLen = 0;
@@ -5299,7 +5360,7 @@ class myView
 		gfxInsert(gfxNum, 1);	// large hour 
 		gfxInsert(gfxNum, 3);	// large colon
 		gfxInsert(gfxNum, 2);	// large minute
-	
+
 		gfxInsert(gfxNum, 0);	// field
 		gfxInsert(gfxNum, 4);	// string
 
@@ -5309,6 +5370,67 @@ class myView
 		gfxInsert(gfxNum, 10);	// seconds
 
     	propSecondIndicatorOn = false;
+    	
+		var fontList = [
+			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
+			fonts.id_trivial_extra_light,		// APPFONT_EXTRA_LIGHT
+			fonts.id_trivial_light,				// APPFONT_LIGHT
+			fonts.id_trivial_regular,			// APPFONT_REGULAR
+			fonts.id_trivial_bold,				// APPFONT_BOLD
+			fonts.id_trivial_heavy,				// APPFONT_HEAVY
+
+			fonts.id_trivial_ultra_light_tiny,	// APPFONT_ULTRA_LIGHT_TINY
+			fonts.id_trivial_extra_light_tiny,	// APPFONT_EXTRA_LIGHT_TINY
+			fonts.id_trivial_light_tiny,		// APPFONT_LIGHT_TINY
+			fonts.id_trivial_regular_tiny,		// APPFONT_REGULAR_TINY
+			fonts.id_trivial_bold_tiny,			// APPFONT_BOLD_TINY
+			fonts.id_trivial_heavy_tiny,		// APPFONT_HEAVY_TINY
+			fonts.id_trivial_ultra_light_small,	// APPFONT_ULTRA_LIGHT_SMALL
+			fonts.id_trivial_extra_light_small,	// APPFONT_EXTRA_LIGHT_SMALL
+			fonts.id_trivial_light_small,		// APPFONT_LIGHT_SMALL
+			fonts.id_trivial_regular_small,		// APPFONT_REGULAR_SMALL
+			fonts.id_trivial_bold_small,		// APPFONT_BOLD_SMALL
+			fonts.id_trivial_heavy_small,		// APPFONT_HEAVY_SMALL
+			fonts.id_trivial_ultra_light_medium,// APPFONT_ULTRA_LIGHT_MEDIUM
+			fonts.id_trivial_extra_light_medium,// APPFONT_EXTRA_LIGHT_MEDIUM
+			fonts.id_trivial_light_medium,		// APPFONT_LIGHT_MEDIUM
+			fonts.id_trivial_regular_medium,	// APPFONT_REGULAR_MEDIUM
+			fonts.id_trivial_bold_medium,		// APPFONT_BOLD_MEDIUM
+			fonts.id_trivial_heavy_medium,		// APPFONT_HEAVY_MEDIUM
+
+			graphics.FONT_SYSTEM_XTINY, 			// APPFONT_SYSTEM_XTINY
+			graphics.FONT_SYSTEM_TINY, 				// APPFONT_SYSTEM_TINY
+			graphics.FONT_SYSTEM_SMALL, 			// APPFONT_SYSTEM_SMALL
+			graphics.FONT_SYSTEM_MEDIUM,			// APPFONT_SYSTEM_MEDIUM
+			graphics.FONT_SYSTEM_LARGE,				// APPFONT_SYSTEM_LARGE
+			graphics.FONT_SYSTEM_NUMBER_MILD,		// APPFONT_SYSTEM_NUMBER_NORMAL 
+			graphics.FONT_SYSTEM_NUMBER_MEDIUM,		// APPFONT_SYSTEM_NUMBER_MEDIUM 
+			graphics.FONT_SYSTEM_NUMBER_HOT,		// APPFONT_SYSTEM_NUMBER_LARGE 
+			graphics.FONT_SYSTEM_NUMBER_THAI_HOT,	// APPFONT_SYSTEM_NUMBER_HUGE 
+
+			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT
+			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT
+			fonts.id_trivial_light_italic,			// APPFONT_LIGHT
+			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR
+			fonts.id_trivial_bold_italic,			// APPFONT_BOLD
+			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY
+		];
+				
+		var secondFontList = [
+			fonts.id_seconds_tri,			// SECONDFONT_TRI
+			fonts.id_seconds_v,				// SECONDFONT_V
+			fonts.id_seconds_line,			// SECONDFONT_LINE
+			fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
+			fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
+			fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
+			
+			fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
+			fonts.id_seconds_v_in,			// SECONDFONT_V_IN
+			fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
+			fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
+			fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
+			fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
+		];
 
 		for (var index=0; index<gfxNum; )
 		{
@@ -5326,8 +5448,29 @@ class myView
 				case 3:		// colon large
 				{
 					gfxData[index+1] = 3;	// color
-					gfxData[index+2] = 0;	// font
+					gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+					//gfxData[index+2] = 24/*APPFONT_SYSTEM_XTINY*/;	// font
+					//gfxData[index+2] = 32/*APPFONT_SYSTEM_NUMBER_HUGE*/;	// font
+					//if (id==2)
+					//{
+						//gfxData[index+2] = 0;	// ascent 62
+						//gfxData[index+2] = 6;	// ascent 18
+						//gfxData[index+2] = 12;	// ascent 22
+						//gfxData[index+2] = 18;	// ascent 27
+						//gfxData[index+2] = 24;	// font
+						//gfxData[index+2] = 32;	// font
+					//}
 					
+					var r = (gfxData[index+2] & 0xFF);
+				 	if (r<0 || r>38)
+				 	{
+				 		r = 3/*APPFONT_REGULAR*/;
+				 	}
+					var resourceIndex = addDynamicResource(fontList[r]);
+					
+					gfxData[index+2] |= ((resourceIndex & 0xFF) << 8);
+					gfxData[index+2] |= ((r & 0xFF) << 16);		// fontTypeKern
+
 					break;
 				}
 
@@ -5335,8 +5478,17 @@ class myView
 				{
 					gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
 					gfxData[index+2] = 3;	// color
-					gfxData[index+3] = 0;	// font
+					gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font
 					
+					var r = (gfxData[index+3] & 0xFF);
+				 	if (r<0 || r>38)
+				 	{
+				 		r = 15/*APPFONT_REGULAR_SMALL*/;
+				 	}
+					var resourceIndex = addDynamicResource(fontList[r]);
+					
+					gfxData[index+3] |= ((resourceIndex & 0xFF) << 8);
+
 					break;
 				}
 				
@@ -5373,16 +5525,6 @@ class myView
 				
 				case 10:	// seconds
 				{
-			    	propSecondIndicatorOn = 0x01/*ITEM_ON*/;
-			    	propSecondRefreshStyle = 2/*REFRESH_ALTERNATE_MINUTES*/;
-			    	propSecondMoveInABit = false;
-			    
-					propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/ + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);
-				 	if (propSecondIndicatorStyle<0 || propSecondIndicatorStyle>=12/*SECONDFONT_UNUSED*/)
-				 	{
-				 		propSecondIndicatorStyle = 0/*SECONDFONT_TRI*/;
-				 	}
-			
 					// calculate the seconds color array
 			    	var secondColorIndex = getMinMax(3, 0, 63);		// second color
 			    	var secondColorIndex5 = getMinMax(-1, -1, 63);
@@ -5442,32 +5584,20 @@ class myView
 					//	secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
 					//}		
 					
+					var r = (gfxData[index+1] & 0xFF);
+				 	if (r<0 || r>=12/*SECONDFONT_UNUSED*/)
+				 	{
+				 		r = 0/*SECONDFONT_TRI*/;
+				 	}
+					var resourceIndex = addDynamicResource(secondFontList[r]);
+					
+					gfxData[index+1] |= ((resourceIndex & 0xFF) << 8);
+					
 					break;
 				}
 			}
 			
 			index += gfxSize(id);
-		}
-		
-		if (propSecondIndicatorOn)
-		{	
-			var secondFontLoad = [
-				fonts.id_seconds_tri,			// SECONDFONT_TRI
-				fonts.id_seconds_v,				// SECONDFONT_V
-				fonts.id_seconds_line,			// SECONDFONT_LINE
-				fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
-				fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
-				fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
-				
-				fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
-				fonts.id_seconds_v_in,			// SECONDFONT_V_IN
-				fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
-				fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
-				fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
-				fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
-			];
-	
-	   		propSecondFontResource = watchUi.loadResource(secondFontLoad[propSecondIndicatorStyle]);			
 		}
 	}
 	
@@ -5499,7 +5629,7 @@ class myView
 		var activeMinutesWeekSmartGoal = ((activityMonitorActiveMinutesWeekGoal * dayNumberOfWeek) / 7);
 
 		// calculate fields to display
-		var visibilityStatus = new[23/*STATUS_NUM*/];
+		var visibilityStatus = new[25/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && deviceSettings.doNotDisturb);
 	    visibilityStatus[2/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !deviceSettings.doNotDisturb);
@@ -5534,6 +5664,8 @@ class myView
 	    visibilityStatus[20/*STATUS_2ND_PM*/] = (hour2nd >= 12);
 	    visibilityStatus[21/*STATUS_SUNEVENT_RISE*/] = null;	// calculated on demand
 	    visibilityStatus[22/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
+	    visibilityStatus[23/*STATUS_GLANCE_ON*/] = glanceActive;
+	    visibilityStatus[24/*STATUS_GLANCE_OFF*/] = !glanceActive;
 
 		fieldActivePhoneStatus = null;
 		fieldActiveNotificationsStatus = null;
@@ -5545,15 +5677,16 @@ class myView
 		
 		var indexPrevLargeWidth = -1;
 		var prevLargeNumber = -1;
-		var prevLargeFontType = -1;
+		var prevLargeFontKern = -1;
 	
 		for (var index=0; index<gfxNum; )
 		{
 			var id = (gfxData[index] & 0xFF);
+			var eVisible = ((gfxData[index] & 0xEF00) >> 8);
+
 			var isVisible = true;
 			
-			var eVisible = ((gfxData[index] & 0xEF00) >> 8);
-			if (eVisible>=0 && eVisible<23/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<25/*STATUS_NUM*/)
 			{
 				isVisible = visibilityStatus[eVisible];
 
@@ -5610,26 +5743,20 @@ class myView
 						break;
 					}
 					
-					var fontResource;
-					var fontTypeCur;
+					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var fontTypeKern = ((gfxData[index+2] & 0x00FF0000) >> 16);
+
 					var charArray;
-					
 					if (id==1)
 					{
-						fontResource = fontTimeHourResource;
-						fontTypeCur = propTimeHourFont;
 						charArray = hourString.toCharArray();
 					}
 					else if (id==2)
 					{
-						fontResource = fontTimeMinuteResource;
-						fontTypeCur = propTimeMinuteFont;
 						charArray = minuteString.toCharArray();
 					}
 					else //if (id==3)
 					{
-						fontResource = fontTimeMinuteResource;
-						fontTypeCur = propTimeMinuteFont;
 						charArray = ":".toCharArray();
 					}
 					
@@ -5646,37 +5773,37 @@ class myView
 						var c = charArray[charArrayIndex];
 						charArrayIndex++;
 						gfxData[index+3] = c;	// string 0
-						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), fontResource);	// width 0
+						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), getDynamicResource(resourceIndex));	// width 0
 						gfxData[indexCurField+4] += gfxData[index+4];	// total width
 						
 						if (indexPrevLargeWidth>=0)
 						{
-							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontType, fontTypeCur, false);
+							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
 							gfxData[indexPrevLargeWidth] -= k;
 							gfxData[indexCurField+4] -= k;	// total width
 						}
 						
 						indexPrevLargeWidth = index+4;
 						prevLargeNumber = c.toNumber();
-						prevLargeFontType = fontTypeCur;
+						prevLargeFontKern = fontTypeKern;
 					}
 
 					{
 						var c = charArray[charArrayIndex];
 						gfxData[index+5] = c;	// string 1
-						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), fontResource);	// width 1
+						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), getDynamicResource(resourceIndex));	// width 1
 						gfxData[indexCurField+4] += gfxData[index+6];	// total width
 	
 						if (indexPrevLargeWidth>=0)
 						{
-							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontType, fontTypeCur, false);
+							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
 							gfxData[indexPrevLargeWidth] -= k;
 							gfxData[indexCurField+4] -= k;	// total width
 						}
 
 						indexPrevLargeWidth = index+6;
 						prevLargeNumber = c.toNumber();
-						prevLargeFontType = fontTypeCur;
+						prevLargeFontKern = fontTypeKern;
 					}
 					
 					break;
@@ -5688,8 +5815,6 @@ class myView
 					{
 						break;
 					}
-
-					var fontResource = fontFieldResource;
 
 					gfxData[index+4] = 0;	// string start
 					gfxData[index+5] = 0;	// string end
@@ -6066,9 +6191,11 @@ class myView
 						var sLen = gfxCharArrayLen;
 						var eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
 	
+						var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+
 						gfxData[index+4] = sLen;	// string start
 						gfxData[index+5] = eLen;	// string end
-						gfxData[index+6] = dc.getTextWidthInPixels(eStr, fontResource);
+						gfxData[index+6] = dc.getTextWidthInPixels(eStr, getDynamicResource(resourceIndex));
 						gfxData[indexCurField+4] += gfxData[index+6];	// total width					
 					}
 					break;
@@ -6204,6 +6331,11 @@ class myView
 				
 				case 10:	// seconds
 				{
+			    	propSecondIndicatorOn = isVisible;
+					propSecondResourceIndex = ((gfxData[index+1] & 0xFF00) >> 8);
+			    	propSecondMoveInABit = ((gfxData[index+1] & 0x80000000) != 0);
+			    	propSecondRefreshStyle = ((gfxData[index+1] & 0x000F0000) >> 16);
+
 					break;
 				}
 			}
@@ -6268,36 +6400,18 @@ class myView
 						break;
 					}
 
-					var fontResource;
-					var fontTypeCur;
+					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var timeY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 30;
 					
-					if (id==1)
-					{
-						fontResource = fontTimeHourResource;
-						fontTypeCur = propTimeHourFont;
-					}
-					else if (id==2)
-					{
-						fontResource = fontTimeMinuteResource;
-						fontTypeCur = propTimeMinuteFont;
-					}
-					else //if (id==3)
-					{
-						fontResource = fontTimeMinuteResource;
-						fontTypeCur = propTimeMinuteFont;
-					}
-
+        			//System.println("ascent=" + graphics.getFontAscent(getDynamicResource(resourceIndex)));
+					
 					if (gfxData[index+4]>0)	// width 1
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
-							// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
-							//const timeYAdjustFontCustom = -32;
-							//const timeYAdjustFontSystem = 30;
-							var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
 				       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, timeY, getDynamicResource(resourceIndex), gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 													
 		        		fieldX += gfxData[index+4];
@@ -6305,13 +6419,8 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 					{
-						// align bottom of text
-						// custom font if fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/
-						//const timeYAdjustFontCustom = -32;
-						//const timeYAdjustFontSystem = 30;
-						var timeY = fieldYStart + ((fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/) ? (-32) : (30 - graphics.getFontAscent(fontResource)));
 			       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-		        		dc.drawText(fieldX, timeY, fontResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+		        		dc.drawText(fieldX, timeY, getDynamicResource(resourceIndex), gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
 
 		        	fieldX += gfxData[index+6];
@@ -6332,33 +6441,13 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
 						{ 
-							var fontResource = fontFieldResource;
-							var fontTypeCur = propFieldFont;
+							var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+							var dateY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 6;		// align bottom of text with bottom of icons
 						
-							var dateY = fieldYStart;
-
-							// align bottom of text with bottom of icons
-							if (fontTypeCur<24/*APPFONT_SYSTEM_XTINY*/)		// custom font?
-							{
-								//var fieldYAdjustFontCustom = [			// 60 code bytes to initialise
-								//	0,	// APPFONT_ULTRA_LIGHT
-								//	12,	// APPFONT_ULTRA_LIGHT_TINY
-								//	16,	// APPFONT_ULTRA_LIGHT_SMALL
-								//	21,	// APPFONT_ULTRA_LIGHT_MEDIUM
-								//];
-								//dateY -= fieldYAdjustFontCustom[propFieldFont/6];
-								dateY -= ((((0x15<<24) | (0x10<<16) | (0x0C<<8) | 0) >> ((fontTypeCur/6)*8)) & 0xFF);
-							}
-							else
-							{
-								//const fieldYAdjustFontSystem = 6;
-								dateY += 6 - graphics.getFontAscent(fontResource);
-							}
-			
 					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
-			        		dc.drawText(fieldX, dateY, fontResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, dateY, getDynamicResource(resourceIndex), s, 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 								
 			        	fieldX += gfxData[index+6];
