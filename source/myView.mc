@@ -437,7 +437,7 @@ class myView
 	var demoProfilesCurrentProfile = -1;
 	var demoProfilesCurrentEnd = 0;
 
-	var iconsFontResource;
+//	var iconsFontResource;
 	// if any of these numbers below change, then also need to modify:
 	//     	- FIELD_SHAPE_CIRCLE, as they are in the same order
 	//		- the demo display drawing mode 
@@ -1508,7 +1508,7 @@ class myView
 		//var seed = clockTime.sec + clockTime.min*60 + clockTime.hour*(60*60) + System.getTimer();
 		//Math.srand(seed);
 				
-        iconsFontResource = watchUi.loadResource(fonts.id_icons);
+//        iconsFontResource = watchUi.loadResource(fonts.id_icons);
 
 		outerFontResource = watchUi.loadResource(fonts.id_outer);
 
@@ -4935,6 +4935,8 @@ class myView
 	reset (delete all)
 */	
 
+	// background color?
+
 	// id
 	// 0 = field
 	// 1 = hour large
@@ -4962,10 +4964,10 @@ class myView
 			7,		// minute large
 			7,		// colon large
 			7,		// string
-			4,		// icon
-			1,		// movebar
+			6,		// icon
+			11,		// movebar
 			1,		// chart
-			1,		// rectangle
+			6,		// rectangle
 			8,		// ring
 			2,		// seconds
 		][id];
@@ -5037,11 +5039,15 @@ class myView
 	function gfxAddMoveBar(index)
 	{
 		gfxData[index] = 6;		// id
-		// color 1
-		// color 2
-		// color 3
-		// color 4
-		// color 5
+		gfxData[index+1] = 0;	// type
+		gfxData[index+2] = 0;	// font
+		gfxData[index+3] = 0;	// color 1
+		gfxData[index+4] = 0;	// color 2
+		gfxData[index+5] = 0;	// color 3
+		gfxData[index+6] = 0;	// color 4
+		gfxData[index+7] = 0;	// color 5
+		gfxData[index+8] = 0;	// color off
+		// level
 		// width
 	}
 
@@ -5363,9 +5369,13 @@ class myView
 
 		gfxInsert(gfxNum, 0);	// field
 		gfxInsert(gfxNum, 4);	// string
+		gfxInsert(gfxNum, 5);	// icon
+		gfxInsert(gfxNum, 6);	// movebar
 
 		gfxInsert(gfxNum, 0);	// field
 		gfxInsert(gfxNum, 9);	// ring
+
+		gfxInsert(gfxNum, 8);	// rectangle
 
 		gfxInsert(gfxNum, 10);	// seconds
 
@@ -5432,6 +5442,10 @@ class myView
 			fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
 		];
 
+		var iconFontList = [
+			fonts.id_icons,
+		];
+		
 		for (var index=0; index<gfxNum; )
 		{
 			var id = (gfxData[index] & 0xFF);
@@ -5494,11 +5508,32 @@ class myView
 				
 				case 5:		// icon
 				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 3;	// color
+					gfxData[index+3] = 0;	// font
+
+					var resourceIndex = addDynamicResource(iconFontList[0]);
+					
+					gfxData[index+3] |= ((resourceIndex & 0xFF) << 8);
+
 					break;
 				}
 				
 				case 6:		// movebar
 				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 0;	// font
+					gfxData[index+3] = 3;	// color 1
+					gfxData[index+4] = 3;	// color 2
+					gfxData[index+5] = 3;	// color 3
+					gfxData[index+6] = 3;	// color 4
+					gfxData[index+7] = 3;	// color 5
+					gfxData[index+8] = COLOR_NOTSET;	// color off
+
+					var resourceIndex = addDynamicResource(iconFontList[0]);
+					
+					gfxData[index+2] |= ((resourceIndex & 0xFF) << 8);
+
 					break;
 				}
 				
@@ -5509,6 +5544,12 @@ class myView
 				
 				case 8:		// rectangle
 				{
+					gfxData[index+1] = 6;	// color
+					gfxData[index+2] = -50;	// x
+					gfxData[index+3] = 50;	// y
+					gfxData[index+4] = 1;	// width
+					gfxData[index+5] = 50;	// height
+					
 					break;
 				}
 				
@@ -6198,6 +6239,7 @@ class myView
 						gfxData[index+6] = dc.getTextWidthInPixels(eStr, getDynamicResource(resourceIndex));
 						gfxData[indexCurField+4] += gfxData[index+6];	// total width					
 					}
+					
 					break;
 				}
 				
@@ -6208,15 +6250,27 @@ class myView
 						break;
 					}
 
-//				    if (eDisplay>=41/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=73/*FIELD_SHAPE_MOUNTAIN*/)
-//				    {
+					gfxData[index+4] = 0;	// char
+					gfxData[index+5] = 0;	// width
+
+					var eDisplay = gfxData[index+1];
+
+				    if (eDisplay>=0/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=32/*FIELD_SHAPE_MOUNTAIN*/)
+				    {
 						//var iconsString = "ABCDEFGHIJKLMNOPQRSTUVWX";
 						//eStr = iconsString.substring(e-FIELD_SHAPE_CIRCLE, e-FIELD_SHAPE_CIRCLE+1);
 						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
 						//eStr = StringUtil.charArrayToString(charArray);
 						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
-//						eStr = (eDisplay - 41/*FIELD_SHAPE_CIRCLE*/ + 65/*ICONS_FIRST_CHAR_ID*/).toChar().toString();
-//				    }
+						var c = (eDisplay + 65/*ICONS_FIRST_CHAR_ID*/).toChar();
+
+						var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+
+						gfxData[index+4] = c;	// char
+						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), getDynamicResource(resourceIndex));
+						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
+				    }
+
 					break;
 				}
 				
@@ -6227,31 +6281,24 @@ class myView
 						break;
 					}
 
-					//case 37/*FIELD_MOVEBAR*/:
-					//{
-					//	// check how many in rest of field
-					//	// and if next element is a movebar for kerning
-					//	var checkNextMoveBar = checkNextElementType(dataStart, i, visibilityStatus, 37/*FIELD_MOVEBAR*/, dateInfoShort);
-					//	var nextIsMoveBar = checkNextMoveBar[0];
-					//	var numToAdd = ((moveBarNum!=0) ? 1 : (5 - checkNextMoveBar[1]));	// if first in this field check for adding extra ones
-					//	
-					//	for (var j=0; j<numToAdd; j++)
-					//	{
-					//		moveBarNum++;
-					//
-					//		// moveBarLevel 0 = not triggered
-					//		// moveBarLevel has range 1 to 5
-					//		// moveBarNum goes from 1 to 5
-					//		var barIsOn = (moveBarNum <= activityMonitorMoveBarLevel);
-					//		var tempKern = ((j<numToAdd-1 || nextIsMoveBar) ? -5 : 0);
-					//		addBackgroundField(dc, f, fieldInfoIndexEnd, (barIsOn ? "1" : "0"), ((barIsOn || propMoveBarOffColorIndex==COLOR_NOTSET) ? eColorIndex : propMoveBarOffColorIndex), tempKern, 0x1000/*eIsIcon*/);
-					//	}
-					//	
-					//	// leave eStr as null so doesn't get added again below
-					//	// eStr = null;
-					//	
-					//	break;
-					//}
+					gfxData[index+9] = activityMonitorMoveBarLevel;	// level
+					gfxData[index+10] = 0;	// width
+
+					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+
+					// moveBarLevel 0 = not triggered
+					// moveBarLevel has range 1 to 5
+					// moveBarNum goes from 1 to 5
+					for (var i=0; i<5; i++)
+					{
+						var barIsOn = (i < gfxData[index+9]);
+						var s = (barIsOn ? "1" : "0");
+						var w = dc.getTextWidthInPixels(s, getDynamicResource(resourceIndex));
+
+						gfxData[index+10] += w + ((i<4) ? -5 : 0);
+					}
+					
+					gfxData[indexCurField+4] += gfxData[index+10];	// total width					
 
 					break;
 				}
@@ -6463,6 +6510,21 @@ class myView
 						break;
 					}
 
+					var c = gfxData[index+4];
+					if (c > 0)
+					{
+						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)	// check element x overlaps buffer
+						{ 
+							var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+							var dateY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 6;		// align bottom of text with bottom of icons
+						
+					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
+			        		dc.drawText(fieldX, dateY, getDynamicResource(resourceIndex), c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+						}
+
+			        	fieldX += gfxData[index+5];
+					}
+
 					break;
 				}
 				
@@ -6473,6 +6535,33 @@ class myView
 						break;
 					}
 
+					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+
+					var dateX = fieldX;
+					var dateY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 6;		// align bottom of text with bottom of icons
+
+					// moveBarLevel 0 = not triggered
+					// moveBarLevel has range 1 to 5
+					// moveBarNum goes from 1 to 5
+					for (var i=0; i<5; i++)
+					{
+						var barIsOn = (i < gfxData[index+9]);
+						var s = (barIsOn ? "1" : "0");
+						var w = dc.getTextWidthInPixels(s, getDynamicResource(resourceIndex));
+
+						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
+						{ 
+							var col = getColor64((barIsOn || gfxData[index+8]==COLOR_NOTSET) ? gfxData[index+3+i] : gfxData[index+8]);
+							
+					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
+			        		dc.drawText(dateX, dateY, getDynamicResource(resourceIndex), s, 2/*TEXT_JUSTIFY_LEFT*/);
+						}
+						
+						dateX += w + ((i<4) ? -5 : 0);
+					}
+
+		        	fieldX += gfxData[index+10];
+
 					break;
 				}
 				
@@ -6480,6 +6569,13 @@ class myView
 				{
 					if (!(fieldDraw && isVisible))
 					{
+//							var eHeart = (w & (0x0400/*eHeartBars*/|0x0800/*eHeartAxes*/|0x0200/*eHeartBottom*/));
+//							if (eHeart!=0)
+//							{
+//								curFont = null;
+//								drawHeartChart(useDc, dateX, dateY+6, getColor64(backgroundFieldInfoColorIndex[i]), eHeart);		// draw heart rate chart
+//							}
+
 						break;
 					}
 
@@ -6491,6 +6587,17 @@ class myView
 					if (!isVisible)
 					{
 						break;
+					}
+
+					var w = gfxData[index+4];
+					var h = gfxData[index+5];
+					var x = 120 + gfxData[index+2] - dcX;
+					var y = 120 - gfxData[index+3] - dcY - h;
+
+					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
+					{
+				        dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+						dc.fillRectangle(x, y, w, h);
 					}
 
 					break;
