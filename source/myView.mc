@@ -639,48 +639,6 @@ class myView
 
 	//var worldBitmap;
 
-//	// index 0==day, 1==month
-//	var backgroundFieldDiacriticsArray = new[2*5];
-//	var backgroundFieldDiacriticsWidth = new[2*5]b;
-
-//	function addBackgroundFieldDiacritics(dc, fontResource, sLen, eLen, nameIndex)
-//	{
-//		var startIndex = nameIndex*5;
-//		var i = 0;
-//		var width = 0;
-//		for (var k=sLen; k<eLen; k++)
-//		{
-//			var c = getMyCharDiacritic(backgroundFieldInfoCharArray[k]);
-//
-//			backgroundFieldInfoCharArray[k] = c[0];	// replace the character
-//
-//			if (i<5)
-//			{
-//				backgroundFieldDiacriticsArray[startIndex+i] = ((c[1]>700) ? c[1].toChar() : 0);
-//				backgroundFieldDiacriticsWidth[startIndex+i] = width;
-//			}
-//						
-//			width += dc.getTextWidthInPixels(c[0].toString(), fontResource);
-//			i++;
-//		}
-//		
-//		return width;
-//	}
-	
-//	function drawBackgroundFieldDiacritics(dc, fontResource, len, nameIndex, dateX, dateY)
-//	{
-//		var startIndex = nameIndex*5;
-//		len = ((len<=5) ? len : 5);
-//		for (var i=0; i<len; i++)
-//		{ 
-//			var c = backgroundFieldDiacriticsArray[startIndex+i];
-//			if (c!=0)
-//			{
-//				dc.drawText(dateX + backgroundFieldDiacriticsWidth[startIndex+i], dateY, fontResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-//			}
-//		}
-//	}	
-
 	function getMinMax(v, min, max)
 	{
 		return (v<min) ? min : ((v>max) ? max : v);
@@ -906,23 +864,20 @@ class myView
 //		
 //		System.println("bits = " + bits.toString());
         
-//		if (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/)		// custom fonts
-		{
-	        //var bitsSupported = [0, 134213665, 402653182, 0, 0, 0, 1028141746, 0, 67112976, 536870912, 83951626, 570425345];
-	        var bitsSize = bitsSupported.size();
-	        
-	        var sArray = s.toCharArray();
-	        var sArraySize = sArray.size();
-	        for (var i=0; i<sArraySize; i++)
-	        {
-	        	var c = sArray[i].toNumber();	// unicode number
-				var byte = c / 32;
-				var bit = c % 32;
-		       	//System.println("c=" + c + " byte=" + byte + " bit=" + bit);
-				if (byte<0 || byte>=bitsSize || (bitsSupported[byte]&(0x1<<bit))==0)
-				{
-					return true;
-				}
+        //var bitsSupported = [0, 134213665, 402653182, 0, 0, 0, 1028141746, 0, 67112976, 536870912, 83951626, 570425345];
+        var bitsSize = bitsSupported.size();
+        
+        var sArray = s.toUpper().toCharArray();		// upper case
+        var sArraySize = sArray.size();
+        for (var i=0; i<sArraySize; i++)
+        {
+        	var c = sArray[i].toNumber();	// unicode number
+			var byte = c / 32;
+			var bit = c % 32;
+	       	//System.println("c=" + c + " byte=" + byte + " bit=" + bit);
+			if (byte<0 || byte>=bitsSize || (bitsSupported[byte]&(0x1<<bit))==0)
+			{
+				return true;
 			}
 		}
 				
@@ -1235,6 +1190,27 @@ class myView
 			for (var i=0; i<charArraySize; i++)
 			{
 				toArray[toLen] = charArray[i];
+				toLen += 1;
+			}
+		}
+	
+		return toLen;
+	}
+	
+	function addStringToCharArrayWithDiacritics(s, toArray, toLen, toMax)
+	{
+		var charArray = s.toCharArray();
+		var charArraySize = charArray.size();
+		
+		if (toLen+(charArraySize*2) <= toMax)
+		{ 
+			for (var i=0; i<charArraySize; i++)
+			{
+				var c = getMyCharDiacritic(charArray[i]);
+
+				toArray[toLen] = c[0];
+				toArray[toLen + charArraySize] = ((c[1]>700) ? c[1].toChar() : 0);
+
 				toLen += 1;
 			}
 		}
@@ -2051,7 +2027,7 @@ class myView
 
 	function getDynamicResource(i)
 	{
-		return ((i < dynResNum) ? dynResResource[i] : null);
+		return ((i<dynResNum) ? dynResResource[i] : null);
 	}
 
     function releaseDynamicResources()
@@ -2069,13 +2045,13 @@ class myView
 		for (var i=0; i<dynResNum; i++)
 		{
 			var r = dynResList[i];
-			dynResResource[i] = (isSystemFont(r) ? r : WatchUi.loadResource(r));
+			dynResResource[i] = (isDynamicResourceSystemFont(i) ? r : WatchUi.loadResource(r));
 		}
     }
     
-    function isSystemFont(r)
+    function isDynamicResourceSystemFont(i)
     {
-    	return (r<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT);
+    	return ((i<dynResNum) && (dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
     }
 
     function formatHourForDisplayString(h, is24Hour, addLeadingZero)
@@ -2180,6 +2156,9 @@ class myView
         {
 			gfxLoadDynamicResources();
 			loadDynamicResources();
+
+			System.println("gfxNum=" + gfxNum + " [512]");
+			System.println("dynResNum=" + dynResNum + " [16]");
         }
         
         //System.println("onUpdate sec=" + second);
@@ -2621,6 +2600,8 @@ class myView
     {
 		if (propSecondResourceIndex<dynResNum)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
+			var dynamicResource = getDynamicResource(propSecondResourceIndex);
+
 	    	var curCol = COLOR_NOTSET;
 	   		var xyIndex = startIndex + (propSecondMoveInABit ? 60 : 0);
 	    	for (var index=startIndex; index<=endIndex; index++, xyIndex++)
@@ -2638,7 +2619,7 @@ class myView
 		       	//var s = characterString.substring(index+9, index+10);
 				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
 				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
-	        	dc.drawText(-8/*SECONDS_SIZE_HALF*/ + secondsX[xyIndex], -8/*SECONDS_SIZE_HALF*/ + secondsY[xyIndex], getDynamicResource(propSecondResourceIndex), (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	        	dc.drawText(-8/*SECONDS_SIZE_HALF*/ + secondsX[xyIndex], -8/*SECONDS_SIZE_HALF*/ + secondsY[xyIndex], dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 			}
 		}
     }
@@ -4108,7 +4089,7 @@ class myView
 	function gfxSize(id)
 	{
 		return [
-			5,		// field
+			6,		// field
 			7,		// hour large
 			7,		// minute large
 			7,		// colon large
@@ -4124,16 +4105,17 @@ class myView
 
 	function gfxAddField(index)
 	{
-		gfxData[index] = 0;		// id
+		gfxData[index] = 0;		// id & visibility
 		gfxData[index+1] = 0;	// x
 		gfxData[index+2] = 0;	// y
-		gfxData[index+3] = 0;	// justification
-		gfxData[index+4] = 0;	// total width
+		gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
+		// total width
+		// x adjustment
 	}
 
 	function gfxAddHourLarge(index)
 	{
-		gfxData[index] = 1;		// id
+		gfxData[index] = 1;		// id & visibility
 		gfxData[index+1] = 3;	// color
 		gfxData[index+2] = 0;	// font
 		// string 0
@@ -4144,7 +4126,7 @@ class myView
 
 	function gfxAddMinuteLarge(index)
 	{
-		gfxData[index] = 2;		// id
+		gfxData[index] = 2;		// id & visibility
 		gfxData[index+1] = 3;	// color
 		gfxData[index+2] = 0;	// font
 		// string 0
@@ -4155,7 +4137,7 @@ class myView
 
 	function gfxAddColonLarge(index)
 	{
-		gfxData[index] = 3;		// id
+		gfxData[index] = 3;		// id & visibility
 		gfxData[index+1] = 3;	// color
 		gfxData[index+2] = 0;	// font
 		// string 0 dummy
@@ -4166,10 +4148,10 @@ class myView
 
 	function gfxAddString(index)
 	{
-		gfxData[index] = 4;		// id
+		gfxData[index] = 4;		// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 3;	// color
-		gfxData[index+3] = 0;	// font & makeUpperCase
+		gfxData[index+3] = 0;	// font & makeUpperCase & diacritics
 		// string start
 		// string end
 		// width
@@ -4177,7 +4159,7 @@ class myView
 
 	function gfxAddIcon(index)
 	{
-		gfxData[index] = 5;		// id
+		gfxData[index] = 5;		// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 3;	// color
 		gfxData[index+3] = 0;	// font
@@ -4187,7 +4169,7 @@ class myView
 
 	function gfxAddMoveBar(index)
 	{
-		gfxData[index] = 6;		// id
+		gfxData[index] = 6;		// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 0;	// font
 		gfxData[index+3] = 3;	// color 1
@@ -4202,7 +4184,7 @@ class myView
 
 	function gfxAddChart(index)
 	{
-		gfxData[index] = 7;		// id
+		gfxData[index] = 7;		// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 3;	// color chart
 		gfxData[index+3] = 3;	// color axes
@@ -4211,17 +4193,17 @@ class myView
 
 	function gfxAddRectangle(index)
 	{
-		gfxData[index] = 8;		// id
-		// color
-		// x
-		// y
-		// width
-		// height
+		gfxData[index] = 8;		// id & visibility
+		gfxData[index+1] = 3;	// color
+		gfxData[index+2] = 0;	// x
+		gfxData[index+3] = 0;	// y
+		gfxData[index+4] = 0;	// width
+		gfxData[index+5] = 0;	// height
 	}
 
 	function gfxAddRing(index)
 	{
-		gfxData[index] = 9;		// id
+		gfxData[index] = 9;		// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 0;	// font
 		gfxData[index+3] = 0;	// start
@@ -4234,7 +4216,7 @@ class myView
 
 	function gfxAddSeconds(index)
 	{
-		gfxData[index] = 10;	// id
+		gfxData[index] = 10;	// id & visibility
 		gfxData[index+1] = 0;	// font
 	}
 
@@ -4265,63 +4247,6 @@ class myView
 		
 		gfxNum += size;
 	}
-
-//		// calculate main time display
-//		if ((propTimeOn & onOrGlanceActive)!=0)
-//        {
-//        	var hasColon = (propTimeColon!=COLOR_NOTSET);
-//        	
-//			backgroundTimeColorArray[0] = propTimeHourColor;
-//			backgroundTimeColorArray[1] = propTimeHourColor;	// set element 1 even if hour is only 1 digit - saves having an if statement
-//			var curLength = addStringToCharArray(hourString, backgroundTimeCharArray, 0, 5);
-//			if (hasColon)
-//			{
-//				backgroundTimeColorArray[curLength] = propTimeColon;
-//				curLength = addStringToCharArray(":", backgroundTimeCharArray, curLength, 5);
-//				backgroundTimeArrayMinuteStart = ((propTimeHourFont <= propTimeMinuteFont) ? curLength : (curLength-1));
-//			}
-//			else
-//			{
-//				backgroundTimeArrayMinuteStart = curLength;
-//			}
-//			backgroundTimeColorArray[curLength] = propTimeMinuteColor;
-//			backgroundTimeColorArray[curLength+1] = propTimeMinuteColor;
-//			backgroundTimeArrayLength = addStringToCharArray(minuteString, backgroundTimeCharArray, curLength, 5);
-//			
-//			backgroundTimeTotalWidth = 0;
-//			backgroundTimeXOffset = (propTimeItalic ? 1 : 0);
-//
-//	        for (var i=0; i<backgroundTimeArrayLength; i++)
-//	        {
-//	        	var w = dc.getTextWidthInPixels(backgroundTimeCharArray[i].toString(), ((i<backgroundTimeArrayMinuteStart) ? fontTimeHourResource : fontTimeMinuteResource));
-//
-//				// make sure both fonts are our custom ones
-//				if (propTimeHourFont<=5/*APPFONT_HEAVY*/ && propTimeMinuteFont<=5/*APPFONT_HEAVY*/)
-//				{
-//					var curNum = backgroundTimeCharArray[i].toNumber() - 48/*APPCHAR_0*/;
-//
-//	    			if (i < backgroundTimeArrayLength-1)
-//	    			{
-//						var nextNum = backgroundTimeCharArray[i+1].toNumber() - 48/*APPCHAR_0*/;
-//						var appFontCur = ((i<backgroundTimeArrayMinuteStart) ? propTimeHourFont : propTimeMinuteFont);
-//						var appFontNext = ((i<(backgroundTimeArrayMinuteStart-1)) ? propTimeHourFont : propTimeMinuteFont);
-//						
-//						w -= getKern(curNum, nextNum, appFontCur, appFontNext, hasColon);
-//				    }
-//				    else
-//				    {
-//				    	// last digit - if it's a 4 then shift whole number right a bit
-//				    	if (curNum==4)
-//				    	{
-//				    		backgroundTimeXOffset += 1;
-//				    	}
-//				    }
-//				}
-//							    
-//		       	backgroundTimeWidthArray[i] = w;
-//	        	backgroundTimeTotalWidth += w;
-//			}
-//		}
 
 	function gfxLoadDynamicResources()
 	{
@@ -4438,6 +4363,8 @@ class myView
 				{
 					gfxData[index+1] = 3;	// color
 					gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+					gfxData[index+3] = 0/*APPFONT_ULTRA_LIGHT*/;	// justification
+
 					//gfxData[index+2] = 24/*APPFONT_SYSTEM_XTINY*/;	// font
 					//gfxData[index+2] = 32/*APPFONT_SYSTEM_NUMBER_HUGE*/;	// font
 					//if (id==2)
@@ -4757,6 +4684,7 @@ class myView
 					fieldVisible = isVisible;
 
 					gfxData[index+4] = 0;	// total width
+					gfxData[index+5] = 0;	// no x adjustment yet
 					
 					break;
 				}
@@ -4773,6 +4701,8 @@ class myView
 					}
 					
 					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var dynamicResource = getDynamicResource(resourceIndex);
+					
 					var fontTypeKern = ((gfxData[index+2] & 0x00FF0000) >> 16);
 
 					var charArray;
@@ -4802,7 +4732,7 @@ class myView
 						var c = charArray[charArrayIndex];
 						charArrayIndex++;
 						gfxData[index+3] = c;	// string 0
-						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), getDynamicResource(resourceIndex));	// width 0
+						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0
 						gfxData[indexCurField+4] += gfxData[index+4];	// total width
 						
 						if (indexPrevLargeWidth>=0)
@@ -4820,7 +4750,7 @@ class myView
 					{
 						var c = charArray[charArrayIndex];
 						gfxData[index+5] = c;	// string 1
-						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), getDynamicResource(resourceIndex));	// width 1
+						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 1
 						gfxData[indexCurField+4] += gfxData[index+6];	// total width
 	
 						if (indexPrevLargeWidth>=0)
@@ -4833,6 +4763,20 @@ class myView
 						indexPrevLargeWidth = index+6;
 						prevLargeNumber = c.toNumber();
 						prevLargeFontKern = fontTypeKern;
+						
+						gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+						if (gfxData[indexCurField+3]==0)	// centre justification
+						{
+							//if (italic font)
+							//{
+							//	gfxData[indexCurField+5] += 1;	// shift right 1 pixel
+							//}
+							
+							if ((c.toNumber() - 48/*APPCHAR_0*/) == 4)		// last digit is a 4 
+							{
+								gfxData[indexCurField+5] += 1;	// shift right 1 more pixel
+							}
+						}
 					}
 					
 					break;
@@ -4849,9 +4793,13 @@ class myView
 					gfxData[index+5] = 0;	// string end
 					gfxData[index+6] = 0;	// width
 
+					var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+
 					var eStr = null;
 					var eDisplay = gfxData[index+1];
 					var makeUpperCase = false;
+					var checkDiacritics = false;
+					var useUnsupportedFont = false;
 					
 					switch(eDisplay)	// type of string
 					{
@@ -4873,49 +4821,44 @@ class myView
 							eStr = ((eDisplay==3/*FIELD_DAY_NAME*/) ? dateInfoMedium.day_of_week : dateInfoMedium.month);
 
 							//eStr = "\u0158\u015a\u00c7Z\u0179\u0104";		// test string for diacritics & bounding rectangle (use system large)
-							//eStr = "A\u042d\u03b8\u05e9\u069b";			// test string for other languages
+							//eStr = "A\u042d\u03b8\u05e9\u069b";			// test string for other languages (unsupported)
 
-							//var fieldFontIsCustom = (propFieldFont < 24/*APPFONT_SYSTEM_XTINY*/);
-							//if (fieldFontIsCustom)		// custom font
-							//{ 
-							//	var tempStr = eStr.toUpper();				// custom fonts always upper case
-							//	if (useUnsupportedFieldFont(tempStr))
-							//	{
-							//		eFlags |= 0x2000/*eUseUnsupportedFont*/;
-							//	
-							//		// will be using system font - so use case for that as specified by user
-							//		if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
-							//		{
-							//			eStr = tempStr;
-							//		}
-							//		else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
-							//		{
-							//			eStr = eStr.toLower();
-							//		}
-							//		//else
-							//		//{
-							//		//	eStr = eStr;	// keep case as is
-							//		//}
-							//	}
-							//	else
-							//	{
-							//		eStr = tempStr;		// ok to use
-							//		eFlags |= ((eDisplay==3/*FIELD_DAY_NAME*/) ? 0x4000/*eDiacritics*/ : 0x8000/*eDiacritics*/);
-							//	}
-							//}
-							//else
-							//{
-							//	if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
-							//	{
-							//		makeUpperCase = true;
-							//	}
-							//	else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
-							//	{
-							//		eStr = eStr.toLower();
-							//	}
-							//}
+							if (isDynamicResourceSystemFont(resourceIndex))
+							{
+								// can display all diacritics
+								// can display upper & lower case
+							
+								//if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
+								//{
+								//	makeUpperCase = true;
+								//}
+								//else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
+								//{
+								//	eStr = eStr.toLower();
+								//}
+							}
+							else
+							{
+								if (useUnsupportedFieldFont(eStr))
+								{
+									useUnsupportedFont = true;
 
-							makeUpperCase = true;
+									// will be using system font - so use case for that as specified by user
+									//if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
+									//{
+									//	makeUpperCase = true;
+									//}
+									//else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
+									//{
+									//	eStr = eStr.toLower();
+									//}
+								}
+								else
+								{
+									checkDiacritics = true;
+									makeUpperCase = true;
+								}
+							}
 							
 							break;
 						}
@@ -5167,7 +5110,7 @@ class myView
 						case 95/*FIELD_DISTANCE_UNITS*/:
 						{
 							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
-							makeUpperCase = true; //fieldFontIsCustom;
+							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
 							break;
 						}
 
@@ -5191,7 +5134,7 @@ class myView
 						case 97/*FIELD_PRESSURE_UNITS*/:
 						{
 							eStr = "mb"; 	// mbar
-							makeUpperCase = true; //fieldFontIsCustom;
+							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
 							break;
 						}
 
@@ -5205,7 +5148,7 @@ class myView
 						case 99/*FIELD_ALTITUDE_UNITS*/:
 						{
 							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "ft" : "m");
-							makeUpperCase = true; //fieldFontIsCustom;
+							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
 							break;
 						}
 					}
@@ -5218,13 +5161,39 @@ class myView
 						}
 
 						var sLen = gfxCharArrayLen;
-						var eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
-	
-						var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+						var eLen;
+						
+						if (checkDiacritics)
+						{
+							eLen = addStringToCharArrayWithDiacritics(eStr, gfxCharArray, sLen, 256);
+							gfxCharArrayLen = eLen + (eLen-sLen);
+							eStr = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));	// string without diacritics
 
+							gfxData[index+3] |= 0x80000000;		// diacritics flag
+						}
+						else
+						{
+							eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
+							gfxCharArrayLen = eLen;
+
+							gfxData[index+3] &= ~0x80000000;		// diacritics flag
+						}
+	
+						var dynamicResource;
+						if (useUnsupportedFont)
+						{
+							gfxData[index+3] |= 0x40000000;		// unsupported flag
+							dynamicResource = Graphics.FONT_SYSTEM_SMALL;
+						}
+						else
+						{
+							gfxData[index+3] &= ~0x40000000;		// unsupported flag
+							dynamicResource = getDynamicResource(resourceIndex);
+						}
+	
 						gfxData[index+4] = sLen;	// string start
 						gfxData[index+5] = eLen;	// string end
-						gfxData[index+6] = dc.getTextWidthInPixels(eStr, getDynamicResource(resourceIndex));
+						gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+6];	// total width					
 					}
 					
@@ -5253,9 +5222,10 @@ class myView
 						var c = (eDisplay + 65/*ICONS_FIRST_CHAR_ID*/).toChar();
 
 						var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+						var dynamicResource = getDynamicResource(resourceIndex);
 
 						gfxData[index+4] = c;	// char
-						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), getDynamicResource(resourceIndex));
+						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
 				    }
 
@@ -5273,6 +5243,7 @@ class myView
 					gfxData[index+10] = 0;	// width
 
 					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var dynamicResource = getDynamicResource(resourceIndex);
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -5281,7 +5252,7 @@ class myView
 					{
 						var barIsOn = (i < gfxData[index+9]);
 						var s = (barIsOn ? "1" : "0");
-						var w = dc.getTextWidthInPixels(s, getDynamicResource(resourceIndex));
+						var w = dc.getTextWidthInPixels(s, dynamicResource);
 
 						gfxData[index+10] += w + ((i<4) ? -5 : 0);
 					}
@@ -5481,8 +5452,21 @@ class myView
 
 					var totalWidth = gfxData[index+4];
 
-					fieldXStart = 120 - totalWidth/2 + gfxData[index+1] - dcX;
+					fieldXStart = 120 + gfxData[index+1] - dcX + gfxData[index+5];	// add x adjustment
 					fieldYStart = 120 - gfxData[index+2] - dcY;
+			
+					if (gfxData[index+3]==0)	// centre justification
+					{
+						fieldXStart -= totalWidth/2;
+					}
+					else if (gfxData[index+3]==2)	// right justification
+					{
+						fieldXStart -= totalWidth;
+					}
+					//else if (gfxData[index+3]==1)	// left justification
+					//{
+					//	// ok as is
+					//}
 			
 					fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-32)<=dcHeight && (fieldYStart-32+64)>=0));
 					
@@ -5506,9 +5490,11 @@ class myView
 					}
 
 					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
-					var timeY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 30;
+					var dynamicResource = getDynamicResource(resourceIndex);
+
+					var timeY = fieldYStart - graphics.getFontAscent(dynamicResource) + 30;
 					
-        			//System.println("ascent=" + graphics.getFontAscent(getDynamicResource(resourceIndex)));
+        			//System.println("ascent=" + graphics.getFontAscent(dynamicResource));
 					
 					if (gfxData[index+4]>0)	// width 1
 					{
@@ -5516,7 +5502,7 @@ class myView
 						{
 							// align bottom of text
 				       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(fieldX, timeY, getDynamicResource(resourceIndex), gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 													
 		        		fieldX += gfxData[index+4];
@@ -5525,7 +5511,7 @@ class myView
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 					{
 			       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
-		        		dc.drawText(fieldX, timeY, getDynamicResource(resourceIndex), gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+		        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
 
 		        	fieldX += gfxData[index+6];
@@ -5546,13 +5532,38 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
 						{ 
-							var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
-							var dateY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 6;		// align bottom of text with bottom of icons
+							var dynamicResource;
+							
+							if ((gfxData[index+3]&0x40000000)!=0)		// unsupported flag
+							{
+								dynamicResource = graphics.FONT_SYSTEM_SMALL;
+							}
+							else
+							{
+								var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+								dynamicResource = getDynamicResource(resourceIndex);
+							}
+							
+							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
 						
 					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
-			        		dc.drawText(fieldX, dateY, getDynamicResource(resourceIndex), s, 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
+
+							if ((gfxData[index+3]&0x80000000)!=0)		// diacritics flag
+							{
+								var num = eLen - sLen;
+								for (var i=0; i<num; i++)
+								{
+									var c = gfxCharArray[eLen+i];
+									if (c!=0)
+									{
+										var w = ((i>0) ? dc.getTextWidthInPixels(s.substring(0, i), dynamicResource) : 0); 
+										dc.drawText(fieldX + w, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+									}
+								}
+							}	
 						}
 								
 			        	fieldX += gfxData[index+6];
@@ -5574,10 +5585,12 @@ class myView
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)	// check element x overlaps buffer
 						{ 
 							var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
-							var dateY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 6;		// align bottom of text with bottom of icons
+							var dynamicResource = getDynamicResource(resourceIndex);
+
+							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
 						
 					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(fieldX, dateY, getDynamicResource(resourceIndex), c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 
 			        	fieldX += gfxData[index+5];
@@ -5594,9 +5607,10 @@ class myView
 					}
 
 					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var dynamicResource = getDynamicResource(resourceIndex);
 
 					var dateX = fieldX;
-					var dateY = fieldYStart - graphics.getFontAscent(getDynamicResource(resourceIndex)) + 6;		// align bottom of text with bottom of icons
+					var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -5605,14 +5619,14 @@ class myView
 					{
 						var barIsOn = (i < gfxData[index+9]);
 						var s = (barIsOn ? "1" : "0");
-						var w = dc.getTextWidthInPixels(s, getDynamicResource(resourceIndex));
+						var w = dc.getTextWidthInPixels(s, dynamicResource);
 
 						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
 						{ 
 							var col = getColor64((barIsOn || gfxData[index+8]==COLOR_NOTSET) ? gfxData[index+3+i] : gfxData[index+8]);
 							
 					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(dateX, dateY, getDynamicResource(resourceIndex), s, 2/*TEXT_JUSTIFY_LEFT*/);
+			        		dc.drawText(dateX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 						
 						dateX += w + ((i<4) ? -5 : 0);
@@ -5677,6 +5691,7 @@ class myView
 					//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
 		
 					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var dynamicResource = getDynamicResource(resourceIndex);
 
 					var jStart;
 					var jEnd;
@@ -5736,7 +5751,7 @@ class myView
 							//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
 							//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
 							var index2 = index*2;
-				        	dc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], getDynamicResource(resourceIndex), (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+				        	dc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], dynamicResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 				        }
 					    
 					    j++;	// next segment
