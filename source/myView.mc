@@ -102,7 +102,7 @@ class myView
 	
 	var propSunAltitudeAdjust = false;
 	    
-    const PROFILE_NUM_PROPERTIES = 38;
+//    const PROFILE_NUM_PROPERTIES = 38;
     //const PROFILE_PROPERTY_COLON = 36;
     //const PROFILE_PROPERTY_2ND_TIME_ZONE_OFFSET = 37;
     // 0 = profile name
@@ -144,39 +144,39 @@ class myView
     // 36 = time colon separator
     // 37 = 2nd time zone offset
     
-	function getBooleanFromArray(pArray, p)
-	{
-		var v = false;
-		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && (pArray[p] instanceof Boolean))
-		{
-			v = pArray[p];
-		}
-		return v;
-	}
+//	function getBooleanFromArray(pArray, p)
+//	{
+//		var v = false;
+//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && (pArray[p] instanceof Boolean))
+//		{
+//			v = pArray[p];
+//		}
+//		return v;
+//	}
 	
-	function getNumberFromArray(pArray, p)
-	{
-		var v = 0;
-		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && !(pArray[p] instanceof Boolean))
-		{
-			v = pArray[p].toNumber();
-			if (v == null)
-			{
-				v = 0;
-			}
-		}
-		return v;
-	}
+//	function getNumberFromArray(pArray, p)
+//	{
+//		var v = 0;
+//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && !(pArray[p] instanceof Boolean))
+//		{
+//			v = pArray[p].toNumber();
+//			if (v == null)
+//			{
+//				v = 0;
+//			}
+//		}
+//		return v;
+//	}
 		
-	function getColorIndexFromArray(pArray, p, minV)
-	{
-		return getMinMax(getNumberFromArray(pArray, p), minV, 63);
-	}
+//	function getColorIndexFromArray(pArray, p, minV)
+//	{
+//		return getMinMax(getNumberFromArray(pArray, p), minV, 63);
+//	}
 
-	function getColorFromArray(pArray, p, minV)
-	{				
-		return getColor64(getColorIndexFromArray(pArray, p, minV));
-	}
+//	function getColorFromArray(pArray, p, minV)
+//	{				
+//		return getColor64(getColorIndexFromArray(pArray, p, minV));
+//	}
 
 //	function getStringFromArray(pArray, p)
 //	{	
@@ -193,32 +193,6 @@ class myView
 //		return getStringFromArray(p).toCharArray();
 //	}
 
-    function getPropertiesFromArray(pArray)
-    {
-		propBackgroundColor = getColorFromArray(pArray, 1/*"1"*/, 0);
-
-		propAddLeadingZero = getBooleanFromArray(pArray, 3/*"3"*/);
-
-		propTimeYOffset = getNumberFromArray(pArray, 9/*"9"*/);
-    			
-		propFieldFontSystemCase = getNumberFromArray(pArray, 26/*"26"*/);		// get case for system fonts
-    	propFieldFontUnsupported = getNumberFromArray(pArray, 27/*"27"*/);
-		
-    	propMoveBarAlertTriggerLevel = getNumberFromArray(pArray, 29/*"29"*/); 
-
-	    propBatteryHighPercentage = getNumberFromArray(pArray, 30/*"30"*/);
-	    propBatteryLowPercentage = getNumberFromArray(pArray, 31/*"31"*/);
-
-		propGlanceProfile = getNumberFromArray(pArray, 35/*"35"*/);
-		
-		prop2ndTimeZoneOffset = getNumberFromArray(pArray, 37/*"37"*/);
-    }
-    
-    (:m2app)
-    function copyPropertiesToArray(pArray)
-    {
-    }
-    
 	var hasDoNotDisturb;
 	var hasLTE;
 	var hasElevationHistory;
@@ -2863,16 +2837,16 @@ class myView
 	var parseIndex;
 	
    	// find next comma or end of array
-	function parseToComma(charArray, charArraySize)
-	{	
-    	for (; parseIndex<charArraySize; parseIndex++)
-    	{
-    		if (charArray[parseIndex].toNumber()==44/*APPCHAR_COMMA*/)
-    		{
-    			break;
-    		}
-    	}
-    }
+//	function parseToComma(charArray, charArraySize)
+//	{	
+//    	for (; parseIndex<charArraySize; parseIndex++)
+//    	{
+//    		if (charArray[parseIndex].toNumber()==44/*APPCHAR_COMMA*/)
+//    		{
+//    			break;
+//    		}
+//    	}
+//    }
     	
 	function parseSign(charArray, charArraySize)
 	{
@@ -2939,53 +2913,53 @@ class myView
 		return n;
 	}
 	
-	function parseNumberComma(charArray, charArraySize)
-	{
-		var v = parseNumber(charArray, charArraySize);
+//	function parseNumberComma(charArray, charArraySize)
+//	{
+//		var v = parseNumber(charArray, charArraySize);
+//
+//		parseToComma(charArray, charArraySize);   	// find next comma or end of array
+//		parseIndex++;		// step over the comma
+//
+//		return v;
+//	}
 
-		parseToComma(charArray, charArraySize);   	// find next comma or end of array
-		parseIndex++;		// step over the comma
+//	function parseBooleanComma(charArray, charArraySize)
+//	{
+//		var v = false;
+//	
+//		if (parseIndex<charArraySize)
+//		{	
+//    		var c = charArray[parseIndex].toNumber();
+//			v = (c==116/*APPCHAR_t*/ || c==49/*APPCHAR_1*/ || c==84/*APPCHAR_T*/);
+//				
+//			parseToComma(charArray, charArraySize);   	// find next comma or end of array
+//			parseIndex++;		// step over the comma
+//		}
+//
+//		return v;
+//	}
 
-		return v;
-	}
-
-	function parseBooleanComma(charArray, charArraySize)
-	{
-		var v = false;
-	
-		if (parseIndex<charArraySize)
-		{	
-    		var c = charArray[parseIndex].toNumber();
-			v = (c==116/*APPCHAR_t*/ || c==49/*APPCHAR_1*/ || c==84/*APPCHAR_T*/);
-				
-			parseToComma(charArray, charArraySize);   	// find next comma or end of array
-			parseIndex++;		// step over the comma
-		}
-
-		return v;
-	}
-
-	function parseStringComma(charArray, charArraySize)
-	{
-		var v = "";
-		
-		var charStart = parseIndex;
-		parseToComma(charArray, charArraySize);   	// find next comma or end of array
-		var charEnd = parseIndex;
-		parseIndex++;		// step over the comma
-		
-		if (charEnd > charStart)
-		{
-			var charMax = charStart+20;		// limit length of strings just in case
-			if (charEnd > charMax)
-			{
-				charEnd = charMax;
-			}
-			v = StringUtil.charArrayToString(charArray.slice(charStart, charEnd));	
-		}
-
-		return v;
-	}
+//	function parseStringComma(charArray, charArraySize)
+//	{
+//		var v = "";
+//		
+//		var charStart = parseIndex;
+//		parseToComma(charArray, charArraySize);   	// find next comma or end of array
+//		var charEnd = parseIndex;
+//		parseIndex++;		// step over the comma
+//		
+//		if (charEnd > charStart)
+//		{
+//			var charMax = charStart+20;		// limit length of strings just in case
+//			if (charEnd > charMax)
+//			{
+//				charEnd = charMax;
+//			}
+//			v = StringUtil.charArrayToString(charArray.slice(charStart, charEnd));	
+//		}
+//
+//		return v;
+//	}
 
 //	function saveProfile(profileIndex)
 //	{
@@ -3287,46 +3261,62 @@ class myView
 			var s = getProfileString(profileIndex);
 			if (s!=null && (s instanceof String))
 			{
-				var charArray = s.toCharArray();
-				var charArraySize = charArray.size();
-				parseIndex = 0;
-
-				s = null;	// free mem			
-			
-				// normal properties
-				{
-					var pArray = new[PROFILE_NUM_PROPERTIES];
-	
-					// profile times?
-					//profileTimes[profileIndex] = parseNumberComma(charArray, charArraySize);
-					//profileTimes[profileIndex+PROFILE_NUM_USER] = parseNumberComma(charArray, charArraySize);
-					//applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
-			
-					for (var pNum=0; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
-					{
-						if (pNum==0)		// "0" profile name
-						{
-							pArray[pNum] = parseStringComma(charArray, charArraySize);
-						}
-						else if ((((0x1l<<3) | (0x1l<<8) | (0x1l<<18) | (0x1l<<19) | (0x1l<<32) | (0x1l<<33) | (0x1l<<34)) & (0x1l<<pNum)) != 0)
-						{
-							// "3" time military
-							// "8" time italic font
-							// "18" seconds color demo
-							// "19" seconds move in a bit
-							// "32" demo font styles
-							// "33" demo second styles
-							// "34" demo display
-							pArray[pNum] = parseBooleanComma(charArray, charArraySize);
-						}
-						else
-						{
-							pArray[pNum] = parseNumberComma(charArray, charArraySize);
-						}
-					}
-	
-					getPropertiesFromArray(pArray);
-				}
+//				var charArray = s.toCharArray();
+//				var charArraySize = charArray.size();
+//				parseIndex = 0;
+//
+//				s = null;	// free mem			
+//			
+//				// normal properties
+//				{
+//					var pArray = new[PROFILE_NUM_PROPERTIES];
+//	
+//					// profile times?
+//					//profileTimes[profileIndex] = parseNumberComma(charArray, charArraySize);
+//					//profileTimes[profileIndex+PROFILE_NUM_USER] = parseNumberComma(charArray, charArraySize);
+//					//applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
+//			
+//					for (var pNum=0; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
+//					{
+//						if (pNum==0)		// "0" profile name
+//						{
+//							pArray[pNum] = parseStringComma(charArray, charArraySize);
+//						}
+//						else if ((((0x1l<<3) | (0x1l<<8) | (0x1l<<18) | (0x1l<<19) | (0x1l<<32) | (0x1l<<33) | (0x1l<<34)) & (0x1l<<pNum)) != 0)
+//						{
+//							// "3" time military
+//							// "8" time italic font
+//							// "18" seconds color demo
+//							// "19" seconds move in a bit
+//							// "32" demo font styles
+//							// "33" demo second styles
+//							// "34" demo display
+//							pArray[pNum] = parseBooleanComma(charArray, charArraySize);
+//						}
+//						else
+//						{
+//							pArray[pNum] = parseNumberComma(charArray, charArraySize);
+//						}
+//					}
+//	
+//					propBackgroundColor = getColorFromArray(pArray, 1/*"1"*/, 0);
+//			
+//					propAddLeadingZero = getBooleanFromArray(pArray, 3/*"3"*/);
+//			
+//					propTimeYOffset = getNumberFromArray(pArray, 9/*"9"*/);
+//			    			
+//					propFieldFontSystemCase = getNumberFromArray(pArray, 26/*"26"*/);		// get case for system fonts
+//			    	propFieldFontUnsupported = getNumberFromArray(pArray, 27/*"27"*/);
+//					
+//			    	propMoveBarAlertTriggerLevel = getNumberFromArray(pArray, 29/*"29"*/); 
+//			
+//				    propBatteryHighPercentage = getNumberFromArray(pArray, 30/*"30"*/);
+//				    propBatteryLowPercentage = getNumberFromArray(pArray, 31/*"31"*/);
+//			
+//					propGlanceProfile = getNumberFromArray(pArray, 35/*"35"*/);
+//					
+//					prop2ndTimeZoneOffset = getNumberFromArray(pArray, 37/*"37"*/);
+//				}
 				
 				// field data
 //				for (var fNum=0; fNum<FIELD_NUM*FIELD_NUM_PROPERTIES && parseIndex<charArraySize; fNum++)
@@ -4086,6 +4076,139 @@ class myView
 	var gfxCharArray = new[256];
 	var gfxCharArrayLen = 0;
 
+	function gfxEncodeVal(v)
+	{
+		// 0-9 a-z A-Z
+		// 10 +26 +26 =62
+		// 62*62=3844, so 0-3843
+		//
+		// 0 = 48
+		// A = 65
+		// a = 97
+
+		var c;
+		if (v<10)
+		{
+			c = 48+v;
+		}
+		else if (v<36)
+		{
+			c = 65-10+v;
+		}
+		else //if (v<62)
+		{
+			c = 97-36+v;
+		}
+		
+		return c.toChar();
+	}		
+	
+	function gfxDecodeChar(c)
+	{
+		// 0-9 a-z A-Z
+		// 10 +26 +26 =62
+		// 62*62=3844, so 0-3843
+		//
+		// 0 = 48
+		// A = 65
+		// a = 97
+
+		var v = c.toNumber();
+		if (v>=97)
+		{
+			v -= (97-36);
+		}
+		else if (v>=65)
+		{
+			v -= (65-10);
+		}
+		else //if (v>=48)
+		{
+			v -= 48;
+		}
+		
+		return v;
+	}		
+	
+	function gfxToCharArray()
+	{
+		gfxCharArrayLen = 0;
+	
+		for (var index=0; index<gfxNum; )
+		{
+			var id = (gfxData[index] & 0xFF);
+		
+			var saveSize = gfxSizeSave(id);
+			for (var i=0; i<saveSize; i++)
+			{
+				var val = gfxData[index] & 0xFFFF;
+				
+				// 0-9 a-z A-Z
+				// 10 +26 +26 =62
+				// 62*62=3844, so 0-3843
+				
+				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range)
+				
+				var c;
+				if (val<31)
+				{
+					c = gfxEncodeVal(val);
+					gfxCharArray[gfxCharArrayLen] = c;
+					gfxCharArrayLen++;
+				}
+				else
+				{
+					var v0 = val%62;
+					var v1 = val/62 + 31;
+					
+					c = gfxEncodeVal(v0);
+					gfxCharArray[gfxCharArrayLen] = c;
+					gfxCharArrayLen++;
+
+					c = gfxEncodeVal(v1);
+					gfxCharArray[gfxCharArrayLen] = c;
+					gfxCharArrayLen++;
+				}
+			}		
+		
+			index += gfxSize(id);				
+		}
+	}
+
+	function gfxFromCharArray()
+	{
+		gfxNum = 0;
+
+		for (var index=0; index<gfxCharArrayLen; )
+		{
+			var saveSize = 1;
+			for (var i=0; i<saveSize; i++)
+			{
+				var v = gfxDecodeChar(gfxCharArray[index]);
+				index++;
+		
+				if (v>=31)
+				{
+					v -= 31;
+					var v1 = gfxDecodeChar(gfxCharArray[index]);
+					index++;
+					v = v*62 + v1;
+				}
+
+				gfxData[gfxNum] = v;
+				gfxNum++;
+
+				if (i==0)
+				{
+					var id = (v & 0xFF);
+					saveSize = gfxSizeSave(id);
+				}
+			}
+			
+			gfxNum += gfxSize(id);
+		}
+	}
+
 	function gfxSize(id)
 	{
 		return [
@@ -4099,6 +4222,23 @@ class myView
 			5,		// chart
 			6,		// rectangle
 			9,		// ring
+			2,		// seconds
+		][id];
+	}
+
+	function gfxSizeSave(id)
+	{
+		return [
+			4,		// field
+			3,		// hour large
+			3,		// minute large
+			3,		// colon large
+			4,		// string
+			4,		// icon
+			9,		// movebar
+			4,		// chart
+			6,		// rectangle
+			7,		// ring
 			2,		// seconds
 		][id];
 	}
@@ -4217,7 +4357,7 @@ class myView
 	function gfxAddSeconds(index)
 	{
 		gfxData[index] = 10;	// id & visibility
-		gfxData[index+1] = 0;	// font
+		gfxData[index+1] = 0;	// font & refresh style
 	}
 
 	function gfxDelete(index)
@@ -4253,6 +4393,17 @@ class myView
     	var watchUi = WatchUi;
     	var fonts = Rez.Fonts;
 		var graphics = Graphics;
+
+		propBackgroundColor = getColor64(0);
+		propAddLeadingZero = false;
+		propTimeYOffset = 0;		
+		propFieldFontSystemCase = 0;		// get case for system fonts
+    	propFieldFontUnsupported = 0;		
+    	propMoveBarAlertTriggerLevel = 0; 
+	    propBatteryHighPercentage = 75;
+	    propBatteryLowPercentage = 25;
+		propGlanceProfile = -1;
+		prop2ndTimeZoneOffset = 0;
 
 		gfxNum = 0;
 		gfxCharArrayLen = 0;
@@ -4384,8 +4535,8 @@ class myView
 				 	}
 					var resourceIndex = addDynamicResource(fontList[r]);
 					
-					gfxData[index+2] |= ((resourceIndex & 0xFF) << 8);
-					gfxData[index+2] |= ((r & 0xFF) << 16);		// fontTypeKern
+					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2] |= ((r & 0xFF) << 24);		// fontTypeKern
 
 					break;
 				}
@@ -4403,7 +4554,7 @@ class myView
 				 	}
 					var resourceIndex = addDynamicResource(fontList[r]);
 					
-					gfxData[index+3] |= ((resourceIndex & 0xFF) << 8);
+					gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4416,7 +4567,7 @@ class myView
 
 					var resourceIndex = addDynamicResource(iconFontList[0]);
 					
-					gfxData[index+3] |= ((resourceIndex & 0xFF) << 8);
+					gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4434,7 +4585,7 @@ class myView
 
 					var resourceIndex = addDynamicResource(iconFontList[0]);
 					
-					gfxData[index+2] |= ((resourceIndex & 0xFF) << 8);
+					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4469,13 +4620,18 @@ class myView
 
 					var resourceIndex = addDynamicResource(ringFontList[0]);
 					
-					gfxData[index+2] |= ((resourceIndex & 0xFF) << 8);
+					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
 				
 				case 10:	// seconds
 				{
+					gfxData[index+1] = 0;	// font
+					gfxData[index+1] |= (0 << 8);	// refresh style
+
+			    	//gfxData[index+1] |= 0x80000000; 	// move in a bit - set depending on what the font is
+
 					// calculate the seconds color array
 			    	var secondColorIndex = getMinMax(3, 0, 63);		// second color
 			    	var secondColorIndex5 = getMinMax(-1, -1, 63);
@@ -4542,7 +4698,7 @@ class myView
 				 	}
 					var resourceIndex = addDynamicResource(secondFontList[r]);
 					
-					gfxData[index+1] |= ((resourceIndex & 0xFF) << 8);
+					gfxData[index+1] |= ((resourceIndex & 0xFF) << 16);
 					
 					break;
 				}
@@ -4638,7 +4794,7 @@ class myView
 		for (var index=0; index<gfxNum; )
 		{
 			var id = (gfxData[index] & 0xFF);
-			var eVisible = ((gfxData[index] & 0xEF00) >> 8);
+			var eVisible = ((gfxData[index] & 0xFF00) >> 8);
 
 			var isVisible = true;
 			
@@ -4667,11 +4823,11 @@ class myView
 			// remember visibility for this update
 			if (isVisible)
 			{
-				gfxData[index] |= 0x8000;
+				gfxData[index] |= 0x10000;
 			}
 			else
 			{
-				gfxData[index] &= ~0x8000;
+				gfxData[index] &= ~0x10000;
 			}
 			
 			switch(id)
@@ -4700,10 +4856,10 @@ class myView
 						break;
 					}
 					
-					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					
-					var fontTypeKern = ((gfxData[index+2] & 0x00FF0000) >> 16);
+					var fontTypeKern = ((gfxData[index+2] >> 24) & 0xFF);
 
 					var charArray;
 					if (id==1)
@@ -4793,7 +4949,7 @@ class myView
 					gfxData[index+5] = 0;	// string end
 					gfxData[index+6] = 0;	// width
 
-					var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+					var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
 
 					var eStr = null;
 					var eDisplay = gfxData[index+1];
@@ -5221,7 +5377,7 @@ class myView
 						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
 						var c = (eDisplay + 65/*ICONS_FIRST_CHAR_ID*/).toChar();
 
-						var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+						var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
 						var dynamicResource = getDynamicResource(resourceIndex);
 
 						gfxData[index+4] = c;	// char
@@ -5242,7 +5398,7 @@ class myView
 					gfxData[index+9] = activityMonitorMoveBarLevel;	// level
 					gfxData[index+10] = 0;	// width
 
-					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 
 					// moveBarLevel 0 = not triggered
@@ -5408,10 +5564,9 @@ class myView
 				case 10:	// seconds
 				{
 			    	propSecondIndicatorOn = isVisible;
-					propSecondResourceIndex = ((gfxData[index+1] & 0xFF00) >> 8);
-			    	propSecondMoveInABit = ((gfxData[index+1] & 0x80000000) != 0);
-			    	propSecondRefreshStyle = ((gfxData[index+1] & 0x000F0000) >> 16);
-
+			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);
+					propSecondResourceIndex = ((gfxData[index+1] >> 16) & 0xFF);
+			    	propSecondMoveInABit = ((gfxData[index+1] & 0x80000000) != 0);		// set depending on what the font is
 					break;
 				}
 			}
@@ -5436,7 +5591,7 @@ class myView
 		for (var index=0; index<gfxNum; )
 		{
 			var id = (gfxData[index] & 0xFF);
-			var isVisible = ((gfxData[index] & 0x8000) != 0);
+			var isVisible = ((gfxData[index] & 0x10000) != 0);
 			
 			switch(id)
 			{
@@ -5489,7 +5644,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 
 					var timeY = fieldYStart - graphics.getFontAscent(dynamicResource) + 30;
@@ -5540,7 +5695,7 @@ class myView
 							}
 							else
 							{
-								var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+								var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
 								dynamicResource = getDynamicResource(resourceIndex);
 							}
 							
@@ -5584,7 +5739,7 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)	// check element x overlaps buffer
 						{ 
-							var resourceIndex = ((gfxData[index+3] & 0xFF00) >> 8);
+							var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
 							var dynamicResource = getDynamicResource(resourceIndex);
 
 							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
@@ -5606,7 +5761,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 
 					var dateX = fieldX;
@@ -5690,7 +5845,7 @@ class myView
 					//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
 					//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
 		
-					var resourceIndex = ((gfxData[index+2] & 0xFF00) >> 8);
+					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 
 					var jStart;
