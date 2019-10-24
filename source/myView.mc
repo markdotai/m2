@@ -38,6 +38,8 @@ class myView
 	const PROFILE_VERSION = 21;			// a version number
 	const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
 
+	const PROFILE_NUM_USER = 24;		// number of user profiles
+
 	var updateTimeNowValue;
 	var updateTimeTodayValue;
 	var updateTimeZoneOffset;
@@ -70,9 +72,15 @@ class myView
 	
 	// prop or "property" variables - are the ones which we store in onUpdate, so they don't change when they are used in onPartialUpdate
 	var propBackgroundColor;
-
 	var propAddLeadingZero = false;
-
+    var propFieldFontSystemCase = 0;
+    var propFieldFontUnsupported;
+	var fontFieldUnsupportedResource = null;
+    var propMoveBarAlertTriggerLevel = 0; 
+    var propBatteryHighPercentage = 75.0;
+	var propBatteryLowPercentage = 25.0;	
+	var propGlanceProfile = -1;
+	var prop2ndTimeZoneOffset = 0;
 	var propTimeYOffset;
     
     var propSecondIndicatorOn = false;
@@ -86,22 +94,7 @@ class myView
 	//	REFRESH_ALTERNATE_MINUTES = 2
 	//}
 	//var propSecondIndicatorStyle;
-    
-    var propFieldFontSystemCase = 0;
-    var propFieldFontUnsupported;
-	var fontFieldUnsupportedResource = null;
-	
-    var propMoveBarAlertTriggerLevel = 0; 
-	
-    var propBatteryHighPercentage = 75.0;
-	var propBatteryLowPercentage = 25.0;
-	
-	var prop2ndTimeZoneOffset = 0;
-	
-	var propGlanceProfile = -1;
-	
-	var propSunAltitudeAdjust = false;
-	    
+    		    
 //    const PROFILE_NUM_PROPERTIES = 38;
     //const PROFILE_PROPERTY_COLON = 36;
     //const PROFILE_PROPERTY_2ND_TIME_ZONE_OFFSET = 37;
@@ -209,26 +202,6 @@ class myView
 	var fieldActiveNotificationsCount = null;
 	var fieldActiveLTEStatus = null;
 
-	// Time is stored as hour*60 + minutes
-	// This has a maximum of 24*60 = 1,440 = 0x5A0 (11 bits 0x7FF)
-	const PROFILE_NUM_USER = 24;				// number of user profiles
-	var profileTimes = new[PROFILE_NUM_USER*2];
-	// 1st number:
-	//const PROFILE_DAYS_MASK = 0x7F;				// 7 bits for days mon-sun
-	//const PROFILE_BLOCK_MASK = 0x80;			// block random
-	//!const PROFILE_UNUSED1_MASK = 0x100;
-	//!const PROFILE_UNUSED2_MASK = 0x200;
-	//const PROFILE_START_MASK = 0x7FF;
-	//const PROFILE_START_SHIFT = 10;
-	//const PROFILE_END_MASK = 0x7FF;
-	//const PROFILE_END_SHIFT = 21;
-	// 2nd number:
-	//const PROFILE_EVENTS_MASK = 0xFF;			// number of random events per day 0-255
-	//const PROFILE_START_SUNRISE = 0x0100;
-	//const PROFILE_START_SUNSET = 0x0200;
-	//const PROFILE_END_SUNRISE = 0x0400;
-	//const PROFILE_END_SUNSET = 0x0800;
-	
 	var profileActive = 26;		// currently active profile
 	var profileDelayEnd = 0;	// after manually changing settings then any automatic profile loads get delayed until this moment
 	var profileGlance = -1;		// -1 means no glance profile active
@@ -241,6 +214,8 @@ class myView
 	var demoProfilesOnPrev = false;	
 	var demoProfilesCurrentProfile = -1;
 	var demoProfilesCurrentEnd = 0;
+
+	var propSunAltitudeAdjust = false;
 
 	// if any of these numbers below change, then also need to modify:
 	//     	- FIELD_SHAPE_CIRCLE, as they are in the same order
@@ -427,13 +402,9 @@ class myView
 	
 	function getColor64(i)
 	{
-		if (i<0)
+		if (i<0 || i>=64)
 		{
 			return COLOR_NOTSET; 
-		}
-		else if (i>=64)
-		{
-			return i;
 		}
 	
 		// 0x00 = 000, 0x01 = 005, 0x02 = 00A, 0x03 = 00F
@@ -962,12 +933,12 @@ class myView
 		var s = propertiesGetString(p).toUpper();
 		if (s.find("SUNRISE")==0)
 		{
-			t[0] = 0x0100/*PROFILE_START_SUNRISE*/;
+			t[0] = 0x01/*PROFILE_START_SUNRISE*/;
 			s = s.substring(7, s.length());
 		}
 		else if (s.find("SUNSET")==0)
 		{
-			t[0] = 0x0200/*PROFILE_START_SUNSET*/;
+			t[0] = 0x02/*PROFILE_START_SUNSET*/;
 			s = s.substring(6, s.length());
 		}
 		else
@@ -1363,6 +1334,8 @@ class myView
 
 		// remember which profile was active and also any profileDelayEnd value
 		// - then checkProfiles will know whether to restore the private profile or not
+		loadMemoryData();
+		
 		{
 			var saveData = storage.getValue("C");
 			if (saveData!=null)
@@ -1405,47 +1378,22 @@ class myView
 			saveData = null;
 		}
 
-//{
-//	for (var ki=0; ki<PROFILE_NUM_USER*2; ki++)
-//	{
-//		profileTimes[ki] = 0;
-//	}
-//	applicationStorage.setValue("PT", profileTimes);
-//	var timeStamp = System.getTimer();
-//	
-//	//var sArray = applicationStorage.getValue("PT");			// 156ms
-//	
-//	for (var kk=0; kk<PROFILE_NUM_USER*2; kk++)		// 4.7ms
-//	{
-//		applicationProperties.getValue("35");
-//	}
-//
-//	System.println("PT load time = " + (System.getTimer()-timeStamp) + "ms");
-//}
-
-		// load profile times from storage
-		{
-
-			var sArray = storage.getValue("PT");			// profile times (156ms)
-			var sArraySize = ((sArray!=null) ? sArray.size() : 0);
-			for (var i=0; i<PROFILE_NUM_USER*2; i++)
-			{
-				profileTimes[i] = ((i<sArraySize) ? sArray[i] : 0);
-			}
-		}
+		loadProfileData();		// load profile times
     }
 
 	function saveDataForStop()
 	{
 		// remember the active profile and profileDelayEnd
 		// and other variables we want to save between runs
-		var saveData = [
-			/* 0 1 */ profileActive, profileDelayEnd,
-			/* 2 3 */ profileRandom, profileRandomEnd,
-			/* 4 5 6 */ demoProfilesCurrentProfile, demoProfilesCurrentEnd, demoProfilesOn,
-			/* 7 8 9 10 */ positionGot, positionLatitude, positionLongitude, positionAltitude
-		];
-		applicationStorage.setValue("C", saveData);
+		saveMemoryData();
+		
+//		var saveData = [
+//			/* 0 1 */ profileActive, profileDelayEnd,
+//			/* 2 3 */ profileRandom, profileRandomEnd,
+//			/* 4 5 6 */ demoProfilesCurrentProfile, demoProfilesCurrentEnd, demoProfilesOn,
+//			/* 7 8 9 10 */ positionGot, positionLatitude, positionLongitude, positionAltitude
+//		];
+//		applicationStorage.setValue("C", saveData);
 		
 		// store the current field data to storage - used only when watchface next loaded
 //		applicationStorage.setValue("F", propFieldData);	// seems to work storing a byte array ...
@@ -1456,7 +1404,7 @@ class myView
 	{
         //System.println("onStop");
 
-//		saveDataForStop();
+		saveDataForStop();
 
 //		if (profileActive>=0)	// not the private profile (watch settings)
 //		{
@@ -2602,7 +2550,7 @@ class myView
 	{
 		t1 >>= startEndShift;
 		
-		if ((t1&(0x0100/*PROFILE_START_SUNRISE*/|0x0200/*PROFILE_START_SUNSET*/))!=0)
+		if ((t1&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/))!=0)
 		{
 			// remove the 12 hour offset used when it is saved to storage
 			// note we add this on rather than subtracting since we are doing modulo 24*60 later (and want the value to be positive)
@@ -2610,7 +2558,7 @@ class myView
 		
 			// riseSetIndex==0 is sunrise
 			// riseSetIndex==1 is sunset
-			var t = sunTimes[(t1&0x0200/*PROFILE_START_SUNSET*/)/0x0200/*PROFILE_START_SUNSET*/];
+			var t = sunTimes[(t1&0x02/*PROFILE_START_SUNSET*/)/0x02/*PROFILE_START_SUNSET*/];
 			//var t = sunTimes[((t1&PROFILE_START_SUNRISE)!=0) ? 0 : 1];
 
 			if (t!=null)
@@ -2690,26 +2638,24 @@ class myView
 			
 			for (var i=0; i<PROFILE_NUM_USER; i++)
 			{
-				var t1 = profileTimes[i+PROFILE_NUM_USER];
-
 				if (doActivate==26 /*PROFILE_PRIVATE_INDEX*/)	// not found a profile to activate yet
 				{
-					var t0 = profileTimes[i];
-					var startTime = (t0>>10/*PROFILE_START_SHIFT*/)&0x7FF/*PROFILE_START_MASK*/;
-					var endTime = (t0>>21/*PROFILE_END_SHIFT*/)&0x7FF/*PROFILE_END_MASK*/;
+					var startTime = profileData[i*5 + 0];
+					var endTime = profileData[i*5 + 1];
 
 					// see if the start or end time uses sunrise/sunset					
-					if ((t1&(0x0100/*PROFILE_START_SUNRISE*/|0x0200/*PROFILE_START_SUNSET*/|0x0400/*PROFILE_END_SUNRISE*/|0x0800/*PROFILE_END_SUNSET*/))!=0)
+					if ((profileData[i*5 + 3]&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/))!=0)
 					{
 						calculateSun(dateInfoShort);
 						
-						startTime = getProfileSunTime(startTime, t1, 0);
-						endTime = getProfileSunTime(endTime, t1, 2);
+						startTime = getProfileSunTime(startTime, profileData[i*5 + 3], 0);
+						endTime = getProfileSunTime(endTime, profileData[i*5 + 3], 2);
 					}
 					
+					var dayFlags = profileData[i*5 + 2];
 					if (startTime<endTime)		// Note: if 2 times are equal then go for 24 hours (e.g. by default both times are 0)
 					{
-						if (timeNowInMinutesToday>=startTime && timeNowInMinutesToday<endTime && (t0&(0x01<<nowDayNumber))!=0)	// current day set?
+						if (timeNowInMinutesToday>=startTime && timeNowInMinutesToday<endTime && (dayFlags&(0x01<<nowDayNumber))!=0)	// current day set?
 						{
 							doActivate = i;
 						}
@@ -2717,15 +2663,15 @@ class myView
 					else
 					{
 						// goes over midnight
-						if ((timeNowInMinutesToday>=startTime && (t0&(0x01<<nowDayNumber))!=0) ||			// current day 
-							(timeNowInMinutesToday<endTime && (t0&(0x01<<prevDayNumber))!=0))				// previous day
+						if ((timeNowInMinutesToday>=startTime && (dayFlags&(0x01<<nowDayNumber))!=0) ||			// current day 
+							(timeNowInMinutesToday<endTime && (dayFlags&(0x01<<prevDayNumber))!=0))				// previous day
 						{
 							doActivate = i;
 						}
 					}
 				}
 
-				var numEvents = (t1&0xFF/*PROFILE_EVENTS_MASK*/);
+				var numEvents = profileData[i*5 + 4];
 				if (numEvents>0)
 				{
 					randomProfiles[randomNum] = i;
@@ -2736,7 +2682,7 @@ class myView
 			}
 			
 			// doActivate must be PROFILE_PRIVATE_INDEX or in range (0 to PROFILE_NUM_USER-1) when we get here
-			if (doActivate==26 /*PROFILE_PRIVATE_INDEX*/ || (profileTimes[doActivate]&0x80/*PROFILE_BLOCK_MASK*/)==0)
+			if (doActivate==26 /*PROFILE_PRIVATE_INDEX*/ || (profileData[doActivate*5 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
 			{
 				if (profileRandom>=0)					// random already active
 				{
@@ -3020,6 +2966,22 @@ class myView
 //			}
 //		}
 //	}
+
+	function saveProfile(profileIndex)
+	{
+		if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)
+		{
+        	var storage = applicationStorage;
+
+			gfxToCharArray();
+
+			var s = StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen));
+			storage.setValue("P" + profileIndex, s);
+
+			// and save all profile times to properties for fast access
+			//storage.setValue("PT", profileTimes);
+		}
+	}
 
 	function loadGetProfileTimeString(t, isSunrise, isSunset)
 	{
@@ -3327,13 +3289,8 @@ class myView
 			
 			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
 			{
-				// set the profile properties from our profile times array
-				var t0 = profileTimes[profileIndex];
-				var t1 = profileTimes[profileIndex+PROFILE_NUM_USER];
-				var days = (t0&0x7F/*PROFILE_DAYS_MASK*/);
-				var startTime = (t0>>10/*PROFILE_START_SHIFT*/)&0x7FF/*PROFILE_START_MASK*/;
-				var endTime = (t0>>21/*PROFILE_END_SHIFT*/)&0x7FF/*PROFILE_END_MASK*/;
-		
+				// set the profile properties from our profile times array			
+				var days = profileData[profileIndex*5 + 2];		
 				var daysNumber = 0;
 				for (var i=0; i<7; i++)
 				{
@@ -3345,11 +3302,14 @@ class myView
 				}
 				applicationProperties.setValue("PD", daysNumber);
 		
-				applicationProperties.setValue("PS", loadGetProfileTimeString(startTime, (t1&0x0100/*PROFILE_START_SUNRISE*/)!=0, (t1&0x0200/*PROFILE_START_SUNSET*/)!=0));
-				applicationProperties.setValue("PE", loadGetProfileTimeString(endTime, (t1&0x0400/*PROFILE_END_SUNRISE*/)!=0, (t1&0x0800/*PROFILE_END_SUNSET*/)!=0));
+				var startTime = profileData[profileIndex*5 + 0];
+				var endTime = profileData[profileIndex*5 + 1];
+				var profileFlags = profileData[profileIndex*5 + 3];
+				applicationProperties.setValue("PS", loadGetProfileTimeString(startTime, (profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0, (profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0));
+				applicationProperties.setValue("PE", loadGetProfileTimeString(endTime, (profileFlags&0x04/*PROFILE_END_SUNRISE*/)!=0, (profileFlags&0x08/*PROFILE_END_SUNSET*/)!=0));
 
-				applicationProperties.setValue("PB", ((t0&0x80/*PROFILE_BLOCK_MASK*/)!=0));
-				applicationProperties.setValue("PR", (t1&0xFF/*PROFILE_EVENTS_MASK*/));		
+				applicationProperties.setValue("PB", ((profileFlags&0x10/*PROFILE_BLOCK_MASK*/)!=0));
+				applicationProperties.setValue("PR", profileData[profileIndex*5 + 4]);		
 			}
 		}
 	}
@@ -3982,6 +3942,130 @@ class myView
 		return t;
 	}
 
+//		if (saveData[0]>=0 /*PROFILE_PRIVATE_INDEX*/ && saveData[0]<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+//		{
+//			profileActive = saveData[0];
+//			// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
+//			profileDelayEnd = ((saveData[1] <= (timeNowValue + (2+1)*60)) ? saveData[1] : 0);
+//		}
+//		
+//		if (saveData[2]>=0 && saveData[2]<PROFILE_NUM_USER)
+//		{
+//			profileRandom = saveData[2]; 
+//			// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
+//			profileRandomEnd = ((saveData[3] <= (timeNowValue + (20+1)*60)) ? saveData[3] : 0);
+//		}
+//		
+//		if (saveData[4]>=0 && saveData[4]<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+//		{
+//			demoProfilesCurrentProfile = saveData[4]; 
+//			// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
+//			demoProfilesCurrentEnd = ((saveData[5] <= (timeNowValue + (5+1)*60)) ? saveData[5] : 0);
+//		}
+//		
+//		demoProfilesOn = saveData[6];
+//		demoProfilesOnPrev = demoProfilesOn; 
+//
+//		if (saveData.size() > 10)
+//		{
+//			positionGot = saveData[7]; 
+//			positionLatitude = saveData[8]; 
+//			positionLongitude = saveData[9]; 
+//			positionAltitude = saveData[10]; 
+//		}				
+
+		// also want to save:
+		// profile active + end time
+		// profile random + end time
+		// demo profile + end time
+		// position: latitude (double), longitude (double), altitude (float)
+		//
+		// save as separate properties? (string, number, float, boolean)
+
+	function loadMemoryData()
+	{
+	}
+	
+	function saveMemoryData()
+	{
+	}
+
+//	var profileTimes = new[PROFILE_NUM_USER*2];
+	// 1st number:
+	//const PROFILE_DAYS_MASK = 0x7F;				// 7 bits for days mon-sun
+	//const PROFILE_BLOCK_MASK = 0x80;			// block random
+	//!const PROFILE_UNUSED1_MASK = 0x100;
+	//!const PROFILE_UNUSED2_MASK = 0x200;
+	//const PROFILE_START_MASK = 0x7FF;
+	//const PROFILE_START_SHIFT = 10;
+	//const PROFILE_END_MASK = 0x7FF;
+	//const PROFILE_END_SHIFT = 21;
+	// 2nd number:
+	//const PROFILE_EVENTS_MASK = 0xFF;			// number of random events per day 0-255
+	//const PROFILE_START_SUNRISE = 0x0100;
+	//const PROFILE_START_SUNSET = 0x0200;
+	//const PROFILE_END_SUNRISE = 0x0400;
+	//const PROFILE_END_SUNSET = 0x0800;
+	
+//			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
+//			{
+//				// set the profile properties from our profile times array
+//				var t0 = profileTimes[profileIndex];
+//				var t1 = profileTimes[profileIndex+PROFILE_NUM_USER];
+//				var days = (t0&0x7F/*PROFILE_DAYS_MASK*/);
+//				var startTime = (t0>>10/*PROFILE_START_SHIFT*/)&0x7FF/*PROFILE_START_MASK*/;
+//				var endTime = (t0>>21/*PROFILE_END_SHIFT*/)&0x7FF/*PROFILE_END_MASK*/;
+//		
+//				var daysNumber = 0;
+//				for (var i=0; i<7; i++)
+//				{
+//					if ((days&(0x1<<i))!=0)
+//					{
+//						daysNumber *= 10;
+//						daysNumber += i+1;
+//					}
+//				}
+//				applicationProperties.setValue("PD", daysNumber);
+//		
+//				applicationProperties.setValue("PS", loadGetProfileTimeString(startTime, (t1&0x0100/*PROFILE_START_SUNRISE*/)!=0, (t1&0x0200/*PROFILE_START_SUNSET*/)!=0));
+//				applicationProperties.setValue("PE", loadGetProfileTimeString(endTime, (t1&0x0400/*PROFILE_END_SUNRISE*/)!=0, (t1&0x0800/*PROFILE_END_SUNSET*/)!=0));
+//
+//				applicationProperties.setValue("PB", ((t0&0x80/*PROFILE_BLOCK_MASK*/)!=0));
+//				applicationProperties.setValue("PR", (t1&0xFF/*PROFILE_EVENTS_MASK*/));		
+//			}
+
+	// Time is stored as hour*60 + minutes - this has a maximum of 24*60 = 1,440 = 0x5A0 (11 bits 0x7FF)
+	// start time (0-1440)
+	// end time (0-1440)
+	// days (0-128)
+	// flags (start sunrise, start sunset, end sunrise, end sunset, block random)
+	// random events (0-255)
+	//
+	//const PROFILE_START_SUNRISE = 0x01;
+	//const PROFILE_START_SUNSET = 0x02;
+	//const PROFILE_END_SUNRISE = 0x04;
+	//const PROFILE_END_SUNSET = 0x08;
+	//const PROFILE_BLOCK_MASK = 0x10;			// block random
+	var profileData = new[PROFILE_NUM_USER*5];
+	
+	function loadProfileData()
+	{
+		var charArray = propertiesGetCharArray("SD");
+
+		valDecodeArray(profileData, PROFILE_NUM_USER*5, charArray, charArray.size());
+
+		//System.println("profileData=" + profileData.toString());
+	}
+	
+	function saveProfileData()
+	{
+		valEncodeArray(profileData, PROFILE_NUM_USER*5, gfxCharArray, 256);
+		
+		var s = StringUtil.charArrayToString(gfxCharArray.slice(0, PROFILE_NUM_USER*5*2));
+
+		applicationProperties.setValue("SD", s);
+	}
+
 /* profile string > parsed profile array > background draw data */
 /*
 	array of data
@@ -4058,17 +4142,18 @@ class myView
 	// background color?
 
 	// id
-	// 0 = field
-	// 1 = hour large
-	// 2 = minute large
-	// 3 = colon large
-	// 4 = string
-	// 5 = icon
-	// 6 = movebar
-	// 7 = chart
-	// 8 = rectangle
-	// 9 = ring
-	// 10 = seconds
+	// 0 = header
+	// 1 = field
+	// 2 = hour large
+	// 3 = minute large
+	// 4 = colon large
+	// 5 = string
+	// 6 = icon
+	// 7 = movebar
+	// 8 = chart
+	// 9 = rectangle
+	// 10 = ring
+	// 11 = seconds
 
 	var gfxNum = 0;
 	var gfxData = new[512];
@@ -4076,7 +4161,7 @@ class myView
 	var gfxCharArray = new[256];
 	var gfxCharArrayLen = 0;
 
-	function gfxEncodeVal(v)
+	function valEncodeChar(v)
 	{
 		// 0-9 a-z A-Z
 		// 10 +26 +26 =62
@@ -4103,7 +4188,7 @@ class myView
 		return c.toChar();
 	}		
 	
-	function gfxDecodeChar(c)
+	function valDecodeChar(c)
 	{
 		// 0-9 a-z A-Z
 		// 10 +26 +26 =62
@@ -4130,6 +4215,46 @@ class myView
 		return v;
 	}		
 	
+	function valEncodeArray(arr, arrSize, charArray, charArraySize)
+	{
+		for (var i=0; i<arrSize; i++)
+		{
+			// 0-9 a-z A-Z
+			// 10 +26 +26 =62
+			// 62*62=3844, so 0-3843
+			
+			var val = arr[i];
+			if (val==null)
+			{
+				val = 0;
+			}
+			
+			var v0 = val/62;
+			var v1 = val%62;
+			
+			charArray[i*2] = valEncodeChar(v0);
+			charArray[i*2 + 1] = valEncodeChar(v1);
+		}
+	}
+
+	function valDecodeArray(arr, arrSize, charArray, charArraySize)
+	{
+		for (var i=0; i<arrSize; i++)
+		{
+			var v0 = 0;
+			var v1 = 0;
+			
+			var i2 = i*2;
+			if (i2 < charArraySize-1)
+			{
+				v0 = valDecodeChar(charArray[i2]);
+				v1 = valDecodeChar(charArray[i2+1]);
+			}
+			
+			arr[i] = v0*62 + v1;
+		}
+	}
+
 	function gfxToCharArray()
 	{
 		gfxCharArrayLen = 0;
@@ -4141,7 +4266,7 @@ class myView
 			var saveSize = gfxSizeSave(id);
 			for (var i=0; i<saveSize; i++)
 			{
-				var val = gfxData[index] & 0xFFFF;
+				var val = gfxData[index+i] & 0xFFFF;
 				
 				// 0-9 a-z A-Z
 				// 10 +26 +26 =62
@@ -4152,27 +4277,32 @@ class myView
 				var c;
 				if (val<31)
 				{
-					c = gfxEncodeVal(val);
+					c = valEncodeChar(val);
 					gfxCharArray[gfxCharArrayLen] = c;
 					gfxCharArrayLen++;
+					//System.print("" + c.toString() + ", ");
 				}
 				else
 				{
-					var v0 = val%62;
-					var v1 = val/62 + 31;
+					var v0 = val/62 + 31;
+					var v1 = val%62;
 					
-					c = gfxEncodeVal(v0);
+					c = valEncodeChar(v0);
 					gfxCharArray[gfxCharArrayLen] = c;
 					gfxCharArrayLen++;
+					//System.print("" + c.toString() + ", ");
 
-					c = gfxEncodeVal(v1);
+					c = valEncodeChar(v1);
 					gfxCharArray[gfxCharArrayLen] = c;
 					gfxCharArrayLen++;
+					//System.print("" + c.toString() + ", ");
 				}
 			}		
 		
 			index += gfxSize(id);				
 		}
+
+		//System.println("");
 	}
 
 	function gfxFromCharArray()
@@ -4181,37 +4311,42 @@ class myView
 
 		for (var index=0; index<gfxCharArrayLen; )
 		{
+			var id = 0;
+		
 			var saveSize = 1;
 			for (var i=0; i<saveSize; i++)
 			{
-				var v = gfxDecodeChar(gfxCharArray[index]);
+				var v = valDecodeChar(gfxCharArray[index]);
 				index++;
-		
+
 				if (v>=31)
 				{
-					v -= 31;
-					var v1 = gfxDecodeChar(gfxCharArray[index]);
+					var v1 = valDecodeChar(gfxCharArray[index]);
 					index++;
-					v = v*62 + v1;
+					v = (v-31)*62 + v1;
 				}
 
-				gfxData[gfxNum] = v;
-				gfxNum++;
+				gfxData[gfxNum + i] = v;
+
+				//System.print("" + v + ", ");
 
 				if (i==0)
 				{
-					var id = (v & 0xFF);
+					id = (v & 0xFF);
 					saveSize = gfxSizeSave(id);
 				}
 			}
 			
 			gfxNum += gfxSize(id);
 		}
+
+		//System.println("");
 	}
 
 	function gfxSize(id)
 	{
 		return [
+			6,		// header
 			6,		// field
 			7,		// hour large
 			7,		// minute large
@@ -4229,6 +4364,7 @@ class myView
 	function gfxSizeSave(id)
 	{
 		return [
+			6,		// header
 			4,		// field
 			3,		// hour large
 			3,		// minute large
@@ -4243,11 +4379,21 @@ class myView
 		][id];
 	}
 
+	function gfxAddHeader(index)
+	{
+		gfxData[index] = 0;		// id
+		gfxData[index+1] = 0;	// version
+		gfxData[index+2] = 0;	// watch display size
+		gfxData[index+3] = 0;	// background color
+		gfxData[index+4] = 0;	// default field color
+		gfxData[index+5] = 0;	// default field font
+	}
+
 	function gfxAddField(index)
 	{
-		gfxData[index] = 0;		// id & visibility
-		gfxData[index+1] = 0;	// x
-		gfxData[index+2] = 0;	// y
+		gfxData[index] = 1;		// id & visibility
+		gfxData[index+1] = 0;	// x from left
+		gfxData[index+2] = 0;	// y from bottom
 		gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
 		// total width
 		// x adjustment
@@ -4255,8 +4401,8 @@ class myView
 
 	function gfxAddHourLarge(index)
 	{
-		gfxData[index] = 1;		// id & visibility
-		gfxData[index+1] = 3;	// color
+		gfxData[index] = 2;		// id & visibility
+		gfxData[index+1] = 3+1;	// color
 		gfxData[index+2] = 0;	// font
 		// string 0
 		// width 0
@@ -4266,8 +4412,8 @@ class myView
 
 	function gfxAddMinuteLarge(index)
 	{
-		gfxData[index] = 2;		// id & visibility
-		gfxData[index+1] = 3;	// color
+		gfxData[index] = 3;		// id & visibility
+		gfxData[index+1] = 3+1;	// color
 		gfxData[index+2] = 0;	// font
 		// string 0
 		// width 0
@@ -4277,8 +4423,8 @@ class myView
 
 	function gfxAddColonLarge(index)
 	{
-		gfxData[index] = 3;		// id & visibility
-		gfxData[index+1] = 3;	// color
+		gfxData[index] = 4;		// id & visibility
+		gfxData[index+1] = 3+1;	// color
 		gfxData[index+2] = 0;	// font
 		// string 0 dummy
 		// width 0 dummy
@@ -4288,9 +4434,9 @@ class myView
 
 	function gfxAddString(index)
 	{
-		gfxData[index] = 4;		// id & visibility
+		gfxData[index] = 5;		// id & visibility
 		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 3;	// color
+		gfxData[index+2] = 3+1;	// color
 		gfxData[index+3] = 0;	// font & makeUpperCase & diacritics
 		// string start
 		// string end
@@ -4299,9 +4445,9 @@ class myView
 
 	function gfxAddIcon(index)
 	{
-		gfxData[index] = 5;		// id & visibility
+		gfxData[index] = 6;		// id & visibility
 		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 3;	// color
+		gfxData[index+2] = 3+1;	// color
 		gfxData[index+3] = 0;	// font
 		// char
 		// width
@@ -4309,54 +4455,54 @@ class myView
 
 	function gfxAddMoveBar(index)
 	{
-		gfxData[index] = 6;		// id & visibility
+		gfxData[index] = 7;		// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 0;	// font
-		gfxData[index+3] = 3;	// color 1
-		gfxData[index+4] = 3;	// color 2
-		gfxData[index+5] = 3;	// color 3
-		gfxData[index+6] = 3;	// color 4
-		gfxData[index+7] = 3;	// color 5
-		gfxData[index+8] = 3;	// color off
+		gfxData[index+3] = 3+1;	// color 1
+		gfxData[index+4] = 3+1;	// color 2
+		gfxData[index+5] = 3+1;	// color 3
+		gfxData[index+6] = 3+1;	// color 4
+		gfxData[index+7] = 3+1;	// color 5
+		gfxData[index+8] = 3+1;	// color off
 		// level
 		// width
 	}
 
 	function gfxAddChart(index)
 	{
-		gfxData[index] = 7;		// id & visibility
+		gfxData[index] = 8;		// id & visibility
 		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 3;	// color chart
-		gfxData[index+3] = 3;	// color axes
+		gfxData[index+2] = 3+1;	// color chart
+		gfxData[index+3] = 3+1;	// color axes
 		// width
 	}
 
 	function gfxAddRectangle(index)
 	{
-		gfxData[index] = 8;		// id & visibility
-		gfxData[index+1] = 3;	// color
-		gfxData[index+2] = 0;	// x
-		gfxData[index+3] = 0;	// y
+		gfxData[index] = 9;		// id & visibility
+		gfxData[index+1] = 3+1;	// color
+		gfxData[index+2] = 0;	// x from left
+		gfxData[index+3] = 0;	// y from bottom
 		gfxData[index+4] = 0;	// width
 		gfxData[index+5] = 0;	// height
 	}
 
 	function gfxAddRing(index)
 	{
-		gfxData[index] = 9;		// id & visibility
+		gfxData[index] = 10;	// id & visibility
 		gfxData[index+1] = 0;	// type
 		gfxData[index+2] = 0;	// font
 		gfxData[index+3] = 0;	// start
 		gfxData[index+4] = 59;	// end
-		gfxData[index+5] = 3;	// color filled
-		gfxData[index+6] = 0;	// color unfilled
+		gfxData[index+5] = 3+1;	// color filled
+		gfxData[index+6] = 0+1;	// color unfilled
 		// start fill
 		// end fill
 	}
 
 	function gfxAddSeconds(index)
 	{
-		gfxData[index] = 10;	// id & visibility
+		gfxData[index] = 11;	// id & visibility
 		gfxData[index+1] = 0;	// font & refresh style
 	}
 
@@ -4388,7 +4534,7 @@ class myView
 		gfxNum += size;
 	}
 
-	function gfxLoadDynamicResources()
+	function gfxDemo()
 	{
     	var watchUi = WatchUi;
     	var fonts = Rez.Fonts;
@@ -4396,35 +4542,169 @@ class myView
 
 		propBackgroundColor = getColor64(0);
 		propAddLeadingZero = false;
-		propTimeYOffset = 0;		
 		propFieldFontSystemCase = 0;		// get case for system fonts
     	propFieldFontUnsupported = 0;		
-    	propMoveBarAlertTriggerLevel = 0; 
+    	propMoveBarAlertTriggerLevel = 0;
 	    propBatteryHighPercentage = 75;
 	    propBatteryLowPercentage = 25;
 		propGlanceProfile = -1;
 		prop2ndTimeZoneOffset = 0;
+		propTimeYOffset = 0;		
 
 		gfxNum = 0;
 		gfxCharArrayLen = 0;
 		
-		gfxInsert(gfxNum, 0);	// field	
-		gfxInsert(gfxNum, 1);	// large hour 
-		gfxInsert(gfxNum, 3);	// large colon
-		gfxInsert(gfxNum, 2);	// large minute
+		gfxInsert(gfxNum, 0);	// header	
 
-		gfxInsert(gfxNum, 0);	// field
-		gfxInsert(gfxNum, 4);	// string
-		//gfxInsert(gfxNum, 5);	// icon
-		//gfxInsert(gfxNum, 6);	// movebar
-		gfxInsert(gfxNum, 7);	// chart
+		gfxInsert(gfxNum, 1);	// field	
+		gfxInsert(gfxNum, 2);	// large hour 
+		gfxInsert(gfxNum, 4);	// large colon
+		gfxInsert(gfxNum, 3);	// large minute
 
-		gfxInsert(gfxNum, 0);	// field
-		gfxInsert(gfxNum, 9);	// ring
+		gfxInsert(gfxNum, 1);	// field
+		gfxInsert(gfxNum, 5);	// string
+		//gfxInsert(gfxNum, 6);	// icon
+		//gfxInsert(gfxNum, 7);	// movebar
+		gfxInsert(gfxNum, 8);	// chart
 
-		gfxInsert(gfxNum, 8);	// rectangle
+		gfxInsert(gfxNum, 1);	// field
+		gfxInsert(gfxNum, 10);	// ring
 
-		gfxInsert(gfxNum, 10);	// seconds
+		gfxInsert(gfxNum, 9);	// rectangle
+
+		gfxInsert(gfxNum, 11);	// seconds
+
+		for (var index=0; index<gfxNum; )
+		{
+			var id = (gfxData[index] & 0xFF);
+			
+			switch(id)
+			{
+				case 0:		// header
+				{
+					break;
+				}
+				
+				case 1:		// field
+				{
+					gfxData[index+1] = 120;	// x from left
+					gfxData[index+2] = 120;	// y from bottom
+					gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
+					break;
+				}
+				
+				case 2:		// hour large
+				case 3:		// minute large
+				case 4:		// colon large
+				{
+					gfxData[index+1] = 3+1;	// color
+					gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+
+					//gfxData[index+2] = 24/*APPFONT_SYSTEM_XTINY*/;	// font
+					//gfxData[index+2] = 32/*APPFONT_SYSTEM_NUMBER_HUGE*/;	// font
+					//if (id==2)
+					//{
+						//gfxData[index+2] = 0;	// ascent 62
+						//gfxData[index+2] = 6;	// ascent 18
+						//gfxData[index+2] = 12;	// ascent 22
+						//gfxData[index+2] = 18;	// ascent 27
+						//gfxData[index+2] = 24;	// font
+						//gfxData[index+2] = 32;	// font
+					//}
+					
+					break;
+				}
+
+				case 5:		// string
+				{
+					gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
+					gfxData[index+2] = 3+1;	// color
+					gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font
+					
+					break;
+				}
+				
+				case 6:		// icon
+				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 3+1;	// color
+					gfxData[index+3] = 0;	// font
+
+					break;
+				}
+				
+				case 7:		// movebar
+				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 0;	// font
+					gfxData[index+3] = 3+1;	// color 1
+					gfxData[index+4] = 3+1;	// color 2
+					gfxData[index+5] = 3+1;	// color 3
+					gfxData[index+6] = 3+1;	// color 4
+					gfxData[index+7] = 3+1;	// color 5
+					gfxData[index+8] = COLOR_NOTSET+1;	// color off
+
+					break;
+				}
+				
+				case 8:		// chart
+				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 3+1;	// color chart
+					gfxData[index+3] = 3+1;	// color axes
+
+					break;
+				}
+				
+				case 9:		// rectangle
+				{
+					gfxData[index+1] = 6+1;	// color
+					gfxData[index+2] = 70;	// x from left
+					gfxData[index+3] = 170;	// y from bottom
+					gfxData[index+4] = 1;	// width
+					gfxData[index+5] = 50;	// height
+					
+					break;
+				}
+				
+				case 10:	// ring
+				{
+					gfxData[index+1] = 0;	// type
+					gfxData[index+2] = 0;	// font
+					gfxData[index+3] = 0;	// start
+					gfxData[index+4] = 59;	// end
+					gfxData[index+5] = 3+1;	// color filled
+					gfxData[index+6] = 0+1;	// color unfilled
+
+					break;
+				}
+				
+				case 11:	// seconds
+				{
+					gfxData[index+1] = 0;	// font
+					gfxData[index+1] |= (0 << 8);	// refresh style
+					
+					break;
+				}
+			}
+			
+			index += gfxSize(id);
+		}
+
+		//gfxToCharArray();
+		//System.println("array=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
+		//gfxFromCharArray();
+		//gfxToCharArray();
+		//System.println("arra2=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
+	}
+	
+	function gfxLoadDynamicResources()
+	{
+		gfxDemo();
+	
+    	var watchUi = WatchUi;
+    	var fonts = Rez.Fonts;
+		var graphics = Graphics;
 
     	propSecondIndicatorOn = false;
     	
@@ -4503,31 +4783,20 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// field
+				case 0:		// header
 				{
 					break;
 				}
 				
-				case 1:		// hour large
-				case 2:		// minute large
-				case 3:		// colon large
+				case 1:		// field
 				{
-					gfxData[index+1] = 3;	// color
-					gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
-					gfxData[index+3] = 0/*APPFONT_ULTRA_LIGHT*/;	// justification
-
-					//gfxData[index+2] = 24/*APPFONT_SYSTEM_XTINY*/;	// font
-					//gfxData[index+2] = 32/*APPFONT_SYSTEM_NUMBER_HUGE*/;	// font
-					//if (id==2)
-					//{
-						//gfxData[index+2] = 0;	// ascent 62
-						//gfxData[index+2] = 6;	// ascent 18
-						//gfxData[index+2] = 12;	// ascent 22
-						//gfxData[index+2] = 18;	// ascent 27
-						//gfxData[index+2] = 24;	// font
-						//gfxData[index+2] = 32;	// font
-					//}
-					
+					break;
+				}
+				
+				case 2:		// hour large
+				case 3:		// minute large
+				case 4:		// colon large
+				{
 					var r = (gfxData[index+2] & 0xFF);
 				 	if (r<0 || r>38)
 				 	{
@@ -4541,12 +4810,8 @@ class myView
 					break;
 				}
 
-				case 4:		// string
+				case 5:		// string
 				{
-					gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
-					gfxData[index+2] = 3;	// color
-					gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font
-					
 					var r = (gfxData[index+3] & 0xFF);
 				 	if (r<0 || r>38)
 				 	{
@@ -4559,12 +4824,8 @@ class myView
 					break;
 				}
 				
-				case 5:		// icon
+				case 6:		// icon
 				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 3;	// color
-					gfxData[index+3] = 0;	// font
-
 					var resourceIndex = addDynamicResource(iconFontList[0]);
 					
 					gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
@@ -4572,17 +4833,8 @@ class myView
 					break;
 				}
 				
-				case 6:		// movebar
+				case 7:		// movebar
 				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 0;	// font
-					gfxData[index+3] = 3;	// color 1
-					gfxData[index+4] = 3;	// color 2
-					gfxData[index+5] = 3;	// color 3
-					gfxData[index+6] = 3;	// color 4
-					gfxData[index+7] = 3;	// color 5
-					gfxData[index+8] = COLOR_NOTSET;	// color off
-
 					var resourceIndex = addDynamicResource(iconFontList[0]);
 					
 					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
@@ -4590,34 +4842,18 @@ class myView
 					break;
 				}
 				
-				case 7:		// chart
+				case 8:		// chart
 				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 3;	// color chart
-					gfxData[index+3] = 3;	// color axes
 					break;
 				}
 				
-				case 8:		// rectangle
+				case 9:		// rectangle
 				{
-					gfxData[index+1] = 6;	// color
-					gfxData[index+2] = -50;	// x
-					gfxData[index+3] = 50;	// y
-					gfxData[index+4] = 1;	// width
-					gfxData[index+5] = 50;	// height
-					
 					break;
 				}
 				
-				case 9:		// ring
+				case 10:	// ring
 				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 0;	// font
-					gfxData[index+3] = 0;	// start
-					gfxData[index+4] = 59;	// end
-					gfxData[index+5] = 3;	// color filled
-					gfxData[index+6] = 0;	// color unfilled
-
 					var resourceIndex = addDynamicResource(ringFontList[0]);
 					
 					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
@@ -4625,19 +4861,16 @@ class myView
 					break;
 				}
 				
-				case 10:	// seconds
+				case 11:	// seconds
 				{
-					gfxData[index+1] = 0;	// font
-					gfxData[index+1] |= (0 << 8);	// refresh style
-
 			    	//gfxData[index+1] |= 0x80000000; 	// move in a bit - set depending on what the font is
 
 					// calculate the seconds color array
-			    	var secondColorIndex = getMinMax(3, 0, 63);		// second color
-			    	var secondColorIndex5 = getMinMax(-1, -1, 63);
-			    	var secondColorIndex10 = getMinMax(-1, -1, 63);
-			    	var secondColorIndex15 = getMinMax(-1, -1, 63);
-			    	var secondColorIndex0 = getMinMax(-1, -1, 63);
+			    	var secondColorIndex = 3;		// second color
+			    	var secondColorIndex5 = COLOR_NOTSET;
+			    	var secondColorIndex10 = COLOR_NOTSET;
+			    	var secondColorIndex15 = COLOR_NOTSET;
+			    	var secondColorIndex0 = COLOR_NOTSET;
 			    	var secondColorDemo = false;		// second color demo
 			    	
 			    	for (var i=0; i<60; i++)
@@ -4832,7 +5065,12 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// field
+				case 0:		// header
+				{
+					break;
+				}
+
+				case 1:		// field
 				{
         			//System.println("gfxOnUpdate field");
 
@@ -4845,9 +5083,9 @@ class myView
 					break;
 				}
 
-				case 1:		// hour large
-				case 2:		// minute large
-				case 3:		// colon large
+				case 2:		// hour large
+				case 3:		// minute large
+				case 4:		// colon large
 				{
         			//System.println("gfxOnUpdate large");
 				
@@ -4862,15 +5100,15 @@ class myView
 					var fontTypeKern = ((gfxData[index+2] >> 24) & 0xFF);
 
 					var charArray;
-					if (id==1)
+					if (id==2)
 					{
 						charArray = hourString.toCharArray();
 					}
-					else if (id==2)
+					else if (id==3)
 					{
 						charArray = minuteString.toCharArray();
 					}
-					else //if (id==3)
+					else //if (id==4)
 					{
 						charArray = ":".toCharArray();
 					}
@@ -4938,7 +5176,7 @@ class myView
 					break;
 				}
 				
-				case 4:		// string
+				case 5:		// string
 				{
 					if (!(fieldVisible && isVisible))
 					{
@@ -5356,7 +5594,7 @@ class myView
 					break;
 				}
 				
-				case 5:		// icon
+				case 6:		// icon
 				{
 					if (!(fieldVisible && isVisible))
 					{
@@ -5388,7 +5626,7 @@ class myView
 					break;
 				}
 				
-				case 6:		// movebar
+				case 7:		// movebar
 				{
 					if (!(fieldVisible && isVisible))
 					{
@@ -5418,7 +5656,7 @@ class myView
 					break;
 				}
 				
-				case 7:		// chart
+				case 8:		// chart
 				{
 					if (!(fieldVisible && isVisible))
 					{
@@ -5437,7 +5675,7 @@ class myView
 					break;
 				}
 				
-				case 8:		// rectangle
+				case 9:		// rectangle
 				{
 					if (!isVisible)
 					{
@@ -5447,7 +5685,7 @@ class myView
 					break;
 				}
 				
-				case 9:		// ring
+				case 10:	// ring
 				{
 					if (!isVisible)
 					{
@@ -5561,7 +5799,7 @@ class myView
 					break;
 				}
 				
-				case 10:	// seconds
+				case 11:	// seconds
 				{
 			    	propSecondIndicatorOn = isVisible;
 			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);
@@ -5595,7 +5833,12 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// field
+				case 0:		// header
+				{
+					break;
+				}
+				
+				case 1:		// field
 				{
         			//System.println("gfxDraw field");
 
@@ -5607,8 +5850,8 @@ class myView
 
 					var totalWidth = gfxData[index+4];
 
-					fieldXStart = 120 + gfxData[index+1] - dcX + gfxData[index+5];	// add x adjustment
-					fieldYStart = 120 - gfxData[index+2] - dcY;
+					fieldXStart = gfxData[index+1] - dcX + gfxData[index+5];	// add x adjustment
+					fieldYStart = 240 - gfxData[index+2] - dcY;
 			
 					if (gfxData[index+3]==0)	// centre justification
 					{
@@ -5633,9 +5876,9 @@ class myView
 					break;
 				}
 
-				case 1:		// hour large
-				case 2:		// minute large
-				case 3:		// colon large
+				case 2:		// hour large
+				case 3:		// minute large
+				case 4:		// colon large
 				{
         			//System.println("gfxDraw large");
 
@@ -5656,7 +5899,7 @@ class myView
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
-				       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+				       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 													
@@ -5665,7 +5908,7 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 					{
-			       		dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+			       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
 		        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
 
@@ -5674,7 +5917,7 @@ class myView
 					break;
 				}
 				
-				case 4: 	// string
+				case 5: 	// string
 				{
 					if (!(fieldDraw && isVisible))
 					{
@@ -5701,7 +5944,7 @@ class myView
 							
 							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
 						
-					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
 			        		dc.drawText(fieldX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5727,7 +5970,7 @@ class myView
 					break;
 				}
 				
-				case 5:		// icon
+				case 6:		// icon
 				{
 					if (!(fieldDraw && isVisible))
 					{
@@ -5744,7 +5987,7 @@ class myView
 
 							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
 						
-					        dc.setColor(getColor64(gfxData[index+2]), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 
@@ -5754,7 +5997,7 @@ class myView
 					break;
 				}
 				
-				case 6:		// movebar
+				case 7:		// movebar
 				{
 					if (!(fieldDraw && isVisible))
 					{
@@ -5778,7 +6021,7 @@ class myView
 
 						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
 						{ 
-							var col = getColor64((barIsOn || gfxData[index+8]==COLOR_NOTSET) ? gfxData[index+3+i] : gfxData[index+8]);
+							var col = getColor64((barIsOn || gfxData[index+8]==COLOR_NOTSET) ? (gfxData[index+3+i]-1) : (gfxData[index+8]-1));
 							
 					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(dateX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5792,7 +6035,7 @@ class myView
 					break;
 				}
 				
-				case 7:		// chart
+				case 8:		// chart
 				{
 					if (!(fieldDraw && isVisible))
 					{
@@ -5804,7 +6047,7 @@ class myView
 						var axesSide = true;
 						var axesBottom = false;
 	
-						drawHeartChart(dc, fieldX, fieldYStart+6, getColor64(gfxData[index+2]), getColor64(gfxData[index+3]), axesSide, axesBottom);		// draw heart rate chart
+						drawHeartChart(dc, fieldX, fieldYStart+6, getColor64(gfxData[index+2]-1), getColor64(gfxData[index+3]-1), axesSide, axesBottom);		// draw heart rate chart
 					}
 
 		        	fieldX += gfxData[index+4];
@@ -5812,7 +6055,7 @@ class myView
 					break;
 				}
 				
-				case 8:		// rectangle
+				case 9:		// rectangle
 				{
 					if (!isVisible)
 					{
@@ -5821,19 +6064,19 @@ class myView
 
 					var w = gfxData[index+4];
 					var h = gfxData[index+5];
-					var x = 120 + gfxData[index+2] - dcX;
-					var y = 120 - gfxData[index+3] - dcY - h;
+					var x = gfxData[index+2] - dcX;
+					var y = 240 - gfxData[index+3] - dcY - h;
 
 					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
-				        dc.setColor(getColor64(gfxData[index+1]), -1/*COLOR_TRANSPARENT*/);
+				        dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
 						dc.fillRectangle(x, y, w, h);
 					}
 
 					break;
 				}
 				
-				case 9:		// ring
+				case 10:	// ring
 				{
 					if (!isVisible)
 					{
@@ -5870,14 +6113,14 @@ class myView
 					//jStart = 0;	// test draw all
 					//jEnd = 119;
 		
-					var colFilled = getColor64(gfxData[index+5]);
-					var colUnfilled = getColor64(gfxData[index+6]);
+					var colFilled = getColor64(gfxData[index+5]-1);
+					var colUnfilled = getColor64(gfxData[index+6]-1);
 					var fillStart = gfxData[index+7];
 					var fillEnd = gfxData[index+8];
 					if (fillEnd < fillStart)
 					{
-						colFilled = getColor64(gfxData[index+6]);
-						colUnfilled = getColor64(gfxData[index+5]);
+						colFilled = getColor64(gfxData[index+6]-1);
+						colUnfilled = getColor64(gfxData[index+5]-1);
 						fillStart = (gfxData[index+8]+1)%60;		// + 1
 						fillEnd = (gfxData[index+7]+59)%60;	// - 1
 					}
@@ -5915,7 +6158,7 @@ class myView
 					break;
 				}
 				
-				case 10:	// seconds
+				case 11:	// seconds
 				{
 					break;
 				}

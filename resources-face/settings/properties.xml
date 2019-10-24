@@ -18,4 +18,6 @@
 
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
     <property id="NC" type="number">0</property>			<!-- non-active calorie override -->
+
+    <property id="SD" type="string"></property>				<!-- profile save data -->
 </properties>
