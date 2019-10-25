@@ -19,5 +19,20 @@
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
     <property id="NC" type="number">0</property>			<!-- non-active calorie override -->
 
-    <property id="SD" type="string"></property>				<!-- profile save data -->
+    <property id="sd" type="string"></property>				<!-- profile save data -->
+
+    <property id="pg" type="boolean">false</property>		<!-- position got -->
+    <property id="lo" type="float">0</property>				<!-- longitude -->
+    <property id="la" type="float">0</property>				<!-- latitude -->
+    <property id="al" type="float">0</property>				<!-- altitude -->
+
+    <property id="ap" type="number">0</property>			<!-- active profile -->
+    <property id="ae" type="number">0</property>			<!-- delay end -->
+
+    <property id="rp" type="number">0</property>			<!-- random profile -->
+    <property id="re" type="number">0</property>			<!-- random end -->
+
+    <property id="do" type="boolean">false</property>		<!-- demo on -->
+    <property id="dp" type="number">0</property>			<!-- demo profile -->
+    <property id="de" type="number">0</property>			<!-- demo end -->
 </properties>

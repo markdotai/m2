@@ -53,14 +53,6 @@ class myView
 
 	var lastPartialUpdateSec;
 
-	//enum
-	//{
-	//	//!ITEM_OFF = 0x00,
-	//	//ITEM_ON = 0x01,
-	//	//ITEM_ONGLANCE = 0x02,
-	//	
-	//	//ITEM_RETRIEVE = 0x10
-	//}
 	var glanceActive = false;
 	
 	//enum
@@ -202,7 +194,7 @@ class myView
 	var fieldActiveNotificationsCount = null;
 	var fieldActiveLTEStatus = null;
 
-	var profileActive = 26;		// currently active profile
+	var profileActive = 0;		// currently active profile
 	var profileDelayEnd = 0;	// after manually changing settings then any automatic profile loads get delayed until this moment
 	var profileGlance = -1;		// -1 means no glance profile active
 	var profileGlanceReturn = 0;
@@ -211,7 +203,6 @@ class myView
 	var profileRandomLastMin = -1;		// last minute number that we did the random checks
 
 	var demoProfilesOn = false;
-	var demoProfilesOnPrev = false;	
 	var demoProfilesCurrentProfile = -1;
 	var demoProfilesCurrentEnd = 0;
 
@@ -894,6 +885,24 @@ class myView
 		return v;
 	}
 	
+	function propertiesGetFloat(p)
+	{
+		var v = applicationProperties.getValue(p);
+		if ((v == null) || (v instanceof Boolean) || (v instanceof Char) || (v instanceof Symbol))
+		{
+			v = 0.0;
+		}
+		else if (!(v instanceof Float))
+		{
+			v = v.toFloat();
+			if (v == null)
+			{
+				v = 0.0;
+			}
+		}
+		return v;
+	}
+	
 	function propertiesGetString(p)
 	{	
 		var v = applicationProperties.getValue(p);
@@ -959,172 +968,6 @@ class myView
 		return t;		
 	}
 
-//	function propertiesGetColor(p, minV)
-//	{				
-//		return getColor64(propertiesGetColorIndex(p, minV));
-//	}
-//
-//	(:m1normal)
-//	function propertiesGetColorIndex(p, minV)
-//	{
-//		return getMinMax(propertiesGetNumber(p), minV, 63);
-//	}
-//	
-//	(:m1plus)
-//	function propertiesGetColorIndex(p, minV)
-//	{
-//		var charArray = propertiesGetCharArray(p);
-//		var charArraySize = charArray.size();
-//		parseIndex = 0;
-//		
-//		var v;
-//	
-//		if (charArraySize==0)
-//		{
-//			v = minV;		// if string empty then return -1 (not set)
-//		}
-//		else if (charArraySize<6)
-//		{
-//			v = getMinMax(parseNumber(charArray, charArraySize), minV, 63);
-//		}
-//		else
-//		{
-//			v = 0;
-//	    	for (; parseIndex<charArraySize; parseIndex++)
-//	    	{
-//	    		var c = charArray[parseIndex].toUpper().toNumber();
-//	    		if (c>=48/*APPCHAR_0*/ && c<=57/*APPCHAR_9*/)
-//	    		{
-//	    			v = v*16 + (c-48/*APPCHAR_0*/); 
-//	    		}
-//	    		else if (c>=65/*APPCHAR_A*/ && c<=70/*APPCHAR_F*/)
-//	    		{
-//	    			v = v*16 + (c-65/*APPCHAR_A*/+10); 
-//	    		}
-//	    		else
-//	    		{
-//	    			break;
-//	    		}
-//	    	}
-//
-//			v = colorHexToIndex(v);
-//		}
-//				
-//		return v;
-//	}
-
-//	(:m1normal)
-//	function propertiesSetColor(p, v)
-//	{
-//		applicationProperties.setValue(p, v);
-//	}
-//
-//	(:m1plus)
-//	function propertiesSetColor(p, v)
-//	{
-//		applicationProperties.setValue(p, (v>=0) ? v.toString() : "");
-//	}
-
-//	(:m1normal)
-//	function propertiesGetNumberForField(i)
-//	{
-//		return propertiesGetNumber("F" + i);	// All of the field properties are numbers
-//	}
-//
-//	(:m1plus)
-//	function propertiesGetNumberForField(i)
-//	{
-//		var v;
-//
-//		if (i>=3/*FIELD_INDEX_ELEMENTS*/ && (i-3)%3==2)		// 0==display, 1==visible if, 2==color
-//		{
-//			v = propertiesGetColorIndex("F" + i, 0);		// Colors come from strings
-//		}
-//		else
-//		{
-//			v = propertiesGetNumber("F" + i);		// Other field properties are numbers
-//		}
-//
-//		return v;
-//	}
-
-//	(:m1normal)
-//	function propertiesSetNumberForField(i, v)
-//	{
-//		applicationProperties.setValue("F" + i, v);
-//	}
-//
-//	(:m1plus)
-//	function propertiesSetNumberForField(i, v)
-//	{
-//		if (i>=3/*FIELD_INDEX_ELEMENTS*/ && (i-3)%3==2)		// 0==display, 1==visible if, 2==color
-//		{
-//			v = v.toString();		// Color settings are strings
-//		}
-//
-//		applicationProperties.setValue("F" + i, v);
-//	}
-
-//	(:m1normal)
-//	function propertiesGetValueForProfile(i)
-//	{
-//		return applicationProperties.getValue("" + i);
-//	}
-//
-//	(:m1plus)
-//	function propertiesGetValueForProfile(i)
-//	{
-//		// "1" background color - min==0
-//		// "5" time hour color - min==0
-//		// "7" time minute color - min==0
-//		// "13" second color - min==0
-//		// "14" second color 5 - min==-1
-//		// "15" second color 10 - min==-1
-//		// "16" second color 15 - min==-1
-//		// "17" second color 0 - min==-1
-//		// "22" outer color filled - min==-1
-//		// "23" outer color unfilled - min==-1
-//		// "28" move bar off color - min==-1
-//		// "36" colon separator - min==-1
-//		if ((((0x1l<<1) | (0x1l<<5) | (0x1l<<7) | (0x1l<<13) | (0x1l<<14) | (0x1l<<15) | (0x1l<<16) | (0x1l<<17) | (0x1l<<22) | (0x1l<<23) | (0x1l<<28) | (0x1l<<36)) & (0x1l<<i)) != 0)
-//		{
-//			return propertiesGetColorIndex("" + i, (i<=13) ? 0 : -1);
-//		}
-//		else
-//		{
-//			return applicationProperties.getValue("" + i);
-//		}
-//	}
-
-//	(:m1normal)
-//	function propertiesSetValueForProfile(i, v)
-//	{
-//		applicationProperties.setValue("" + i, v);
-//	}
-//
-//	(:m1plus)
-//	function propertiesSetValueForProfile(i, v)
-//	{
-//		// "1" background color
-//		// "5" time hour color
-//		// "7" time minute color
-//		// "13" second color
-//		// "14" second color 5
-//		// "15" second color 10
-//		// "16" second color 15
-//		// "17" second color 0
-//		// "22" outer color filled
-//		// "23" outer color unfilled
-//		// "28" move bar off color
-//		// "36" colon separator
-//		if ((((0x1l<<1) | (0x1l<<5) | (0x1l<<7) | (0x1l<<13) | (0x1l<<14) | (0x1l<<15) | (0x1l<<16) | (0x1l<<17) | (0x1l<<22) | (0x1l<<23) | (0x1l<<28) | (0x1l<<36)) & (0x1l<<i)) != 0)
-//		{
-//			v = ((v>=0) ? v.toString() : "");
-//		}
-//		
-//		applicationProperties.setValue("" + i, v);
-//	}
-
 	function addStringToCharArray(s, toArray, toLen, toMax)
 	{
 		var charArray = s.toCharArray();
@@ -1163,41 +1006,6 @@ class myView
 		return toLen;
 	}
 	
-//	function addArrayToCharArray(sArray, toArray, toLen, toMax)
-//	{
-//		var lastComma = toLen;
-//		var charArray = sArray.toString().toCharArray();
-//		var charArraySize = charArray.size();
-//		var cPrev = 0;
-//		for (var i=0; i<charArraySize; i++)
-//		{
-//			var c = charArray[i];
-//			var cNumber = c.toNumber();
-//			// remove square brackets
-//			// remove spaces immediately after commas (leave spaces in middle of profile names!)
-//			if (cNumber!=91/*APPCHAR_OPEN_SQUARE_BRACKET*/ && cNumber!=93/*APPCHAR_CLOSE_SQUARE_BRACKET*/ && !(cNumber==32/*APPCHAR_SPACE*/ && cPrev==44/*APPCHAR_COMMA*/))
-//			{
-//				if (toLen >= toMax)
-//				{
-//					toLen = lastComma;
-//					break;
-//				}
-//
-//				if (cNumber==44/*APPCHAR_COMMA*/)
-//				{
-//					lastComma = toLen;
-//				}
-//
-//				toArray[toLen] = c;
-//				toLen += 1;
-//			}
-//			
-//			cPrev = cNumber;
-//		}
-//
-//		return toLen;
-//	}
-
     // Order of calling on start up
 	// initialize() → onLayout() → onShow() → onUpdate()
 	//
@@ -1294,109 +1102,20 @@ class myView
 			tempResource = null;
 		}
 
-//		// initialize propFieldData
-//		{
-//			var sArray = storage.getValue("F");		// load saved prop field data from storage
-//		 	var sArraySize = ((sArray!=null) ? sArray.size() : 0);
-//			for (var i=0; i<FIELD_NUM*FIELD_NUM_PROPERTIES; i++)
-//			{
-//				if (i<sArraySize)
-//				{
-//					propFieldData[i] = sArray[i];
-//				}
-//				else
-//				{
-//					var n = (i%FIELD_NUM_PROPERTIES);
-//    				propFieldData[i] = ((n==0/*FIELD_INDEX_YOFFSET*/ || n==1/*FIELD_INDEX_XOFFSET*/) ? 120 : 
-//    							((n>=3/*FIELD_INDEX_ELEMENTS*/ && (n-3)%3==2) ? 3 : 0));	// initialize colors to white (0==display, 1==visible if, 2==color)
-//				}
-//			}
-//			
-//			// if there was no saved field data (first time running watch face)
-//			// then make sure the propFieldData matches the properties (as set to their default values)
-//			if (sArray==null)
-//			{
-//				getOrSetPropFieldDataProperties();		// get field data from properties
-//			}
-//			//else
-//			//{
-//			//	// delete the saved prop field data (in case the app decides to reset itself and all properties ...)
-//			//	// this doesn't even work - must call onStop() when crashing too
-//			//	storage.deleteValue("F");
-//			//}
-//			
-//			sArray = null;
-//		}
-						
 		var timeNowValue = Time.now().value();
 
 		initHeartSamples(timeNowValue);
 
 		// remember which profile was active and also any profileDelayEnd value
-		// - then checkProfiles will know whether to restore the private profile or not
-		loadMemoryData();
+		loadMemoryData(timeNowValue);
 		
-		{
-			var saveData = storage.getValue("C");
-			if (saveData!=null)
-			{
-				// delete the saved data (in case the app decides to reset itself and all properties ...)
-				//storage.deleteValue("C");
-
-				if (saveData[0]>=0 /*PROFILE_PRIVATE_INDEX*/ && saveData[0]<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
-				{
-					profileActive = saveData[0];
-					// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
-					profileDelayEnd = ((saveData[1] <= (timeNowValue + (2+1)*60)) ? saveData[1] : 0);
-				}
-				
-				if (saveData[2]>=0 && saveData[2]<PROFILE_NUM_USER)
-				{
-					profileRandom = saveData[2]; 
-					// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
-					profileRandomEnd = ((saveData[3] <= (timeNowValue + (20+1)*60)) ? saveData[3] : 0);
-				}
-				
-				if (saveData[4]>=0 && saveData[4]<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
-				{
-					demoProfilesCurrentProfile = saveData[4]; 
-					// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
-					demoProfilesCurrentEnd = ((saveData[5] <= (timeNowValue + (5+1)*60)) ? saveData[5] : 0);
-				}
-				
-				demoProfilesOn = saveData[6];
-				demoProfilesOnPrev = demoProfilesOn; 
-
-				if (saveData.size() > 10)
-				{
-					positionGot = saveData[7]; 
-					positionLatitude = saveData[8]; 
-					positionLongitude = saveData[9]; 
-					positionAltitude = saveData[10]; 
-				}				
-			}
-			saveData = null;
-		}
-
 		loadProfileData();		// load profile times
     }
 
 	function saveDataForStop()
 	{
-		// remember the active profile and profileDelayEnd
-		// and other variables we want to save between runs
+		// remember the active profile and profileDelayEnd and other variables we want to save between runs
 		saveMemoryData();
-		
-//		var saveData = [
-//			/* 0 1 */ profileActive, profileDelayEnd,
-//			/* 2 3 */ profileRandom, profileRandomEnd,
-//			/* 4 5 6 */ demoProfilesCurrentProfile, demoProfilesCurrentEnd, demoProfilesOn,
-//			/* 7 8 9 10 */ positionGot, positionLatitude, positionLongitude, positionAltitude
-//		];
-//		applicationStorage.setValue("C", saveData);
-		
-		// store the current field data to storage - used only when watchface next loaded
-//		applicationStorage.setValue("F", propFieldData);	// seems to work storing a byte array ...
 	}
 
 	// called from the app when it is being ended
@@ -1405,11 +1124,6 @@ class myView
         //System.println("onStop");
 
 		saveDataForStop();
-
-//		if (profileActive>=0)	// not the private profile (watch settings)
-//		{
-//			applicationProperties.setValue("PM", 6);	// set the "profile was active" management status
-//		}
 	}
 
     // Called when this View is brought to the foreground.
@@ -1759,7 +1473,7 @@ class myView
 	
 	function handleSettingsChanged(second)
 	{
-		demoProfilesOnPrev = demoProfilesOn;
+		var demoProfilesOnPrev = demoProfilesOn;
 		demoProfilesOn = propertiesGetBoolean("DP");
 
 		var profileManagement = propertiesGetNumber("PM");
@@ -2624,7 +2338,7 @@ class myView
 		
 		if (doActivateGlanceCheck<0 && timeNowValue>=profileDelayEnd)
 		{
-			doActivate = 26 /*PROFILE_PRIVATE_INDEX*/;		// assume want to be in normal watch settings
+			doActivate = 0;		// assume want to be in normal watch settings
 
 			var dateInfoShort = Time.Gregorian.info(timeNow, Time.FORMAT_SHORT);
 			var nowDayNumber = (dateInfoShort.day_of_week+5)%7;		// 1=Sun, 2=Mon 3=Tue, etc so convert to 0=Mon, 1=Tue ... 6=Sun
@@ -2638,7 +2352,7 @@ class myView
 			
 			for (var i=0; i<PROFILE_NUM_USER; i++)
 			{
-				if (doActivate==26 /*PROFILE_PRIVATE_INDEX*/)	// not found a profile to activate yet
+				if (doActivate==0)	// not found a profile to activate yet
 				{
 					var startTime = profileData[i*5 + 0];
 					var endTime = profileData[i*5 + 1];
@@ -2681,8 +2395,8 @@ class myView
 				}
 			}
 			
-			// doActivate must be PROFILE_PRIVATE_INDEX or in range (0 to PROFILE_NUM_USER-1) when we get here
-			if (doActivate==26 /*PROFILE_PRIVATE_INDEX*/ || (profileData[doActivate*5 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
+			// doActivate must be in range (0 to PROFILE_NUM_USER-1) when we get here
+			if ((profileData[doActivate*5 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
 			{
 				if (profileRandom>=0)					// random already active
 				{
@@ -2740,7 +2454,7 @@ class myView
 
 			if (demoProfilesOn /*|| forceDemoProfiles*/)
 			{
-				if (doActivate!=26 /*PROFILE_PRIVATE_INDEX*/)
+				if (doActivate!=0)
 				{
 					// end current demo profile
 					demoProfilesCurrentEnd = 0;
@@ -3010,197 +2724,6 @@ class myView
 		return s;
 	}
 
-//	function importPropertiesTest()	// 4.7ms
-//	{
-//applicationProperties.setValue("EP", "0,0,Icons,0,1,false,4,3,2,3,false,0,1,0,2,1,2,3,10,19,false,false,0,0,19,63,6,3,0,24,-1,1,75,25,false,false,false,0,-1");
-//		// main bulk of profile properties
-//		var charArray = propertiesGetCharArray("EP");
-//		var charArraySize = charArray.size();
-//		parseIndex = 0;
-//
-//		parseNumberComma(charArray, charArraySize);
-//		parseNumberComma(charArray, charArraySize);
-//		//applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
-//
-//		var pNum = 0;
-//		for (; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
-//		{
-//			if (pNum==0)		// "0" profile name
-//			{
-//				parseStringComma(charArray, charArraySize);
-//			}
-//			else if ((((0x1l<<3) | (0x1l<<8) | (0x1l<<18) | (0x1l<<19) | (0x1l<<32) | (0x1l<<33) | (0x1l<<34)) & (0x1l<<pNum)) != 0)
-//			{
-//				// "3" time military
-//				// "8" time italic font
-//				// "18" seconds color demo
-//				// "19" seconds move in a bit
-//				// "32" demo font styles
-//				// "33" demo second styles
-//				// "34" demo display
-//				parseBooleanComma(charArray, charArraySize);
-//			}
-//			else
-//			{
-//				parseNumberComma(charArray, charArraySize);
-//			}
-//		}
-//	}
-//	
-//var timeStamp = System.getTimer();
-//for (var jj=0; jj<15; jj++)
-//{
-//		importPropertiesTest();
-//}
-//System.println("importPropertiesTest time = " + (System.getTimer()-timeStamp) + "ms");
-		
-//	function loadProfileOld(profileIndex)
-//	{	
-//		profileActive = profileIndex;		// profile now active
-//		profileGlance = -1;					// clear glance profile if it was active
-//
-//		if (profileIndex>=0 /*PROFILE_PRIVATE_INDEX*/ && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
-//		{
-//			// load normal properties
-//			{
-////var timeStamp = System.getTimer();
-//				var pArray = applicationStorage.getValue("P"+profileIndex);		// 156ms
-////System.println("P load time = " + (System.getTimer()-timeStamp) + "ms");
-//				if (pArray != null)
-//				{
-//					getPropertiesFromArray(pArray);
-//
-//					pArray = null;
-//				}
-//			}
-//
-////{
-////var timeStamp = System.getTimer();
-////	var testArray = new[FIELD_NUM*FIELD_NUM_PROPERTIES*10];	// 10 times larger but still same time
-////	applicationStorage.setValue("TEST", testArray);			// 109-172ms
-////System.println("TEST save time = " + (System.getTimer()-timeStamp) + "ms");
-////}
-////			
-////{
-////var timeStamp = System.getTimer();
-////	var testArray = applicationStorage.getValue("TEST");		// 156ms
-////System.println("TEST load time = " + (System.getTimer()-timeStamp) + "ms");
-////}
-//			
-//			// load field data
-//			{
-////var timeStamp = System.getTimer();
-//				var pArray = applicationStorage.getValue("PF"+profileIndex);		// 157ms
-////System.println("PF load time = " + (System.getTimer()-timeStamp) + "ms");
-//				if (pArray != null)
-//				{
-//					var size = ((pArray.size() < (FIELD_NUM*FIELD_NUM_PROPERTIES)) ? pArray.size() : (FIELD_NUM*FIELD_NUM_PROPERTIES));
-//					for (var i=0; i<size; i++)
-//					{
-//						// ok not to check byte value range as loading from byte array (user profile)
-//						propFieldData[i] = pArray[i];
-//					}
-//
-//					pArray = null;
-//				}
-//			}
-//			
-////			properties.setValue("FM", 0x10/*ITEM_RETRIEVE*/);	// set field management to retrieve - so that properties are updated to match field settings
-//			
-//			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
-//			{
-//				// set the profile properties from our profile times array
-//				var t0 = profileTimes[profileIndex];
-//				var t1 = profileTimes[profileIndex+PROFILE_NUM_USER];
-//				var days = (t0&0x7F/*PROFILE_DAYS_MASK*/);
-//				var startTime = (t0>>10/*PROFILE_START_SHIFT*/)&0x7FF/*PROFILE_START_MASK*/;
-//				var endTime = (t0>>21/*PROFILE_END_SHIFT*/)&0x7FF/*PROFILE_END_MASK*/;
-//		
-//				var daysNumber = 0;
-//				for (var i=0; i<7; i++)
-//				{
-//					if ((days&(0x1<<i))!=0)
-//					{
-//						daysNumber *= 10;
-//						daysNumber += i+1;
-//					}
-//				}
-//				applicationProperties.setValue("PD", daysNumber);
-//		
-//				applicationProperties.setValue("PS", loadGetProfileTimeString(startTime, (t1&0x0100/*PROFILE_START_SUNRISE*/)!=0, (t1&0x0200/*PROFILE_START_SUNSET*/)!=0));
-//				applicationProperties.setValue("PE", loadGetProfileTimeString(endTime, (t1&0x0400/*PROFILE_END_SUNRISE*/)!=0, (t1&0x0800/*PROFILE_END_SUNSET*/)!=0));
-//
-//				applicationProperties.setValue("PB", ((t0&0x80/*PROFILE_BLOCK_MASK*/)!=0));
-//				applicationProperties.setValue("PR", (t1&0xFF/*PROFILE_EVENTS_MASK*/));		
-//			}
-//		}
-//	}
-
-//	function exportPropertiesFillCharArray(profileIndex, toArray, toMax)
-//	{
-//		var toLen = 0;
-//		
-//		var pArray = applicationStorage.getValue("P" + profileIndex);
-//		if (pArray != null)
-//		{
-//			// profile activation times
-//			var sTimes;
-//			if (profileIndex<PROFILE_NUM_USER)
-//			{			
-//        		sTimes = Lang.format("$1$,$2$,", [profileTimes[profileIndex], profileTimes[profileIndex+PROFILE_NUM_USER]]);
-//			}
-//			else
-//			{
-//				sTimes = "0,0,";
-//			}
-//			toLen = addStringToCharArray(sTimes, toArray, toLen, toMax);
-//				
-//			toLen = addArrayToCharArray(pArray, toArray, toLen, toMax);
-//		}
-//
-//		return toLen;
-//	}
-//
-//	function exportPropertiesGetString(profileIndex)
-//	{
-//		var charArray = new[255];
-//		var charArrayLen = exportPropertiesFillCharArray(profileIndex, charArray, 255);
-//		charArray = charArray.slice(0, charArrayLen);
-//
-//		return StringUtil.charArrayToString(charArray);
-//	}
-//
-//	function exportFieldDataGetString(fArray, start, end)
-//	{
-//		var tempArray = fArray.slice(start, end);
-//		var charArray = new[255];
-//		var charArrayLen = addArrayToCharArray(tempArray, charArray, 0, 255);
-//		tempArray = null;
-//		
-//		charArray = charArray.slice(0, charArrayLen);
-//
-//		return StringUtil.charArrayToString(charArray);
-//	}
-//	
-//	function exportProfileOld(profileIndex)
-//	{
-//		if (profileIndex>=0 && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
-//		{
-//			var s = exportPropertiesGetString(profileIndex);
-//			applicationProperties.setValue("EP", s);
-//			s = null;
-//	
-//			var fArray = applicationStorage.getValue("PF" + profileIndex);
-//			
-//			s = exportFieldDataGetString(fArray, 0, (FIELD_NUM*FIELD_NUM_PROPERTIES)/2);
-//			applicationProperties.setValue("EF", s);
-//			s = null;
-//			
-//			s = exportFieldDataGetString(fArray, (FIELD_NUM*FIELD_NUM_PROPERTIES)/2, FIELD_NUM*FIELD_NUM_PROPERTIES);
-//			applicationProperties.setValue("EG", s);
-//		}
-//	}
-
 	function getPresetProfileString(profileIndex)
 	{
 		var jsonData = Rez.JsonData;
@@ -3223,6 +2746,7 @@ class myView
 			var s = getProfileString(profileIndex);
 			if (s!=null && (s instanceof String))
 			{
+
 //				var charArray = s.toCharArray();
 //				var charArraySize = charArray.size();
 //				parseIndex = 0;
@@ -3233,11 +2757,6 @@ class myView
 //				{
 //					var pArray = new[PROFILE_NUM_PROPERTIES];
 //	
-//					// profile times?
-//					//profileTimes[profileIndex] = parseNumberComma(charArray, charArraySize);
-//					//profileTimes[profileIndex+PROFILE_NUM_USER] = parseNumberComma(charArray, charArraySize);
-//					//applicationStorage.setValue("PT", profileTimes);  	// and save all profile times to storage
-//			
 //					for (var pNum=0; pNum<PROFILE_NUM_PROPERTIES && parseIndex<charArraySize; pNum++)
 //					{
 //						if (pNum==0)		// "0" profile name
@@ -3280,11 +2799,6 @@ class myView
 //					prop2ndTimeZoneOffset = getNumberFromArray(pArray, 37/*"37"*/);
 //				}
 				
-				// field data
-//				for (var fNum=0; fNum<FIELD_NUM*FIELD_NUM_PROPERTIES && parseIndex<charArraySize; fNum++)
-//				{
-//					propFieldData[fNum] = getMinMax(parseNumberComma(charArray, charArraySize), 0, 255); 
-//				}
 			}
 			
 			if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
@@ -3677,8 +3191,8 @@ class myView
 	}
 
 	var positionGot = false;
-	var positionLatitude = 0.0d;
-	var positionLongitude = 0.0d;
+	var positionLatitude = 0.0;
+	var positionLongitude = 0.0;
 	var positionAltitude = 0.0;
 
 	// 350 code bytes
@@ -3700,8 +3214,8 @@ class myView
 				//System.println("currentLocationAccuracy=" + info.currentLocationAccuracy);
 				var l = info.currentLocation.toDegrees();
 				positionGot = true;
-				positionLatitude = l[0];
-				positionLongitude = l[1];
+				positionLatitude = l[0].toFloat();
+				positionLongitude = l[1].toFloat();
 			}
 		}
 
@@ -3779,14 +3293,14 @@ class myView
 
 		var todayValue = updateTimeTodayValue;
 		if (sunCalculatedDay!=todayValue ||
-			sunCalculatedLatitude!=positionLatitude.toFloat() ||
-			sunCalculatedLongitude!=positionLongitude.toFloat() ||
+			sunCalculatedLatitude!=positionLatitude ||
+			sunCalculatedLongitude!=positionLongitude ||
 			sunCalculatedAltitude!=useAltitude)
 		{
 			// remember when & where we did this calculation
 			sunCalculatedDay = todayValue;		
-			sunCalculatedLatitude = positionLatitude.toFloat();
-			sunCalculatedLongitude = positionLongitude.toFloat();
+			sunCalculatedLatitude = positionLatitude;
+			sunCalculatedLongitude = positionLongitude;
 			sunCalculatedAltitude = useAltitude;
 	
 			// this is in local time at that date
@@ -3841,7 +3355,7 @@ class myView
 	function calculateSunDay(dayOffset, nowDayOfWeek)
 	{
 		var gregorian = Time.Gregorian;
-		var toRadians = (Math.PI/180);
+		var toRadians = (Math.PI/180.0d);
 
 		// start of today + 12 hours + time zone
 		var todayNoonUTC = new Time.Moment(updateTimeTodayValue + 12*60*60 + updateTimeZoneOffset + dayOffset*86400);	// UTC time for local noon today (or tomorrow)
@@ -3860,7 +3374,7 @@ class myView
 
 		var n = daysSinceJan1st2000 + UTC2TT;
 		
-		var jStar = n - positionLongitude/360;			// correct by up to + or - half a day depending on longitude
+		var jStar = n - positionLongitude/360.0d;			// correct by up to + or - half a day depending on longitude
 		var m = 357.5291 + 0.98560028d * jStar;
 		m -= Math.floor(m/360)*360;			// modulo 360
 		
@@ -3982,12 +3496,61 @@ class myView
 		//
 		// save as separate properties? (string, number, float, boolean)
 
-	function loadMemoryData()
+	function loadMemoryData(timeNowValue)
 	{
+		positionGot = propertiesGetBoolean("pg");
+		positionLatitude = propertiesGetFloat("la"); 
+		positionLongitude = propertiesGetFloat("lo");
+		positionAltitude = propertiesGetFloat("al");
+
+		var profileNumber;
+		var profileEnd;
+
+		profileNumber = propertiesGetNumber("ap");
+		profileEnd = propertiesGetNumber("ae");
+		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+		{
+			profileActive = profileNumber;
+			// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
+			profileDelayEnd = ((profileEnd <= (timeNowValue + (2+1)*60)) ? profileEnd : 0);
+		}
+
+		profileNumber = propertiesGetNumber("rp");
+		profileEnd = propertiesGetNumber("re");
+		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+		{
+			profileRandom = profileNumber;
+			// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
+			profileRandomEnd = ((profileEnd <= (timeNowValue + (20+1)*60)) ? profileEnd : 0);
+		}
+
+		demoProfilesOn = propertiesGetBoolean("do");
+		profileNumber = propertiesGetNumber("dp");
+		profileEnd = propertiesGetNumber("de");
+		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+		{
+			demoProfilesCurrentProfile = profileNumber;
+			// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
+			demoProfilesCurrentEnd = ((profileEnd <= (timeNowValue + (5+1)*60)) ? profileEnd : 0);
+		}
 	}
 	
 	function saveMemoryData()
 	{
+		applicationProperties.setValue("pg", positionGot);
+		applicationProperties.setValue("la", positionLatitude);
+		applicationProperties.setValue("lo", positionLongitude);
+		applicationProperties.setValue("al", positionAltitude);
+
+		applicationProperties.setValue("ap", profileActive);
+		applicationProperties.setValue("ae", profileDelayEnd);
+
+		applicationProperties.setValue("rp", profileRandom);
+		applicationProperties.setValue("re", profileRandomEnd);
+
+		applicationProperties.setValue("do", demoProfilesOn);
+		applicationProperties.setValue("dp", demoProfilesCurrentProfile);
+		applicationProperties.setValue("de", demoProfilesCurrentEnd);
 	}
 
 //	var profileTimes = new[PROFILE_NUM_USER*2];
@@ -4050,7 +3613,7 @@ class myView
 	
 	function loadProfileData()
 	{
-		var charArray = propertiesGetCharArray("SD");
+		var charArray = propertiesGetCharArray("sd");
 
 		valDecodeArray(profileData, PROFILE_NUM_USER*5, charArray, charArray.size());
 
@@ -4063,7 +3626,7 @@ class myView
 		
 		var s = StringUtil.charArrayToString(gfxCharArray.slice(0, PROFILE_NUM_USER*5*2));
 
-		applicationProperties.setValue("SD", s);
+		applicationProperties.setValue("sd", s);
 	}
 
 /* profile string > parsed profile array > background draw data */
