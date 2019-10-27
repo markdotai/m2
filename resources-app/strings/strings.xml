@@ -1,33 +1,14 @@
 <strings>
     <string id="AppName">M2 App</string>
 
-    <string id="GlanceProfileTitle">Gesture Profile (0 for none, or profile number for gesture)</string>
+    <string id="ExportProfileTitle">Export/Import Profile Text (use profile management above)</string>
 
-    <string id="ProfileNameTitle">Profile Name (limited to 20 characters)</string>
     <string id="ProfileManagementTitle">Profile Management (save/load settings above to watch/profile)</string>
     <string id="ProfileNumberTitle">Profile Number To Save/Load (1-24) (or presets 25+)</string>
-    <string id="ProfileDaysTitle">Profile Activation Days (of week 1-7, e.g. 456 or 71 or 1234567)</string>
-    <string id="ProfileStartTimeTitle">Profile Start Time [Sunrise+-] HH:MM (activate from this time)</string>
-    <string id="ProfileEndTimeTitle">Profile End Time [Sunset+-] HH:MM (activate until this time)</string>
-    <string id="ProfileBlockTitle">Profile Block Random (while this profile is active, block random events)</string>
-    <string id="ProfileRandomTitle">Profile Random Events (number per day for this profile)</string>
 
-    <string id="DemoProfilesTitle">Demo Profiles (cycle profiles in specified range, if no other profile active)</string>
-    <string id="DemoProfilesRangeTitle">Demo Profiles Start And End (e.g. 25-99 for preset profiles)</string>
+    <string id="ProfileNameTitle">Profile Name (limited to 20 characters)</string>
 
-    <string id="ExportProfileTitle">Export/Import Profile Text (use profile management above)</string>
-    <string id="ExportFieldsTitle">Export/Import Fields Text (use profile management above)</string>
-
-	<string id="SunAltitudeAdjustTitle">Sunrise/Sunset Altitude Adjustment</string>
-	<string id="NonActiveCalorieOverrideTitle">Non-Active Calorie Override (0 for not set, or BMR x 1.2)</string>
-
-    <string id="ProfileUpdateSettings">Update Watch Settings</string>
-    <string id="ProfileRetrieveSettings">Retrieve Watch Settings</string>
-    <string id="ProfileSave">Save Profile</string>
     <string id="ProfileLoad">Load Profile</string>
-    <string id="ProfileCopy">Copy Profile To Watch Settings</string>
-    <string id="ProfileExport">Export Profile (to text fields below)</string>
-    <string id="ProfileImport">Import Profile (from text fields below)</string>
-    <string id="ProfileWasActive">Profile Was Active (settings will not be updated)</string>
+    <string id="ProfileSave">Save Profile</string>
     
 </strings>

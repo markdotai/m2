@@ -1,20 +1,21 @@
 <properties>
+    <property id="H" type="boolean">false</property>		<!-- honesty checkbox -->
 
-    <property id="35" type="number">0</property>			<!-- glance profile -->
-    <property id="0" type="string"></property>				<!-- profile name -->
+    <property id="EP" type="string"></property>				<!-- export import profile -->
 
     <property id="PM" type="number">0</property>			<!-- profile management -->
     <property id="PN" type="number">1</property>			<!-- profile number -->
+    <property id="0" type="string"></property>				<!-- profile name -->
+    
     <property id="PD" type="number">0</property>			<!-- profile activation days -->
     <property id="PS" type="string">HH:MM</property>		<!-- profile start time -->
     <property id="PE" type="string">HH:MM</property>		<!-- profile end time -->
+    <property id="35" type="number">0</property>			<!-- glance profile -->
     <property id="PB" type="boolean">false</property>		<!-- profile block random -->
     <property id="PR" type="number">0</property>			<!-- profile random events -->
 
     <property id="DP" type="boolean">false</property>		<!-- demo profiles -->
     <property id="DR" type="string">25 99</property>		<!-- demo profiles range -->
-
-    <property id="EP" type="string"></property>				<!-- export import profile -->
 
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
     <property id="NC" type="number">0</property>			<!-- non-active calorie override -->

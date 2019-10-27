@@ -1,28 +1,27 @@
 <settings>
 
-    <setting propertyKey="@Properties.35" title="@Strings.GlanceProfileTitle">
-        <settingConfig type="numeric" />
+    <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle">
+        <settingConfig type="boolean" />
     </setting>
 
-    <setting propertyKey="@Properties.0" title="@Strings.ProfileNameTitle">
-        <settingConfig type="alphaNumeric" maxLength="20" />
+    <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
+        <settingConfig type="alphaNumeric" maxLength="1024" />
     </setting>
 
     <setting propertyKey="@Properties.PM" title="@Strings.ProfileManagementTitle">
         <settingConfig type="list">
-            <listEntry value="0">@Strings.ProfileUpdateSettings</listEntry>
-            <listEntry value="1">@Strings.ProfileRetrieveSettings</listEntry>
+            <listEntry value="0">@Strings.ProfileCurrent</listEntry>
+            <listEntry value="1">@Strings.ProfileLoad</listEntry>
             <listEntry value="2">@Strings.ProfileSave</listEntry>
-            <listEntry value="3">@Strings.ProfileLoad</listEntry>
-            <listEntry value="7">@Strings.ProfileCopy</listEntry>
-            <listEntry value="4">@Strings.ProfileExport</listEntry>
-            <listEntry value="5">@Strings.ProfileImport</listEntry>
-            <listEntry value="6">@Strings.ProfileWasActive</listEntry>
         </settingConfig>
     </setting>
 
     <setting propertyKey="@Properties.PN" title="@Strings.ProfileNumberTitle">
         <settingConfig type="numeric" />
+    </setting>
+
+    <setting propertyKey="@Properties.0" title="@Strings.ProfileNameTitle">
+        <settingConfig type="alphaNumeric" maxLength="20" />
     </setting>
 
     <setting propertyKey="@Properties.PD" title="@Strings.ProfileDaysTitle">
@@ -35,6 +34,10 @@
 
     <setting propertyKey="@Properties.PE" title="@Strings.ProfileEndTimeTitle">
         <settingConfig type="alphaNumeric" maxLength="20" />
+    </setting>
+
+    <setting propertyKey="@Properties.35" title="@Strings.GlanceProfileTitle">
+        <settingConfig type="numeric" />
     </setting>
 
     <setting propertyKey="@Properties.PB" title="@Strings.ProfileBlockTitle">
@@ -51,10 +54,6 @@
 
     <setting propertyKey="@Properties.DR" title="@Strings.DemoProfilesRangeTitle">
         <settingConfig type="alphaNumeric" maxLength="20" />
-    </setting>
-
-    <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
-        <settingConfig type="alphaNumeric" maxLength="1024" />
     </setting>
 
     <setting propertyKey="@Properties.SA" title="@Strings.SunAltitudeAdjustTitle">

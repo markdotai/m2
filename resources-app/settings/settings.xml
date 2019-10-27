@@ -1,23 +1,13 @@
 <settings>
 
-    <setting propertyKey="@Properties.35" title="@Strings.GlanceProfileTitle">
-        <settingConfig type="numeric" />
-    </setting>
-
-    <setting propertyKey="@Properties.0" title="@Strings.ProfileNameTitle">
-        <settingConfig type="alphaNumeric" maxLength="20" />
+    <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
+        <settingConfig type="alphaNumeric" maxLength="255" />
     </setting>
 
     <setting propertyKey="@Properties.PM" title="@Strings.ProfileManagementTitle">
         <settingConfig type="list">
-            <listEntry value="0">@Strings.ProfileUpdateSettings</listEntry>
-            <listEntry value="1">@Strings.ProfileRetrieveSettings</listEntry>
-            <listEntry value="2">@Strings.ProfileSave</listEntry>
-            <listEntry value="3">@Strings.ProfileLoad</listEntry>
-            <listEntry value="7">@Strings.ProfileCopy</listEntry>
-            <listEntry value="4">@Strings.ProfileExport</listEntry>
-            <listEntry value="5">@Strings.ProfileImport</listEntry>
-            <listEntry value="6">@Strings.ProfileWasActive</listEntry>
+            <listEntry value="2">@Strings.ProfileLoad</listEntry>
+            <listEntry value="3">@Strings.ProfileSave</listEntry>
         </settingConfig>
     </setting>
 
@@ -25,52 +15,8 @@
         <settingConfig type="numeric" />
     </setting>
 
-    <setting propertyKey="@Properties.PD" title="@Strings.ProfileDaysTitle">
-        <settingConfig type="numeric" />
-    </setting>
-
-    <setting propertyKey="@Properties.PS" title="@Strings.ProfileStartTimeTitle">
+    <setting propertyKey="@Properties.0" title="@Strings.ProfileNameTitle">
         <settingConfig type="alphaNumeric" maxLength="20" />
-    </setting>
-
-    <setting propertyKey="@Properties.PE" title="@Strings.ProfileEndTimeTitle">
-        <settingConfig type="alphaNumeric" maxLength="20" />
-    </setting>
-
-    <setting propertyKey="@Properties.PB" title="@Strings.ProfileBlockTitle">
-        <settingConfig type="boolean" />
-    </setting>
-
-    <setting propertyKey="@Properties.PR" title="@Strings.ProfileRandomTitle">
-        <settingConfig type="numeric" />
-    </setting>
-
-    <setting propertyKey="@Properties.DP" title="@Strings.DemoProfilesTitle">
-        <settingConfig type="boolean" />
-    </setting>
-
-    <setting propertyKey="@Properties.DR" title="@Strings.DemoProfilesRangeTitle">
-        <settingConfig type="alphaNumeric" maxLength="20" />
-    </setting>
-
-    <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
-        <settingConfig type="alphaNumeric" maxLength="255" />
-    </setting>
-
-    <setting propertyKey="@Properties.EF" title="@Strings.ExportFieldsTitle">
-        <settingConfig type="alphaNumeric" maxLength="255" />
-    </setting>
-
-    <setting propertyKey="@Properties.EG" title="@Strings.ExportFieldsTitle">
-        <settingConfig type="alphaNumeric" maxLength="255" />
-    </setting>
-
-    <setting propertyKey="@Properties.SA" title="@Strings.SunAltitudeAdjustTitle">
-        <settingConfig type="boolean" />
-    </setting>
-
-    <setting propertyKey="@Properties.NC" title="@Strings.NonActiveCalorieOverrideTitle">
-        <settingConfig type="numeric" />
     </setting>
 
 </settings>
