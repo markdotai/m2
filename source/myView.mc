@@ -72,7 +72,6 @@ class myView
     var propBatteryHighPercentage = 75.0;
 	var propBatteryLowPercentage = 25.0;	
 	var prop2ndTimeZoneOffset = 0;
-	var propTimeYOffset;
     
     var propSecondIndicatorOn = false;
 	var propSecondResourceIndex = 0;
@@ -3425,7 +3424,6 @@ class myView
 	{
 	}
 	
-/* profile string > parsed profile array > background draw data */
 /*
 	array of data
 		item type
@@ -3455,50 +3453,7 @@ class myView
 	move bar alert trigger level
 	battery high percentage
 	battery low percentage
-	
-	select field
-		edit elements
-			select element
-				edit
-					data
-					visibility
-					color
-						next
-						previous
-						tap
-					font
-				delete element
-			add element
-		field glance
-		position
-			x adjust
-			y adjust
-			tap
-		alignment
-			left edge
-			right edge
-			centre
-		delete field
-		move field up
-		move field down
-		
-	add blank field
-	quick add
-		time
-		time with colon
-		date
-		steps as text
-		steps as ring
-		heart rate as text
-		seconds indicator
-		digital seconds
-
-	save profile
-	load profile
-	reset (delete all)
 */	
-
-	// background color?
 
 	// id
 	// 0 = header
@@ -3905,7 +3860,6 @@ class myView
 	    propBatteryHighPercentage = 75;
 	    propBatteryLowPercentage = 25;
 		prop2ndTimeZoneOffset = 0;
-		propTimeYOffset = 0;		
 
 		gfxNum = 0;
 		gfxCharArrayLen = 0;
@@ -5653,19 +5607,14 @@ class myEditorView extends myView
         return true;
     }
 
-    function onBack()	// tap right bottom
-    {
-    	// return false here to exit the app
-
-    	WatchUi.requestUpdate();
-    
-        return true;
-    }
-
     function onNextPage()	// tap left bottom
     {
-    	propTimeYOffset -= 1;
-    
+		var nextIndex = nextGfx(menuCur);
+		if (nextIndex>=0)
+		{
+			menuCur = nextIndex;
+		}
+
     	WatchUi.requestUpdate();
     
         return true;
@@ -5673,8 +5622,12 @@ class myEditorView extends myView
 
     function onPreviousPage()	// tap left middle
     {
-    	propTimeYOffset += 1;
-
+    	var previousIndex = previousGfx(menuCur);
+    	if (previousIndex>=0)
+    	{
+    		menuCur = previousIndex;
+    	}
+    
     	WatchUi.requestUpdate();
     
         return true;
@@ -5682,6 +5635,30 @@ class myEditorView extends myView
 
     function onSelect()		// tap right top
     {
+    	if (!editingCur)
+    	{
+    		editingCur = true;
+    	}
+    	else
+    	{
+    	}
+    
+    	WatchUi.requestUpdate();
+    
+        return true;
+    }
+
+    function onBack()	// tap right bottom
+    {
+		if (editingCur)
+		{
+			editingCur = false;
+		}
+		else
+		{
+        	return false;	// return false here to exit the app
+		}
+
     	WatchUi.requestUpdate();
     
         return true;
@@ -5768,6 +5745,496 @@ class myEditorView extends myView
     	
     	return false;
     }    
+
+	var menuCur = 0;
+	var editingCur = false;
+
+	function nextGfx(index)
+	{
+		var id = (gfxData[index] & 0xFF);
+		var nextIndex = index + gfxSize(id);
+		return ((nextIndex<gfxNum) ? nextIndex : -1);
+	}
+
+	function previousGfx(index)
+	{
+		var prevIndex = -1;
+		for (var temp=0; temp<gfxNum; )
+		{
+			if (temp==index)
+			{
+				break;
+			}
+			
+			prevIndex = temp;
+
+			var id = (gfxData[temp] & 0xFF);
+			temp += gfxSize(id);
+		}
+		
+		return ((prevIndex<gfxNum) ? prevIndex : -1);
+	}
+
+	/*
+	select field
+		edit elements
+			select element
+				edit
+					data
+					visibility
+					color
+						next
+						previous
+						tap
+					font
+				delete element
+			add element
+		field glance
+		position
+			x adjust
+			y adjust
+			tap
+		alignment
+			left edge
+			right edge
+			centre
+		delete field
+		move field up
+		move field down
+		
+	add blank field
+		select type
+		
+	quick add
+		time
+		time with colon
+		date
+		steps as text
+		steps as ring
+		heart rate as text
+		seconds indicator
+		digital seconds
+
+	save profile
+	load profile
+	reset (delete all)
+	*/
+	
+    function onUpdate(dc)
+    {
+    	myView.onUpdate(dc);	// draw the normal watchface
+    	
+    	// then draw any menus on top
+
+		var eStr = null;
+
+		if (menuCur>=0 && menuCur<gfxNum)
+		{
+			if (!editingCur)
+			{
+				eStr = getMenuName(menuCur);
+			}
+			else
+			{
+				eStr = "editing";
+			}
+		}
+
+		if (eStr != null)
+		{
+	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+    		dc.drawText(50, 50, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+		}
+    }
+
+	function getMenuName(index)
+	{
+		var eStr = null;
+	
+		var id = (gfxData[index] & 0xFF);
+		switch(id)
+		{
+			case 0:		// header
+			{
+				eStr = "header";
+				break;
+			}
+
+			case 1:		// field
+			{
+				eStr = "field";
+				break;
+			}
+
+			case 2:		// hour large
+			{
+				eStr = "hour (large)";
+				break;
+			}
+
+			case 3:		// minute large
+			{
+				eStr = "minute (large)";
+				break;
+			}
+
+			case 4:		// colon large
+			{
+				eStr = "colon (large)";
+				break;
+			}
+
+			case 5:		// string
+			{
+				var eDisplay = gfxData[index+1];
+				
+				switch(eDisplay)	// type of string
+				{
+					case 1/*FIELD_HOUR*/:			// hour
+				    {
+						eStr = "hour";
+						break;
+					}
+
+					case 2/*FIELD_MINUTE*/:			// minute
+				    {
+						eStr = "minute";
+						break;
+					}
+
+					case 3/*FIELD_DAY_NAME*/:		// day name
+				    {
+						eStr = "day (name)";
+						break;
+					}
+					
+					case 9/*FIELD_MONTH_NAME*/:		// month name
+				    {
+						eStr = "month (name)";
+						break;
+					}
+
+					case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
+				    {
+						eStr = "day (number of week)";	// 1-7
+						break;
+					}
+
+					case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
+				    {
+						eStr = "day (number of month)";
+						break;
+					}
+
+					case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
+				    {
+						eStr = "day (of month XX)";
+						break;
+					}
+
+					case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
+				    {
+						eStr = "day (number of year)";
+						break;
+					}
+
+					case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
+				    {
+						eStr = "day (of year XXX)";
+						break;
+					}
+
+					case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
+				    {
+						eStr = "month (number)";
+						break;
+					}
+
+					case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
+				    {
+						eStr = "month (number XX)";
+						break;
+					}
+
+					case 12/*FIELD_YEAR_XX*/:		// year XX
+					{
+						eStr = "year (XX)";
+						break;
+					}
+
+					case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
+				    {
+						eStr = "year (XXXX)";
+						break;
+					}
+
+					case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
+				    {
+						eStr = "week (ISO XX)";
+						break;
+					}
+
+					case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
+				    {
+						eStr = "week (ISO WXX)";
+						break;
+					}
+
+					case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
+				    {
+						eStr = "year (ISO week XXXX)";
+						break;
+					}
+
+					case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
+				    {
+						eStr = "week (calendar)";
+						break;
+					}
+
+					case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
+					{
+						eStr = "year (calendar week XXXX)";
+						break;
+					}
+
+					case 19/*FIELD_AM*/:
+				    {
+						eStr = "AM";
+						break;
+					}
+
+					case 20/*FIELD_PM*/:
+				    {
+						eStr = "PM";
+						break;
+					}
+
+				    case 21/*FIELD_SEPARATOR_SPACE*/:
+				    case 22:
+				    case 23:
+				    case 24:
+				    case 25:
+				    case 26:
+				    case 27:
+				    case 28/*FIELD_SEPARATOR_PERCENT*/:
+				    {
+						var separatorString = " /\\:-.,%";
+	        			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
+	        			break;
+				    }
+
+					case 31/*FIELD_STEPSCOUNT*/:
+					{
+						eStr = "steps count";
+						break;
+					}
+
+					case 32/*FIELD_STEPSGOAL*/:
+					{
+						eStr = "steps goal";
+						break;
+					}
+
+					case 33/*FIELD_FLOORSCOUNT*/:
+					{
+						eStr = "floors count";
+						break;
+					}
+
+					case 34/*FIELD_FLOORSGOAL*/:
+					{
+						eStr = "floors goal";
+						break;
+					}
+
+					case 35/*FIELD_NOTIFICATIONSCOUNT*/:
+					{
+						eStr = "notifications count";
+						break;
+					}
+					
+					case 36/*FIELD_BATTERYPERCENTAGE*/:
+					{
+						eStr = "battery percentage";
+						break;
+					}
+					
+					case 76/*FIELD_HEART_MIN*/:
+					{
+						eStr = "heart rate min";
+						break;
+					}
+
+					case 77/*FIELD_HEART_MAX*/:
+					{
+						eStr = "heart rate max";
+						break;
+					}
+
+					case 78/*FIELD_HEART_AVERAGE*/:
+					{
+						eStr = "heart rate average";
+						break;
+					}
+
+					case 79/*FIELD_HEART_LATEST*/:
+					{
+						eStr = "heart rate";
+						break;
+					}
+
+					case 82/*FIELD_SUNRISE_HOUR*/:
+					{
+						eStr = "sunrise hour";
+						break;
+					}
+
+					case 83/*FIELD_SUNRISE_MINUTE*/:
+					{
+						eStr = "sunrise hour";
+						break;
+					}
+
+					case 84/*FIELD_SUNSET_HOUR*/:
+					{
+						eStr = "sunset hour";
+						break;
+					}
+
+					case 85/*FIELD_SUNSET_MINUTE*/:
+					{
+						eStr = "sunset minute";
+						break;
+					}
+
+					case 86/*FIELD_SUNEVENT_HOUR*/:
+					{
+						eStr = "next sun event hour";
+						break;
+					}
+
+					case 87/*FIELD_SUNEVENT_MINUTE*/:
+					{
+						eStr = "next sun event minute";
+						break;
+					}
+
+					case 88/*FIELD_2ND_HOUR*/:
+					{
+						eStr = "2nd time zone hour";
+						break;
+					}
+
+					case 89/*FIELD_CALORIES*/:
+					{
+						eStr = "calories";
+						break;
+					}
+
+					case 90/*FIELD_ACTIVE_CALORIES*/:
+					{
+						eStr = "active calories";
+						break;
+					}
+
+					case 91/*FIELD_INTENSITY*/:
+					{
+						eStr = "intensity minutes";
+						break;
+					}
+
+					case 92/*FIELD_INTENSITY_GOAL*/:
+					{
+						eStr = "intensity goal";
+						break;
+					}
+
+					case 93/*FIELD_SMART_GOAL*/:
+					{
+						eStr = "smart intensity goal";
+						break;
+					}
+
+					case 94/*FIELD_DISTANCE*/:
+					{
+						eStr = "distance";
+						break;
+					}
+
+					case 95/*FIELD_DISTANCE_UNITS*/:
+					{
+						eStr = "distance units (mi/km)";
+						break;
+					}
+
+					case 96/*FIELD_PRESSURE*/:
+					{
+						eStr = "pressure";
+						break;
+					}
+
+					case 97/*FIELD_PRESSURE_UNITS*/:
+					{
+						eStr = "pressure units (mb)";
+						break;
+					}
+
+					case 98/*FIELD_ALTITUDE*/:
+					{
+						eStr = "altitude";
+						break;
+					}
+
+					case 99/*FIELD_ALTITUDE_UNITS*/:
+					{
+						eStr = "altitude units (fm/m)";
+						break;
+					}
+				}
+				
+				break;
+			}
+			
+			case 6:		// icon
+			{
+				eStr = "icon";
+				break;
+			}
+			
+			case 7:		// movebar
+			{
+				eStr = "move bar";
+				break;
+			}
+			
+			case 8:		// chart
+			{
+				eStr = "heart rate chart";
+				break;
+			}
+			
+			case 9:		// rectangle
+			{
+				eStr = "rectangle";
+				break;
+			}
+			
+			case 10:	// ring
+			{
+				eStr = "ring";
+				break;
+			}
+			
+			case 11:	// seconds
+			{
+				eStr = "seconds indicator";
+				break;
+			}
+		}
+		
+		return eStr;
+	}
 }
 
 //class TestDelegate extends WatchUi.WatchFaceDelegate
