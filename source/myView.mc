@@ -3861,8 +3861,9 @@ class myView
 	    propBatteryLowPercentage = 25;
 		prop2ndTimeZoneOffset = 0;
 
-		gfxNum = 0;
 		gfxCharArrayLen = 0;
+
+		gfxNum = 0;
 		
 		gfxInsert(gfxNum, 0);	// header	
 
@@ -4389,6 +4390,8 @@ class myView
 		var indexPrevLargeWidth = -1;
 		var prevLargeNumber = -1;
 		var prevLargeFontKern = -1;
+	
+		gfxCharArrayLen = 0;
 	
 		for (var index=0; index<gfxNum; )
 		{
@@ -5593,11 +5596,147 @@ class myEditorView extends myView
 		
 		timer = new Timer.Timer();
 		timer.start(method(:timerCallback), 1000, true);
+
+		myMenuItem.editorView = Application.getApp().mainView.sharedView;
+		menuItem = new myMenuItemField();
 	}
 
 	function timerCallback()
 	{
     	WatchUi.requestUpdate();
+	}
+
+	/*
+	select field
+		edit elements
+			select element
+				edit
+					data
+					visibility
+					color
+						next
+						previous
+						tap
+					font
+				delete element
+			add element
+		field glance
+		position
+			x adjust
+			y adjust
+			tap
+		alignment
+			left edge
+			right edge
+			centre
+		delete field
+		move field up
+		move field down
+		
+	add blank field
+		select type
+		
+	quick add
+		time
+		time with colon
+		date
+		steps as text
+		steps as ring
+		heart rate as text
+		seconds indicator
+		digital seconds
+
+	save profile
+	load profile
+	reset (delete all)
+	*/
+	
+	var menuItem;
+	
+	var menuCurGfx = 0;
+
+	function nextGfx(index)
+	{
+		var id = (gfxData[index] & 0xFF);
+		var nextIndex = index + gfxSize(id);
+		return ((nextIndex<gfxNum) ? nextIndex : -1);
+	}
+
+	function prevGfx(index)
+	{
+		var prevIndex = -1;
+		for (var temp=0; temp<gfxNum; )
+		{
+			if (temp==index)
+			{
+				break;
+			}
+			
+			prevIndex = temp;
+
+			var id = (gfxData[temp] & 0xFF);
+			temp += gfxSize(id);
+		}
+		
+		return ((prevIndex<gfxNum) ? prevIndex : -1);
+	}
+
+	function gfxIsField(index)
+	{
+		var id = (gfxData[index] & 0xFF);
+		switch(id)
+		{
+			case 0:		// header
+			case 1:		// field
+			case 9:		// rectangle
+			case 10:	// ring
+			case 11:	// seconds
+			{
+				return true;
+			}
+
+			case 2:		// hour large
+			case 3:		// minute large
+			case 4:		// colon large
+			case 5:		// string
+			case 6:		// icon
+			case 7:		// movebar
+			case 8:		// chart
+			{
+				break;
+			}
+		}
+		return false;
+	}
+
+	function nextGfxField(index)
+	{
+		var temp;
+		for (temp=nextGfx(index); temp>=0; temp=nextGfx(temp))
+		{
+			if (gfxIsField(temp))
+			{
+				return temp;
+			}
+		}
+		return -1;
+	}
+
+	function prevGfxField(index)
+	{
+		var prevIndex = -1;
+		for (var temp=0; temp>=0; )
+		{
+			if (temp==index)
+			{
+				break;
+			}
+			
+			prevIndex = temp;
+
+			temp = nextGfxField(temp);
+		}		
+		return prevIndex;
 	}
 
     function onMenu()	// hold left middle button
@@ -5609,11 +5748,11 @@ class myEditorView extends myView
 
     function onNextPage()	// tap left bottom
     {
-		var nextIndex = nextGfx(menuCur);
-		if (nextIndex>=0)
-		{
-			menuCur = nextIndex;
-		}
+    	var newMenuItem = menuItem.onNext();
+    	if (newMenuItem!=null)
+    	{
+    		menuItem = newMenuItem;
+    	}
 
     	WatchUi.requestUpdate();
     
@@ -5622,10 +5761,10 @@ class myEditorView extends myView
 
     function onPreviousPage()	// tap left middle
     {
-    	var previousIndex = previousGfx(menuCur);
-    	if (previousIndex>=0)
+    	var newMenuItem = menuItem.onPrevious();
+    	if (newMenuItem!=null)
     	{
-    		menuCur = previousIndex;
+    		menuItem = newMenuItem;
     	}
     
     	WatchUi.requestUpdate();
@@ -5635,14 +5774,12 @@ class myEditorView extends myView
 
     function onSelect()		// tap right top
     {
-    	if (!editingCur)
+    	var newMenuItem = menuItem.onSelect();
+    	if (newMenuItem!=null)
     	{
-    		editingCur = true;
+    		menuItem = newMenuItem;
     	}
-    	else
-    	{
-    	}
-    
+
     	WatchUi.requestUpdate();
     
         return true;
@@ -5650,14 +5787,15 @@ class myEditorView extends myView
 
     function onBack()	// tap right bottom
     {
-		if (editingCur)
-		{
-			editingCur = false;
-		}
-		else
-		{
-        	return false;	// return false here to exit the app
-		}
+    	var newMenuItem = menuItem.onBack();
+    	if (newMenuItem!=null)
+    	{
+    		menuItem = newMenuItem;
+    	}
+    	else
+    	{
+   			return false;	// return false here to exit the app
+    	}
 
     	WatchUi.requestUpdate();
     
@@ -5746,99 +5884,12 @@ class myEditorView extends myView
     	return false;
     }    
 
-	var menuCur = 0;
-	var editingCur = false;
-
-	function nextGfx(index)
-	{
-		var id = (gfxData[index] & 0xFF);
-		var nextIndex = index + gfxSize(id);
-		return ((nextIndex<gfxNum) ? nextIndex : -1);
-	}
-
-	function previousGfx(index)
-	{
-		var prevIndex = -1;
-		for (var temp=0; temp<gfxNum; )
-		{
-			if (temp==index)
-			{
-				break;
-			}
-			
-			prevIndex = temp;
-
-			var id = (gfxData[temp] & 0xFF);
-			temp += gfxSize(id);
-		}
-		
-		return ((prevIndex<gfxNum) ? prevIndex : -1);
-	}
-
-	/*
-	select field
-		edit elements
-			select element
-				edit
-					data
-					visibility
-					color
-						next
-						previous
-						tap
-					font
-				delete element
-			add element
-		field glance
-		position
-			x adjust
-			y adjust
-			tap
-		alignment
-			left edge
-			right edge
-			centre
-		delete field
-		move field up
-		move field down
-		
-	add blank field
-		select type
-		
-	quick add
-		time
-		time with colon
-		date
-		steps as text
-		steps as ring
-		heart rate as text
-		seconds indicator
-		digital seconds
-
-	save profile
-	load profile
-	reset (delete all)
-	*/
-	
     function onUpdate(dc)
     {
     	myView.onUpdate(dc);	// draw the normal watchface
     	
     	// then draw any menus on top
-
-		var eStr = null;
-
-		if (menuCur>=0 && menuCur<gfxNum)
-		{
-			if (!editingCur)
-			{
-				eStr = getMenuName(menuCur);
-			}
-			else
-			{
-				eStr = "editing";
-			}
-		}
+    	var eStr = menuItem.getString();
 
 		if (eStr != null)
 		{
@@ -5847,7 +5898,7 @@ class myEditorView extends myView
 		}
     }
 
-	function getMenuName(index)
+	function getGfxName(index)
 	{
 		var eStr = null;
 	
@@ -6188,7 +6239,7 @@ class myEditorView extends myView
 
 					case 99/*FIELD_ALTITUDE_UNITS*/:
 					{
-						eStr = "altitude units (fm/m)";
+						eStr = "altitude units (ft/m)";
 						break;
 					}
 				}
@@ -6235,6 +6286,1134 @@ class myEditorView extends myView
 		
 		return eStr;
 	}
+
+	function fieldPositionXEditing(val)
+	{
+		gfxData[menuCurGfx+1] = getMinMax(gfxData[menuCurGfx+1]+val, 0, 240);
+	}
+
+	function fieldPositionYEditing(val)
+	{
+		gfxData[menuCurGfx+2] = getMinMax(gfxData[menuCurGfx+2]+val, 0, 240);
+	}
+
+	function fieldPositionCentreX()
+	{
+		gfxData[menuCurGfx+1] = 120;
+	}
+
+	function fieldPositionCentreY()
+	{
+		gfxData[menuCurGfx+2] = 120;
+	}
+
+	function fieldSetAlignment(val)
+	{
+		gfxData[menuCurGfx+3] = val;
+	}
+
+	function fieldGetAlignment()
+	{
+		return gfxData[menuCurGfx+3];
+	}
+
+	function fieldSwap(prevField, nextField)
+	{
+		var diff = nextField - prevField;
+		var tempArray = gfxData.slice(prevField, nextField);
+		
+		var endField = nextGfxField(nextField);
+		if (endField<0)
+		{
+			endField = gfxNum;
+		}
+
+		for (var index=nextField; index<endField; index++)
+		{
+			gfxData[index-diff] = gfxData[index];
+		}
+		
+		for (var index=0; index<diff; index++)
+		{
+			gfxData[endField-diff+index] = tempArray[index];
+		}
+		
+		return endField-diff;	// new start index of new later field
+	}
+
+	function fieldEarlier()
+	{
+		var prevField = prevGfxField(menuCurGfx);
+		if (prevField>0)	// 0==header
+		{
+			fieldSwap(prevField, menuCurGfx);
+
+			menuCurGfx = prevField;			
+		}
+	}
+
+	function fieldLater()
+	{
+		var nextField = nextGfxField(menuCurGfx);
+		if (nextField>=0)
+		{
+			menuCurGfx = fieldSwap(menuCurGfx, nextField);
+		}
+	}
+
+	function fieldDelete()
+	{
+		var nextField = nextGfxField(menuCurGfx);
+		if (nextField>=0)
+		{
+			var diff = nextField - menuCurGfx;
+			for (var index=nextField; index<gfxNum; index++)
+			{
+				gfxData[index-diff] = gfxData[index];
+			}
+			
+			gfxNum -= diff;
+		}
+		else
+		{
+			var prevField = prevGfxField(menuCurGfx);
+			
+			menuCurGfx = prevField;
+			gfxNum = menuCurGfx; 
+		}
+	}
+}
+
+
+(:m2app)
+class myMenuItem extends Lang.Object
+{
+	static var editorView;
+	
+    function initialize()
+    {
+    	Object.initialize();
+    }
+    
+    function getString()
+    {
+    	return "unknown";
+    }
+    
+    function onNext()
+    {
+    	return null;
+    }
+    
+    function onPrevious()
+    {
+    	return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemField extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return editorView.getGfxName(editorView.menuCurGfx);
+    }
+    
+    function onNext()
+    {
+		var nextIndex = editorView.nextGfxField(editorView.menuCurGfx);
+		if (nextIndex>=0)
+		{
+			editorView.menuCurGfx = nextIndex;
+		}
+    	else
+    	{
+    		return new myMenuItemAddBlankField();
+    	}
+    	return null;
+    }
+    
+    function onPrevious()
+    {
+    	var prevIndex = editorView.prevGfxField(editorView.menuCurGfx);
+    	if (prevIndex>=0)
+    	{
+    		editorView.menuCurGfx = prevIndex;
+    	}
+    	return null;
+    }
+    
+    function onSelect()
+    {
+		var id = (editorView.gfxData[editorView.menuCurGfx] & 0xFF);
+		switch(id)
+		{
+			case 0:		// header
+			{
+    			return new myMenuItemFieldHeader();
+			}
+
+			case 1:		// field
+			{
+    			return new myMenuItemFieldElements();
+			}
+
+			case 9:		// rectangle
+			{
+    			return new myMenuItemFieldRectangle();
+			}
+
+			case 10:	// ring
+			{
+    			return new myMenuItemFieldRing();
+			}
+
+			case 11:	// seconds
+			{
+    			return new myMenuItemFieldSeconds();
+			}
+
+			case 2:		// hour large
+			case 3:		// minute large
+			case 4:		// colon large
+			case 5:		// string
+			case 6:		// icon
+			case 7:		// movebar
+			case 8:		// chart
+			{
+				break;
+			}
+		}
+			
+		return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemAddBlankField extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "add blank field";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemQuickAdd();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemField();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemQuickAdd extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "quick add";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemSaveProfile();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemAddBlankField();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemSaveProfile extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "save profile";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemLoadProfile();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemQuickAdd();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemLoadProfile extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "load profile";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemReset();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemSaveProfile();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemReset extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "reset (delete all)";
+    }
+    
+    function onNext()
+    {
+    	return null;
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemLoadProfile();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return null;
+    }
+}
+
+(:m2app)
+class myMenuItemFieldHeader extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "header data";
+    }
+    
+    function onNext()
+    {
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldElements extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "edit elements";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldVisibility();
+    }
+    
+    function onPrevious()
+    {
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldVisibility extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "visibility";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldPosition();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldElements();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPosition extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "position";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldAlignment();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldVisibility();
+    }
+    
+    function onSelect()
+    {
+   		return new myMenuItemFieldPositionX();
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionX extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "horizontal";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldPositionY();
+    }
+    
+    function onPrevious()
+    {
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemFieldPositionXEditing();
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPosition();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionXEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+		editorView.fieldPositionXEditing(1);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+		editorView.fieldPositionXEditing(-1);
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPositionX();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionY extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "vertical";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldPositionCentreX();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldPositionX();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemFieldPositionYEditing();
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPosition();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionYEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+		editorView.fieldPositionYEditing(1);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+		editorView.fieldPositionYEditing(-1);
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPositionY();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionCentreX extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "centre horizontal";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldPositionCentreY();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldPositionY();
+    }
+    
+    function onSelect()
+    {
+    	editorView.fieldPositionCentreX();
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPosition();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionCentreY extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "centre vertical";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldPositionTap();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldPositionCentreX();
+    }
+    
+    function onSelect()
+    {
+        editorView.fieldPositionCentreY();    
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPosition();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldPositionTap extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "tap";
+    }
+    
+    function onNext()
+    {
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldPositionCentreY();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldPosition();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldAlignment extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "alignment";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldEarlier();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldPosition();
+    }
+    
+    function onSelect()
+    {
+    	switch (editorView.fieldGetAlignment())
+    	{
+    		default:
+    		case 0: break; 
+    		case 1: return new myMenuItemFieldAlignmentLeft();
+    		case 2: return new myMenuItemFieldAlignmentRight();
+    	}
+    	
+    	return new myMenuItemFieldAlignmentCentre();
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldAlignmentCentre extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "centre";
+    }
+    
+    function onNext()
+    {
+    	editorView.fieldSetAlignment(1);
+   		return new myMenuItemFieldAlignmentLeft();
+    }
+    
+    function onPrevious()
+    {
+    	editorView.fieldSetAlignment(2);
+   		return new myMenuItemFieldAlignmentRight();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldAlignment();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldAlignmentLeft extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "left edge";
+    }
+    
+    function onNext()
+    {
+    	editorView.fieldSetAlignment(2);
+   		return new myMenuItemFieldAlignmentRight();
+    }
+    
+    function onPrevious()
+    {
+    	editorView.fieldSetAlignment(0);
+   		return new myMenuItemFieldAlignmentCentre();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldAlignment();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldAlignmentRight extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "right edge";
+    }
+    
+    function onNext()
+    {
+    	editorView.fieldSetAlignment(0);
+   		return new myMenuItemFieldAlignmentCentre();
+    }
+    
+    function onPrevious()
+    {
+    	editorView.fieldSetAlignment(1);
+   		return new myMenuItemFieldAlignmentLeft();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldAlignment();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldEarlier extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "move earlier";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldLater();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldAlignment();
+    }
+    
+    function onSelect()
+    {
+    	editorView.fieldEarlier();
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldLater extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "move later";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemFieldDelete();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldEarlier();
+    }
+    
+    function onSelect()
+    {
+    	editorView.fieldLater();
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldDelete extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "delete field";
+    }
+    
+    function onNext()
+    {
+    	return null;
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemFieldLater();
+    }
+    
+    function onSelect()
+    {
+    	editorView.fieldDelete();
+    	return new myMenuItemField();
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldRectangle extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "rectangle data";
+    }
+    
+    function onNext()
+    {
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldRing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "ring data";
+    }
+    
+    function onNext()
+    {
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldSeconds extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "seconds data";
+    }
+    
+    function onNext()
+    {
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
 }
 
 //class TestDelegate extends WatchUi.WatchFaceDelegate
