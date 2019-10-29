@@ -6,8 +6,9 @@
 
     <setting propertyKey="@Properties.PM" title="@Strings.ProfileManagementTitle">
         <settingConfig type="list">
-            <listEntry value="2">@Strings.ProfileLoad</listEntry>
-            <listEntry value="3">@Strings.ProfileSave</listEntry>
+            <listEntry value="0">@Strings.ProfileCurrent</listEntry>
+            <listEntry value="1">@Strings.ProfileLoad</listEntry>
+            <listEntry value="2">@Strings.ProfileSave</listEntry>
         </settingConfig>
     </setting>
 

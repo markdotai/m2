@@ -8,6 +8,7 @@
 
     <string id="ProfileNameTitle">Profile Name (limited to 20 characters)</string>
 
+    <string id="ProfileCurrent">Current Profile</string>
     <string id="ProfileLoad">Load Profile</string>
     <string id="ProfileSave">Save Profile</string>
     

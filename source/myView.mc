@@ -3571,7 +3571,8 @@ class myView
 
 	function gfxToCharArray()
 	{
-		gfxCharArrayLen = 0;
+		var charArray = new[1024];
+		var charArrayLen = 0;
 	
 		for (var index=0; index<gfxNum; )
 		{
@@ -3592,8 +3593,8 @@ class myView
 				if (val<31)
 				{
 					c = valEncodeChar(val);
-					gfxCharArray[gfxCharArrayLen] = c;
-					gfxCharArrayLen++;
+					charArray[charArrayLen] = c;
+					charArrayLen++;
 					//System.print("" + c.toString() + ", ");
 				}
 				else
@@ -3602,13 +3603,13 @@ class myView
 					var v1 = val%62;
 					
 					c = valEncodeChar(v0);
-					gfxCharArray[gfxCharArrayLen] = c;
-					gfxCharArrayLen++;
+					charArray[charArrayLen] = c;
+					charArrayLen++;
 					//System.print("" + c.toString() + ", ");
 
 					c = valEncodeChar(v1);
-					gfxCharArray[gfxCharArrayLen] = c;
-					gfxCharArrayLen++;
+					charArray[charArrayLen] = c;
+					charArrayLen++;
 					//System.print("" + c.toString() + ", ");
 				}
 			}		
@@ -3617,6 +3618,8 @@ class myView
 		}
 
 		//System.println("");
+		
+		return charArray.slice(0, charArrayLen);
 	}
 
 	function gfxFromCharArray(charArray)
@@ -5886,6 +5889,18 @@ class myEditorView extends myView
 
     function onUpdate(dc)
     {
+    	if (true)
+    	{
+			applicationProperties.setValue("PM", 0);
+
+			var charArray = gfxToCharArray();
+			var s = StringUtil.charArrayToString(charArray);
+			if (s!=null)
+			{
+				applicationProperties.setValue("EP", s);
+			}
+		}
+
     	myView.onUpdate(dc);	// draw the normal watchface
     	
     	// then draw any menus on top
