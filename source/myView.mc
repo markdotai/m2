@@ -4399,7 +4399,7 @@ class myView
 		for (var index=0; index<gfxNum; )
 		{
 			var id = (gfxData[index] & 0xFF);
-			var eVisible = ((gfxData[index] & 0xFF00) >> 8);
+			var eVisible = ((gfxData[index] >> 8) & 0xFF);
 
 			var isVisible = true;
 			
@@ -5623,7 +5623,7 @@ class myEditorView extends myView
 					font
 				delete element
 			add element
-		field glance
+		visibility
 		position
 			x adjust
 			y adjust
@@ -5636,8 +5636,41 @@ class myEditorView extends myView
 		move field up
 		move field down
 		
-	add blank field
-		select type
+		rectangle
+			visibility
+			color
+			position
+				x
+				y
+				tap
+			width
+			height
+			
+		ring
+			visibility
+			type
+			font
+			start
+			end
+			color filled
+			color unfilled
+				
+		seconds
+			visibility
+			font
+			refresh style
+			color
+			color5
+			color10
+			color15
+			color0
+		
+	add field
+		line blank
+		freeform blank
+		rectangle
+		ring
+		seconds
 		
 	quick add
 		time
@@ -5913,6 +5946,11 @@ class myEditorView extends myView
 		}
     }
 
+	function getGfxId(index)
+	{
+		return (gfxData[index] & 0xFF);
+	}
+	
 	function getGfxName(index)
 	{
 		var eStr = null;
@@ -6302,6 +6340,17 @@ class myEditorView extends myView
 		return eStr;
 	}
 
+	function fieldGetVisibility()
+	{
+		return ((gfxData[menuCurGfx] >> 8) & 0xFF);
+	}
+
+	function fieldSetVisibility(val)
+	{
+		gfxData[menuCurGfx] &= ~(0xFF << 8);
+		gfxData[menuCurGfx] |= ((val & 0xFF) << 8);
+	}
+
 	function fieldPositionXEditing(val)
 	{
 		gfxData[menuCurGfx+1] = getMinMax(gfxData[menuCurGfx+1]+val, 0, 240);
@@ -6397,6 +6446,73 @@ class myEditorView extends myView
 			gfxNum = menuCurGfx; 
 		}
 	}
+
+	function rectangleGetVisibility()
+	{
+		return ((gfxData[menuCurGfx] >> 8) & 0xFF);
+	}
+
+	function rectangleSetVisibility(val)
+	{
+		gfxData[menuCurGfx] &= ~(0xFF << 8);
+		gfxData[menuCurGfx] |= ((val & 0xFF) << 8);
+	}
+
+	function rectangleGetColor()
+	{
+		return gfxData[menuCurGfx+1];
+	}
+
+	function rectangleSetColor(val)
+	{
+		gfxData[menuCurGfx+1] = val;
+	}
+
+	function rectanglePositionXEditing(val)
+	{
+		gfxData[menuCurGfx+2] = getMinMax(gfxData[menuCurGfx+2]+val, 0, 240);
+	}
+
+	function rectanglePositionYEditing(val)
+	{
+		gfxData[menuCurGfx+3] = getMinMax(gfxData[menuCurGfx+3]+val, 0, 240);
+	}
+
+	function rectanglePositionCentreX()
+	{
+		gfxData[menuCurGfx+2] = 120 - gfxData[menuCurGfx+4]/2;
+	}
+
+	function rectanglePositionCentreY()
+	{
+		gfxData[menuCurGfx+3] = 120 - gfxData[menuCurGfx+5]/2;
+	}
+
+	function rectanglePositionWidthEditing(val)
+	{
+		if ((val<0) && (gfxData[menuCurGfx+4]%2)==0)
+		{
+			gfxData[menuCurGfx+2] += 1;
+		}
+		gfxData[menuCurGfx+4] = getMinMax(gfxData[menuCurGfx+4]+val, 1, 240);
+		if ((val>0) && (gfxData[menuCurGfx+4]%2)==0)
+		{
+			gfxData[menuCurGfx+2] -= 1;
+		}
+	}
+
+	function rectanglePositionHeightEditing(val)
+	{
+		if ((val<0) && (gfxData[menuCurGfx+5]%2)==0)
+		{
+			gfxData[menuCurGfx+3] += 1;
+		}
+		gfxData[menuCurGfx+5] = getMinMax(gfxData[menuCurGfx+5]+val, 1, 240);
+		if ((val>0) && (gfxData[menuCurGfx+5]%2)==0)
+		{
+			gfxData[menuCurGfx+3] -= 1;
+		}
+	}
 }
 
 
@@ -6458,7 +6574,7 @@ class myMenuItemField extends myMenuItem
 		}
     	else
     	{
-    		return new myMenuItemAddBlankField();
+    		return new myMenuItemAddField();
     	}
     	return null;
     }
@@ -6475,8 +6591,7 @@ class myMenuItemField extends myMenuItem
     
     function onSelect()
     {
-		var id = (editorView.gfxData[editorView.menuCurGfx] & 0xFF);
-		switch(id)
+		switch (editorView.getGfxId(editorView.menuCurGfx))
 		{
 			case 0:		// header
 			{
@@ -6490,7 +6605,7 @@ class myMenuItemField extends myMenuItem
 
 			case 9:		// rectangle
 			{
-    			return new myMenuItemFieldRectangle();
+    			return new myMenuItemRectangleVisibility();
 			}
 
 			case 10:	// ring
@@ -6525,7 +6640,7 @@ class myMenuItemField extends myMenuItem
 }
 
 (:m2app)
-class myMenuItemAddBlankField extends myMenuItem
+class myMenuItemAddField extends myMenuItem
 {
     function initialize()
     {   	
@@ -6534,7 +6649,7 @@ class myMenuItemAddBlankField extends myMenuItem
     
     function getString()
     {
-    	return "add blank field";
+    	return "add field";
     }
     
     function onNext()
@@ -6578,7 +6693,7 @@ class myMenuItemQuickAdd extends myMenuItem
     
     function onPrevious()
     {
-   		return new myMenuItemAddBlankField();
+   		return new myMenuItemAddField();
     }
     
     function onSelect()
@@ -6787,12 +6902,77 @@ class myMenuItemFieldVisibility extends myMenuItem
     
     function onSelect()
     {
-    	return null;
+    	return new myMenuItemFieldVisibilityEditing();
     }
     
     function onBack()
     {
    		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemFieldVisibilityEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+		switch (editorView.fieldGetVisibility())
+		{
+			case 0/*STATUS_ALWAYSON*/: return "always on";
+		    case 1/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
+		    case 2/*STATUS_DONOTDISTURB_OFF*/: return "do not disturb off";
+		    case 3/*STATUS_ALARM_ON*/: return "alarm on";
+		    case 4/*STATUS_ALARM_OFF*/: return "alarm off";
+		    case 5/*STATUS_NOTIFICATIONS_PENDING*/: return "notifications pending";
+		    case 6/*STATUS_NOTIFICATIONS_NONE*/: return "no notifications";
+		    case 7/*STATUS_PHONE_CONNECTED*/: return "phone connected";
+		    case 8/*STATUS_PHONE_NOT*/: return "phone not connected";
+		    case 9/*STATUS_LTE_CONNECTED*/: return "LTE connected";
+		    case 10/*STATUS_LTE_NOT*/: return "LTE not connected";
+		    case 11/*STATUS_BATTERY_HIGHORMEDIUM*/: return "battery high or medium";
+		    case 12/*STATUS_BATTERY_HIGH*/: return "battery high";
+		    case 13/*STATUS_BATTERY_MEDIUM*/: return "battery medium";
+		    case 14/*STATUS_BATTERY_LOW*/: return "battery low";
+		    case 15/*STATUS_MOVEBARALERT_TRIGGERED*/: return "move bar alert triggered";
+		    case 16/*STATUS_MOVEBARALERT_NOT*/: return "move bar alert not triggered";
+		    case 17/*STATUS_AM*/: return "AM";
+		    case 18/*STATUS_PM*/: return "PM";
+		    case 19/*STATUS_2ND_AM*/: return "2nd time zone AM";
+		    case 20/*STATUS_2ND_PM*/: return "2nd time zone PM";
+		    case 21/*STATUS_SUNEVENT_RISE*/: return "next sun event is rise";
+		    case 22/*STATUS_SUNEVENT_SET*/: return "next sun event is set";
+		    case 23/*STATUS_GLANCE_ON*/: return "gesture active";
+		    case 24/*STATUS_GLANCE_OFF*/: return "gesture not active";
+		}
+		
+    	return "";
+    }
+    
+    function onNext()
+    {
+    	editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+    	editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/);
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemFieldVisibility();
     }
 }
 
@@ -6850,7 +7030,7 @@ class myMenuItemFieldPositionX extends myMenuItem
     
     function onPrevious()
     {
-   		return null;
+   		return new myMenuItemFieldPositionTap();
     }
     
     function onSelect()
@@ -7055,7 +7235,7 @@ class myMenuItemFieldPositionTap extends myMenuItem
     
     function onNext()
     {
-   		return null;
+   		return new myMenuItemFieldPositionX();
     }
     
     function onPrevious()
@@ -7099,15 +7279,7 @@ class myMenuItemFieldAlignment extends myMenuItem
     
     function onSelect()
     {
-    	switch (editorView.fieldGetAlignment())
-    	{
-    		default:
-    		case 0: break; 
-    		case 1: return new myMenuItemFieldAlignmentLeft();
-    		case 2: return new myMenuItemFieldAlignmentRight();
-    	}
-    	
-    	return new myMenuItemFieldAlignmentCentre();
+    	return new myMenuItemFieldAlignmentEditing();
     }
     
     function onBack()
@@ -7117,7 +7289,7 @@ class myMenuItemFieldAlignment extends myMenuItem
 }
 
 (:m2app)
-class myMenuItemFieldAlignmentCentre extends myMenuItem
+class myMenuItemFieldAlignmentEditing extends myMenuItem
 {
     function initialize()
     {   	
@@ -7126,91 +7298,26 @@ class myMenuItemFieldAlignmentCentre extends myMenuItem
     
     function getString()
     {
-    	return "centre";
-    }
-    
-    function onNext()
-    {
-    	editorView.fieldSetAlignment(1);
-   		return new myMenuItemFieldAlignmentLeft();
-    }
-    
-    function onPrevious()
-    {
-    	editorView.fieldSetAlignment(2);
-   		return new myMenuItemFieldAlignmentRight();
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldAlignment();
-    }
-}
+    	switch (editorView.fieldGetAlignment())
+    	{
+    		case 0: return "centre"; 
+    		case 1: break;
+    		case 2: return "right edge";
+    	}
 
-(:m2app)
-class myMenuItemFieldAlignmentLeft extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
     	return "left edge";
     }
     
     function onNext()
     {
-    	editorView.fieldSetAlignment(2);
-   		return new myMenuItemFieldAlignmentRight();
+    	editorView.fieldSetAlignment((editorView.fieldGetAlignment()+1)%3);
+   		return null;
     }
     
     function onPrevious()
     {
-    	editorView.fieldSetAlignment(0);
-   		return new myMenuItemFieldAlignmentCentre();
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldAlignment();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldAlignmentRight extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "right edge";
-    }
-    
-    function onNext()
-    {
-    	editorView.fieldSetAlignment(0);
-   		return new myMenuItemFieldAlignmentCentre();
-    }
-    
-    function onPrevious()
-    {
-    	editorView.fieldSetAlignment(1);
-   		return new myMenuItemFieldAlignmentLeft();
+    	editorView.fieldSetAlignment((editorView.fieldGetAlignment()+3-1)%3);
+   		return null;
     }
     
     function onSelect()
@@ -7330,7 +7437,7 @@ class myMenuItemFieldDelete extends myMenuItem
 }
 
 (:m2app)
-class myMenuItemFieldRectangle extends myMenuItem
+class myMenuItemRectangleVisibility extends myMenuItem
 {
     function initialize()
     {   	
@@ -7339,16 +7446,100 @@ class myMenuItemFieldRectangle extends myMenuItem
     
     function getString()
     {
-    	return "rectangle data";
+    	return "visibility";
     }
     
     function onNext()
     {
+   		return new myMenuItemRectangleColor();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleHeight();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleVisibilityEditing();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleVisibilityEditing extends myMenuItemFieldVisibilityEditing
+{
+    function initialize()
+    {   	
+    	myMenuItemFieldVisibilityEditing.initialize();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectangleVisibility();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleColor extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "color";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleVisibility();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleColorEditing();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleColorEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+   		editorView.rectangleSetColor((editorView.rectangleGetColor()+1)%64);
    		return null;
     }
     
     function onPrevious()
     {
+   		editorView.rectangleSetColor((editorView.rectangleGetColor()+64-1)%64);
    		return null;
     }
     
@@ -7359,7 +7550,425 @@ class myMenuItemFieldRectangle extends myMenuItem
     
     function onBack()
     {
+   		return new myMenuItemRectangleColor();
+    }
+}
+
+(:m2app)
+class myMenuItemRectanglePosition extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "position";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleWidth();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleColor();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleX();
+    }
+    
+    function onBack()
+    {
    		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleX extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "horizontal";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleY();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleTap();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleXEditing();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleXEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+   		editorView.rectanglePositionXEditing(1);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		editorView.rectanglePositionXEditing(-1);
+   		return null;
+    }
+
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectangleX();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleY extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "vertical";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleXCentre();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleX();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleYEditing();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleYEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+   		editorView.rectanglePositionYEditing(1);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		editorView.rectanglePositionYEditing(-1);
+   		return null;
+    }
+
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectangleY();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleXCentre extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "centre horizontal";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleYCentre();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleY();
+    }
+    
+    function onSelect()
+    {
+    	editorView.rectanglePositionCentreX();
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleYCentre extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "centre vertical";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleTap();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleXCentre();
+    }
+    
+    function onSelect()
+    {
+    	editorView.rectanglePositionCentreY();
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleTap extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "tap";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleX();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleYCentre();
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleWidth extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "width";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleHeight();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectanglePosition();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleWidthEditing();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleWidthEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+   		editorView.rectanglePositionWidthEditing(-1);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		editorView.rectanglePositionWidthEditing(1);
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectangleWidth();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleHeight extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "height";
+    }
+    
+    function onNext()
+    {
+   		return new myMenuItemRectangleVisibility();
+    }
+    
+    function onPrevious()
+    {
+   		return new myMenuItemRectangleWidth();
+    }
+    
+    function onSelect()
+    {
+    	return new myMenuItemRectangleHeightEditing();
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemField();
+    }
+}
+
+(:m2app)
+class myMenuItemRectangleHeightEditing extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return "editing ...";
+    }
+    
+    function onNext()
+    {
+   		editorView.rectanglePositionHeightEditing(-1);
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+   		editorView.rectanglePositionHeightEditing(1);
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	return null;
+    }
+    
+    function onBack()
+    {
+   		return new myMenuItemRectangleHeight();
     }
 }
 
