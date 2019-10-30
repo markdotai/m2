@@ -1972,6 +1972,12 @@ class myView
 //}
 		}
 
+		if (checkReloadDynamicResources())
+		{
+			releaseDynamicResources();
+			doLoadDynamicResources = true;
+		}
+
         if (doLoadDynamicResources)
         {
 			var charArray = propertiesGetCharArray("EP");		// get the profile string "EP"
@@ -2687,6 +2693,11 @@ class myView
 	function checkProfileToActivate(timeNow)
 	{
 		return profileActive;
+	}
+	
+	function checkReloadDynamicResources()
+	{
+		return false;
 	}
 	
 	var dayWeekYearCalculatedDay = [-1, -1, -1];	// dayOfYear, ISO, Calendar
@@ -3675,7 +3686,7 @@ class myView
 			11,		// movebar
 			5,		// chart
 			6,		// rectangle
-			9,		// ring
+			8,		// ring
 			2,		// seconds
 		][id];
 	}
@@ -3815,8 +3826,7 @@ class myView
 		gfxData[index+4] = 59;	// end
 		gfxData[index+5] = 3+1;	// color filled
 		gfxData[index+6] = 0+1;	// color unfilled
-		// start fill
-		// end fill
+		// start fill, end fill & no fill flag
 	}
 
 	function gfxAddSeconds(index)
@@ -4311,9 +4321,10 @@ class myView
 		}
 	}
 	
-	function getSunOuterFill(t, defaultValue, timeOffsetInMinutes, segmentAdjust)
+	function getSunOuterFill(t, timeOffsetInMinutes, segmentAdjust, drawRange)
 	{
-		return ((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) / 24 + segmentAdjust)%60;
+		//return ((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) / 24 + segmentAdjust + 60)%60;
+		return (((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) * drawRange) / (24*60) + segmentAdjust + drawRange)%drawRange;
 	}
 
 	function gfxOnUpdate(dc, clockTime, timeNow)
@@ -5085,9 +5096,14 @@ class myView
 					{
 						break;
 					}
+
+					var drawStart = gfxData[index+3];	// 0-59
+					var drawEnd = gfxData[index+4];		// 0-59
+					var drawRange = (drawEnd - drawStart + 60)%60 + 1;	// 1-60
 			
-					var fillStart = -1;		// first segment of outer ring to draw as filled (-1 to 59)
-					var fillEnd = 59;		// last segment of outer ring to draw as filled (-1 to 59)
+					var noFill = false;
+					var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
+					var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
 
 					var eDisplay = gfxData[index+1];
 					switch (eDisplay)
@@ -5109,23 +5125,30 @@ class myView
 								goal = activeMinutesWeekSmartGoal;
 							}
 											
-							fillEnd = ((goal>0) ? ((60 * val) / goal - 1) : -1);
-							if (fillEnd>=60)
+							fillEnd = ((goal>0) ? ((drawRange * val) / goal - 1) : -1);
+							if (fillEnd>=drawRange)
 							{
-								fillEnd++;	// add that 1 back on again so multiples of goal correctly align at start 
-								
-								// once past val goal then use a different style - draw just two unfilled blocks moving around
-								//var multiple = val / goal;
-								fillStart = (fillEnd + (val/goal))%60;
-								fillEnd = (fillEnd + 59)%60;	// same as -1
+								if (drawRange<60)
+								{
+									fillEnd = drawRange;
+								}
+								else
+								{
+									fillEnd++;	// add that 1 back on again so multiples of goal correctly align at start 
+									
+									// once past val goal then use a different style - draw just two unfilled blocks moving around
+									//var multiple = val / goal;
+									fillStart = (fillEnd + (val/goal))%60;
+									fillEnd = (fillEnd + 59)%60;	// same as -1
+								}
 							}
-
+							
 							break;
 						}
 
 						case 2:		// minutes
 						{
-				    		fillEnd = minute - 1;
+				    		fillEnd = (minute * drawRange)/60 - 1;
 							break;
 						}
 						
@@ -5136,18 +5159,18 @@ class myView
 					        if (deviceSettings.is24Hour)
 					        {
 				        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
-				        		fillEnd = (useHour*60 + minute) / 24 - 1;
+				        		fillEnd = ((useHour*60 + minute) * drawRange) / (24*60) - 1;
 					        }
 					        else        	// 12 hours
 					        {
-				        		fillEnd = ((useHour%12)*60 + minute) / 12 - 1;
+				        		fillEnd = (((useHour%12)*60 + minute) * drawRange) / (12*60) - 1;
 					        }
 							break;
 				   		}
 				   		
 				   		case 4:		// battery percentage
 				   		{
-							fillEnd = (systemStats.battery * 60).toNumber() / 100 - 1;
+							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - 1;
 							break;
 				   		}
 				   		
@@ -5167,8 +5190,8 @@ class myView
 								timeOffsetInMinutes = 12*60;
 							}
 
-							fillStart = getSunOuterFill(sunTimes[0], 0, timeOffsetInMinutes, 0);
-							fillEnd = getSunOuterFill(sunTimes[1], 24*60, timeOffsetInMinutes, -1);
+							fillStart = getSunOuterFill(sunTimes[0], timeOffsetInMinutes, 0, drawRange);
+							fillEnd = getSunOuterFill(sunTimes[1], timeOffsetInMinutes, -1, drawRange);
 
 							break;
 				   		}
@@ -5176,7 +5199,7 @@ class myView
 				   		case 11:	// heart rate
 				   		{
 							calculateHeartRate(minute, second);
-							fillEnd = getMinMax((heartDisplayLatest * 60) / heartMaxZone5, 0, 60) - 1;
+							fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - 1;
 							break;
 				   		}
 				   		
@@ -5187,8 +5210,16 @@ class myView
 						}
 					}
 					
-					gfxData[index+7] = fillStart;	// start fill
-					gfxData[index+8] = fillEnd;		// end fill
+					if (fillEnd < 0)
+					{
+						noFill = true;
+						fillEnd = 0;
+					}
+
+					fillStart = (fillStart + drawStart) % 60;
+					fillEnd = (fillEnd + drawStart) % 60;
+
+					gfxData[index+7] = (fillStart & 0xFF) | ((fillEnd & 0xFF) << 8) | (noFill ? 0x10000 : 0);	// start fill, end fill and no fill flag
 
 					break;
 				}
@@ -5527,16 +5558,57 @@ class myView
 					//jStart = 0;	// test draw all
 					//jEnd = 119;
 		
+					// intersect the jStart to jEnd range with the drawing range
+					var drawStart = gfxData[index+3];	// 0-59
+					var drawEnd = gfxData[index+4];		// 0-59
+					var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
+					var jRange = jEnd - jStart;
+					
+//System.println("drawStart=" + drawStart + " drawEnd=" + drawEnd);
+
+					var loopStart;
+					var loopEnd;
+					var testStart;
+					var testRange;
+
+					// want to iterate through whichever is the smaller range - jRange or drawRange
+					if (drawRange < jRange)
+					{
+						loopStart = drawStart;
+						loopEnd = drawStart + drawRange; 
+						testStart = jStart;
+						testRange = jRange; 
+					}
+					else
+					{
+						loopStart = jStart;
+						loopEnd = jStart + jRange; 
+						testStart = drawStart;
+						testRange = drawRange; 
+					}
+					
+//System.println("jStart=" + jStart + " jEnd=" + jEnd);
+
 					var colFilled = getColor64(gfxData[index+5]-1);
 					var colUnfilled = getColor64(gfxData[index+6]-1);
-					var fillStart = gfxData[index+7];
-					var fillEnd = gfxData[index+8];
-					if (fillEnd < fillStart)
+					var fillStart = (gfxData[index+7]&0xFF);
+					var fillEnd = ((gfxData[index+7]>>8)&0xFF);
+					var noFill = ((gfxData[index+7]&0x10000)!=0);
+
+					if (fillEnd<fillStart)	// swap them around so our test for filled/unfilled later is cheaper
 					{
-						colFilled = getColor64(gfxData[index+6]-1);
-						colUnfilled = getColor64(gfxData[index+5]-1);
-						fillStart = (gfxData[index+8]+1)%60;		// + 1
-						fillEnd = (gfxData[index+7]+59)%60;	// - 1
+						var m = colFilled;
+						colFilled = colUnfilled;
+						colUnfilled = m;
+						
+						var n = fillStart; 
+						fillStart = (fillEnd+1)%60;	// + 1
+						fillEnd = (n+59)%60;		// - 1
+					}
+
+					if (noFill)
+					{
+						colFilled = colUnfilled;
 					}
 		
 					var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
@@ -5544,9 +5616,16 @@ class myView
 					var curCol = COLOR_NOTSET;
 			
 					// draw the correct segments
-					for (var j=jStart; j<=jEnd; )
+					for (var j=loopStart; j<=loopEnd; j++)
 					{
-						var index = (j+60)%60;	// handle segments <0 and >=60
+						var index = (j+60)%60;	// handle segments <0 and >=60 and convert them into 0 to 59
+						
+						// don't draw segments outside the range
+						var testOffset = (index-testStart+60)%60;
+						if (testOffset>testRange)
+						{
+							continue;
+						}
 						
 						var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
 		
@@ -5565,8 +5644,6 @@ class myView
 							var index2 = index*2;
 				        	dc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], dynamicResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 				        }
-					    
-					    j++;	// next segment
 					}
 
 					break;
@@ -5607,6 +5684,15 @@ class myEditorView extends myView
 	function timerCallback()
 	{
     	WatchUi.requestUpdate();
+	}
+
+	var reloadDynamicResources = false;
+	
+	function checkReloadDynamicResources()
+	{
+		var temp = reloadDynamicResources;
+		reloadDynamicResources = false; 
+		return temp;
 	}
 
 	/*
@@ -6548,8 +6634,79 @@ class myEditorView extends myView
 			gfxData[menuCurGfx+3] -= 1;
 		}
 	}
-}
 
+	function ringTypeString()
+	{
+		switch (gfxData[menuCurGfx+1])
+		{
+	   		case 0: return "plain color";		// plain color
+			case 1: return "steps";				// steps
+			case 2:	return "minutes";			// minutes
+			case 3:	return "hours";				// hours
+	   		case 4: return "battery";			// battery percentage
+			case 5: return "2nd time zone hours";	// 2nd time zone hours
+	   		case 6: return "sun (now top)";			// sunrise & sunset now top
+	   		case 7: return "sun (midnight top)";	// sunrise & sunset midnight top
+	   		case 8: return "sun (noon top)";		// sunrise & sunset noon top
+			case 9: return "intensity";			// intensity
+			case 10: return "smart intensity";	// smart intensity
+	   		case 11: return "heart rate";		// heart rate
+		}
+		
+    	return "unknown";
+	}
+	
+	function ringTypeEditing(val)
+	{
+		gfxData[menuCurGfx+1] = (gfxData[menuCurGfx+1] + val + 11)%11; 
+	}
+	
+	function ringFontEditing(val)
+	{
+		gfxData[menuCurGfx+2] &= ~0xFF;
+		gfxData[menuCurGfx+2] |= (0 & 0xFF);
+		reloadDynamicResources = true;
+	}
+	
+	function ringStartEditing(val)
+	{
+		gfxData[menuCurGfx+3] = (gfxData[menuCurGfx+3] + val + 60)%60;
+	}
+	
+	function ringEndEditing(val)
+	{
+		gfxData[menuCurGfx+4] = (gfxData[menuCurGfx+4] + val + 60)%60;
+	}
+	
+	function ringDirectionString()
+	{
+		return "clockwise";
+	}
+
+	function ringDirectionEditing(val)
+	{
+	}
+	
+	function ringGetColorFilled()
+	{
+		return gfxData[menuCurGfx+5];
+	}
+	
+	function ringSetColorFilled(val)
+	{
+		gfxData[menuCurGfx+5] = val;
+	}
+	
+	function ringGetColorUnfilled()
+	{
+		return gfxData[menuCurGfx+6];
+	}
+	
+	function ringSetColorUnfilled(val)
+	{
+		gfxData[menuCurGfx+6] = val;
+	}
+}
 
 (:m2app)
 class myMenuItem extends Lang.Object
@@ -7253,12 +7410,12 @@ class myMenuItemRectangle extends myMenuItem
 				rState = r_position;
 				break;
 
-			case r_visEdit:  rState = r_vis; break;
-			case r_colorEdit:  rState = r_color; break;
-			case r_xEdit:  rState = r_x; break;
-			case r_yEdit:  rState = r_y; break;
-			case r_wEdit:  rState = r_w; break;
-			case r_hEdit:  rState = r_h; break;
+			case r_visEdit: rState = r_vis; break;
+			case r_colorEdit: rState = r_color; break;
+			case r_xEdit: rState = r_x; break;
+			case r_yEdit: rState = r_y; break;
+			case r_wEdit: rState = r_w; break;
+			case r_hEdit: rState = r_h; break;
     	}
     	
     	return null;
@@ -7268,6 +7425,32 @@ class myMenuItemRectangle extends myMenuItem
 (:m2app)
 class myMenuItemRing extends myMenuItem
 {
+	enum
+	{
+		r_vis,
+		r_type,
+		r_font,
+		r_start,
+		r_end,
+		r_direction,
+		r_colorFilled,
+		r_colorUnfilled,
+		r_earlier,
+		r_later,
+		r_delete,
+
+		r_visEdit,
+		r_typeEdit,
+		r_fontEdit,
+		r_startEdit,
+		r_endEdit,
+		r_directionEdit,
+		r_colorFilledEdit,
+		r_colorUnfilledEdit,
+	}
+
+	var rState = r_vis;
+
     function initialize()
     {   	
     	myMenuItem.initialize();
@@ -7275,33 +7458,187 @@ class myMenuItemRing extends myMenuItem
     
     function getString()
     {
-    	return "ring data";
+    	switch (rState)
+    	{
+			case r_vis: return "visibility";
+			case r_type: return "data";
+			case r_font: return "style";
+			case r_start: return "start";
+			case r_end: return "end";
+			case r_direction: return "direction";
+			case r_colorFilled: return "color filled";
+			case r_colorUnfilled: return "color unfilled";
+			case r_earlier: return "move earlier";
+			case r_later: return "move later";
+			case r_delete: return "delete ring";
+
+			case r_visEdit: return editorView.fieldVisibilityString();
+			case r_typeEdit: return editorView.ringTypeString();
+			case r_fontEdit: return "editing ...";
+			case r_startEdit: return "editing ...";
+			case r_endEdit: return "editing ...";
+			case r_directionEdit: return editorView.ringDirectionString();
+			case r_colorFilledEdit: return "editing ...";
+			case r_colorUnfilledEdit: return "editing ...";
+    	}
+    	
+    	return "unknown";
     }
     
     function onNext()
     {
+    	switch (rState)
+    	{
+			case r_vis: rState = r_type; break;
+			case r_type: rState = r_font; break;
+			case r_font: rState = r_start; break;
+			case r_start: rState = r_end; break;
+			case r_end: rState = r_direction; break;
+			case r_direction: rState = r_colorFilled; break;
+			case r_colorFilled: rState = r_colorUnfilled; break;
+			case r_colorUnfilled: rState = r_earlier; break;
+			case r_earlier: rState = r_later; break;
+			case r_later: rState = r_delete; break;
+			case r_delete: break;
+
+			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
+			case r_typeEdit: editorView.ringTypeEditing(1); break;
+			case r_fontEdit: editorView.ringFontEditing(1); break;
+			case r_startEdit: editorView.ringStartEditing(1); break;
+			case r_endEdit: editorView.ringEndEditing(1); break;
+			case r_directionEdit: editorView.ringDirectionEditing(1); break;
+			case r_colorFilledEdit: editorView.ringSetColorFilled((editorView.ringGetColorFilled()+1)%64); break;
+			case r_colorUnfilledEdit: editorView.ringSetColorUnfilled((editorView.ringGetColorUnfilled()+1)%64); break;
+    	}
+
    		return null;
     }
     
     function onPrevious()
     {
+    	switch (rState)
+    	{
+			case r_vis: break;
+			case r_type: rState = r_vis; break;
+			case r_font: rState = r_type; break;
+			case r_start: rState = r_font; break;
+			case r_end: rState = r_start; break;
+			case r_direction: rState = r_end; break;
+			case r_colorFilled: rState = r_direction; break;
+			case r_colorUnfilled: rState = r_colorFilled; break;
+			case r_earlier: rState = r_colorUnfilled; break;
+			case r_later: rState = r_earlier; break;
+			case r_delete: rState = r_later; break;
+
+			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
+			case r_typeEdit: editorView.ringTypeEditing(-1); break;
+			case r_fontEdit: editorView.ringFontEditing(-1); break;
+			case r_startEdit: editorView.ringStartEditing(-1); break;
+			case r_endEdit: editorView.ringEndEditing(-1); break;
+			case r_directionEdit: editorView.ringDirectionEditing(-1); break;
+			case r_colorFilledEdit: editorView.ringSetColorFilled((editorView.ringGetColorFilled()+64-1)%64); break;
+			case r_colorUnfilledEdit: editorView.ringSetColorUnfilled((editorView.ringGetColorUnfilled()+64-1)%64); break;
+    	}
+
    		return null;
     }
     
     function onSelect()
     {
+    	switch (rState)
+    	{
+			case r_vis: rState = r_visEdit; break;
+			case r_type: rState = r_typeEdit; break;
+			case r_font: rState = r_fontEdit; break;
+			case r_start: rState = r_startEdit; break;
+			case r_end: rState = r_endEdit; break;
+			case r_direction: rState = r_directionEdit; break;
+			case r_colorFilled: rState = r_colorFilledEdit; break;
+			case r_colorUnfilled: rState = r_colorUnfilledEdit; break;
+			case r_earlier: editorView.fieldEarlier(); break;
+			case r_later: editorView.fieldLater(); break;
+			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+
+			case r_visEdit: break;
+			case r_typeEdit: break;
+			case r_fontEdit: break;
+			case r_startEdit: break;
+			case r_endEdit: break;
+			case r_directionEdit: break;
+			case r_colorFilledEdit: break;
+			case r_colorUnfilledEdit: break;
+    	}
+    	
     	return null;
     }
     
     function onBack()
     {
-   		return new myMenuItemFieldSelect();
+    	switch (rState)
+    	{
+			case r_vis:
+			case r_type:
+			case r_font:
+			case r_start:
+			case r_end:
+			case r_direction:
+			case r_colorFilled:
+			case r_colorUnfilled:
+			case r_earlier:
+			case r_later:
+			case r_delete:
+				return new myMenuItemFieldSelect();
+
+			case r_visEdit: rState = r_vis; break;
+			case r_typeEdit: rState = r_type; break;
+			case r_fontEdit: rState = r_font; break;
+			case r_startEdit: rState = r_start; break;
+			case r_endEdit: rState = r_end; break;
+			case r_directionEdit: rState = r_direction; break;
+			case r_colorFilledEdit: rState = r_colorFilled; break;
+			case r_colorUnfilledEdit: rState = r_colorUnfilled; break;
+    	}
+    	
+   		return null;
     }
 }
 
 (:m2app)
 class myMenuItemSeconds extends myMenuItem
 {
+	enum
+	{
+		s_vis,
+		s_font,
+		s_refresh,
+		s_color,
+		s_color5,
+		s_color10,
+		s_color15,
+		s_color0,
+		s_delete,
+
+		s_visEdit,
+		s_fontEdit,
+		s_refreshEdit,
+		s_colorEdit,
+		s_color5Edit,
+		s_color10Edit,
+		s_color15Edit,
+		s_color0Edit,
+	}
+
+	var sState = s_vis;
+
+	//visibility
+	//font
+	//refresh style
+	//color
+	//color5
+	//color10
+	//color15
+	//color0
+
     function initialize()
     {   	
     	myMenuItem.initialize();
