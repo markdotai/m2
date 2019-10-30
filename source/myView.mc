@@ -5601,7 +5601,7 @@ class myEditorView extends myView
 		timer.start(method(:timerCallback), 1000, true);
 
 		myMenuItem.editorView = Application.getApp().mainView.sharedView;
-		menuItem = new myMenuItemField();
+		menuItem = new myMenuItemFieldSelect();
 	}
 
 	function timerCallback()
@@ -5827,10 +5827,11 @@ class myEditorView extends myView
     	if (newMenuItem!=null)
     	{
     		menuItem = newMenuItem;
-    	}
-    	else
-    	{
-   			return false;	// return false here to exit the app
+
+			if (menuItem.exitApp())
+	    	{
+	   			return false;	// return false here to exit the app
+	    	}
     	}
 
     	WatchUi.requestUpdate();
@@ -6340,6 +6341,40 @@ class myEditorView extends myView
 		return eStr;
 	}
 
+	function fieldVisibilityString()
+	{
+		switch (fieldGetVisibility())
+		{
+			case 0/*STATUS_ALWAYSON*/: return "always on";
+		    case 1/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
+		    case 2/*STATUS_DONOTDISTURB_OFF*/: return "do not disturb off";
+		    case 3/*STATUS_ALARM_ON*/: return "alarm on";
+		    case 4/*STATUS_ALARM_OFF*/: return "alarm off";
+		    case 5/*STATUS_NOTIFICATIONS_PENDING*/: return "notifications pending";
+		    case 6/*STATUS_NOTIFICATIONS_NONE*/: return "no notifications";
+		    case 7/*STATUS_PHONE_CONNECTED*/: return "phone connected";
+		    case 8/*STATUS_PHONE_NOT*/: return "phone not connected";
+		    case 9/*STATUS_LTE_CONNECTED*/: return "LTE connected";
+		    case 10/*STATUS_LTE_NOT*/: return "LTE not connected";
+		    case 11/*STATUS_BATTERY_HIGHORMEDIUM*/: return "battery high or medium";
+		    case 12/*STATUS_BATTERY_HIGH*/: return "battery high";
+		    case 13/*STATUS_BATTERY_MEDIUM*/: return "battery medium";
+		    case 14/*STATUS_BATTERY_LOW*/: return "battery low";
+		    case 15/*STATUS_MOVEBARALERT_TRIGGERED*/: return "move bar alert triggered";
+		    case 16/*STATUS_MOVEBARALERT_NOT*/: return "move bar alert not triggered";
+		    case 17/*STATUS_AM*/: return "AM";
+		    case 18/*STATUS_PM*/: return "PM";
+		    case 19/*STATUS_2ND_AM*/: return "2nd time zone AM";
+		    case 20/*STATUS_2ND_PM*/: return "2nd time zone PM";
+		    case 21/*STATUS_SUNEVENT_RISE*/: return "next sun event is rise";
+		    case 22/*STATUS_SUNEVENT_SET*/: return "next sun event is set";
+		    case 23/*STATUS_GLANCE_ON*/: return "gesture active";
+		    case 24/*STATUS_GLANCE_OFF*/: return "gesture not active";
+		}
+		
+    	return "unknown";
+	}
+	
 	function fieldGetVisibility()
 	{
 		return ((gfxData[menuCurGfx] >> 8) & 0xFF);
@@ -6488,7 +6523,7 @@ class myEditorView extends myView
 		gfxData[menuCurGfx+3] = 120 - gfxData[menuCurGfx+5]/2;
 	}
 
-	function rectanglePositionWidthEditing(val)
+	function rectangleWidthEditing(val)
 	{
 		if ((val<0) && (gfxData[menuCurGfx+4]%2)==0)
 		{
@@ -6501,7 +6536,7 @@ class myEditorView extends myView
 		}
 	}
 
-	function rectanglePositionHeightEditing(val)
+	function rectangleHeightEditing(val)
 	{
 		if ((val<0) && (gfxData[menuCurGfx+5]%2)==0)
 		{
@@ -6524,6 +6559,11 @@ class myMenuItem extends Lang.Object
     function initialize()
     {
     	Object.initialize();
+    }
+    
+    function exitApp()
+    {
+    	return false;
     }
     
     function getString()
@@ -6553,7 +6593,21 @@ class myMenuItem extends Lang.Object
 }
 
 (:m2app)
-class myMenuItemField extends myMenuItem
+class myMenuItemExitApp extends myMenuItem
+{
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function exitApp()
+    {
+    	return true;
+    }
+}
+
+(:m2app)
+class myMenuItemFieldSelect extends myMenuItem
 {
     function initialize()
     {   	
@@ -6595,27 +6649,27 @@ class myMenuItemField extends myMenuItem
 		{
 			case 0:		// header
 			{
-    			return new myMenuItemFieldHeader();
+    			return new myMenuItemHeader();
 			}
 
 			case 1:		// field
 			{
-    			return new myMenuItemFieldElements();
+    			return new myMenuItemFieldEdit();
 			}
 
 			case 9:		// rectangle
 			{
-    			return new myMenuItemRectangleVisibility();
+    			return new myMenuItemRectangle();
 			}
 
 			case 10:	// ring
 			{
-    			return new myMenuItemFieldRing();
+    			return new myMenuItemRing();
 			}
 
 			case 11:	// seconds
 			{
-    			return new myMenuItemFieldSeconds();
+    			return new myMenuItemSeconds();
 			}
 
 			case 2:		// hour large
@@ -6635,7 +6689,7 @@ class myMenuItemField extends myMenuItem
     
     function onBack()
     {
-    	return null;
+    	return new myMenuItemExitApp();
     }
 }
 
@@ -6659,7 +6713,7 @@ class myMenuItemAddField extends myMenuItem
     
     function onPrevious()
     {
-   		return new myMenuItemField();
+   		return new myMenuItemFieldSelect();
     }
     
     function onSelect()
@@ -6669,7 +6723,7 @@ class myMenuItemAddField extends myMenuItem
     
     function onBack()
     {
-    	return null;
+    	return new myMenuItemExitApp();
     }
 }
 
@@ -6703,7 +6757,7 @@ class myMenuItemQuickAdd extends myMenuItem
     
     function onBack()
     {
-    	return null;
+    	return new myMenuItemExitApp();
     }
 }
 
@@ -6737,7 +6791,7 @@ class myMenuItemSaveProfile extends myMenuItem
     
     function onBack()
     {
-    	return null;
+    	return new myMenuItemExitApp();
     }
 }
 
@@ -6771,7 +6825,7 @@ class myMenuItemLoadProfile extends myMenuItem
     
     function onBack()
     {
-    	return null;
+    	return new myMenuItemExitApp();
     }
 }
 
@@ -6805,12 +6859,12 @@ class myMenuItemReset extends myMenuItem
     
     function onBack()
     {
-    	return null;
+    	return new myMenuItemExitApp();
     }
 }
 
 (:m2app)
-class myMenuItemFieldHeader extends myMenuItem
+class myMenuItemHeader extends myMenuItem
 {
     function initialize()
     {   	
@@ -6839,13 +6893,37 @@ class myMenuItemFieldHeader extends myMenuItem
     
     function onBack()
     {
-   		return new myMenuItemField();
+   		return new myMenuItemFieldSelect();
     }
 }
 
 (:m2app)
-class myMenuItemFieldElements extends myMenuItem
+class myMenuItemFieldEdit extends myMenuItem
 {
+	enum
+	{
+		f_elements,
+		f_vis,
+		f_position,
+		f_align,
+		f_earlier,
+		f_later,
+		f_delete,
+
+		f_x,
+		f_y,
+		f_xCentre,
+		f_yCentre,
+		f_tap,
+
+		f_visEdit,
+		f_xEdit,
+		f_yEdit,
+		f_alignEdit,
+	}
+
+	var fState = f_elements;
+
     function initialize()
     {   	
     	myMenuItem.initialize();
@@ -6853,1127 +6931,342 @@ class myMenuItemFieldElements extends myMenuItem
     
     function getString()
     {
-    	return "edit elements";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldVisibility();
-    }
-    
-    function onPrevious()
-    {
-   		return null;
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldVisibility extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "visibility";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldPosition();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldElements();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemFieldVisibilityEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldVisibilityEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-		switch (editorView.fieldGetVisibility())
-		{
-			case 0/*STATUS_ALWAYSON*/: return "always on";
-		    case 1/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
-		    case 2/*STATUS_DONOTDISTURB_OFF*/: return "do not disturb off";
-		    case 3/*STATUS_ALARM_ON*/: return "alarm on";
-		    case 4/*STATUS_ALARM_OFF*/: return "alarm off";
-		    case 5/*STATUS_NOTIFICATIONS_PENDING*/: return "notifications pending";
-		    case 6/*STATUS_NOTIFICATIONS_NONE*/: return "no notifications";
-		    case 7/*STATUS_PHONE_CONNECTED*/: return "phone connected";
-		    case 8/*STATUS_PHONE_NOT*/: return "phone not connected";
-		    case 9/*STATUS_LTE_CONNECTED*/: return "LTE connected";
-		    case 10/*STATUS_LTE_NOT*/: return "LTE not connected";
-		    case 11/*STATUS_BATTERY_HIGHORMEDIUM*/: return "battery high or medium";
-		    case 12/*STATUS_BATTERY_HIGH*/: return "battery high";
-		    case 13/*STATUS_BATTERY_MEDIUM*/: return "battery medium";
-		    case 14/*STATUS_BATTERY_LOW*/: return "battery low";
-		    case 15/*STATUS_MOVEBARALERT_TRIGGERED*/: return "move bar alert triggered";
-		    case 16/*STATUS_MOVEBARALERT_NOT*/: return "move bar alert not triggered";
-		    case 17/*STATUS_AM*/: return "AM";
-		    case 18/*STATUS_PM*/: return "PM";
-		    case 19/*STATUS_2ND_AM*/: return "2nd time zone AM";
-		    case 20/*STATUS_2ND_PM*/: return "2nd time zone PM";
-		    case 21/*STATUS_SUNEVENT_RISE*/: return "next sun event is rise";
-		    case 22/*STATUS_SUNEVENT_SET*/: return "next sun event is set";
-		    case 23/*STATUS_GLANCE_ON*/: return "gesture active";
-		    case 24/*STATUS_GLANCE_OFF*/: return "gesture not active";
-		}
-		
-    	return "";
-    }
-    
-    function onNext()
-    {
-    	editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-    	editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/);
-   		return null;
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemFieldVisibility();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPosition extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "position";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldAlignment();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldVisibility();
-    }
-    
-    function onSelect()
-    {
-   		return new myMenuItemFieldPositionX();
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionX extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "horizontal";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldPositionY();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldPositionTap();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemFieldPositionXEditing();
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPosition();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionXEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-		editorView.fieldPositionXEditing(1);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-		editorView.fieldPositionXEditing(-1);
-   		return null;
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPositionX();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionY extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "vertical";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldPositionCentreX();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldPositionX();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemFieldPositionYEditing();
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPosition();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionYEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-		editorView.fieldPositionYEditing(1);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-		editorView.fieldPositionYEditing(-1);
-   		return null;
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPositionY();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionCentreX extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "centre horizontal";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldPositionCentreY();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldPositionY();
-    }
-    
-    function onSelect()
-    {
-    	editorView.fieldPositionCentreX();
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPosition();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionCentreY extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "centre vertical";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldPositionTap();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldPositionCentreX();
-    }
-    
-    function onSelect()
-    {
-        editorView.fieldPositionCentreY();    
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPosition();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldPositionTap extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "tap";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldPositionX();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldPositionCentreY();
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemFieldPosition();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldAlignment extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "alignment";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldEarlier();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldPosition();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemFieldAlignmentEditing();
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldAlignmentEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	switch (editorView.fieldGetAlignment())
+    	switch (fState)
     	{
-    		case 0: return "centre"; 
-    		case 1: break;
-    		case 2: return "right edge";
+			case f_elements: return "edit elements";
+			case f_vis: return "visibility";
+			case f_position: return "position";
+			case f_align: return "alignment";
+			case f_earlier: return "move earlier";
+			case f_later: return "move later";
+			case f_delete: return "delete field";
+
+			case f_x: return "horizontal";
+			case f_y: return "vertical";
+			case f_xCentre: return "centre horizontal";
+			case f_yCentre: return "centre vertical";
+			case f_tap: return "tap";
+
+			case f_visEdit: return editorView.fieldVisibilityString();
+			case f_xEdit: return "editing ...";
+			case f_yEdit: return "editing ...";
+			
+			case f_alignEdit:
+		    	switch (editorView.fieldGetAlignment())
+		    	{
+		    		case 0: return "centre"; 
+		    		case 1: return "left edge";
+		    		case 2: return "right edge";
+		    	}
+				break;
+    	}
+    	
+    	return "unknown";
+    }
+    
+    function onNext()
+    {
+    	switch (fState)
+    	{
+			case f_elements: fState = f_vis; break;
+			case f_vis: fState = f_position; break;
+			case f_position: fState = f_align; break;
+			case f_align: fState = f_earlier; break;
+			case f_earlier: fState = f_later; break;
+			case f_later: fState = f_delete; break;
+			case f_delete: break;
+
+			case f_x: fState = f_y; break;
+			case f_y: fState = f_xCentre; break;
+			case f_xCentre: fState = f_yCentre; break;
+			case f_yCentre: fState = f_tap; break;
+			case f_tap: fState = f_x; break;
+
+			case f_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
+			case f_xEdit: editorView.fieldPositionXEditing(-1); break;
+			case f_yEdit: editorView.fieldPositionYEditing(-1); break;
+			case f_alignEdit: editorView.fieldSetAlignment((editorView.fieldGetAlignment()+1)%3); break;
     	}
 
-    	return "left edge";
-    }
-    
-    function onNext()
-    {
-    	editorView.fieldSetAlignment((editorView.fieldGetAlignment()+1)%3);
    		return null;
     }
     
     function onPrevious()
     {
-    	editorView.fieldSetAlignment((editorView.fieldGetAlignment()+3-1)%3);
+    	switch (fState)
+    	{
+			case f_elements: break;
+			case f_vis: fState = f_elements; break;
+			case f_position: fState = f_vis; break;
+			case f_align: fState = f_position; break;
+			case f_earlier: fState = f_align; break;
+			case f_later: fState = f_earlier; break;
+			case f_delete: fState = f_later; break;
+
+			case f_x: fState = f_tap; break;
+			case f_y: fState = f_x; break;
+			case f_xCentre: fState = f_y; break;
+			case f_yCentre: fState = f_xCentre; break;
+			case f_tap: fState = f_yCentre; break;
+
+			case f_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
+			case f_xEdit: editorView.fieldPositionXEditing(1); break;
+			case f_yEdit: editorView.fieldPositionYEditing(1); break;
+			case f_alignEdit: editorView.fieldSetAlignment((editorView.fieldGetAlignment()+3-1)%3); break;
+    	}
+
    		return null;
     }
     
     function onSelect()
     {
+    	switch (fState)
+    	{
+			case f_elements: break;
+			case f_vis: fState = f_visEdit; break;
+			case f_position: fState = f_x; break;
+			case f_align: fState = f_alignEdit; break;
+			case f_earlier: editorView.fieldEarlier(); break;
+			case f_later: editorView.fieldLater(); break;
+			case f_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+
+			case f_x: fState = f_xEdit; break;
+			case f_y: fState = f_yEdit; break;
+			case f_xCentre: editorView.fieldPositionCentreX(); break;
+			case f_yCentre: editorView.fieldPositionCentreY(); break;
+			case f_tap: break;
+
+			case f_visEdit: break;
+			case f_xEdit: break;
+			case f_yEdit: break;
+			case f_alignEdit: break;
+    	}
+
     	return null;
     }
     
     function onBack()
     {
-    	return new myMenuItemFieldAlignment();
-    }
-}
+    	switch (fState)
+    	{
+			case f_elements:
+			case f_vis:
+			case f_position:
+			case f_align:
+			case f_earlier:
+			case f_later:
+			case f_delete:
+				return new myMenuItemFieldSelect();
 
-(:m2app)
-class myMenuItemFieldEarlier extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "move earlier";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldLater();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldAlignment();
-    }
-    
-    function onSelect()
-    {
-    	editorView.fieldEarlier();
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemField();
-    }
-}
+			case f_x:
+			case f_y:
+			case f_xCentre:
+			case f_yCentre:
+			case f_tap:
+				fState = f_position;
+				break;
 
-(:m2app)
-class myMenuItemFieldLater extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "move later";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemFieldDelete();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldEarlier();
-    }
-    
-    function onSelect()
-    {
-    	editorView.fieldLater();
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemField();
-    }
-}
+			case f_visEdit: fState = f_vis; break;
+			case f_xEdit: fState = f_x; break;
+			case f_yEdit: fState = f_y; break;
+			case f_alignEdit: fState = f_align; break;
+    	}
 
-(:m2app)
-class myMenuItemFieldDelete extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "delete field";
-    }
-    
-    function onNext()
-    {
-    	return null;
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemFieldLater();
-    }
-    
-    function onSelect()
-    {
-    	editorView.fieldDelete();
-    	return new myMenuItemField();
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleVisibility extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "visibility";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleColor();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleHeight();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleVisibilityEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleVisibilityEditing extends myMenuItemFieldVisibilityEditing
-{
-    function initialize()
-    {   	
-    	myMenuItemFieldVisibilityEditing.initialize();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectangleVisibility();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleColor extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "color";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleVisibility();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleColorEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleColorEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-   		editorView.rectangleSetColor((editorView.rectangleGetColor()+1)%64);
    		return null;
     }
+}
+
+(:m2app)
+class myMenuItemRectangle extends myMenuItem
+{
+	enum
+	{
+		r_vis,
+		r_color,
+		r_position,
+		r_w,
+		r_h,
+		r_earlier,
+		r_later,
+		r_delete,
+
+		r_x,
+		r_y,
+		r_xCentre,
+		r_yCentre,
+		r_tap,
+
+		r_visEdit,
+		r_colorEdit,
+		r_xEdit,
+		r_yEdit,
+		r_wEdit,
+		r_hEdit
+	}
+
+	var rState = r_vis;
+
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	switch (rState)
+    	{
+			case r_vis: return "visibility";
+			case r_color: return "color";
+			case r_position: return "position";
+			case r_w: return "width";
+			case r_h: return "height";
+			case r_earlier: return "move earlier";
+			case r_later: return "move later";
+			case r_delete: return "delete rectangle";
+
+			case r_x: return "horizontal";
+			case r_y: return "vertical";
+			case r_xCentre: return "centre horizontal";
+			case r_yCentre: return "centre vertical";
+			case r_tap: return "tap";
+
+			case r_visEdit: return editorView.fieldVisibilityString();
+			case r_colorEdit: return "editing ...";
+			case r_xEdit: return "editing ...";
+			case r_yEdit: return "editing ...";
+			case r_wEdit: return "editing ...";
+			case r_hEdit: return "editing ...";
+    	}
+    	
+    	return "unknown";
+    }
+    
+    function onNext()
+    {
+    	switch (rState)
+    	{
+			case r_vis: rState = r_color; break;
+			case r_color: rState = r_position; break;
+			case r_position: rState = r_w; break;
+			case r_w: rState = r_h; break;
+			case r_h: rState = r_earlier; break;
+			case r_earlier: rState = r_later; break;
+			case r_later: rState = r_delete; break;
+			case r_delete: break;
+
+			case r_x: rState = r_y; break;
+			case r_y: rState = r_xCentre; break;
+			case r_xCentre: rState = r_yCentre; break;
+			case r_yCentre: rState = r_tap; break;
+			case r_tap: rState = r_x; break;
+
+			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
+			case r_colorEdit: editorView.rectangleSetColor((editorView.rectangleGetColor()+1)%64); break;
+			case r_xEdit: editorView.rectanglePositionXEditing(-1); break;
+			case r_yEdit: editorView.rectanglePositionYEditing(-1); break;
+			case r_wEdit: editorView.rectangleWidthEditing(-1); break;
+			case r_hEdit: editorView.rectangleHeightEditing(-1); break;
+    	}
+    	
+    	return null;
+    }
     
     function onPrevious()
     {
-   		editorView.rectangleSetColor((editorView.rectangleGetColor()+64-1)%64);
-   		return null;
+    	switch (rState)
+    	{
+			case r_vis: break;
+			case r_color: rState = r_vis; break;
+			case r_position: rState = r_color; break;
+			case r_w: rState = r_position; break;
+			case r_h: rState = r_w; break;
+			case r_earlier: rState = r_h; break;
+			case r_later: rState = r_earlier; break;
+			case r_delete: rState = r_later; break;
+
+			case r_x: rState = r_tap; break;
+			case r_y: rState = r_x; break;
+			case r_xCentre: rState = r_y; break;
+			case r_yCentre: rState = r_xCentre; break;
+			case r_tap: rState = r_yCentre; break;
+
+			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
+			case r_colorEdit: editorView.rectangleSetColor((editorView.rectangleGetColor()+64-1)%64); break;
+			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
+			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
+			case r_wEdit: editorView.rectangleWidthEditing(1); break;
+			case r_hEdit: editorView.rectangleHeightEditing(1); break;
+    	}
+    	
+    	return null;
     }
     
     function onSelect()
     {
+    	switch (rState)
+    	{
+			case r_vis: rState = r_visEdit; break;
+			case r_color: rState = r_colorEdit; break;
+			case r_position: rState = r_x; break;
+			case r_w: rState = r_wEdit; break;
+			case r_h: rState = r_hEdit; break;
+			case r_earlier: editorView.fieldEarlier(); break;
+			case r_later: editorView.fieldLater(); break;
+			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+
+			case r_x: rState = r_xEdit; break;
+			case r_y: rState = r_yEdit; break;
+			case r_xCentre: editorView.rectanglePositionCentreX(); break;
+			case r_yCentre: editorView.rectanglePositionCentreY(); break;
+			case r_tap: break;
+
+			case r_visEdit: break;
+			case r_colorEdit: break;
+			case r_xEdit: break;
+			case r_yEdit: break;
+			case r_wEdit: break;
+			case r_hEdit: break;
+    	}
+    	
     	return null;
     }
     
     function onBack()
     {
-   		return new myMenuItemRectangleColor();
-    }
-}
+    	switch (rState)
+    	{
+			case r_vis:
+			case r_color:
+			case r_position:
+			case r_w:
+			case r_h:
+			case r_earlier:
+			case r_later:
+			case r_delete:
+				return new myMenuItemFieldSelect();
+				
+			case r_x:
+			case r_y:
+			case r_xCentre:
+			case r_yCentre:
+			case r_tap: 
+				rState = r_position;
+				break;
 
-(:m2app)
-class myMenuItemRectanglePosition extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "position";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleWidth();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleColor();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleX();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleX extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "horizontal";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleY();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleTap();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleXEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleXEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-   		editorView.rectanglePositionXEditing(1);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-   		editorView.rectanglePositionXEditing(-1);
-   		return null;
-    }
-
-    function onSelect()
-    {
+			case r_visEdit:  rState = r_vis; break;
+			case r_colorEdit:  rState = r_color; break;
+			case r_xEdit:  rState = r_x; break;
+			case r_yEdit:  rState = r_y; break;
+			case r_wEdit:  rState = r_w; break;
+			case r_hEdit:  rState = r_h; break;
+    	}
+    	
     	return null;
     }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectangleX();
-    }
 }
 
 (:m2app)
-class myMenuItemRectangleY extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "vertical";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleXCentre();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleX();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleYEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleYEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-   		editorView.rectanglePositionYEditing(1);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-   		editorView.rectanglePositionYEditing(-1);
-   		return null;
-    }
-
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectangleY();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleXCentre extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "centre horizontal";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleYCentre();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleY();
-    }
-    
-    function onSelect()
-    {
-    	editorView.rectanglePositionCentreX();
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleYCentre extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "centre vertical";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleTap();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleXCentre();
-    }
-    
-    function onSelect()
-    {
-    	editorView.rectanglePositionCentreY();
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleTap extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "tap";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleX();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleYCentre();
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleWidth extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "width";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleHeight();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectanglePosition();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleWidthEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleWidthEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-   		editorView.rectanglePositionWidthEditing(-1);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-   		editorView.rectanglePositionWidthEditing(1);
-   		return null;
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectangleWidth();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleHeight extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "height";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemRectangleVisibility();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemRectangleWidth();
-    }
-    
-    function onSelect()
-    {
-    	return new myMenuItemRectangleHeightEditing();
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemField();
-    }
-}
-
-(:m2app)
-class myMenuItemRectangleHeightEditing extends myMenuItem
-{
-    function initialize()
-    {   	
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "editing ...";
-    }
-    
-    function onNext()
-    {
-   		editorView.rectanglePositionHeightEditing(-1);
-   		return null;
-    }
-    
-    function onPrevious()
-    {
-   		editorView.rectanglePositionHeightEditing(1);
-   		return null;
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-   		return new myMenuItemRectangleHeight();
-    }
-}
-
-(:m2app)
-class myMenuItemFieldRing extends myMenuItem
+class myMenuItemRing extends myMenuItem
 {
     function initialize()
     {   	
@@ -8002,12 +7295,12 @@ class myMenuItemFieldRing extends myMenuItem
     
     function onBack()
     {
-   		return new myMenuItemField();
+   		return new myMenuItemFieldSelect();
     }
 }
 
 (:m2app)
-class myMenuItemFieldSeconds extends myMenuItem
+class myMenuItemSeconds extends myMenuItem
 {
     function initialize()
     {   	
@@ -8036,7 +7329,7 @@ class myMenuItemFieldSeconds extends myMenuItem
     
     function onBack()
     {
-   		return new myMenuItemField();
+   		return new myMenuItemFieldSelect();
     }
 }
 
