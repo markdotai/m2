@@ -63,10 +63,10 @@ class myView
 	//}
 	
 	// prop or "property" variables - are the ones which we store in onUpdate, so they don't change when they are used in onPartialUpdate
-	var propBackgroundColor;
+	var propBackgroundColor = 0x00000000;
 	var propAddLeadingZero = false;
     var propFieldFontSystemCase = 0;
-    var propFieldFontUnsupported;
+    var propFieldFontUnsupported = 0;
 	var fontFieldUnsupportedResource = null;
     var propMoveBarAlertTriggerLevel = 0; 
     var propBatteryHighPercentage = 75.0;
@@ -1251,6 +1251,8 @@ class myView
 		loadProfileData();		// load profile times
 		
 //System.println("Timer loadprof=" + (System.getTimer()-timeStamp) + "ms");
+
+		gfxDemo();
     }
 
 	function saveDataForStop()
@@ -3687,7 +3689,7 @@ class myView
 			5,		// chart
 			6,		// rectangle
 			8,		// ring
-			2,		// seconds
+			7,		// seconds
 		][id];
 	}
 
@@ -3705,7 +3707,7 @@ class myView
 			4,		// chart
 			6,		// rectangle
 			7,		// ring
-			2,		// seconds
+			7,		// seconds
 		][id];
 	}
 
@@ -3793,7 +3795,7 @@ class myView
 		gfxData[index+5] = 3+1;	// color 3
 		gfxData[index+6] = 3+1;	// color 4
 		gfxData[index+7] = 3+1;	// color 5
-		gfxData[index+8] = 3+1;	// color off
+		gfxData[index+8] = COLOR_NOTSET+1;	// color off
 		// level
 		// width
 	}
@@ -3833,6 +3835,11 @@ class myView
 	{
 		gfxData[index] = 11;	// id & visibility
 		gfxData[index+1] = 0;	// font & refresh style
+		gfxData[index+2] = 3+1; // color
+		gfxData[index+3] = COLOR_NOTSET+1; // color5
+		gfxData[index+4] = COLOR_NOTSET+1; // color10
+		gfxData[index+5] = COLOR_NOTSET+1; // color15
+		gfxData[index+6] = COLOR_NOTSET+1; // color0
 	}
 
 	function gfxDelete(index)
@@ -4007,6 +4014,11 @@ class myView
 				{
 					gfxData[index+1] = 0;	// font
 					gfxData[index+1] |= (0 << 8);	// refresh style
+					gfxData[index+2] = 3+1;	// color
+					gfxData[index+3] = COLOR_NOTSET+1;	// color5
+					gfxData[index+4] = COLOR_NOTSET+1;	// color10
+					gfxData[index+5] = COLOR_NOTSET+1;	// color15
+					gfxData[index+6] = COLOR_NOTSET+1;	// color0
 					
 					break;
 				}
@@ -4080,9 +4092,7 @@ class myView
     }
 
 	function gfxLoadDynamicResources()
-	{
-		gfxDemo();
-	
+	{	
     	var fonts = Rez.Fonts;
 		var graphics = Graphics;
 
@@ -4243,72 +4253,14 @@ class myView
 				
 				case 11:	// seconds
 				{
-			    	//gfxData[index+1] |= 0x80000000; 	// move in a bit - set depending on what the font is
-
-					// calculate the seconds color array
-			    	var secondColorIndex = 3;		// second color
-			    	var secondColorIndex5 = COLOR_NOTSET;
-			    	var secondColorIndex10 = COLOR_NOTSET;
-			    	var secondColorIndex15 = COLOR_NOTSET;
-			    	var secondColorIndex0 = COLOR_NOTSET;
-			    	var secondColorDemo = false;		// second color demo
-			    	
-			    	for (var i=0; i<60; i++)
-			    	{
-						var col;
-				
-				        if (secondColorDemo)		// second color demo
-				        {
-				        	col = 4 + i;
-				        }
-						else if (secondColorIndex0!=COLOR_NOTSET && i==0)
-						{
-							col = secondColorIndex0;
-						}
-						else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
-						{
-							col = secondColorIndex15;
-						}
-						else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
-						{
-							col = secondColorIndex10;
-						}
-						else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
-						{
-							col = secondColorIndex5;
-						}
-				        else
-				        {
-				        	col = secondColorIndex;		// second color
-				        }
-				        
-				        secondsColorIndexArray[i] = col;
-				    }
-			
-					//this test code now works out exactly the same size as the original above!
-					//// Initialising the array like this works out 100 bytes more expensive
-					////var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
-					//var colArray = new [6];
-					//colArray[0] = propertiesGetColorIndex("13", 0);
-					//for (var i=2; i<6; i++)
-					//{
-					//	colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
-					//}			
-					//var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
-					//
-					//// this for loop is 30 bytes cheaper than original
-					//for (var i=0; i<60; i++)
-					//{
-					//	colArray[1] = 4+i;
-					//	var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
-					//	secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
-					//}		
+					buildSecondsColorArray(index);
 					
 					var r = (gfxData[index+1] & 0xFF);
 				 	if (r<0 || r>=12/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
+				 	
 					var resourceIndex = addDynamicResource(secondFontList[r]);
 					
 					gfxData[index+1] |= ((resourceIndex & 0xFF) << 16);
@@ -4319,6 +4271,68 @@ class myView
 			
 			index += gfxSize(id);
 		}
+	}
+	
+	function buildSecondsColorArray(index)
+	{
+		// calculate the seconds color array
+    	var secondColorIndex = gfxData[index+2]-1;		// second color
+    	var secondColorIndex5 = gfxData[index+3]-1;
+    	var secondColorIndex10 = gfxData[index+4]-1;
+    	var secondColorIndex15 = gfxData[index+5]-1;
+    	var secondColorIndex0 = gfxData[index+6]-1;
+    	var secondColorDemo = false;		// second color demo
+    	
+    	for (var i=0; i<60; i++)
+    	{
+			var col;
+	
+	        if (secondColorDemo)		// second color demo
+	        {
+	        	col = 4 + i;
+	        }
+			else if (secondColorIndex0!=COLOR_NOTSET && i==0)
+			{
+				col = secondColorIndex0;
+			}
+			else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
+			{
+				col = secondColorIndex15;
+			}
+			else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
+			{
+				col = secondColorIndex10;
+			}
+			else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
+			{
+				col = secondColorIndex5;
+			}
+	        else
+	        {
+	        	col = secondColorIndex;		// second color
+	        }
+	        
+	        secondsColorIndexArray[i] = col;
+	    }
+
+		//this test code now works out exactly the same size as the original above!
+		//// Initialising the array like this works out 100 bytes more expensive
+		////var colArray = [propertiesGetColorIndex("13", 0), 4, propertiesGetColorIndex("17", -1), propertiesGetColorIndex("16", -1), propertiesGetColorIndex("15", -1), propertiesGetColorIndex("14", -1)];			
+		//var colArray = new [6];
+		//colArray[0] = propertiesGetColorIndex("13", 0);
+		//for (var i=2; i<6; i++)
+		//{
+		//	colArray[i] = propertiesGetColorIndex("" + (19-i), -1);
+		//}			
+		//var secondColorDemo2 = propertiesGetBoolean("18");		// second color demo
+		//
+		//// this for loop is 30 bytes cheaper than original
+		//for (var i=0; i<60; i++)
+		//{
+		//	colArray[1] = 4+i;
+		//	var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
+		//	secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
+		//}		
 	}
 	
 	function getSunOuterFill(t, timeOffsetInMinutes, segmentAdjust, drawRange)
@@ -5254,7 +5268,7 @@ class myView
 			    	propSecondIndicatorOn = isVisible;
 			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);
 					propSecondResourceIndex = ((gfxData[index+1] >> 16) & 0xFF);
-			    	propSecondMoveInABit = ((gfxData[index+1] & 0x80000000) != 0);		// set depending on what the font is
+			    	propSecondMoveInABit = ((gfxData[index+1] & 0xFF) >= (12/*SECONDFONT_UNUSED*//2));		// set depending on what the font is
 					break;
 				}
 			}
@@ -6602,17 +6616,6 @@ class myEditorView extends myView
 		}
 	}
 
-	function rectangleGetVisibility()
-	{
-		return ((gfxData[menuCurGfx] >> 8) & 0xFF);
-	}
-
-	function rectangleSetVisibility(val)
-	{
-		gfxData[menuCurGfx] &= ~(0xFF << 8);
-		gfxData[menuCurGfx] |= ((val & 0xFF) << 8);
-	}
-
 	function rectangleGetColor()
 	{
 		return gfxData[menuCurGfx+1];
@@ -6747,6 +6750,50 @@ class myEditorView extends myView
 	function ringSetColorUnfilled(val)
 	{
 		gfxData[menuCurGfx+6] = val;
+	}
+
+	function secondsFontEditing(val)
+	{
+		var temp = (gfxData[menuCurGfx+1] & 0xFF);
+		temp = (temp+val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
+		
+		gfxData[menuCurGfx+1] &= ~0xFF;
+		gfxData[menuCurGfx+1] |= temp;
+
+		reloadDynamicResources = true;
+	}
+
+	function secondsRefreshString()
+	{
+		switch ((gfxData[menuCurGfx+1]>>8) & 0xFF)
+		{
+	   		case 0: return "every second";
+			case 1: return "every minute";
+			case 2:	return "alernate minutes";
+		}
+		
+    	return "unknown";
+	}
+	
+	function secondsRefreshEditing(val)
+	{
+		var temp = ((gfxData[menuCurGfx+1]>>8) & 0xFF);
+		temp = (temp + val + 3)%3;
+		
+		gfxData[menuCurGfx+1] &= ~0xFF00; 
+		gfxData[menuCurGfx+1] |= (temp<<8); 
+	}
+	
+	function secondsGetColor(n)
+	{
+		return gfxData[menuCurGfx+2+n];
+	}
+
+	function secondsSetColor(n, val)
+	{
+		gfxData[menuCurGfx+2+n] = val;
+
+		buildSecondsColorArray(menuCurGfx);
 	}
 }
 
@@ -7688,27 +7735,138 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-    	return "seconds data";
+    	switch (sState)
+    	{
+			case s_vis: return "visibility";
+			case s_font: return "style";
+			case s_refresh: return "refresh";
+			case s_color: return "color";
+			case s_color5: return "color (5s)";
+			case s_color10: return "color (10s)";
+			case s_color15: return "color (15s)";
+			case s_color0: return "color (0s)";
+			case s_delete: return "delete seconds";
+
+			case s_visEdit: return editorView.fieldVisibilityString();
+			case s_fontEdit: return "editing ...";
+			case s_refreshEdit: return editorView.secondsRefreshString();
+			case s_colorEdit: return "editing ...";
+			case s_color5Edit: return "editing ...";
+			case s_color10Edit: return "editing ...";
+			case s_color15Edit: return "editing ...";
+			case s_color0Edit: return "editing ...";
+    	}
+    	
+    	return "unknown";
     }
     
     function onNext()
     {
+    	switch (sState)
+    	{
+			case s_vis: sState = s_font; break;
+			case s_font: sState = s_refresh; break;
+			case s_refresh: sState = s_color; break;
+			case s_color: sState = s_color5; break;
+			case s_color5: sState = s_color10; break;
+			case s_color10: sState = s_color15; break;
+			case s_color15: sState = s_color0; break;
+			case s_color0: sState = s_delete; break;
+			case s_delete: break;
+
+			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
+			case s_fontEdit: editorView.secondsFontEditing(1); break;
+			case s_refreshEdit: editorView.secondsRefreshEditing(1); break;
+			case s_colorEdit: editorView.secondsSetColor(0, (editorView.secondsGetColor(0)+1)%64); break;
+			case s_color5Edit: editorView.secondsSetColor(1, (editorView.secondsGetColor(1)+1)%64); break;
+			case s_color10Edit: editorView.secondsSetColor(2, (editorView.secondsGetColor(2)+1)%64); break;
+			case s_color15Edit: editorView.secondsSetColor(3, (editorView.secondsGetColor(3)+1)%64); break;
+			case s_color0Edit: editorView.secondsSetColor(4, (editorView.secondsGetColor(4)+1)%64); break;
+    	}
+    	
    		return null;
     }
     
     function onPrevious()
     {
+    	switch (sState)
+    	{
+			case s_vis: break;
+			case s_font: sState = s_vis; break;
+			case s_refresh: sState = s_font; break;
+			case s_color: sState = s_refresh; break;
+			case s_color5: sState = s_color; break;
+			case s_color10: sState = s_color5; break;
+			case s_color15: sState = s_color10; break;
+			case s_color0: sState = s_color15; break;
+			case s_delete: sState = s_color0; break;
+
+			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
+			case s_fontEdit: editorView.secondsFontEditing(-1); break;
+			case s_refreshEdit: editorView.secondsRefreshEditing(-1); break;
+			case s_colorEdit: editorView.secondsSetColor(0, (editorView.secondsGetColor(0)+64-1)%64); break;
+			case s_color5Edit: editorView.secondsSetColor(1, (editorView.secondsGetColor(1)+64-1)%64); break;
+			case s_color10Edit: editorView.secondsSetColor(2, (editorView.secondsGetColor(2)+64-1)%64); break;
+			case s_color15Edit: editorView.secondsSetColor(3, (editorView.secondsGetColor(3)+64-1)%64); break;
+			case s_color0Edit: editorView.secondsSetColor(4, (editorView.secondsGetColor(4)+64-1)%64); break;
+    	}
+    	
    		return null;
     }
     
     function onSelect()
     {
+    	switch (sState)
+    	{
+			case s_vis: sState = s_visEdit; break;
+			case s_font: sState = s_fontEdit; break;
+			case s_refresh: sState = s_refreshEdit; break;
+			case s_color: sState = s_colorEdit; break;
+			case s_color5: sState = s_color5Edit; break;
+			case s_color10: sState = s_color10Edit; break;
+			case s_color15: sState = s_color15Edit; break;
+			case s_color0: sState = s_color0Edit; break;
+			case s_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect(); break;
+
+			case s_visEdit: break;
+			case s_fontEdit: break;
+			case s_refreshEdit: break;
+			case s_colorEdit: break;
+			case s_color5Edit: break;
+			case s_color10Edit: break;
+			case s_color15Edit: break;
+			case s_color0Edit: break;
+    	}
+    	
     	return null;
     }
     
     function onBack()
     {
-   		return new myMenuItemFieldSelect();
+    	switch (sState)
+    	{
+			case s_vis:
+			case s_font:
+			case s_refresh:
+			case s_color:
+			case s_color5:
+			case s_color10:
+			case s_color15:
+			case s_color0:
+			case s_delete:
+				return new myMenuItemFieldSelect();
+
+			case s_visEdit: sState = s_vis; break;
+			case s_fontEdit: sState = s_font; break;
+			case s_refreshEdit: sState = s_refresh; break;
+			case s_colorEdit: sState = s_color; break;
+			case s_color5Edit: sState = s_color5; break;
+			case s_color10Edit: sState = s_color10; break;
+			case s_color15Edit: sState = s_color15; break;
+			case s_color0Edit: sState = s_color0; break;
+    	}
+    	
+   		return null;
     }
 }
 
