@@ -3820,7 +3820,7 @@ class myView
 	function gfxAddRing(index)
 	{
 		gfxData[index] = 10;	// id & visibility
-		gfxData[index+1] = 0;	// type
+		gfxData[index+1] = 0;	// type & direction
 		gfxData[index+2] = 0;	// font
 		gfxData[index+3] = 0;	// start
 		gfxData[index+4] = 59;	// end
@@ -3993,7 +3993,7 @@ class myView
 				
 				case 10:	// ring
 				{
-					gfxData[index+1] = 0;	// type
+					gfxData[index+1] = 0;	// type & direction
 					gfxData[index+2] = 0;	// font
 					gfxData[index+3] = 0;	// start
 					gfxData[index+4] = 59;	// end
@@ -5097,15 +5097,27 @@ class myView
 						break;
 					}
 
+					var eDisplay = (gfxData[index+1] & 0xFF);
+					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
+
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
-					var drawRange = (drawEnd - drawStart + 60)%60 + 1;	// 1-60
-			
+					
+					var drawRange;
+					if (eDirAnti)	// anticlockwise
+					{
+						drawRange = (drawStart - drawEnd + 60)%60 + 1;	// 1-60
+					}
+					else
+					{
+						drawRange = (drawEnd - drawStart + 60)%60 + 1;	// 1-60
+					}
+								
+					// calculate fill amounts from 0 to drawRange
 					var noFill = false;
 					var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
 					var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
 
-					var eDisplay = gfxData[index+1];
 					switch (eDisplay)
 					{
 						case 1:		// steps
@@ -5216,8 +5228,21 @@ class myView
 						fillEnd = 0;
 					}
 
-					fillStart = (fillStart + drawStart) % 60;
-					fillEnd = (fillEnd + drawStart) % 60;
+					// apply fill offsets from start point
+					if (eDirAnti)
+					{
+						fillStart = (drawStart - fillStart + 60) % 60;
+						fillEnd = (drawStart - fillEnd + 60) % 60;
+						
+						var temp = fillStart;
+						fillStart = fillEnd;
+						fillEnd = temp;
+					}
+					else
+					{
+						fillStart = (drawStart + fillStart) % 60;
+						fillEnd = (drawStart + fillEnd) % 60;
+					}
 
 					gfxData[index+7] = (fillStart & 0xFF) | ((fillEnd & 0xFF) << 8) | (noFill ? 0x10000 : 0);	// start fill, end fill and no fill flag
 
@@ -5561,6 +5586,15 @@ class myView
 					// intersect the jStart to jEnd range with the drawing range
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
+
+					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
+					if (eDirAnti)	// swap start & end for clockwise drawing
+					{
+						var temp = drawStart;
+						drawStart = drawEnd;
+						drawEnd = temp;					
+					}
+					
 					var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
 					var jRange = jEnd - jStart;
 					
@@ -6637,7 +6671,7 @@ class myEditorView extends myView
 
 	function ringTypeString()
 	{
-		switch (gfxData[menuCurGfx+1])
+		switch (gfxData[menuCurGfx+1] & 0xFF)
 		{
 	   		case 0: return "plain color";		// plain color
 			case 1: return "steps";				// steps
@@ -6658,7 +6692,24 @@ class myEditorView extends myView
 	
 	function ringTypeEditing(val)
 	{
-		gfxData[menuCurGfx+1] = (gfxData[menuCurGfx+1] + val + 11)%11; 
+		var eDisplay = ((gfxData[menuCurGfx+1] & 0xFF) + val + 11)%11;
+		gfxData[menuCurGfx+1] &= ~0xFF; 
+		gfxData[menuCurGfx+1] |= (eDisplay & 0xFF); 
+	}
+	
+	function ringDirectionString()
+	{
+		return ((gfxData[menuCurGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
+	}
+	
+	function ringDirectionEditing()
+	{
+		gfxData[menuCurGfx+1] ^= 0x100;
+		
+		// swap start and end over too
+		var temp = gfxData[menuCurGfx+3];
+		gfxData[menuCurGfx+3] = gfxData[menuCurGfx+4];
+		gfxData[menuCurGfx+4] = temp;
 	}
 	
 	function ringFontEditing(val)
@@ -6676,15 +6727,6 @@ class myEditorView extends myView
 	function ringEndEditing(val)
 	{
 		gfxData[menuCurGfx+4] = (gfxData[menuCurGfx+4] + val + 60)%60;
-	}
-	
-	function ringDirectionString()
-	{
-		return "clockwise";
-	}
-
-	function ringDirectionEditing(val)
-	{
 	}
 	
 	function ringGetColorFilled()
@@ -7506,7 +7548,7 @@ class myMenuItemRing extends myMenuItem
 			case r_fontEdit: editorView.ringFontEditing(1); break;
 			case r_startEdit: editorView.ringStartEditing(1); break;
 			case r_endEdit: editorView.ringEndEditing(1); break;
-			case r_directionEdit: editorView.ringDirectionEditing(1); break;
+			case r_directionEdit: editorView.ringDirectionEditing(); break;
 			case r_colorFilledEdit: editorView.ringSetColorFilled((editorView.ringGetColorFilled()+1)%64); break;
 			case r_colorUnfilledEdit: editorView.ringSetColorUnfilled((editorView.ringGetColorUnfilled()+1)%64); break;
     	}
@@ -7535,7 +7577,7 @@ class myMenuItemRing extends myMenuItem
 			case r_fontEdit: editorView.ringFontEditing(-1); break;
 			case r_startEdit: editorView.ringStartEditing(-1); break;
 			case r_endEdit: editorView.ringEndEditing(-1); break;
-			case r_directionEdit: editorView.ringDirectionEditing(-1); break;
+			case r_directionEdit: editorView.ringDirectionEditing(); break;
 			case r_colorFilledEdit: editorView.ringSetColorFilled((editorView.ringGetColorFilled()+64-1)%64); break;
 			case r_colorUnfilledEdit: editorView.ringSetColorUnfilled((editorView.ringGetColorUnfilled()+64-1)%64); break;
     	}
