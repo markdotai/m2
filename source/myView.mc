@@ -3822,12 +3822,12 @@ class myView
 		return index;
 	}
 
-	function gfxAddString(index)
+	function gfxAddString(index, dataType)
 	{
 		index = gfxInsert(index, 5);
 		if (index>=0)
 		{
-			gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
+			gfxData[index+1] = dataType;		// type
 			gfxData[index+2] = 3+1;	// color
 			gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
 			// string start
@@ -3962,10 +3962,10 @@ class myView
 		gfxAddMinuteLarge(gfxNum);	// large minute
 
 		gfxAddField(gfxNum);	// field
-		gfxAddString(gfxNum);	// string
+		gfxAddString(gfxNum, 3/*FIELD_DAY_NAME*/);	// string
 		//gfxAddIcon(gfxNum);	// icon
-		//gfxAddMoveBar(gfxNum);	// movebar
-		gfxAddChart(gfxNum);	// chart
+		gfxAddMoveBar(gfxNum);	// movebar
+		//gfxAddChart(gfxNum);	// chart
 
 		gfxAddField(gfxNum);	// field
 		gfxAddRing(gfxNum);		// ring
@@ -5452,7 +5452,7 @@ class myView
 
 						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
 						{ 
-							var col = getColor64((barIsOn || gfxData[index+8]==COLOR_NOTSET) ? (gfxData[index+3+i]-1) : (gfxData[index+8]-1));
+							var col = getColor64((barIsOn || gfxData[index+8]==(COLOR_NOTSET+1)) ? (gfxData[index+3+i]-1) : (gfxData[index+8]-1));
 							
 					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(dateX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5772,7 +5772,8 @@ class myEditorView extends myView
 	
 	var menuItem;
 	
-	var menuCurGfx = 0;
+	var menuFieldGfx = 0;
+	var menuElementGfx = 0;
 
 	function nextGfx(index)
 	{
@@ -5828,6 +5829,16 @@ class myEditorView extends myView
 		return false;
 	}
 
+	function afterGfxField(index)
+	{
+		var afterIndex = nextGfxField(index);
+		if (afterIndex<0)
+		{
+			afterIndex = gfxNum;
+		}
+		return afterIndex;
+	}
+	
 	function nextGfxField(index)
 	{
 		var temp;
@@ -6075,312 +6086,7 @@ class myEditorView extends myView
 			case 5:		// string
 			{
 				var eDisplay = gfxData[index+1];
-				
-				switch(eDisplay)	// type of string
-				{
-					case 1/*FIELD_HOUR*/:			// hour
-				    {
-						eStr = "hour";
-						break;
-					}
-
-					case 2/*FIELD_MINUTE*/:			// minute
-				    {
-						eStr = "minute";
-						break;
-					}
-
-					case 3/*FIELD_DAY_NAME*/:		// day name
-				    {
-						eStr = "day (name)";
-						break;
-					}
-					
-					case 9/*FIELD_MONTH_NAME*/:		// month name
-				    {
-						eStr = "month (name)";
-						break;
-					}
-
-					case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
-				    {
-						eStr = "day (number of week)";	// 1-7
-						break;
-					}
-
-					case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
-				    {
-						eStr = "day (number of month)";
-						break;
-					}
-
-					case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
-				    {
-						eStr = "day (of month XX)";
-						break;
-					}
-
-					case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
-				    {
-						eStr = "day (number of year)";
-						break;
-					}
-
-					case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
-				    {
-						eStr = "day (of year XXX)";
-						break;
-					}
-
-					case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
-				    {
-						eStr = "month (number)";
-						break;
-					}
-
-					case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
-				    {
-						eStr = "month (number XX)";
-						break;
-					}
-
-					case 12/*FIELD_YEAR_XX*/:		// year XX
-					{
-						eStr = "year (XX)";
-						break;
-					}
-
-					case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
-				    {
-						eStr = "year (XXXX)";
-						break;
-					}
-
-					case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
-				    {
-						eStr = "week (ISO XX)";
-						break;
-					}
-
-					case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
-				    {
-						eStr = "week (ISO WXX)";
-						break;
-					}
-
-					case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
-				    {
-						eStr = "year (ISO week XXXX)";
-						break;
-					}
-
-					case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
-				    {
-						eStr = "week (calendar)";
-						break;
-					}
-
-					case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
-					{
-						eStr = "year (calendar week XXXX)";
-						break;
-					}
-
-					case 19/*FIELD_AM*/:
-				    {
-						eStr = "AM";
-						break;
-					}
-
-					case 20/*FIELD_PM*/:
-				    {
-						eStr = "PM";
-						break;
-					}
-
-				    case 21/*FIELD_SEPARATOR_SPACE*/:
-				    case 22:
-				    case 23:
-				    case 24:
-				    case 25:
-				    case 26:
-				    case 27:
-				    case 28/*FIELD_SEPARATOR_PERCENT*/:
-				    {
-						var separatorString = " /\\:-.,%";
-	        			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
-	        			break;
-				    }
-
-					case 31/*FIELD_STEPSCOUNT*/:
-					{
-						eStr = "steps count";
-						break;
-					}
-
-					case 32/*FIELD_STEPSGOAL*/:
-					{
-						eStr = "steps goal";
-						break;
-					}
-
-					case 33/*FIELD_FLOORSCOUNT*/:
-					{
-						eStr = "floors count";
-						break;
-					}
-
-					case 34/*FIELD_FLOORSGOAL*/:
-					{
-						eStr = "floors goal";
-						break;
-					}
-
-					case 35/*FIELD_NOTIFICATIONSCOUNT*/:
-					{
-						eStr = "notifications count";
-						break;
-					}
-					
-					case 36/*FIELD_BATTERYPERCENTAGE*/:
-					{
-						eStr = "battery percentage";
-						break;
-					}
-					
-					case 76/*FIELD_HEART_MIN*/:
-					{
-						eStr = "heart rate min";
-						break;
-					}
-
-					case 77/*FIELD_HEART_MAX*/:
-					{
-						eStr = "heart rate max";
-						break;
-					}
-
-					case 78/*FIELD_HEART_AVERAGE*/:
-					{
-						eStr = "heart rate average";
-						break;
-					}
-
-					case 79/*FIELD_HEART_LATEST*/:
-					{
-						eStr = "heart rate";
-						break;
-					}
-
-					case 82/*FIELD_SUNRISE_HOUR*/:
-					{
-						eStr = "sunrise hour";
-						break;
-					}
-
-					case 83/*FIELD_SUNRISE_MINUTE*/:
-					{
-						eStr = "sunrise hour";
-						break;
-					}
-
-					case 84/*FIELD_SUNSET_HOUR*/:
-					{
-						eStr = "sunset hour";
-						break;
-					}
-
-					case 85/*FIELD_SUNSET_MINUTE*/:
-					{
-						eStr = "sunset minute";
-						break;
-					}
-
-					case 86/*FIELD_SUNEVENT_HOUR*/:
-					{
-						eStr = "next sun event hour";
-						break;
-					}
-
-					case 87/*FIELD_SUNEVENT_MINUTE*/:
-					{
-						eStr = "next sun event minute";
-						break;
-					}
-
-					case 88/*FIELD_2ND_HOUR*/:
-					{
-						eStr = "2nd time zone hour";
-						break;
-					}
-
-					case 89/*FIELD_CALORIES*/:
-					{
-						eStr = "calories";
-						break;
-					}
-
-					case 90/*FIELD_ACTIVE_CALORIES*/:
-					{
-						eStr = "active calories";
-						break;
-					}
-
-					case 91/*FIELD_INTENSITY*/:
-					{
-						eStr = "intensity minutes";
-						break;
-					}
-
-					case 92/*FIELD_INTENSITY_GOAL*/:
-					{
-						eStr = "intensity goal";
-						break;
-					}
-
-					case 93/*FIELD_SMART_GOAL*/:
-					{
-						eStr = "smart intensity goal";
-						break;
-					}
-
-					case 94/*FIELD_DISTANCE*/:
-					{
-						eStr = "distance";
-						break;
-					}
-
-					case 95/*FIELD_DISTANCE_UNITS*/:
-					{
-						eStr = "distance units (mi/km)";
-						break;
-					}
-
-					case 96/*FIELD_PRESSURE*/:
-					{
-						eStr = "pressure";
-						break;
-					}
-
-					case 97/*FIELD_PRESSURE_UNITS*/:
-					{
-						eStr = "pressure units (mb)";
-						break;
-					}
-
-					case 98/*FIELD_ALTITUDE*/:
-					{
-						eStr = "altitude";
-						break;
-					}
-
-					case 99/*FIELD_ALTITUDE_UNITS*/:
-					{
-						eStr = "altitude units (ft/m)";
-						break;
-					}
-				}
-				
+				eStr = getStringTypeName(eDisplay);
 				break;
 			}
 			
@@ -6424,6 +6130,323 @@ class myEditorView extends myView
 		return eStr;
 	}
 
+	function getStringTypeName(eDisplay)
+	{
+		var eStr = null;
+		
+		switch(eDisplay)	// type of string
+		{
+			case 1/*FIELD_HOUR*/:			// hour
+		    {
+				eStr = "hour";
+				break;
+			}
+
+			case 2/*FIELD_MINUTE*/:			// minute
+		    {
+				eStr = "minute";
+				break;
+			}
+
+			case 3/*FIELD_DAY_NAME*/:		// day name
+		    {
+				eStr = "day (name)";
+				break;
+			}
+			
+			case 9/*FIELD_MONTH_NAME*/:		// month name
+		    {
+				eStr = "month (name)";
+				break;
+			}
+
+			case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
+		    {
+				eStr = "day (number of week)";	// 1-7
+				break;
+			}
+
+			case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
+		    {
+				eStr = "day (number of month)";
+				break;
+			}
+
+			case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
+		    {
+				eStr = "day (of month XX)";
+				break;
+			}
+
+			case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
+		    {
+				eStr = "day (number of year)";
+				break;
+			}
+
+			case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
+		    {
+				eStr = "day (of year XXX)";
+				break;
+			}
+
+			case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
+		    {
+				eStr = "month (number)";
+				break;
+			}
+
+			case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
+		    {
+				eStr = "month (number XX)";
+				break;
+			}
+
+			case 12/*FIELD_YEAR_XX*/:		// year XX
+			{
+				eStr = "year (XX)";
+				break;
+			}
+
+			case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
+		    {
+				eStr = "year (XXXX)";
+				break;
+			}
+
+			case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
+		    {
+				eStr = "week (ISO XX)";
+				break;
+			}
+
+			case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
+		    {
+				eStr = "week (ISO WXX)";
+				break;
+			}
+
+			case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
+		    {
+				eStr = "year (ISO week XXXX)";
+				break;
+			}
+
+			case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
+		    {
+				eStr = "week (calendar)";
+				break;
+			}
+
+			case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
+			{
+				eStr = "year (calendar week XXXX)";
+				break;
+			}
+
+			case 19/*FIELD_AM*/:
+		    {
+				eStr = "AM";
+				break;
+			}
+
+			case 20/*FIELD_PM*/:
+		    {
+				eStr = "PM";
+				break;
+			}
+
+		    case 21/*FIELD_SEPARATOR_SPACE*/:
+		    {
+		    	eStr = "<space>";
+		    	break;
+		    }
+		    
+		    case 22:
+		    case 23:
+		    case 24:
+		    case 25:
+		    case 26:
+		    case 27:
+		    case 28/*FIELD_SEPARATOR_PERCENT*/:
+		    {
+				var separatorString = " /\\:-.,%";
+    			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
+    			break;
+		    }
+
+			case 31/*FIELD_STEPSCOUNT*/:
+			{
+				eStr = "steps count";
+				break;
+			}
+
+			case 32/*FIELD_STEPSGOAL*/:
+			{
+				eStr = "steps goal";
+				break;
+			}
+
+			case 33/*FIELD_FLOORSCOUNT*/:
+			{
+				eStr = "floors count";
+				break;
+			}
+
+			case 34/*FIELD_FLOORSGOAL*/:
+			{
+				eStr = "floors goal";
+				break;
+			}
+
+			case 35/*FIELD_NOTIFICATIONSCOUNT*/:
+			{
+				eStr = "notifications count";
+				break;
+			}
+			
+			case 36/*FIELD_BATTERYPERCENTAGE*/:
+			{
+				eStr = "battery percentage";
+				break;
+			}
+			
+			case 76/*FIELD_HEART_MIN*/:
+			{
+				eStr = "heart rate min";
+				break;
+			}
+
+			case 77/*FIELD_HEART_MAX*/:
+			{
+				eStr = "heart rate max";
+				break;
+			}
+
+			case 78/*FIELD_HEART_AVERAGE*/:
+			{
+				eStr = "heart rate average";
+				break;
+			}
+
+			case 79/*FIELD_HEART_LATEST*/:
+			{
+				eStr = "heart rate";
+				break;
+			}
+
+			case 82/*FIELD_SUNRISE_HOUR*/:
+			{
+				eStr = "sunrise hour";
+				break;
+			}
+
+			case 83/*FIELD_SUNRISE_MINUTE*/:
+			{
+				eStr = "sunrise minute";
+				break;
+			}
+
+			case 84/*FIELD_SUNSET_HOUR*/:
+			{
+				eStr = "sunset hour";
+				break;
+			}
+
+			case 85/*FIELD_SUNSET_MINUTE*/:
+			{
+				eStr = "sunset minute";
+				break;
+			}
+
+			case 86/*FIELD_SUNEVENT_HOUR*/:
+			{
+				eStr = "next sun event hour";
+				break;
+			}
+
+			case 87/*FIELD_SUNEVENT_MINUTE*/:
+			{
+				eStr = "next sun event minute";
+				break;
+			}
+
+			case 88/*FIELD_2ND_HOUR*/:
+			{
+				eStr = "2nd time zone hour";
+				break;
+			}
+
+			case 89/*FIELD_CALORIES*/:
+			{
+				eStr = "calories";
+				break;
+			}
+
+			case 90/*FIELD_ACTIVE_CALORIES*/:
+			{
+				eStr = "active calories";
+				break;
+			}
+
+			case 91/*FIELD_INTENSITY*/:
+			{
+				eStr = "intensity minutes";
+				break;
+			}
+
+			case 92/*FIELD_INTENSITY_GOAL*/:
+			{
+				eStr = "intensity goal";
+				break;
+			}
+
+			case 93/*FIELD_SMART_GOAL*/:
+			{
+				eStr = "smart intensity goal";
+				break;
+			}
+
+			case 94/*FIELD_DISTANCE*/:
+			{
+				eStr = "distance";
+				break;
+			}
+
+			case 95/*FIELD_DISTANCE_UNITS*/:
+			{
+				eStr = "distance units (mi/km)";
+				break;
+			}
+
+			case 96/*FIELD_PRESSURE*/:
+			{
+				eStr = "pressure";
+				break;
+			}
+
+			case 97/*FIELD_PRESSURE_UNITS*/:
+			{
+				eStr = "pressure units (mb)";
+				break;
+			}
+
+			case 98/*FIELD_ALTITUDE*/:
+			{
+				eStr = "altitude";
+				break;
+			}
+
+			case 99/*FIELD_ALTITUDE_UNITS*/:
+			{
+				eStr = "altitude units (ft/m)";
+				break;
+			}
+		}
+
+		return eStr;
+	}
+
 	function fieldVisibilityString()
 	{
 		switch (fieldGetVisibility())
@@ -6460,43 +6483,43 @@ class myEditorView extends myView
 	
 	function fieldGetVisibility()
 	{
-		return ((gfxData[menuCurGfx] >> 8) & 0xFF);
+		return ((gfxData[menuFieldGfx] >> 8) & 0xFF);
 	}
 
 	function fieldSetVisibility(val)
 	{
-		gfxData[menuCurGfx] &= ~(0xFF << 8);
-		gfxData[menuCurGfx] |= ((val & 0xFF) << 8);
+		gfxData[menuFieldGfx] &= ~(0xFF << 8);
+		gfxData[menuFieldGfx] |= ((val & 0xFF) << 8);
 	}
 
 	function fieldPositionXEditing(val)
 	{
-		gfxData[menuCurGfx+1] = getMinMax(gfxData[menuCurGfx+1]+val, 0, 240);
+		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]+val, 0, 240);
 	}
 
 	function fieldPositionYEditing(val)
 	{
-		gfxData[menuCurGfx+2] = getMinMax(gfxData[menuCurGfx+2]+val, 0, 240);
+		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]+val, 0, 240);
 	}
 
 	function fieldPositionCentreX()
 	{
-		gfxData[menuCurGfx+1] = 120;
+		gfxData[menuFieldGfx+1] = 120;
 	}
 
 	function fieldPositionCentreY()
 	{
-		gfxData[menuCurGfx+2] = 120;
+		gfxData[menuFieldGfx+2] = 120;
 	}
 
 	function fieldSetAlignment(val)
 	{
-		gfxData[menuCurGfx+3] = val;
+		gfxData[menuFieldGfx+3] = val;
 	}
 
 	function fieldGetAlignment()
 	{
-		return gfxData[menuCurGfx+3];
+		return gfxData[menuFieldGfx+3];
 	}
 
 	function fieldSwap(prevField, nextField)
@@ -6525,30 +6548,30 @@ class myEditorView extends myView
 
 	function fieldEarlier()
 	{
-		var prevField = prevGfxField(menuCurGfx);
+		var prevField = prevGfxField(menuFieldGfx);
 		if (prevField>0)	// 0==header
 		{
-			fieldSwap(prevField, menuCurGfx);
+			fieldSwap(prevField, menuFieldGfx);
 
-			menuCurGfx = prevField;			
+			menuFieldGfx = prevField;
 		}
 	}
 
 	function fieldLater()
 	{
-		var nextField = nextGfxField(menuCurGfx);
+		var nextField = nextGfxField(menuFieldGfx);
 		if (nextField>=0)
 		{
-			menuCurGfx = fieldSwap(menuCurGfx, nextField);
+			menuFieldGfx = fieldSwap(menuFieldGfx, nextField);
 		}
 	}
 
 	function fieldDelete()
 	{
-		var nextField = nextGfxField(menuCurGfx);
+		var nextField = nextGfxField(menuFieldGfx);
 		if (nextField>=0)
 		{
-			var diff = nextField - menuCurGfx;
+			var diff = nextField - menuFieldGfx;
 			for (var index=nextField; index<gfxNum; index++)
 			{
 				gfxData[index-diff] = gfxData[index];
@@ -6558,11 +6581,11 @@ class myEditorView extends myView
 		}
 		else
 		{
-			var prevField = prevGfxField(menuCurGfx);
+			var prevField = prevGfxField(menuFieldGfx);
 			
-			gfxNum = menuCurGfx;	// new end of array is current position
+			gfxNum = menuFieldGfx;	// new end of array is current position
 			 
-			menuCurGfx = prevField;	// new current position is previous field
+			menuFieldGfx = prevField;	// new current position is previous field
 		}
 
 		reloadDynamicResources = true;
@@ -6570,63 +6593,63 @@ class myEditorView extends myView
 
 	function rectangleGetColor()
 	{
-		return gfxData[menuCurGfx+1];
+		return gfxData[menuFieldGfx+1];
 	}
 
 	function rectangleSetColor(val)
 	{
-		gfxData[menuCurGfx+1] = val;
+		gfxData[menuFieldGfx+1] = val;
 	}
 
 	function rectanglePositionXEditing(val)
 	{
-		gfxData[menuCurGfx+2] = getMinMax(gfxData[menuCurGfx+2]+val, 0, 240);
+		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]+val, 0, 240);
 	}
 
 	function rectanglePositionYEditing(val)
 	{
-		gfxData[menuCurGfx+3] = getMinMax(gfxData[menuCurGfx+3]+val, 0, 240);
+		gfxData[menuFieldGfx+3] = getMinMax(gfxData[menuFieldGfx+3]+val, 0, 240);
 	}
 
 	function rectanglePositionCentreX()
 	{
-		gfxData[menuCurGfx+2] = 120 - gfxData[menuCurGfx+4]/2;
+		gfxData[menuFieldGfx+2] = 120 - gfxData[menuFieldGfx+4]/2;
 	}
 
 	function rectanglePositionCentreY()
 	{
-		gfxData[menuCurGfx+3] = 120 - gfxData[menuCurGfx+5]/2;
+		gfxData[menuFieldGfx+3] = 120 - gfxData[menuFieldGfx+5]/2;
 	}
 
 	function rectangleWidthEditing(val)
 	{
-		if ((val<0) && (gfxData[menuCurGfx+4]%2)==0)
+		if ((val<0) && (gfxData[menuFieldGfx+4]%2)==0)
 		{
-			gfxData[menuCurGfx+2] += 1;
+			gfxData[menuFieldGfx+2] += 1;
 		}
-		gfxData[menuCurGfx+4] = getMinMax(gfxData[menuCurGfx+4]+val, 1, 240);
-		if ((val>0) && (gfxData[menuCurGfx+4]%2)==0)
+		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]+val, 1, 240);
+		if ((val>0) && (gfxData[menuFieldGfx+4]%2)==0)
 		{
-			gfxData[menuCurGfx+2] -= 1;
+			gfxData[menuFieldGfx+2] -= 1;
 		}
 	}
 
 	function rectangleHeightEditing(val)
 	{
-		if ((val<0) && (gfxData[menuCurGfx+5]%2)==0)
+		if ((val<0) && (gfxData[menuFieldGfx+5]%2)==0)
 		{
-			gfxData[menuCurGfx+3] += 1;
+			gfxData[menuFieldGfx+3] += 1;
 		}
-		gfxData[menuCurGfx+5] = getMinMax(gfxData[menuCurGfx+5]+val, 1, 240);
-		if ((val>0) && (gfxData[menuCurGfx+5]%2)==0)
+		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]+val, 1, 240);
+		if ((val>0) && (gfxData[menuFieldGfx+5]%2)==0)
 		{
-			gfxData[menuCurGfx+3] -= 1;
+			gfxData[menuFieldGfx+3] -= 1;
 		}
 	}
 
 	function ringTypeString()
 	{
-		switch (gfxData[menuCurGfx+1] & 0xFF)
+		switch (gfxData[menuFieldGfx+1] & 0xFF)
 		{
 	   		case 0: return "plain color";		// plain color
 			case 1: return "steps";				// steps
@@ -6647,77 +6670,77 @@ class myEditorView extends myView
 	
 	function ringTypeEditing(val)
 	{
-		var eDisplay = ((gfxData[menuCurGfx+1] & 0xFF) + val + 11)%11;
-		gfxData[menuCurGfx+1] &= ~0xFF; 
-		gfxData[menuCurGfx+1] |= (eDisplay & 0xFF); 
+		var eDisplay = ((gfxData[menuFieldGfx+1] & 0xFF) + val + 11)%11;
+		gfxData[menuFieldGfx+1] &= ~0xFF; 
+		gfxData[menuFieldGfx+1] |= (eDisplay & 0xFF); 
 	}
 	
 	function ringDirectionString()
 	{
-		return ((gfxData[menuCurGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
+		return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
 	}
 	
 	function ringDirectionEditing()
 	{
-		gfxData[menuCurGfx+1] ^= 0x100;
+		gfxData[menuFieldGfx+1] ^= 0x100;
 		
 		// swap start and end over too
-		var temp = gfxData[menuCurGfx+3];
-		gfxData[menuCurGfx+3] = gfxData[menuCurGfx+4];
-		gfxData[menuCurGfx+4] = temp;
+		var temp = gfxData[menuFieldGfx+3];
+		gfxData[menuFieldGfx+3] = gfxData[menuFieldGfx+4];
+		gfxData[menuFieldGfx+4] = temp;
 	}
 	
 	function ringFontEditing(val)
 	{
-		gfxData[menuCurGfx+2] &= ~0xFF;
-		gfxData[menuCurGfx+2] |= (0 & 0xFF);
+		gfxData[menuFieldGfx+2] &= ~0xFF;
+		gfxData[menuFieldGfx+2] |= (0 & 0xFF);
 		reloadDynamicResources = true;
 	}
 	
 	function ringStartEditing(val)
 	{
-		gfxData[menuCurGfx+3] = (gfxData[menuCurGfx+3] + val + 60)%60;
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3] + val + 60)%60;
 	}
 	
 	function ringEndEditing(val)
 	{
-		gfxData[menuCurGfx+4] = (gfxData[menuCurGfx+4] + val + 60)%60;
+		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4] + val + 60)%60;
 	}
 	
 	function ringGetColorFilled()
 	{
-		return gfxData[menuCurGfx+5];
+		return gfxData[menuFieldGfx+5];
 	}
 	
 	function ringSetColorFilled(val)
 	{
-		gfxData[menuCurGfx+5] = val;
+		gfxData[menuFieldGfx+5] = val;
 	}
 	
 	function ringGetColorUnfilled()
 	{
-		return gfxData[menuCurGfx+6];
+		return gfxData[menuFieldGfx+6];
 	}
 	
 	function ringSetColorUnfilled(val)
 	{
-		gfxData[menuCurGfx+6] = val;
+		gfxData[menuFieldGfx+6] = val;
 	}
 
 	function secondsFontEditing(val)
 	{
-		var temp = (gfxData[menuCurGfx+1] & 0xFF);
+		var temp = (gfxData[menuFieldGfx+1] & 0xFF);
 		temp = (temp+val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
 		
-		gfxData[menuCurGfx+1] &= ~0xFF;
-		gfxData[menuCurGfx+1] |= temp;
+		gfxData[menuFieldGfx+1] &= ~0xFF;
+		gfxData[menuFieldGfx+1] |= temp;
 
 		reloadDynamicResources = true;
 	}
 
 	function secondsRefreshString()
 	{
-		switch ((gfxData[menuCurGfx+1]>>8) & 0xFF)
+		switch ((gfxData[menuFieldGfx+1]>>8) & 0xFF)
 		{
 	   		case 0: return "every second";
 			case 1: return "every minute";
@@ -6729,23 +6752,23 @@ class myEditorView extends myView
 	
 	function secondsRefreshEditing(val)
 	{
-		var temp = ((gfxData[menuCurGfx+1]>>8) & 0xFF);
+		var temp = ((gfxData[menuFieldGfx+1]>>8) & 0xFF);
 		temp = (temp + val + 3)%3;
 		
-		gfxData[menuCurGfx+1] &= ~0xFF00; 
-		gfxData[menuCurGfx+1] |= (temp<<8); 
+		gfxData[menuFieldGfx+1] &= ~0xFF00; 
+		gfxData[menuFieldGfx+1] |= (temp<<8); 
 	}
 	
 	function secondsGetColor(n)
 	{
-		return gfxData[menuCurGfx+2+n];
+		return gfxData[menuFieldGfx+2+n];
 	}
 
 	function secondsSetColor(n, val)
 	{
-		gfxData[menuCurGfx+2+n] = val;
+		gfxData[menuFieldGfx+2+n] = val;
 
-		buildSecondsColorArray(menuCurGfx);
+		buildSecondsColorArray(menuFieldGfx);
 	}
 }
 
@@ -6814,15 +6837,15 @@ class myMenuItemFieldSelect extends myMenuItem
     
     function getString()
     {
-    	return editorView.getGfxName(editorView.menuCurGfx);
+    	return editorView.getGfxName(editorView.menuFieldGfx);
     }
     
     function onNext()
     {
-		var nextIndex = editorView.nextGfxField(editorView.menuCurGfx);
+		var nextIndex = editorView.nextGfxField(editorView.menuFieldGfx);
 		if (nextIndex>=0)
 		{
-			editorView.menuCurGfx = nextIndex;
+			editorView.menuFieldGfx = nextIndex;
 		}
     	else
     	{
@@ -6833,17 +6856,17 @@ class myMenuItemFieldSelect extends myMenuItem
     
     function onPrevious()
     {
-    	var prevIndex = editorView.prevGfxField(editorView.menuCurGfx);
+    	var prevIndex = editorView.prevGfxField(editorView.menuFieldGfx);
     	if (prevIndex>=0)
     	{
-    		editorView.menuCurGfx = prevIndex;
+    		editorView.menuFieldGfx = prevIndex;
     	}
     	return null;
     }
     
     function onSelect()
     {
-		switch (editorView.getGfxId(editorView.menuCurGfx))
+		switch (editorView.getGfxId(editorView.menuFieldGfx))
 		{
 			case 0:		// header
 			{
@@ -6976,7 +6999,7 @@ class myMenuItemAddField extends myMenuItem
 
     	if (index>=0)
     	{
-    		editorView.menuCurGfx = index;
+    		editorView.menuFieldGfx = index;
     		return new myMenuItemFieldSelect();
     	}
     	
@@ -7284,7 +7307,21 @@ class myMenuItemFieldEdit extends myMenuItem
     {
     	switch (fState)
     	{
-			case f_elements: break;
+			case f_elements:
+			{
+				var nextIndex = editorView.nextGfx(editorView.menuFieldGfx);
+				if (nextIndex>=0 && nextIndex<editorView.afterGfxField(editorView.menuFieldGfx))
+				{
+					editorView.menuElementGfx = nextIndex;
+					return new myMenuItemElementSelect();
+				}
+				else
+				{
+					return new myMenuItemAddElement();
+				}
+				return null;
+			}
+				
 			case f_vis: fState = f_visEdit; break;
 			case f_position: fState = f_x; break;
 			case f_align: fState = f_alignEdit; break;
@@ -7335,6 +7372,385 @@ class myMenuItemFieldEdit extends myMenuItem
     	}
 
    		return null;
+    }
+}
+
+(:m2app)
+class myMenuItemElementSelect extends myMenuItem
+{
+	//select element
+	//	edit
+	//		visibility
+	//		data
+	//			color
+	//				next
+	//				previous
+	//				tap
+	//			font
+	//	delete element
+	//add element
+	//	type (largehour, largeminute, largecolon, string, icon, movebar, chart)
+	
+    function initialize()
+    {   	
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	return editorView.getGfxName(editorView.menuElementGfx);
+    }
+    
+    function onNext()
+    {
+		var nextIndex = editorView.nextGfx(editorView.menuElementGfx);
+		if (nextIndex>=0 && nextIndex<editorView.afterGfxField(editorView.menuFieldGfx))
+		{
+			editorView.menuElementGfx = nextIndex;
+		}
+    	else
+    	{
+    		return new myMenuItemAddElement();
+    	}
+    	return null;
+    }
+    
+    function onPrevious()
+    {
+    	var prevIndex = editorView.prevGfx(editorView.menuElementGfx);
+    	if (prevIndex>=0 && prevIndex>editorView.menuFieldGfx)
+    	{
+    		editorView.menuElementGfx = prevIndex;
+    	}
+    	return null;
+    }
+    
+    function onSelect()
+    {
+//		switch (editorView.getGfxId(editorView.menuElementGfx))
+//		{
+//			case 0:		// header
+//			{
+//    			return new myMenuItemHeader();
+//			}
+//
+//			case 1:		// field
+//			{
+//    			return new myMenuItemFieldEdit();
+//			}
+//
+//			case 9:		// rectangle
+//			{
+//    			return new myMenuItemRectangle();
+//			}
+//
+//			case 10:	// ring
+//			{
+//    			return new myMenuItemRing();
+//			}
+//
+//			case 11:	// seconds
+//			{
+//    			return new myMenuItemSeconds();
+//			}
+//
+//			case 2:		// hour large
+//			case 3:		// minute large
+//			case 4:		// colon large
+//			case 5:		// string
+//			case 6:		// icon
+//			case 7:		// movebar
+//			case 8:		// chart
+//			{
+//				break;
+//			}
+//		}
+			
+		return null;
+    }
+    
+    function onBack()
+    {
+    	return new myMenuItemFieldEdit();
+    }
+}
+
+(:m2app)
+class myMenuItemAddElement extends myMenuItem
+{
+	enum
+	{
+		s_top,
+		
+		s_timeLarge,
+		s_time,
+		s_separator,
+		s_date,
+		s_value,
+		s_icon,
+		s_moveBar,
+		s_chart,
+
+		s_hourLarge,
+		s_minuteLarge,
+		s_colonLarge,
+
+		s_dateEdit,
+		s_timeEdit,
+		s_separatorEdit,
+		s_valueEdit,
+	}
+
+	var sState = s_top;
+
+	var dateIds = [
+		3/*FIELD_DAY_NAME*/,		// day name
+		9/*FIELD_MONTH_NAME*/,		// month name
+		4/*FIELD_DAY_OF_WEEK*/,			// day number of week
+		5/*FIELD_DAY_OF_MONTH*/,			// day number of month
+		6/*FIELD_DAY_OF_MONTH_XX*/,			// day number of month XX
+		7/*FIELD_DAY_OF_YEAR*/,				// day number of year
+		8/*FIELD_DAY_OF_YEAR_XXX*/,			// day number of year XXX
+		10/*FIELD_MONTH_OF_YEAR*/,		// month number of year
+		11/*FIELD_MONTH_OF_YEAR_XX*/,			// month number of year XX
+		12/*FIELD_YEAR_XX*/,		// year XX
+		13/*FIELD_YEAR_XXXX*/,		// year XXXX
+		14/*FIELD_WEEK_ISO_XX*/,			// week number of year XX
+		15/*FIELD_WEEK_ISO_WXX*/,		// week number of year WXX
+		16/*FIELD_YEAR_ISO_WEEK_XXXX*/,
+		17/*FIELD_WEEK_CALENDAR_XX*/,			// week number of year XX
+		18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/,
+	];
+	
+	var timeIds = [
+		1/*FIELD_HOUR*/,			// hour
+		2/*FIELD_MINUTE*/,			// minute
+		19/*FIELD_AM*/,
+		20/*FIELD_PM*/,
+		88/*FIELD_2ND_HOUR*/,
+		82/*FIELD_SUNRISE_HOUR*/,
+		83/*FIELD_SUNRISE_MINUTE*/,
+		84/*FIELD_SUNSET_HOUR*/,
+		85/*FIELD_SUNSET_MINUTE*/,
+		86/*FIELD_SUNEVENT_HOUR*/,
+		87/*FIELD_SUNEVENT_MINUTE*/,
+	];
+	
+	var separatorIds = [
+		21/*FIELD_SEPARATOR_SPACE*/,
+		22,
+		23,
+		24,
+		25,
+		26,
+		27,
+		28/*FIELD_SEPARATOR_PERCENT*/,
+	];
+	
+	var valueIds = [
+		31/*FIELD_STEPSCOUNT*/,
+		32/*FIELD_STEPSGOAL*/,
+		33/*FIELD_FLOORSCOUNT*/,
+		34/*FIELD_FLOORSGOAL*/,
+		35/*FIELD_NOTIFICATIONSCOUNT*/,
+		36/*FIELD_BATTERYPERCENTAGE*/,
+		76/*FIELD_HEART_MIN*/,
+		77/*FIELD_HEART_MAX*/,
+		78/*FIELD_HEART_AVERAGE*/,
+		79/*FIELD_HEART_LATEST*/,
+		89/*FIELD_CALORIES*/,
+		90/*FIELD_ACTIVE_CALORIES*/,
+		91/*FIELD_INTENSITY*/,
+		92/*FIELD_INTENSITY_GOAL*/,
+		93/*FIELD_SMART_GOAL*/,
+		94/*FIELD_DISTANCE*/,
+		95/*FIELD_DISTANCE_UNITS*/,
+		96/*FIELD_PRESSURE*/,
+		97/*FIELD_PRESSURE_UNITS*/,
+		98/*FIELD_ALTITUDE*/,
+		99/*FIELD_ALTITUDE_UNITS*/,
+	];
+	
+	var idIndex = 0;
+	var idArray = dateIds;
+	
+    function initialize()
+    {
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	switch (sState)
+    	{
+			case s_top: return "add element";
+			
+			case s_timeLarge: return "add time (large)";
+			case s_time: return "add time";
+			case s_separator: return "add separator";
+			case s_date: return "add date";
+			case s_value: return "add value";
+			case s_icon: return "add icon";
+			case s_moveBar: return "add move bar";
+			case s_chart: return "add chart";
+
+			case s_hourLarge: return "add hour (large)";
+			case s_minuteLarge: return "add minute (large)";
+			case s_colonLarge: return "add colon (large)";
+			
+			case s_dateEdit:
+			case s_timeEdit:
+			case s_separatorEdit:
+			case s_valueEdit:
+				if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
+				{
+					return editorView.getStringTypeName(idArray[idIndex]);
+				}
+				break;
+    	}
+
+    	return "unknown";
+    }
+    
+    function onNext()
+    {
+    	switch (sState)
+    	{
+			case s_top: break;
+			
+			case s_timeLarge: sState = s_time; break;
+			case s_time: sState = s_separator; break;
+			case s_separator: sState = s_date; break;
+			case s_date: sState = s_value; break;
+			case s_value: sState = s_icon; break;
+			case s_icon: sState = s_moveBar; break;
+			case s_moveBar: sState = s_chart; break;
+			case s_chart: sState = s_timeLarge; break;
+
+			case s_hourLarge: sState = s_minuteLarge; break;
+			case s_minuteLarge: sState = s_colonLarge; break;
+			case s_colonLarge: sState = s_hourLarge; break;
+
+			case s_dateEdit:
+			case s_timeEdit:
+			case s_separatorEdit:
+			case s_valueEdit:
+				if (idArray!=null)
+				{
+					idIndex = (idIndex+1)%idArray.size();
+				}
+				break;
+    	}
+
+		return null;
+    }
+    
+    function onPrevious()
+    {
+    	switch (sState)
+    	{
+			case s_top: return new myMenuItemElementSelect();
+			
+			case s_timeLarge: sState = s_chart; break;
+			case s_time: sState = s_timeLarge; break;
+			case s_separator: sState = s_time; break;
+			case s_date: sState = s_separator; break;
+			case s_value: sState = s_date; break;
+			case s_icon: sState = s_value; break;
+			case s_moveBar: sState = s_icon; break;
+			case s_chart: sState = s_moveBar; break;
+
+			case s_hourLarge: sState = s_colonLarge; break;
+			case s_minuteLarge: sState = s_hourLarge; break;
+			case s_colonLarge: sState = s_minuteLarge; break;
+
+			case s_dateEdit:
+			case s_timeEdit:
+			case s_separatorEdit:
+			case s_valueEdit:
+				if (idArray!=null)
+				{
+					idIndex = (idIndex-1+idArray.size())%idArray.size();
+				}
+				break;
+    	}
+
+		return null;
+    }
+    
+    function onSelect()
+    {
+    	var index = -1;
+    	
+    	var afterIndex = editorView.afterGfxField(editorView.menuFieldGfx);
+    	
+    	switch (sState)
+    	{
+			case s_top: sState = s_timeLarge; break;
+			
+			case s_timeLarge: sState = s_hourLarge; break;
+			case s_time: idArray = timeIds; idIndex = 0; sState = s_timeEdit; break;
+			case s_separator: idArray = separatorIds; idIndex = 0; sState = s_separatorEdit; break;
+			case s_date: idArray = dateIds; idIndex = 0; sState = s_dateEdit; break;
+			case s_value: idArray = valueIds; idIndex = 0; sState = s_valueEdit; break;
+			case s_icon: index = editorView.gfxAddIcon(afterIndex); break;
+			case s_moveBar: index = editorView.gfxAddMoveBar(afterIndex); break;
+			case s_chart: index = editorView.gfxAddChart(afterIndex); break;
+
+			case s_hourLarge: index = editorView.gfxAddHourLarge(afterIndex); break;
+			case s_minuteLarge: index = editorView.gfxAddMinuteLarge(afterIndex); break;
+			case s_colonLarge: index = editorView.gfxAddColonLarge(afterIndex); break;
+
+			case s_dateEdit:
+			case s_timeEdit:
+			case s_separatorEdit:
+			case s_valueEdit:
+				if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
+				{
+					index = editorView.gfxAddString(afterIndex, idArray[idIndex]);
+				}
+				break;
+    	}
+
+    	if (index>=0)
+    	{
+    		editorView.menuElementGfx = index;
+    		return new myMenuItemElementSelect();
+    	}
+    	
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	switch (sState)
+    	{
+			case s_top: return new myMenuItemFieldEdit();
+			
+			case s_timeLarge:
+			case s_time:
+			case s_separator:
+			case s_date:
+			case s_value:
+			case s_icon:
+			case s_moveBar:
+			case s_chart:
+				sState = s_top;
+				break;
+
+			case s_hourLarge:
+			case s_minuteLarge:
+			case s_colonLarge:
+				sState = s_timeLarge;
+				break;
+
+			case s_dateEdit: sState = s_date; break;
+			case s_timeEdit: sState = s_time; break;
+			case s_separatorEdit: sState = s_separator; break;
+			case s_valueEdit: sState = s_value; break;
+    	}
+
+    	return null;
     }
 }
 
