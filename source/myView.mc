@@ -74,7 +74,7 @@ class myView
 	var prop2ndTimeZoneOffset = 0;
     
     var propSecondIndicatorOn = false;
-	var propSecondResourceIndex = 0;
+	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 	var propSecondMoveInABit;
     var propSecondRefreshStyle;
 	//enum
@@ -2697,6 +2697,8 @@ class myView
 		return profileActive;
 	}
 	
+	var reloadDynamicResources = false;
+
 	function checkReloadDynamicResources()
 	{
 		return false;
@@ -3711,137 +3713,6 @@ class myView
 		][id];
 	}
 
-	function gfxAddHeader(index)
-	{
-		gfxData[index] = 0;		// id
-		gfxData[index+1] = 0;	// version
-		gfxData[index+2] = 0;	// watch display size
-		gfxData[index+3] = 0;	// background color
-		gfxData[index+4] = 0;	// default field color
-		gfxData[index+5] = 0;	// default field font
-	}
-
-	function gfxAddField(index)
-	{
-		gfxData[index] = 1;		// id & visibility
-		gfxData[index+1] = 0;	// x from left
-		gfxData[index+2] = 0;	// y from bottom
-		gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
-		// total width
-		// x adjustment
-	}
-
-	function gfxAddHourLarge(index)
-	{
-		gfxData[index] = 2;		// id & visibility
-		gfxData[index+1] = 3+1;	// color
-		gfxData[index+2] = 0;	// font
-		// string 0
-		// width 0
-		// string 1
-		// width 1
-	}
-
-	function gfxAddMinuteLarge(index)
-	{
-		gfxData[index] = 3;		// id & visibility
-		gfxData[index+1] = 3+1;	// color
-		gfxData[index+2] = 0;	// font
-		// string 0
-		// width 0
-		// string 1
-		// width 1
-	}
-
-	function gfxAddColonLarge(index)
-	{
-		gfxData[index] = 4;		// id & visibility
-		gfxData[index+1] = 3+1;	// color
-		gfxData[index+2] = 0;	// font
-		// string 0 dummy
-		// width 0 dummy
-		// string 1
-		// width 1
-	}
-
-	function gfxAddString(index)
-	{
-		gfxData[index] = 5;		// id & visibility
-		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 3+1;	// color
-		gfxData[index+3] = 0;	// font & makeUpperCase & diacritics
-		// string start
-		// string end
-		// width
-	}
-
-	function gfxAddIcon(index)
-	{
-		gfxData[index] = 6;		// id & visibility
-		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 3+1;	// color
-		gfxData[index+3] = 0;	// font
-		// char
-		// width
-	}
-
-	function gfxAddMoveBar(index)
-	{
-		gfxData[index] = 7;		// id & visibility
-		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 0;	// font
-		gfxData[index+3] = 3+1;	// color 1
-		gfxData[index+4] = 3+1;	// color 2
-		gfxData[index+5] = 3+1;	// color 3
-		gfxData[index+6] = 3+1;	// color 4
-		gfxData[index+7] = 3+1;	// color 5
-		gfxData[index+8] = COLOR_NOTSET+1;	// color off
-		// level
-		// width
-	}
-
-	function gfxAddChart(index)
-	{
-		gfxData[index] = 8;		// id & visibility
-		gfxData[index+1] = 0;	// type
-		gfxData[index+2] = 3+1;	// color chart
-		gfxData[index+3] = 3+1;	// color axes
-		// width
-	}
-
-	function gfxAddRectangle(index)
-	{
-		gfxData[index] = 9;		// id & visibility
-		gfxData[index+1] = 3+1;	// color
-		gfxData[index+2] = 0;	// x from left
-		gfxData[index+3] = 0;	// y from bottom
-		gfxData[index+4] = 0;	// width
-		gfxData[index+5] = 0;	// height
-	}
-
-	function gfxAddRing(index)
-	{
-		gfxData[index] = 10;	// id & visibility
-		gfxData[index+1] = 0;	// type & direction
-		gfxData[index+2] = 0;	// font
-		gfxData[index+3] = 0;	// start
-		gfxData[index+4] = 59;	// end
-		gfxData[index+5] = 3+1;	// color filled
-		gfxData[index+6] = 0+1;	// color unfilled
-		// start fill, end fill & no fill flag
-	}
-
-	function gfxAddSeconds(index)
-	{
-		gfxData[index] = 11;	// id & visibility
-		gfxData[index+1] = 0;	// font & refresh style
-		gfxData[index+2] = 3+1; // color
-		gfxData[index+3] = COLOR_NOTSET+1; // color5
-		gfxData[index+4] = COLOR_NOTSET+1; // color10
-		gfxData[index+5] = COLOR_NOTSET+1; // color15
-		gfxData[index+6] = COLOR_NOTSET+1; // color0
-	}
-
 	function gfxDelete(index)
 	{
 		var id = (gfxData[index] & 0xFF);
@@ -3868,6 +3739,204 @@ class myView
 		}
 		
 		gfxNum += size;
+		
+		return index;	// return successful index we inserted at (or -1 if no space)
+	}
+
+	function gfxAddHeader(index)
+	{
+		index = gfxInsert(index, 0);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// version
+			gfxData[index+2] = 120;	// watch display size
+			gfxData[index+3] = 0+1;	// background color
+			gfxData[index+4] = 3+1;	// default field color
+			gfxData[index+5] = 0;	// default field font
+		}
+		return index;
+	}
+
+	function gfxAddField(index)
+	{
+		index = gfxInsert(index, 1);
+		if (index>=0)
+		{
+			gfxData[index+1] = 120;	// x from left
+			gfxData[index+2] = 120;	// y from bottom
+			gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
+			// total width
+			// x adjustment
+		}
+		return index;
+	}
+
+	function gfxAddHourLarge(index)
+	{
+		index = gfxInsert(index, 2);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			// string 0
+			// width 0
+			// string 1
+			// width 1
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddMinuteLarge(index)
+	{
+		index = gfxInsert(index, 3);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			// string 0
+			// width 0
+			// string 1
+			// width 1
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddColonLarge(index)
+	{
+		index = gfxInsert(index, 4);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			// string 0 dummy
+			// width 0 dummy
+			// string 1
+			// width 1
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddString(index)
+	{
+		index = gfxInsert(index, 5);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
+			gfxData[index+2] = 3+1;	// color
+			gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
+			// string start
+			// string end
+			// width
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddIcon(index)
+	{
+		index = gfxInsert(index, 6);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type
+			gfxData[index+2] = 3+1;	// color
+			gfxData[index+3] = 0;	// font
+			// char
+			// width
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddMoveBar(index)
+	{
+		index = gfxInsert(index, 7);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type
+			gfxData[index+2] = 0;	// font
+			gfxData[index+3] = 3+1;	// color 1
+			gfxData[index+4] = 3+1;	// color 2
+			gfxData[index+5] = 3+1;	// color 3
+			gfxData[index+6] = 3+1;	// color 4
+			gfxData[index+7] = 3+1;	// color 5
+			gfxData[index+8] = COLOR_NOTSET+1;	// color off
+			// level
+			// width
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddChart(index)
+	{
+		index = gfxInsert(index, 8);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type
+			gfxData[index+2] = 3+1;	// color chart
+			gfxData[index+3] = 3+1;	// color axes
+			// width
+		}
+		return index;
+	}
+
+	function gfxAddRectangle(index)
+	{
+		index = gfxInsert(index, 9);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 120-10;	// x from left
+			gfxData[index+3] = 120-10;	// y from bottom
+			gfxData[index+4] = 20;	// width
+			gfxData[index+5] = 20;	// height
+		}
+		return index;
+	}
+
+	function gfxAddRing(index)
+	{
+		index = gfxInsert(index, 10);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type & direction
+			gfxData[index+2] = 0;	// font
+			gfxData[index+3] = 0;	// start
+			gfxData[index+4] = 59;	// end
+			gfxData[index+5] = 3+1;	// color filled
+			gfxData[index+6] = 0+1;	// color unfilled
+			// start fill, end fill & no fill flag
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddSeconds(index)
+	{
+		index = gfxInsert(index, 11);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;			// font
+			gfxData[index+1] |= (0 << 8);	// refresh style
+			gfxData[index+2] = 3+1; // color
+			gfxData[index+3] = COLOR_NOTSET+1; // color5
+			gfxData[index+4] = COLOR_NOTSET+1; // color10
+			gfxData[index+5] = COLOR_NOTSET+1; // color15
+			gfxData[index+6] = COLOR_NOTSET+1; // color0
+
+			reloadDynamicResources = true;
+		}
+		return index;
 	}
 
 	function gfxDemo()
@@ -3885,147 +3954,25 @@ class myView
 
 		gfxNum = 0;
 		
-		gfxInsert(gfxNum, 0);	// header	
+		gfxAddHeader(gfxNum);	// header	
 
-		gfxInsert(gfxNum, 1);	// field	
-		gfxInsert(gfxNum, 2);	// large hour 
-		gfxInsert(gfxNum, 4);	// large colon
-		gfxInsert(gfxNum, 3);	// large minute
+		gfxAddField(gfxNum);	// field	
+		gfxAddHourLarge(gfxNum);	// large hour 
+		gfxAddColonLarge(gfxNum);	// large colon
+		gfxAddMinuteLarge(gfxNum);	// large minute
 
-		gfxInsert(gfxNum, 1);	// field
-		gfxInsert(gfxNum, 5);	// string
-		//gfxInsert(gfxNum, 6);	// icon
-		//gfxInsert(gfxNum, 7);	// movebar
-		gfxInsert(gfxNum, 8);	// chart
+		gfxAddField(gfxNum);	// field
+		gfxAddString(gfxNum);	// string
+		//gfxAddIcon(gfxNum);	// icon
+		//gfxAddMoveBar(gfxNum);	// movebar
+		gfxAddChart(gfxNum);	// chart
 
-		gfxInsert(gfxNum, 1);	// field
-		gfxInsert(gfxNum, 10);	// ring
+		gfxAddField(gfxNum);	// field
+		gfxAddRing(gfxNum);		// ring
 
-		gfxInsert(gfxNum, 9);	// rectangle
+		gfxAddRectangle(gfxNum);	// rectangle
 
-		gfxInsert(gfxNum, 11);	// seconds
-
-		for (var index=0; index<gfxNum; )
-		{
-			var id = (gfxData[index] & 0xFF);
-			
-			switch(id)
-			{
-				case 0:		// header
-				{
-					break;
-				}
-				
-				case 1:		// field
-				{
-					gfxData[index+1] = 120;	// x from left
-					gfxData[index+2] = 120;	// y from bottom
-					gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
-					break;
-				}
-				
-				case 2:		// hour large
-				case 3:		// minute large
-				case 4:		// colon large
-				{
-					gfxData[index+1] = 3+1;	// color
-					gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
-
-					//gfxData[index+2] = 24/*APPFONT_SYSTEM_XTINY*/;	// font
-					//gfxData[index+2] = 32/*APPFONT_SYSTEM_NUMBER_HUGE*/;	// font
-					//if (id==2)
-					//{
-						//gfxData[index+2] = 0;	// ascent 62
-						//gfxData[index+2] = 6;	// ascent 18
-						//gfxData[index+2] = 12;	// ascent 22
-						//gfxData[index+2] = 18;	// ascent 27
-						//gfxData[index+2] = 24;	// font
-						//gfxData[index+2] = 32;	// font
-					//}
-					
-					break;
-				}
-
-				case 5:		// string
-				{
-					gfxData[index+1] = 3/*FIELD_DAY_NAME*/;		// type
-					gfxData[index+2] = 3+1;	// color
-					gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font
-					
-					break;
-				}
-				
-				case 6:		// icon
-				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 3+1;	// color
-					gfxData[index+3] = 0;	// font
-
-					break;
-				}
-				
-				case 7:		// movebar
-				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 0;	// font
-					gfxData[index+3] = 3+1;	// color 1
-					gfxData[index+4] = 3+1;	// color 2
-					gfxData[index+5] = 3+1;	// color 3
-					gfxData[index+6] = 3+1;	// color 4
-					gfxData[index+7] = 3+1;	// color 5
-					gfxData[index+8] = COLOR_NOTSET+1;	// color off
-
-					break;
-				}
-				
-				case 8:		// chart
-				{
-					gfxData[index+1] = 0;	// type
-					gfxData[index+2] = 3+1;	// color chart
-					gfxData[index+3] = 3+1;	// color axes
-
-					break;
-				}
-				
-				case 9:		// rectangle
-				{
-					gfxData[index+1] = 6+1;	// color
-					gfxData[index+2] = 70;	// x from left
-					gfxData[index+3] = 170;	// y from bottom
-					gfxData[index+4] = 1;	// width
-					gfxData[index+5] = 50;	// height
-					
-					break;
-				}
-				
-				case 10:	// ring
-				{
-					gfxData[index+1] = 0;	// type & direction
-					gfxData[index+2] = 0;	// font
-					gfxData[index+3] = 0;	// start
-					gfxData[index+4] = 59;	// end
-					gfxData[index+5] = 3+1;	// color filled
-					gfxData[index+6] = 0+1;	// color unfilled
-
-					break;
-				}
-				
-				case 11:	// seconds
-				{
-					gfxData[index+1] = 0;	// font
-					gfxData[index+1] |= (0 << 8);	// refresh style
-					gfxData[index+2] = 3+1;	// color
-					gfxData[index+3] = COLOR_NOTSET+1;	// color5
-					gfxData[index+4] = COLOR_NOTSET+1;	// color10
-					gfxData[index+5] = COLOR_NOTSET+1;	// color15
-					gfxData[index+6] = COLOR_NOTSET+1;	// color0
-					
-					break;
-				}
-			}
-			
-			index += gfxSize(id);
-		}
+		gfxAddSeconds(gfxNum);	// seconds
 
 		//gfxToCharArray();
 		//System.println("array=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
@@ -4097,6 +4044,7 @@ class myView
 		var graphics = Graphics;
 
     	propSecondIndicatorOn = false;
+		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
     	
 		var fontList = [
 			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
@@ -4412,6 +4360,9 @@ class myView
 		fieldActiveNotificationsCount = null;
 		fieldActiveLTEStatus = null;
 		
+    	propSecondIndicatorOn = false;
+		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
+
 		var indexCurField = -1;
 		var fieldVisible = false;
 		
@@ -5733,8 +5684,6 @@ class myEditorView extends myView
 	{
     	WatchUi.requestUpdate();
 	}
-
-	var reloadDynamicResources = false;
 	
 	function checkReloadDynamicResources()
 	{
@@ -6611,9 +6560,12 @@ class myEditorView extends myView
 		{
 			var prevField = prevGfxField(menuCurGfx);
 			
-			menuCurGfx = prevField;
-			gfxNum = menuCurGfx; 
+			gfxNum = menuCurGfx;	// new end of array is current position
+			 
+			menuCurGfx = prevField;	// new current position is previous field
 		}
+
+		reloadDynamicResources = true;
 	}
 
 	function rectangleGetColor()
@@ -6942,28 +6894,92 @@ class myMenuItemFieldSelect extends myMenuItem
 (:m2app)
 class myMenuItemAddField extends myMenuItem
 {
+	enum
+	{
+		s_top,
+		s_addHorizontal,
+		s_addFree,
+		s_addRectangle,
+		s_addRing,
+		s_addSeconds,
+	}
+	
+	var sState = s_top;
+
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
     function getString()
     {
-    	return "add field";
+    	switch (sState)
+    	{
+			case s_top: return "add field";
+			
+			case s_addHorizontal: return "add horizontal";
+			case s_addFree:	return "add freeform";
+			case s_addRectangle: return "add rectangle";
+			case s_addRing: return "add ring";
+			case s_addSeconds: return "add seconds";
+    	}
+    	
+    	return "unknown";
     }
     
     function onNext()
     {
-   		return new myMenuItemQuickAdd();
+    	switch (sState)
+    	{
+			case s_top: return new myMenuItemQuickAdd();
+			
+			case s_addHorizontal: sState = s_addFree; break;
+			case s_addFree: sState = s_addRectangle; break;
+			case s_addRectangle: sState = s_addRing; break;
+			case s_addRing: sState = s_addSeconds; break;
+			case s_addSeconds: sState = s_addHorizontal; break;
+    	}
+
+		return null;
     }
     
     function onPrevious()
     {
-   		return new myMenuItemFieldSelect();
+    	switch (sState)
+    	{
+			case s_top: return new myMenuItemFieldSelect();
+			
+			case s_addHorizontal: sState = s_addSeconds; break;
+			case s_addFree: sState = s_addHorizontal; break;
+			case s_addRectangle: sState = s_addFree; break;
+			case s_addRing: sState = s_addRectangle; break;
+			case s_addSeconds: sState = s_addRing; break;
+    	}
+
+		return null;
     }
     
     function onSelect()
     {
+    	var index = -1;
+    	
+    	switch (sState)
+    	{
+			case s_top: sState = s_addHorizontal; return null;
+			
+			case s_addHorizontal: index = editorView.gfxAddField(editorView.gfxNum); break;
+			case s_addFree: index = editorView.gfxAddField(editorView.gfxNum); break;
+			case s_addRectangle: index = editorView.gfxAddRectangle(editorView.gfxNum); break;
+			case s_addRing: index = editorView.gfxAddRing(editorView.gfxNum); break;
+			case s_addSeconds: index = editorView.gfxAddSeconds(editorView.gfxNum); break;
+    	}
+
+    	if (index>=0)
+    	{
+    		editorView.menuCurGfx = index;
+    		return new myMenuItemFieldSelect();
+    	}
+    	
     	return null;
     }
     
@@ -6977,7 +6993,7 @@ class myMenuItemAddField extends myMenuItem
 class myMenuItemQuickAdd extends myMenuItem
 {
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7011,7 +7027,7 @@ class myMenuItemQuickAdd extends myMenuItem
 class myMenuItemSaveProfile extends myMenuItem
 {
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7045,7 +7061,7 @@ class myMenuItemSaveProfile extends myMenuItem
 class myMenuItemLoadProfile extends myMenuItem
 {
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7079,7 +7095,7 @@ class myMenuItemLoadProfile extends myMenuItem
 class myMenuItemReset extends myMenuItem
 {
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7113,7 +7129,7 @@ class myMenuItemReset extends myMenuItem
 class myMenuItemHeader extends myMenuItem
 {
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7171,7 +7187,7 @@ class myMenuItemFieldEdit extends myMenuItem
 	var fState = f_elements;
 
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7220,7 +7236,7 @@ class myMenuItemFieldEdit extends myMenuItem
 			case f_align: fState = f_earlier; break;
 			case f_earlier: fState = f_later; break;
 			case f_later: fState = f_delete; break;
-			case f_delete: break;
+			case f_delete: fState = f_elements; break;
 
 			case f_x: fState = f_y; break;
 			case f_y: fState = f_xCentre; break;
@@ -7241,7 +7257,7 @@ class myMenuItemFieldEdit extends myMenuItem
     {
     	switch (fState)
     	{
-			case f_elements: break;
+			case f_elements: fState = f_delete; break;
 			case f_vis: fState = f_elements; break;
 			case f_position: fState = f_vis; break;
 			case f_align: fState = f_position; break;
@@ -7353,7 +7369,7 @@ class myMenuItemRectangle extends myMenuItem
 	var rState = r_vis;
 
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7398,7 +7414,7 @@ class myMenuItemRectangle extends myMenuItem
 			case r_h: rState = r_earlier; break;
 			case r_earlier: rState = r_later; break;
 			case r_later: rState = r_delete; break;
-			case r_delete: break;
+			case r_delete: rState = r_vis; break;
 
 			case r_x: rState = r_y; break;
 			case r_y: rState = r_xCentre; break;
@@ -7421,7 +7437,7 @@ class myMenuItemRectangle extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: break;
+			case r_vis: rState = r_delete; break;
 			case r_color: rState = r_vis; break;
 			case r_position: rState = r_color; break;
 			case r_w: rState = r_position; break;
@@ -7541,7 +7557,7 @@ class myMenuItemRing extends myMenuItem
 	var rState = r_vis;
 
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7588,7 +7604,7 @@ class myMenuItemRing extends myMenuItem
 			case r_colorUnfilled: rState = r_earlier; break;
 			case r_earlier: rState = r_later; break;
 			case r_later: rState = r_delete; break;
-			case r_delete: break;
+			case r_delete: rState = r_vis; break;
 
 			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case r_typeEdit: editorView.ringTypeEditing(1); break;
@@ -7607,7 +7623,7 @@ class myMenuItemRing extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: break;
+			case r_vis: rState = r_delete; break;
 			case r_type: rState = r_vis; break;
 			case r_font: rState = r_type; break;
 			case r_start: rState = r_font; break;
@@ -7729,7 +7745,7 @@ class myMenuItemSeconds extends myMenuItem
 	//color0
 
     function initialize()
-    {   	
+    {
     	myMenuItem.initialize();
     }
     
@@ -7772,7 +7788,7 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10: sState = s_color15; break;
 			case s_color15: sState = s_color0; break;
 			case s_color0: sState = s_delete; break;
-			case s_delete: break;
+			case s_delete: sState = s_vis; break;
 
 			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case s_fontEdit: editorView.secondsFontEditing(1); break;
@@ -7791,7 +7807,7 @@ class myMenuItemSeconds extends myMenuItem
     {
     	switch (sState)
     	{
-			case s_vis: break;
+			case s_vis: sState = s_delete; break;
 			case s_font: sState = s_vis; break;
 			case s_refresh: sState = s_font; break;
 			case s_color: sState = s_refresh; break;
