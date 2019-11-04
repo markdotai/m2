@@ -4142,7 +4142,7 @@ class myView
 				 	}
 					var resourceIndex = addDynamicResource(fontList[r]);
 					
-					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
 					gfxData[index+2] |= ((r & 0xFF) << 24);		// fontTypeKern
 
 					break;
@@ -4157,25 +4157,27 @@ class myView
 				 	}
 					var resourceIndex = addDynamicResource(fontList[r]);
 					
-					gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+3] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
 				
 				case 6:		// icon
 				{
-					var resourceIndex = addDynamicResource(iconFontList[0]);
+					var r = 0;
+					var resourceIndex = addDynamicResource(iconFontList[r]);
 					
-					gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+3] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
 				
 				case 7:		// movebar
 				{
-					var resourceIndex = addDynamicResource(iconFontList[0]);
+					var r = 0;
+					var resourceIndex = addDynamicResource(iconFontList[r]);
 					
-					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4192,9 +4194,10 @@ class myView
 				
 				case 10:	// ring
 				{
-					var resourceIndex = addDynamicResource(ringFontList[0]);
+					var r = 0;
+					var resourceIndex = addDynamicResource(ringFontList[r]);
 					
-					gfxData[index+2] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4211,7 +4214,7 @@ class myView
 				 	
 					var resourceIndex = addDynamicResource(secondFontList[r]);
 					
-					gfxData[index+1] |= ((resourceIndex & 0xFF) << 16);
+					gfxData[index+1] = r | ((resourceIndex & 0xFF) << 16);
 					
 					break;
 				}
@@ -4483,7 +4486,7 @@ class myView
 						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0
 						gfxData[indexCurField+4] += gfxData[index+4];	// total width
 						
-						if (indexPrevLargeWidth>=0)
+						if (indexPrevLargeWidth>=0 && prevLargeFontKern<6 && fontTypeKern<6)
 						{
 							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
 							gfxData[indexPrevLargeWidth] -= k;
@@ -4501,7 +4504,7 @@ class myView
 						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 1
 						gfxData[indexCurField+4] += gfxData[index+6];	// total width
 	
-						if (indexPrevLargeWidth>=0)
+						if (indexPrevLargeWidth>=0 && prevLargeFontKern<6 && fontTypeKern<6)
 						{
 							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
 							gfxData[indexPrevLargeWidth] -= k;
@@ -4702,7 +4705,7 @@ class myView
 					    case 21/*FIELD_SEPARATOR_SPACE*/:
 					    case 22:
 					    case 23:
-					    case 24:
+					    case 24/*FIELD_SEPARATOR_COLON*/:
 					    case 25:
 					    case 26:
 					    case 27:
@@ -6050,8 +6053,7 @@ class myEditorView extends myView
 	{
 		var eStr = null;
 	
-		var id = (gfxData[index] & 0xFF);
-		switch(id)
+		switch(getGfxId(index))
 		{
 			case 0:		// header
 			{
@@ -6264,7 +6266,7 @@ class myEditorView extends myView
 		    
 		    case 22:
 		    case 23:
-		    case 24:
+		    case 24/*FIELD_SEPARATOR_COLON*/:
 		    case 25:
 		    case 26:
 		    case 27:
@@ -6591,14 +6593,107 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
-	function rectangleGetColor()
+	function elementSwap(prevElement, nextElement)
 	{
-		return gfxData[menuFieldGfx+1];
+		var diff = nextElement - prevElement;
+		var tempArray = gfxData.slice(prevElement, nextElement);
+		
+		var endElement = nextGfx(nextElement);
+		if (endElement<0)
+		{
+			endElement = gfxNum;
+		}
+
+		for (var index=nextElement; index<endElement; index++)
+		{
+			gfxData[index-diff] = gfxData[index];
+		}
+		
+		for (var index=0; index<diff; index++)
+		{
+			gfxData[endElement-diff+index] = tempArray[index];
+		}
+		
+		return endElement-diff;	// new start index of new later field
 	}
 
-	function rectangleSetColor(val)
+	function elementEarlier()
 	{
-		gfxData[menuFieldGfx+1] = val;
+		var prevElement = prevGfx(menuElementGfx);
+		if (prevElement>menuFieldGfx)
+		{
+			elementSwap(prevElement, menuElementGfx);
+
+			menuElementGfx = prevElement;
+		}
+	}
+
+	function elementLater()
+	{
+		var nextElement = nextGfx(menuElementGfx);
+		if (nextElement>=0)
+		{
+			if (nextElement<afterGfxField(menuFieldGfx))
+			{ 
+				menuElementGfx = elementSwap(menuElementGfx, nextElement);
+			}
+		}
+	}
+
+	function elementDelete()
+	{
+		var nextElement = nextGfx(menuElementGfx);
+		if (nextElement>=0)
+		{
+			var diff = nextElement - menuElementGfx;
+			for (var index=nextElement; index<gfxNum; index++)
+			{
+				gfxData[index-diff] = gfxData[index];
+			}			
+
+			gfxNum -= diff;
+
+			if (menuElementGfx>=afterGfxField(menuFieldGfx))
+			{
+				menuElementGfx = prevGfx(menuElementGfx);	// new current position is previous gfx
+			}
+		}
+		else
+		{
+			gfxNum = menuElementGfx;	// new end of array is current position
+
+			menuElementGfx = prevGfx(menuElementGfx);	// new current position is previous gfx
+		}
+
+		reloadDynamicResources = true;
+	}
+
+	function stringColorEditing(val)
+	{
+		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64)%64;
+	}
+
+	function stringFontEditing(val)
+	{
+		var temp = (gfxData[menuElementGfx+3] & 0xFF);
+		// 6 to 28
+		temp = temp+val;
+		if (temp>28)
+		{
+			temp = 6;
+		}
+		else if (temp<6)
+		{
+			temp = 28;
+		}
+		
+		gfxData[menuElementGfx+3] = temp;
+		reloadDynamicResources = true;
+	}
+
+	function rectangleColorEditing(val)
+	{
+		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]+val+64)%64;
 	}
 
 	function rectanglePositionXEditing(val)
@@ -6692,8 +6787,7 @@ class myEditorView extends myView
 	
 	function ringFontEditing(val)
 	{
-		gfxData[menuFieldGfx+2] &= ~0xFF;
-		gfxData[menuFieldGfx+2] |= (0 & 0xFF);
+		gfxData[menuFieldGfx+2] = 0;
 		reloadDynamicResources = true;
 	}
 	
@@ -6707,34 +6801,22 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4] + val + 60)%60;
 	}
 	
-	function ringGetColorFilled()
+	function ringColorFilledEditing(val)
 	{
-		return gfxData[menuFieldGfx+5];
+		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]+val+64)%64;
 	}
 	
-	function ringSetColorFilled(val)
+	function ringColorUnfilledEditing(val)
 	{
-		gfxData[menuFieldGfx+5] = val;
+		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]+val+64)%64;
 	}
 	
-	function ringGetColorUnfilled()
-	{
-		return gfxData[menuFieldGfx+6];
-	}
-	
-	function ringSetColorUnfilled(val)
-	{
-		gfxData[menuFieldGfx+6] = val;
-	}
-
 	function secondsFontEditing(val)
 	{
 		var temp = (gfxData[menuFieldGfx+1] & 0xFF);
 		temp = (temp+val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
 		
-		gfxData[menuFieldGfx+1] &= ~0xFF;
-		gfxData[menuFieldGfx+1] |= temp;
-
+		gfxData[menuFieldGfx+1] = temp;
 		reloadDynamicResources = true;
 	}
 
@@ -6759,14 +6841,9 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+1] |= (temp<<8); 
 	}
 	
-	function secondsGetColor(n)
+	function secondsColorEditing(n, val)
 	{
-		return gfxData[menuFieldGfx+2+n];
-	}
-
-	function secondsSetColor(n, val)
-	{
-		gfxData[menuFieldGfx+2+n] = val;
+		gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]+val+64)%64;
 
 		buildSecondsColorArray(menuFieldGfx);
 	}
@@ -6849,7 +6926,7 @@ class myMenuItemFieldSelect extends myMenuItem
 		}
     	else
     	{
-    		return new myMenuItemAddField();
+    		return new myMenuItemFieldAdd();
     	}
     	return null;
     }
@@ -6915,7 +6992,7 @@ class myMenuItemFieldSelect extends myMenuItem
 }
 
 (:m2app)
-class myMenuItemAddField extends myMenuItem
+class myMenuItemFieldAdd extends myMenuItem
 {
 	enum
 	{
@@ -7032,7 +7109,7 @@ class myMenuItemQuickAdd extends myMenuItem
     
     function onPrevious()
     {
-   		return new myMenuItemAddField();
+   		return new myMenuItemFieldAdd();
     }
     
     function onSelect()
@@ -7317,7 +7394,7 @@ class myMenuItemFieldEdit extends myMenuItem
 				}
 				else
 				{
-					return new myMenuItemAddElement();
+					return new myMenuItemElementAdd();
 				}
 				return null;
 			}
@@ -7410,7 +7487,7 @@ class myMenuItemElementSelect extends myMenuItem
 		}
     	else
     	{
-    		return new myMenuItemAddElement();
+    		return new myMenuItemElementAdd();
     	}
     	return null;
     }
@@ -7427,45 +7504,45 @@ class myMenuItemElementSelect extends myMenuItem
     
     function onSelect()
     {
-//		switch (editorView.getGfxId(editorView.menuElementGfx))
-//		{
-//			case 0:		// header
-//			{
-//    			return new myMenuItemHeader();
-//			}
-//
-//			case 1:		// field
-//			{
-//    			return new myMenuItemFieldEdit();
-//			}
-//
-//			case 9:		// rectangle
-//			{
-//    			return new myMenuItemRectangle();
-//			}
-//
-//			case 10:	// ring
-//			{
-//    			return new myMenuItemRing();
-//			}
-//
-//			case 11:	// seconds
-//			{
-//    			return new myMenuItemSeconds();
-//			}
-//
-//			case 2:		// hour large
-//			case 3:		// minute large
-//			case 4:		// colon large
-//			case 5:		// string
-//			case 6:		// icon
-//			case 7:		// movebar
-//			case 8:		// chart
-//			{
-//				break;
-//			}
-//		}
+		switch(editorView.getGfxId(editorView.menuElementGfx))
+		{
+			case 0:		// header
+				break;
+
+			case 1:		// field
+				break;
+
+			case 2:		// hour large
+				break;
+
+			case 3:		// minute large
+				break;
+
+			case 4:		// colon large
+				break;
+
+			case 5:		// string
+				return new myMenuItemElementString();
 			
+			case 6:		// icon
+				break;
+			
+			case 7:		// movebar
+				break;
+			
+			case 8:		// chart
+				break;
+			
+			case 9:		// rectangle
+				break;
+			
+			case 10:	// ring
+				break;
+			
+			case 11:	// seconds
+				break;
+		}
+
 		return null;
     }
     
@@ -7476,7 +7553,127 @@ class myMenuItemElementSelect extends myMenuItem
 }
 
 (:m2app)
-class myMenuItemAddElement extends myMenuItem
+class myMenuItemElementString extends myMenuItem
+{
+	enum
+	{
+		//f_type,
+		f_color,
+		f_font,
+		f_earlier,
+		f_later,
+		f_delete,
+
+		f_colorEdit,
+		f_fontEdit,
+	}
+
+	var fState = f_color;
+
+    function initialize()
+    {
+    	myMenuItem.initialize();
+    }
+    
+    function getString()
+    {
+    	switch (fState)
+    	{
+			case f_color: return "color";
+			case f_font: return "font";
+			case f_earlier: return "move earlier";
+			case f_later: return "move later";
+			case f_delete: return "delete element";
+
+			case f_colorEdit: return "editing ...";
+			case f_fontEdit: return "editing ...";
+    	}
+    	
+    	return "unknown";
+    }
+    
+    function onNext()
+    {
+    	switch (fState)
+    	{
+			case f_color: fState = f_font; break;
+			case f_font: fState = f_earlier; break;
+			case f_earlier: fState = f_later; break;
+			case f_later: fState = f_delete; break;
+			case f_delete: fState = f_color; break;
+
+			case f_colorEdit: editorView.stringColorEditing(1); break;
+			case f_fontEdit: editorView.stringFontEditing(1); break;
+    	}
+
+   		return null;
+    }
+    
+    function onPrevious()
+    {
+    	switch (fState)
+    	{
+			case f_color: fState = f_delete; break;
+			case f_font: fState = f_color; break;
+			case f_earlier: fState = f_font; break;
+			case f_later: fState = f_earlier; break;
+			case f_delete: fState = f_later; break;
+
+			case f_colorEdit: editorView.stringColorEditing(-1); break;
+			case f_fontEdit: editorView.stringFontEditing(-1); break;
+    	}
+
+   		return null;
+    }
+    
+    function onSelect()
+    {
+    	switch (fState)
+    	{
+			case f_color: fState = f_colorEdit; break;
+			case f_font: fState = f_fontEdit; break;
+			case f_earlier: editorView.elementEarlier(); break;
+			case f_later: editorView.elementLater(); break;
+
+			case f_delete:
+				editorView.elementDelete();
+				if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
+				{
+					return new myMenuItemElementSelect();
+				}
+				else
+				{
+					return new myMenuItemElementAdd();
+				}
+
+			case f_colorEdit: break;
+			case f_fontEdit: break;
+    	}
+
+    	return null;
+    }
+    
+    function onBack()
+    {
+    	switch (fState)
+    	{
+			case f_color:
+			case f_font:
+			case f_earlier:
+			case f_later:
+			case f_delete:
+				return new myMenuItemElementSelect();
+
+			case f_colorEdit: fState = f_color; break;
+			case f_fontEdit: fState = f_font; break;
+    	}
+
+   		return null;
+    }
+}
+
+(:m2app)
+class myMenuItemElementAdd extends myMenuItem
 {
 	enum
 	{
@@ -7495,14 +7692,40 @@ class myMenuItemAddElement extends myMenuItem
 		s_minuteLarge,
 		s_colonLarge,
 
-		s_dateEdit,
 		s_timeEdit,
 		s_separatorEdit,
+		s_dateEdit,
 		s_valueEdit,
 	}
 
 	var sState = s_top;
 
+	var timeIds = [
+		1/*FIELD_HOUR*/,			// hour
+		2/*FIELD_MINUTE*/,			// minute
+		24/*FIELD_SEPARATOR_COLON*/,
+		19/*FIELD_AM*/,
+		20/*FIELD_PM*/,
+		88/*FIELD_2ND_HOUR*/,
+		82/*FIELD_SUNRISE_HOUR*/,
+		83/*FIELD_SUNRISE_MINUTE*/,
+		84/*FIELD_SUNSET_HOUR*/,
+		85/*FIELD_SUNSET_MINUTE*/,
+		86/*FIELD_SUNEVENT_HOUR*/,
+		87/*FIELD_SUNEVENT_MINUTE*/,
+	];
+	
+	var separatorIds = [
+		21/*FIELD_SEPARATOR_SPACE*/,
+		22,
+		23,
+		24/*FIELD_SEPARATOR_COLON*/,
+		25,
+		26,
+		27,
+		28/*FIELD_SEPARATOR_PERCENT*/,
+	];
+	
 	var dateIds = [
 		3/*FIELD_DAY_NAME*/,		// day name
 		9/*FIELD_MONTH_NAME*/,		// month name
@@ -7522,31 +7745,6 @@ class myMenuItemAddElement extends myMenuItem
 		18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/,
 	];
 	
-	var timeIds = [
-		1/*FIELD_HOUR*/,			// hour
-		2/*FIELD_MINUTE*/,			// minute
-		19/*FIELD_AM*/,
-		20/*FIELD_PM*/,
-		88/*FIELD_2ND_HOUR*/,
-		82/*FIELD_SUNRISE_HOUR*/,
-		83/*FIELD_SUNRISE_MINUTE*/,
-		84/*FIELD_SUNSET_HOUR*/,
-		85/*FIELD_SUNSET_MINUTE*/,
-		86/*FIELD_SUNEVENT_HOUR*/,
-		87/*FIELD_SUNEVENT_MINUTE*/,
-	];
-	
-	var separatorIds = [
-		21/*FIELD_SEPARATOR_SPACE*/,
-		22,
-		23,
-		24,
-		25,
-		26,
-		27,
-		28/*FIELD_SEPARATOR_PERCENT*/,
-	];
-	
 	var valueIds = [
 		31/*FIELD_STEPSCOUNT*/,
 		32/*FIELD_STEPSGOAL*/,
@@ -7554,6 +7752,7 @@ class myMenuItemAddElement extends myMenuItem
 		34/*FIELD_FLOORSGOAL*/,
 		35/*FIELD_NOTIFICATIONSCOUNT*/,
 		36/*FIELD_BATTERYPERCENTAGE*/,
+		28/*FIELD_SEPARATOR_PERCENT*/,
 		76/*FIELD_HEART_MIN*/,
 		77/*FIELD_HEART_MAX*/,
 		78/*FIELD_HEART_AVERAGE*/,
@@ -7598,9 +7797,9 @@ class myMenuItemAddElement extends myMenuItem
 			case s_minuteLarge: return "add minute (large)";
 			case s_colonLarge: return "add colon (large)";
 			
-			case s_dateEdit:
 			case s_timeEdit:
 			case s_separatorEdit:
+			case s_dateEdit:
 			case s_valueEdit:
 				if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
 				{
@@ -7631,9 +7830,9 @@ class myMenuItemAddElement extends myMenuItem
 			case s_minuteLarge: sState = s_colonLarge; break;
 			case s_colonLarge: sState = s_hourLarge; break;
 
-			case s_dateEdit:
 			case s_timeEdit:
 			case s_separatorEdit:
+			case s_dateEdit:
 			case s_valueEdit:
 				if (idArray!=null)
 				{
@@ -7664,9 +7863,9 @@ class myMenuItemAddElement extends myMenuItem
 			case s_minuteLarge: sState = s_hourLarge; break;
 			case s_colonLarge: sState = s_minuteLarge; break;
 
-			case s_dateEdit:
 			case s_timeEdit:
 			case s_separatorEdit:
+			case s_dateEdit:
 			case s_valueEdit:
 				if (idArray!=null)
 				{
@@ -7701,9 +7900,9 @@ class myMenuItemAddElement extends myMenuItem
 			case s_minuteLarge: index = editorView.gfxAddMinuteLarge(afterIndex); break;
 			case s_colonLarge: index = editorView.gfxAddColonLarge(afterIndex); break;
 
-			case s_dateEdit:
 			case s_timeEdit:
 			case s_separatorEdit:
+			case s_dateEdit:
 			case s_valueEdit:
 				if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
 				{
@@ -7744,9 +7943,9 @@ class myMenuItemAddElement extends myMenuItem
 				sState = s_timeLarge;
 				break;
 
-			case s_dateEdit: sState = s_date; break;
 			case s_timeEdit: sState = s_time; break;
 			case s_separatorEdit: sState = s_separator; break;
+			case s_dateEdit: sState = s_date; break;
 			case s_valueEdit: sState = s_value; break;
     	}
 
@@ -7839,7 +8038,7 @@ class myMenuItemRectangle extends myMenuItem
 			case r_tap: rState = r_x; break;
 
 			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
-			case r_colorEdit: editorView.rectangleSetColor((editorView.rectangleGetColor()+1)%64); break;
+			case r_colorEdit: editorView.rectangleColorEditing(1); break;
 			case r_xEdit: editorView.rectanglePositionXEditing(-1); break;
 			case r_yEdit: editorView.rectanglePositionYEditing(-1); break;
 			case r_wEdit: editorView.rectangleWidthEditing(-1); break;
@@ -7869,7 +8068,7 @@ class myMenuItemRectangle extends myMenuItem
 			case r_tap: rState = r_yCentre; break;
 
 			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
-			case r_colorEdit: editorView.rectangleSetColor((editorView.rectangleGetColor()+64-1)%64); break;
+			case r_colorEdit: editorView.rectangleColorEditing(-1); break;
 			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
 			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
 			case r_wEdit: editorView.rectangleWidthEditing(1); break;
@@ -8028,8 +8227,8 @@ class myMenuItemRing extends myMenuItem
 			case r_startEdit: editorView.ringStartEditing(1); break;
 			case r_endEdit: editorView.ringEndEditing(1); break;
 			case r_directionEdit: editorView.ringDirectionEditing(); break;
-			case r_colorFilledEdit: editorView.ringSetColorFilled((editorView.ringGetColorFilled()+1)%64); break;
-			case r_colorUnfilledEdit: editorView.ringSetColorUnfilled((editorView.ringGetColorUnfilled()+1)%64); break;
+			case r_colorFilledEdit: editorView.ringColorFilledEditing(1); break;
+			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(1); break;
     	}
 
    		return null;
@@ -8057,8 +8256,8 @@ class myMenuItemRing extends myMenuItem
 			case r_startEdit: editorView.ringStartEditing(-1); break;
 			case r_endEdit: editorView.ringEndEditing(-1); break;
 			case r_directionEdit: editorView.ringDirectionEditing(); break;
-			case r_colorFilledEdit: editorView.ringSetColorFilled((editorView.ringGetColorFilled()+64-1)%64); break;
-			case r_colorUnfilledEdit: editorView.ringSetColorUnfilled((editorView.ringGetColorUnfilled()+64-1)%64); break;
+			case r_colorFilledEdit: editorView.ringColorFilledEditing(-1); break;
+			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(-1); break;
     	}
 
    		return null;
@@ -8209,11 +8408,11 @@ class myMenuItemSeconds extends myMenuItem
 			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case s_fontEdit: editorView.secondsFontEditing(1); break;
 			case s_refreshEdit: editorView.secondsRefreshEditing(1); break;
-			case s_colorEdit: editorView.secondsSetColor(0, (editorView.secondsGetColor(0)+1)%64); break;
-			case s_color5Edit: editorView.secondsSetColor(1, (editorView.secondsGetColor(1)+1)%64); break;
-			case s_color10Edit: editorView.secondsSetColor(2, (editorView.secondsGetColor(2)+1)%64); break;
-			case s_color15Edit: editorView.secondsSetColor(3, (editorView.secondsGetColor(3)+1)%64); break;
-			case s_color0Edit: editorView.secondsSetColor(4, (editorView.secondsGetColor(4)+1)%64); break;
+			case s_colorEdit: editorView.secondsColorEditing(0, 1); break;
+			case s_color5Edit: editorView.secondsColorEditing(1, 1); break;
+			case s_color10Edit: editorView.secondsColorEditing(2, 1); break;
+			case s_color15Edit: editorView.secondsColorEditing(3, 1); break;
+			case s_color0Edit: editorView.secondsColorEditing(4, 1); break;
     	}
     	
    		return null;
@@ -8236,11 +8435,11 @@ class myMenuItemSeconds extends myMenuItem
 			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
 			case s_fontEdit: editorView.secondsFontEditing(-1); break;
 			case s_refreshEdit: editorView.secondsRefreshEditing(-1); break;
-			case s_colorEdit: editorView.secondsSetColor(0, (editorView.secondsGetColor(0)+64-1)%64); break;
-			case s_color5Edit: editorView.secondsSetColor(1, (editorView.secondsGetColor(1)+64-1)%64); break;
-			case s_color10Edit: editorView.secondsSetColor(2, (editorView.secondsGetColor(2)+64-1)%64); break;
-			case s_color15Edit: editorView.secondsSetColor(3, (editorView.secondsGetColor(3)+64-1)%64); break;
-			case s_color0Edit: editorView.secondsSetColor(4, (editorView.secondsGetColor(4)+64-1)%64); break;
+			case s_colorEdit: editorView.secondsColorEditing(0, -1); break;
+			case s_color5Edit: editorView.secondsColorEditing(1, -1); break;
+			case s_color10Edit: editorView.secondsColorEditing(2, -1); break;
+			case s_color15Edit: editorView.secondsColorEditing(3, -1); break;
+			case s_color0Edit: editorView.secondsColorEditing(4, -1); break;
     	}
     	
    		return null;
