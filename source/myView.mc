@@ -6691,6 +6691,22 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function moveBarFontEditing(val)
+	{
+		gfxData[menuElementGfx+2] = 0;
+		reloadDynamicResources = true;
+	}
+
+	function moveBarColorEditing(n, val)
+	{
+		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]+val+64)%64;
+	}
+
+	function moveBarColorOffEditing(val)
+	{
+		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]+1+val+65)%65 - 1;		// allow for COLOR_NOTSET (-1)
+	}
+
 	function rectangleColorEditing(val)
 	{
 		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]+val+64)%64;
@@ -7522,13 +7538,13 @@ class myMenuItemElementSelect extends myMenuItem
 				break;
 
 			case 5:		// string
-				return new myMenuItemElementString();
+				return new myMenuItemElementEdit(5);
 			
 			case 6:		// icon
 				break;
 			
 			case 7:		// movebar
-				break;
+				return new myMenuItemElementEdit(7);
 			
 			case 8:		// chart
 				break;
@@ -7552,125 +7568,305 @@ class myMenuItemElementSelect extends myMenuItem
     }
 }
 
+
 (:m2app)
-class myMenuItemElementString extends myMenuItem
+class myMenuItemElementEdit extends myMenuItem
 {
-	enum
-	{
-		//f_type,
-		f_color,
-		f_font,
-		f_earlier,
-		f_later,
-		f_delete,
+	var globalStrings = [
+		"unknown",
+		
+		"color",
+		"font",
+		"move earlier",
+		"move later",
+		"delete element",
+		"editing ...",
 
-		f_colorEdit,
-		f_fontEdit,
-	}
+		"color 1",
+		"color 2",
+		"color 3",
+		"color 4",
+		"color 5",
+		"color off",
+	];
+	
+//	enum
+//	{
+//		//f_type,
+//		f_color,
+//		f_font,
+//		f_earlier,
+//		f_later,
+//		f_delete,
+//
+//		f_colorEdit,
+//		f_fontEdit,
+//	}
 
-	var fState = f_color;
+// move bar
+//		gfxData[index+1] = 0;	// type
+//		gfxData[index+2] = 0;	// font
+//		gfxData[index+3] = 3+1;	// color 1
+//		gfxData[index+4] = 3+1;	// color 2
+//		gfxData[index+5] = 3+1;	// color 3
+//		gfxData[index+6] = 3+1;	// color 4
+//		gfxData[index+7] = 3+1;	// color 5
+//		gfxData[index+8] = COLOR_NOTSET+1;	// color off
 
-    function initialize()
+	var fId = 0;
+
+	var fStringsString = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		6,
+	];
+	
+	var fStringsMoveBar = [
+		2,
+		7,
+		8,
+		9,
+		10,
+		11,
+		12,
+		3,
+		4,
+		5,
+		6,
+		6,
+		6,
+		6,
+		6,
+		6,
+		6,
+	];
+	
+	var fState = 0/*f_color*/;
+
+	var fStrings;
+	var fNumTop;
+
+    function initialize(id)
     {
     	myMenuItem.initialize();
+    	
+    	fId = id;
+    	
+    	if (fId==5)
+    	{
+    		fStrings = fStringsString;
+    		fNumTop = 5;
+    	}
+    	else if (fId==7)
+    	{
+    		fStrings = fStringsMoveBar;
+    		fNumTop = 10;
+    	}
     }
     
     function getString()
     {
-    	switch (fState)
-    	{
-			case f_color: return "color";
-			case f_font: return "font";
-			case f_earlier: return "move earlier";
-			case f_later: return "move later";
-			case f_delete: return "delete element";
-
-			case f_colorEdit: return "editing ...";
-			case f_fontEdit: return "editing ...";
-    	}
-    	
-    	return "unknown";
+    	return globalStrings[fStrings[fState]];
     }
     
     function onNext()
     {
-    	switch (fState)
-    	{
-			case f_color: fState = f_font; break;
-			case f_font: fState = f_earlier; break;
-			case f_earlier: fState = f_later; break;
-			case f_later: fState = f_delete; break;
-			case f_delete: fState = f_color; break;
+//    	if (fState<5)
+//    	{
+//    		fState = (fState+1)%5;
+//    	}
+//    	else
+//    	{
+//    		var f = [editorView.method(:stringColorEditing), editorView.method(:stringFontEditing)];
+//    		
+//    		f[fState-5].invoke(1);
+//    	}
 
-			case f_colorEdit: editorView.stringColorEditing(1); break;
-			case f_fontEdit: editorView.stringFontEditing(1); break;
+    	if (fState<fNumTop)
+    	{
+    		fState = (fState+1)%fNumTop;
     	}
+    	else
+    	{
+    		if (fId==5)	// string
+    		{
+		    	if (fState==5)
+		    	{
+		    		editorView.stringColorEditing(1);
+		    	}
+		    	else if (fState==6)
+		    	{
+		    		editorView.stringFontEditing(1);
+		    	}
+		    }
+    		else if (fId==7)	// movebar
+    		{
+		    	if (fState==10)
+		    	{
+		    		editorView.moveBarFontEditing(1);
+		    	}
+		    	else if (fState<16)
+		    	{
+		    		editorView.moveBarColorEditing(fState-11, 1);
+		    	}
+		    	else if (fState==16)
+		    	{
+		    		editorView.moveBarColorOffEditing(1);
+		    	}
+		    }
+		}
+		    
+//    	switch (fState)
+//    	{
+//			case f_color: fState = f_font; break;
+//			case f_font: fState = f_earlier; break;
+//			case f_earlier: fState = f_later; break;
+//			case f_later: fState = f_delete; break;
+//			case f_delete: fState = f_color; break;
+//
+//			case f_colorEdit: editorView.stringColorEditing(1); break;
+//			case f_fontEdit: editorView.stringFontEditing(1); break;
+//    	}
 
    		return null;
     }
     
     function onPrevious()
     {
-    	switch (fState)
+    	if (fState<fNumTop)
     	{
-			case f_color: fState = f_delete; break;
-			case f_font: fState = f_color; break;
-			case f_earlier: fState = f_font; break;
-			case f_later: fState = f_earlier; break;
-			case f_delete: fState = f_later; break;
-
-			case f_colorEdit: editorView.stringColorEditing(-1); break;
-			case f_fontEdit: editorView.stringFontEditing(-1); break;
+    		fState = (fState-1+fNumTop)%fNumTop;
     	}
+    	else
+    	{
+    		if (fId==5)	// string
+    		{
+		    	if (fState==5)
+		    	{
+		    		editorView.stringColorEditing(-1);
+		    	}
+		    	else if (fState==6)
+		    	{
+		    		editorView.stringFontEditing(-1);
+		    	}
+		    }
+    		else if (fId==7)	// movebar
+    		{
+		    	if (fState==10)
+		    	{
+		    		editorView.moveBarFontEditing(-1);
+		    	}
+		    	else if (fState<16)
+		    	{
+		    		editorView.moveBarColorEditing(fState-11, -1);
+		    	}
+		    	else if (fState==16)
+		    	{
+		    		editorView.moveBarColorOffEditing(-1);
+		    	}
+		    }
+		}
+		    
+//    	switch (fState)
+//    	{
+//			case f_color: fState = f_delete; break;
+//			case f_font: fState = f_color; break;
+//			case f_earlier: fState = f_font; break;
+//			case f_later: fState = f_earlier; break;
+//			case f_delete: fState = f_later; break;
+//
+//			case f_colorEdit: editorView.stringColorEditing(-1); break;
+//			case f_fontEdit: editorView.stringFontEditing(-1); break;
+//    	}
 
    		return null;
     }
     
     function onSelect()
     {
-    	switch (fState)
+    	if (fState<fNumTop-3)
     	{
-			case f_color: fState = f_colorEdit; break;
-			case f_font: fState = f_fontEdit; break;
-			case f_earlier: editorView.elementEarlier(); break;
-			case f_later: editorView.elementLater(); break;
-
-			case f_delete:
-				editorView.elementDelete();
-				if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
-				{
-					return new myMenuItemElementSelect();
-				}
-				else
-				{
-					return new myMenuItemElementAdd();
-				}
-
-			case f_colorEdit: break;
-			case f_fontEdit: break;
+			fState += fNumTop;
     	}
+    	else if (fState==fNumTop-3)
+    	{
+			editorView.elementEarlier();
+    	}
+    	else if (fState==fNumTop-2)
+    	{
+    		editorView.elementLater();
+    	}
+    	else if (fState==fNumTop-1)
+    	{
+			editorView.elementDelete();
+			if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
+			{
+				return new myMenuItemElementSelect();
+			}
+			else
+			{
+				return new myMenuItemElementAdd();
+			}
+    	}
+    
+//    	switch (fState)
+//    	{
+//			case f_color: fState = f_colorEdit; break;
+//			case f_font: fState = f_fontEdit; break;
+//			
+//			case f_earlier: editorView.elementEarlier(); break;
+//			case f_later: editorView.elementLater(); break;
+//
+//			case f_delete:
+//				editorView.elementDelete();
+//				if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
+//				{
+//					return new myMenuItemElementSelect();
+//				}
+//				else
+//				{
+//					return new myMenuItemElementAdd();
+//				}
+//
+//			case f_colorEdit: break;
+//			case f_fontEdit: break;
+//    	}
 
     	return null;
     }
     
     function onBack()
     {
-    	switch (fState)
+    	if (fState<fNumTop)
     	{
-			case f_color:
-			case f_font:
-			case f_earlier:
-			case f_later:
-			case f_delete:
-				return new myMenuItemElementSelect();
-
-			case f_colorEdit: fState = f_color; break;
-			case f_fontEdit: fState = f_font; break;
+			return new myMenuItemElementSelect();
     	}
+    	else
+    	{
+			fState -= fNumTop;
+    	}
+    
+//    	switch (fState)
+//    	{
+//			case f_color:
+//			case f_font:
+//			case f_earlier:
+//			case f_later:
+//			case f_delete:
+//				return new myMenuItemElementSelect();
+//
+//			case f_colorEdit: fState = f_color; break;
+//			case f_fontEdit: fState = f_font; break;
+//    	}
 
    		return null;
     }
 }
+
 
 (:m2app)
 class myMenuItemElementAdd extends myMenuItem
