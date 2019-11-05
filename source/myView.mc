@@ -3030,17 +3030,20 @@ class myView
 			//useDc.drawLine(i, 0, i, 30);
 		}
 
-		if (axesSide)
+		if (axesSide || axesBottom)
 		{
 			useDc.setColor(colorAxes, -1/*COLOR_TRANSPARENT*/);
-			
-			// draw the axes
-			useDc.fillRectangle(x-2, y - 20/*heartChartHeight*/, 1, 20/*heartChartHeight*/+1);				// left
-			useDc.fillRectangle(x+(4/*heartOneBarWidth*/*12/*heartNumBins*/), y-20/*heartChartHeight*/, 1, 20/*heartChartHeight*/+1);		// right
-			
+
+			if (axesSide)
+			{	
+				// draw the axes
+				useDc.fillRectangle(x-2, y - 20/*heartChartHeight*/, 1, 20/*heartChartHeight*/+1);				// left
+				useDc.fillRectangle(x+(4/*heartOneBarWidth*/*12/*heartNumBins*/), y-20/*heartChartHeight*/, 1, 20/*heartChartHeight*/+1);		// right
+			}
+	
 			if (axesBottom)
 			{
-				useDc.fillRectangle(x-1, y, (4/*heartOneBarWidth*/*12/*heartNumBins*/)+1, 1);				// bottom
+				useDc.fillRectangle(x+(axesSide?-1:0), y, (4/*heartOneBarWidth*/*12/*heartNumBins*/)+(axesSide?1:-1), 1);				// bottom
 			}
 		}
 	}
@@ -5039,8 +5042,8 @@ class myView
 					calculateHeartRate(minute, second);
 					heartChartVisible = true;	// we know it is visible now
 
-					var axesSide = true;
-					var axesBottom = false;
+					var axesSide = ((gfxData[index+1]&0x01)!=0);
+					//var axesBottom = ((gfxData[index+1]&0x02)!=0);
 
 					gfxData[index+4] = (axesSide ? 55 : 51);	// width
 					gfxData[indexCurField+4] += gfxData[index+4];	// total width					
@@ -5478,8 +5481,8 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)	// check element x overlaps buffer
 					{
-						var axesSide = true;
-						var axesBottom = false;
+						var axesSide = ((gfxData[index+1]&0x01)!=0);
+						var axesBottom = ((gfxData[index+1]&0x02)!=0);
 	
 						drawHeartChart(dc, fieldX, fieldYStart+6, getColor64(gfxData[index+2]-1), getColor64(gfxData[index+3]-1), axesSide, axesBottom);		// draw heart rate chart
 					}
@@ -6449,9 +6452,9 @@ class myEditorView extends myView
 		return eStr;
 	}
 
-	function fieldVisibilityString()
+	function getVisibilityString(vis)
 	{
-		switch (fieldGetVisibility())
+		switch (vis)
 		{
 			case 0/*STATUS_ALWAYSON*/: return "always on";
 		    case 1/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
@@ -6483,13 +6486,20 @@ class myEditorView extends myView
     	return "unknown";
 	}
 	
+	function fieldVisibilityString()
+	{
+		return getVisibilityString(fieldGetVisibility());
+	}
+
 	function fieldGetVisibility()
 	{
 		return ((gfxData[menuFieldGfx] >> 8) & 0xFF);
 	}
 
-	function fieldSetVisibility(val)
+	function fieldVisibilityEditing(val)
 	{
+		val = (fieldGetVisibility()+val+25/*STATUS_NUM*/)%25/*STATUS_NUM*/;
+
 		gfxData[menuFieldGfx] &= ~(0xFF << 8);
 		gfxData[menuFieldGfx] |= ((val & 0xFF) << 8);
 	}
@@ -6514,14 +6524,14 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+2] = 120;
 	}
 
-	function fieldSetAlignment(val)
-	{
-		gfxData[menuFieldGfx+3] = val;
-	}
-
 	function fieldGetAlignment()
 	{
 		return gfxData[menuFieldGfx+3];
+	}
+
+	function fieldAlignmentEditing(val)
+	{
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
 	}
 
 	function fieldSwap(prevField, nextField)
@@ -6591,6 +6601,24 @@ class myEditorView extends myView
 		}
 
 		reloadDynamicResources = true;
+	}
+
+	function elementVisibilityString()
+	{
+		return getVisibilityString(elementGetVisibility());
+	}
+
+	function elementGetVisibility()
+	{
+		return ((gfxData[menuElementGfx] >> 8) & 0xFF);
+	}
+
+	function elementVisibilityEditing(val)
+	{
+		val = (elementGetVisibility()+val+25/*STATUS_NUM*/)%25/*STATUS_NUM*/;
+
+		gfxData[menuElementGfx] &= ~(0xFF << 8);
+		gfxData[menuElementGfx] |= ((val & 0xFF) << 8);
 	}
 
 	function elementSwap(prevElement, nextElement)
@@ -6668,6 +6696,33 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function largeColorEditing(val)
+	{
+		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+64)%64;
+	}
+
+	function largeFontEditing(val)
+	{
+		// 0-5, 33-38, 29-32
+		var f = [0, 1, 2, 3, 4, 5, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32];
+		
+		var temp = (gfxData[menuElementGfx+2] & 0xFF);
+		var i = f.indexOf(temp);
+		i = i+val;
+		
+		if (i<0)
+		{
+			i = f.size()-1;
+		}
+		else if (i>=f.size())
+		{
+			i = 0;
+		}
+		
+		gfxData[menuElementGfx+2] = f[i];
+		reloadDynamicResources = true;
+	}
+
 	function stringColorEditing(val)
 	{
 		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64)%64;
@@ -6691,6 +6746,12 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function iconFontEditing(val)
+	{
+		gfxData[menuElementGfx+3] = 0;
+		reloadDynamicResources = true;
+	}
+
 	function moveBarFontEditing(val)
 	{
 		gfxData[menuElementGfx+2] = 0;
@@ -6705,6 +6766,20 @@ class myEditorView extends myView
 	function moveBarColorOffEditing(val)
 	{
 		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]+1+val+65)%65 - 1;		// allow for COLOR_NOTSET (-1)
+	}
+
+	function chartTypeEditing(val)
+	{
+		var axes = (gfxData[menuElementGfx+1]&0x03);
+		axes = (axes+val+4)%4;
+
+		gfxData[menuElementGfx+1] &= ~0x03;
+		gfxData[menuElementGfx+1] |= (axes&0x03);
+	}
+
+	function chartColorEditing(n, val)
+	{
+		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]+val+64)%64;
 	}
 
 	function rectangleColorEditing(val)
@@ -7281,9 +7356,9 @@ class myMenuItemFieldEdit extends myMenuItem
 	enum
 	{
 		f_elements,
-		f_vis,
 		f_position,
 		f_align,
+		f_vis,
 		f_earlier,
 		f_later,
 		f_delete,
@@ -7294,10 +7369,10 @@ class myMenuItemFieldEdit extends myMenuItem
 		f_yCentre,
 		f_tap,
 
-		f_visEdit,
 		f_xEdit,
 		f_yEdit,
 		f_alignEdit,
+		f_visEdit,
 	}
 
 	var fState = f_elements;
@@ -7312,9 +7387,9 @@ class myMenuItemFieldEdit extends myMenuItem
     	switch (fState)
     	{
 			case f_elements: return "edit elements";
-			case f_vis: return "visibility";
 			case f_position: return "position";
 			case f_align: return "alignment";
+			case f_vis: return "visibility";
 			case f_earlier: return "move earlier";
 			case f_later: return "move later";
 			case f_delete: return "delete field";
@@ -7325,10 +7400,8 @@ class myMenuItemFieldEdit extends myMenuItem
 			case f_yCentre: return "centre vertical";
 			case f_tap: return "tap";
 
-			case f_visEdit: return editorView.fieldVisibilityString();
 			case f_xEdit: return "editing ...";
-			case f_yEdit: return "editing ...";
-			
+			case f_yEdit: return "editing ...";			
 			case f_alignEdit:
 		    	switch (editorView.fieldGetAlignment())
 		    	{
@@ -7337,6 +7410,7 @@ class myMenuItemFieldEdit extends myMenuItem
 		    		case 2: return "right edge";
 		    	}
 				break;
+			case f_visEdit: return editorView.fieldVisibilityString();
     	}
     	
     	return "unknown";
@@ -7346,10 +7420,10 @@ class myMenuItemFieldEdit extends myMenuItem
     {
     	switch (fState)
     	{
-			case f_elements: fState = f_vis; break;
-			case f_vis: fState = f_position; break;
+			case f_elements: fState = f_position; break;
 			case f_position: fState = f_align; break;
-			case f_align: fState = f_earlier; break;
+			case f_align: fState = f_vis; break;
+			case f_vis: fState = f_earlier; break;
 			case f_earlier: fState = f_later; break;
 			case f_later: fState = f_delete; break;
 			case f_delete: fState = f_elements; break;
@@ -7360,10 +7434,10 @@ class myMenuItemFieldEdit extends myMenuItem
 			case f_yCentre: fState = f_tap; break;
 			case f_tap: fState = f_x; break;
 
-			case f_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case f_xEdit: editorView.fieldPositionXEditing(-1); break;
 			case f_yEdit: editorView.fieldPositionYEditing(-1); break;
-			case f_alignEdit: editorView.fieldSetAlignment((editorView.fieldGetAlignment()+1)%3); break;
+			case f_alignEdit: editorView.fieldAlignmentEditing(1); break;
+			case f_visEdit: editorView.fieldVisibilityEditing(1); break;
     	}
 
    		return null;
@@ -7374,10 +7448,10 @@ class myMenuItemFieldEdit extends myMenuItem
     	switch (fState)
     	{
 			case f_elements: fState = f_delete; break;
-			case f_vis: fState = f_elements; break;
-			case f_position: fState = f_vis; break;
+			case f_position: fState = f_elements; break;
 			case f_align: fState = f_position; break;
-			case f_earlier: fState = f_align; break;
+			case f_vis: fState = f_align; break;
+			case f_earlier: fState = f_vis; break;
 			case f_later: fState = f_earlier; break;
 			case f_delete: fState = f_later; break;
 
@@ -7387,10 +7461,10 @@ class myMenuItemFieldEdit extends myMenuItem
 			case f_yCentre: fState = f_xCentre; break;
 			case f_tap: fState = f_yCentre; break;
 
-			case f_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
 			case f_xEdit: editorView.fieldPositionXEditing(1); break;
 			case f_yEdit: editorView.fieldPositionYEditing(1); break;
-			case f_alignEdit: editorView.fieldSetAlignment((editorView.fieldGetAlignment()+3-1)%3); break;
+			case f_alignEdit: editorView.fieldAlignmentEditing(-1); break;
+			case f_visEdit: editorView.fieldVisibilityEditing(-1); break;
     	}
 
    		return null;
@@ -7415,9 +7489,9 @@ class myMenuItemFieldEdit extends myMenuItem
 				return null;
 			}
 				
-			case f_vis: fState = f_visEdit; break;
 			case f_position: fState = f_x; break;
 			case f_align: fState = f_alignEdit; break;
+			case f_vis: fState = f_visEdit; break;
 			case f_earlier: editorView.fieldEarlier(); break;
 			case f_later: editorView.fieldLater(); break;
 			case f_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
@@ -7428,10 +7502,10 @@ class myMenuItemFieldEdit extends myMenuItem
 			case f_yCentre: editorView.fieldPositionCentreY(); break;
 			case f_tap: break;
 
-			case f_visEdit: break;
 			case f_xEdit: break;
 			case f_yEdit: break;
 			case f_alignEdit: break;
+			case f_visEdit: break;
     	}
 
     	return null;
@@ -7442,9 +7516,9 @@ class myMenuItemFieldEdit extends myMenuItem
     	switch (fState)
     	{
 			case f_elements:
-			case f_vis:
 			case f_position:
 			case f_align:
+			case f_vis:
 			case f_earlier:
 			case f_later:
 			case f_delete:
@@ -7458,10 +7532,10 @@ class myMenuItemFieldEdit extends myMenuItem
 				fState = f_position;
 				break;
 
-			case f_visEdit: fState = f_vis; break;
 			case f_xEdit: fState = f_x; break;
 			case f_yEdit: fState = f_y; break;
 			case f_alignEdit: fState = f_align; break;
+			case f_visEdit: fState = f_vis; break;
     	}
 
    		return null;
@@ -7472,14 +7546,12 @@ class myMenuItemFieldEdit extends myMenuItem
 class myMenuItemElementSelect extends myMenuItem
 {
 	//select element
-	//	edit
-	//		visibility
-	//		data
-	//			color
-	//				next
-	//				previous
-	//				tap
-	//			font
+	//	color
+	//		next
+	//		previous
+	//		tap
+	//	font
+	//	visibility
 	//	delete element
 	//add element
 	//	type (largehour, largeminute, largecolon, string, icon, movebar, chart)
@@ -7520,44 +7592,36 @@ class myMenuItemElementSelect extends myMenuItem
     
     function onSelect()
     {
-		switch(editorView.getGfxId(editorView.menuElementGfx))
+    	var id = editorView.getGfxId(editorView.menuElementGfx);
+
+		if (id>=2 &&		// hour large
+			//case 3:		// minute large
+			//case 4:		// colon large
+			//case 5:		// string
+			//case 6:		// icon
+			//case 7:		// movebar
+			id<=8)		// chart
 		{
-			case 0:		// header
-				break;
-
-			case 1:		// field
-				break;
-
-			case 2:		// hour large
-				break;
-
-			case 3:		// minute large
-				break;
-
-			case 4:		// colon large
-				break;
-
-			case 5:		// string
-				return new myMenuItemElementEdit(5);
-			
-			case 6:		// icon
-				break;
-			
-			case 7:		// movebar
-				return new myMenuItemElementEdit(7);
-			
-			case 8:		// chart
-				break;
-			
-			case 9:		// rectangle
-				break;
-			
-			case 10:	// ring
-				break;
-			
-			case 11:	// seconds
-				break;
+				return new myMenuItemElementEdit(id);
 		}
+
+//		switch(id)
+//		{
+//			case 0:		// header
+//				break;
+//
+//			case 1:		// field
+//				break;
+//			
+//			case 9:		// rectangle
+//				break;
+//			
+//			case 10:	// ring
+//				break;
+//			
+//			case 11:	// seconds
+//				break;
+//		}
 
 		return null;
     }
@@ -7577,9 +7641,12 @@ class myMenuItemElementEdit extends myMenuItem
 		
 		"color",
 		"font",
+		
+		"visibility",
 		"move earlier",
 		"move later",
 		"delete element",
+		
 		"editing ...",
 
 		"color 1",
@@ -7588,6 +7655,10 @@ class myMenuItemElementEdit extends myMenuItem
 		"color 4",
 		"color 5",
 		"color off",
+		
+		"axes type",
+		"color bars",
+		"color axes",
 	];
 	
 //	enum
@@ -7603,6 +7674,20 @@ class myMenuItemElementEdit extends myMenuItem
 //		f_fontEdit,
 //	}
 
+// large hour, minute, colon
+//		gfxData[index+1] = 3+1;	// color
+//		gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+
+// string
+//		gfxData[index+1] = dataType;		// type
+//		gfxData[index+2] = 3+1;	// color
+//		gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
+
+// icon
+//		gfxData[index+1] = 0;	// type
+//		gfxData[index+2] = 3+1;	// color
+//		gfxData[index+3] = 0;	// font
+
 // move bar
 //		gfxData[index+1] = 0;	// type
 //		gfxData[index+2] = 0;	// font
@@ -7613,8 +7698,24 @@ class myMenuItemElementEdit extends myMenuItem
 //		gfxData[index+7] = 3+1;	// color 5
 //		gfxData[index+8] = COLOR_NOTSET+1;	// color off
 
+// chart
+//		gfxData[index+1] = 0;	// type
+//		gfxData[index+2] = 3+1;	// color chart
+//		gfxData[index+3] = 3+1;	// color axes
+
 	var fId = 0;
 
+	var fStringsLarge = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		7,
+	];
+	
 	var fStringsString = [
 		1,
 		2,
@@ -7622,33 +7723,48 @@ class myMenuItemElementEdit extends myMenuItem
 		4,
 		5,
 		6,
-		6,
+		7,
+		7,
 	];
 	
 	var fStringsMoveBar = [
 		2,
-		7,
 		8,
 		9,
 		10,
 		11,
 		12,
+		13,
 		3,
 		4,
 		5,
 		6,
-		6,
-		6,
-		6,
-		6,
-		6,
-		6,
+		7,
+		7,
+		7,
+		7,
+		7,
+		7,
+		7,
 	];
 	
-	var fState = 0/*f_color*/;
+	var fStringsChart = [
+		14,
+		15,
+		16,
+		3,
+		4,
+		5,
+		6,
+		7,
+		7,
+		7,
+	];
+	
+	var fState = 0;
 
 	var fStrings;
-	var fNumTop;
+	var fNumCustom;
 
     function initialize(id)
     {
@@ -7656,21 +7772,38 @@ class myMenuItemElementEdit extends myMenuItem
     	
     	fId = id;
     	
-    	if (fId==5)
+    	if (fId>=2 && fId<=4)	// large
+    	{
+    		fStrings = fStringsLarge;
+    		fNumCustom = 2;
+    	}
+    	else if (fId==5 || fId==6)	// string or icon
     	{
     		fStrings = fStringsString;
-    		fNumTop = 5;
+    		fNumCustom = 2;
     	}
-    	else if (fId==7)
+    	else if (fId==7)	// movebar
     	{
     		fStrings = fStringsMoveBar;
-    		fNumTop = 10;
+    		fNumCustom = 7;
+    	}
+    	else if (fId==8)	// chart
+    	{
+    		fStrings = fStringsChart;
+    		fNumCustom = 3;
     	}
     }
     
     function getString()
     {
-    	return globalStrings[fStrings[fState]];
+    	if (fState==fNumCustom+4+fNumCustom)
+    	{
+    		return editorView.elementVisibilityString();
+    	}
+    	else
+    	{
+    		return globalStrings[fStrings[fState]];
+    	}
     }
     
     function onNext()
@@ -7686,36 +7819,69 @@ class myMenuItemElementEdit extends myMenuItem
 //    		f[fState-5].invoke(1);
 //    	}
 
-    	if (fState<fNumTop)
+    	if (fState<fNumCustom+4)
     	{
-    		fState = (fState+1)%fNumTop;
+    		fState = (fState+1)%(fNumCustom+4);
+    	}
+    	else if (fState==fNumCustom+4+fNumCustom)
+    	{
+    		editorView.elementVisibilityEditing(1);
     	}
     	else
     	{
-    		if (fId==5)	// string
+    		if (fId>=2 && fId<=4)	// large
     		{
-		    	if (fState==5)
+		    	if (fState==fNumCustom+4+0)
+		    	{
+		    		editorView.largeColorEditing(1);
+		    	}
+		    	else if (fState==fNumCustom+4+1)
+		    	{
+	    			editorView.largeFontEditing(1);
+		    	}
+		    }
+    		else if (fId==5 || fId==6)	// string or icon
+    		{
+		    	if (fState==fNumCustom+4+0)
 		    	{
 		    		editorView.stringColorEditing(1);
 		    	}
-		    	else if (fState==6)
+		    	else if (fState==fNumCustom+4+1)
 		    	{
-		    		editorView.stringFontEditing(1);
+		    		if (fId==5)
+		    		{
+		    			editorView.stringFontEditing(1);
+		    		}
+		    		else
+		    		{
+		    			editorView.iconFontEditing(1);
+		    		}
 		    	}
 		    }
     		else if (fId==7)	// movebar
     		{
-		    	if (fState==10)
+		    	if (fState==fNumCustom+4+0)
 		    	{
 		    		editorView.moveBarFontEditing(1);
 		    	}
-		    	else if (fState<16)
+		    	else if (fState<fNumCustom+4+6)
 		    	{
-		    		editorView.moveBarColorEditing(fState-11, 1);
+		    		editorView.moveBarColorEditing(fState-(fNumCustom+4+1), 1);
 		    	}
-		    	else if (fState==16)
+		    	else if (fState==fNumCustom+4+6)
 		    	{
 		    		editorView.moveBarColorOffEditing(1);
+		    	}
+		    }
+    		else if (fId==8)	// chart
+    		{
+		    	if (fState==fNumCustom+4+0)
+		    	{
+		    		editorView.chartTypeEditing(1);
+		    	}
+		    	else if (fState<=fNumCustom+4+2)
+		    	{
+		    		editorView.chartColorEditing(fState-(fNumCustom+4+1), 1);
 		    	}
 		    }
 		}
@@ -7737,36 +7903,69 @@ class myMenuItemElementEdit extends myMenuItem
     
     function onPrevious()
     {
-    	if (fState<fNumTop)
+    	if (fState<(fNumCustom+4))
     	{
-    		fState = (fState-1+fNumTop)%fNumTop;
+    		fState = (fState-1+fNumCustom+4)%(fNumCustom+4);
+    	}
+    	else if (fState==fNumCustom+4+fNumCustom)
+    	{
+    		editorView.elementVisibilityEditing(-1);
     	}
     	else
     	{
-    		if (fId==5)	// string
+    		if (fId>=2 && fId<=4)	// large
     		{
-		    	if (fState==5)
+		    	if (fState==fNumCustom+4+0)
+		    	{
+		    		editorView.largeColorEditing(-1);
+		    	}
+		    	else if (fState==fNumCustom+4+1)
+		    	{
+	    			editorView.largeFontEditing(-1);
+		    	}
+		    }
+    		else if (fId==5 || fId==6)	// string or icon
+    		{
+		    	if (fState==fNumCustom+4+0)
 		    	{
 		    		editorView.stringColorEditing(-1);
 		    	}
-		    	else if (fState==6)
+		    	else if (fState==fNumCustom+4+1)
 		    	{
-		    		editorView.stringFontEditing(-1);
+		    		if (fId==5)
+		    		{
+		    			editorView.stringFontEditing(-1);
+		    		}
+		    		else
+		    		{
+		    			editorView.iconFontEditing(-1);
+		    		}
 		    	}
 		    }
     		else if (fId==7)	// movebar
     		{
-		    	if (fState==10)
+		    	if (fState==fNumCustom+4+0)
 		    	{
 		    		editorView.moveBarFontEditing(-1);
 		    	}
-		    	else if (fState<16)
+		    	else if (fState<fNumCustom+4+6)
 		    	{
-		    		editorView.moveBarColorEditing(fState-11, -1);
+		    		editorView.moveBarColorEditing(fState-(fNumCustom+4+1), -1);
 		    	}
-		    	else if (fState==16)
+		    	if (fState==fNumCustom+4+6)
 		    	{
 		    		editorView.moveBarColorOffEditing(-1);
+		    	}
+		    }
+    		else if (fId==8)	// chart
+    		{
+		    	if (fState==fNumCustom+4+0)
+		    	{
+		    		editorView.chartTypeEditing(-1);
+		    	}
+		    	else if (fState<=fNumCustom+4+2)
+		    	{
+		    		editorView.chartColorEditing(fState-(fNumCustom+4+1), -1);
 		    	}
 		    }
 		}
@@ -7788,19 +7987,19 @@ class myMenuItemElementEdit extends myMenuItem
     
     function onSelect()
     {
-    	if (fState<fNumTop-3)
+    	if (fState<(fNumCustom+1))
     	{
-			fState += fNumTop;
+			fState += (fNumCustom+4);
     	}
-    	else if (fState==fNumTop-3)
+    	else if (fState==(fNumCustom+1))
     	{
 			editorView.elementEarlier();
     	}
-    	else if (fState==fNumTop-2)
+    	else if (fState==(fNumCustom+2))
     	{
     		editorView.elementLater();
     	}
-    	else if (fState==fNumTop-1)
+    	else if (fState==(fNumCustom+3))
     	{
 			editorView.elementDelete();
 			if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
@@ -7841,13 +8040,13 @@ class myMenuItemElementEdit extends myMenuItem
     
     function onBack()
     {
-    	if (fState<fNumTop)
+    	if (fState<(fNumCustom+4))
     	{
 			return new myMenuItemElementSelect();
     	}
     	else
     	{
-			fState -= fNumTop;
+			fState -= (fNumCustom+4);
     	}
     
 //    	switch (fState)
@@ -8154,11 +8353,11 @@ class myMenuItemRectangle extends myMenuItem
 {
 	enum
 	{
-		r_vis,
 		r_color,
 		r_position,
 		r_w,
 		r_h,
+		r_vis,
 		r_earlier,
 		r_later,
 		r_delete,
@@ -8169,15 +8368,15 @@ class myMenuItemRectangle extends myMenuItem
 		r_yCentre,
 		r_tap,
 
-		r_visEdit,
 		r_colorEdit,
 		r_xEdit,
 		r_yEdit,
 		r_wEdit,
-		r_hEdit
+		r_hEdit,
+		r_visEdit,
 	}
 
-	var rState = r_vis;
+	var rState = r_color;
 
     function initialize()
     {
@@ -8188,11 +8387,11 @@ class myMenuItemRectangle extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: return "visibility";
 			case r_color: return "color";
 			case r_position: return "position";
 			case r_w: return "width";
 			case r_h: return "height";
+			case r_vis: return "visibility";
 			case r_earlier: return "move earlier";
 			case r_later: return "move later";
 			case r_delete: return "delete rectangle";
@@ -8203,12 +8402,12 @@ class myMenuItemRectangle extends myMenuItem
 			case r_yCentre: return "centre vertical";
 			case r_tap: return "tap";
 
-			case r_visEdit: return editorView.fieldVisibilityString();
 			case r_colorEdit: return "editing ...";
 			case r_xEdit: return "editing ...";
 			case r_yEdit: return "editing ...";
 			case r_wEdit: return "editing ...";
 			case r_hEdit: return "editing ...";
+			case r_visEdit: return editorView.fieldVisibilityString();
     	}
     	
     	return "unknown";
@@ -8218,14 +8417,14 @@ class myMenuItemRectangle extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: rState = r_color; break;
 			case r_color: rState = r_position; break;
 			case r_position: rState = r_w; break;
 			case r_w: rState = r_h; break;
-			case r_h: rState = r_earlier; break;
+			case r_h: rState = r_vis; break;
+			case r_vis: rState = r_earlier; break;
 			case r_earlier: rState = r_later; break;
 			case r_later: rState = r_delete; break;
-			case r_delete: rState = r_vis; break;
+			case r_delete: rState = r_color; break;
 
 			case r_x: rState = r_y; break;
 			case r_y: rState = r_xCentre; break;
@@ -8233,12 +8432,12 @@ class myMenuItemRectangle extends myMenuItem
 			case r_yCentre: rState = r_tap; break;
 			case r_tap: rState = r_x; break;
 
-			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case r_colorEdit: editorView.rectangleColorEditing(1); break;
 			case r_xEdit: editorView.rectanglePositionXEditing(-1); break;
 			case r_yEdit: editorView.rectanglePositionYEditing(-1); break;
 			case r_wEdit: editorView.rectangleWidthEditing(-1); break;
 			case r_hEdit: editorView.rectangleHeightEditing(-1); break;
+			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
     	}
     	
     	return null;
@@ -8248,12 +8447,12 @@ class myMenuItemRectangle extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: rState = r_delete; break;
-			case r_color: rState = r_vis; break;
+			case r_color: rState = r_delete; break;
 			case r_position: rState = r_color; break;
 			case r_w: rState = r_position; break;
 			case r_h: rState = r_w; break;
-			case r_earlier: rState = r_h; break;
+			case r_vis: rState = r_h; break;
+			case r_earlier: rState = r_vis; break;
 			case r_later: rState = r_earlier; break;
 			case r_delete: rState = r_later; break;
 
@@ -8263,12 +8462,12 @@ class myMenuItemRectangle extends myMenuItem
 			case r_yCentre: rState = r_xCentre; break;
 			case r_tap: rState = r_yCentre; break;
 
-			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
 			case r_colorEdit: editorView.rectangleColorEditing(-1); break;
 			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
 			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
 			case r_wEdit: editorView.rectangleWidthEditing(1); break;
 			case r_hEdit: editorView.rectangleHeightEditing(1); break;
+			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
     	}
     	
     	return null;
@@ -8278,11 +8477,11 @@ class myMenuItemRectangle extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: rState = r_visEdit; break;
 			case r_color: rState = r_colorEdit; break;
 			case r_position: rState = r_x; break;
 			case r_w: rState = r_wEdit; break;
 			case r_h: rState = r_hEdit; break;
+			case r_vis: rState = r_visEdit; break;
 			case r_earlier: editorView.fieldEarlier(); break;
 			case r_later: editorView.fieldLater(); break;
 			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
@@ -8293,12 +8492,12 @@ class myMenuItemRectangle extends myMenuItem
 			case r_yCentre: editorView.rectanglePositionCentreY(); break;
 			case r_tap: break;
 
-			case r_visEdit: break;
 			case r_colorEdit: break;
 			case r_xEdit: break;
 			case r_yEdit: break;
 			case r_wEdit: break;
 			case r_hEdit: break;
+			case r_visEdit: break;
     	}
     	
     	return null;
@@ -8308,11 +8507,11 @@ class myMenuItemRectangle extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis:
 			case r_color:
 			case r_position:
 			case r_w:
 			case r_h:
+			case r_vis:
 			case r_earlier:
 			case r_later:
 			case r_delete:
@@ -8326,12 +8525,12 @@ class myMenuItemRectangle extends myMenuItem
 				rState = r_position;
 				break;
 
-			case r_visEdit: rState = r_vis; break;
 			case r_colorEdit: rState = r_color; break;
 			case r_xEdit: rState = r_x; break;
 			case r_yEdit: rState = r_y; break;
 			case r_wEdit: rState = r_w; break;
 			case r_hEdit: rState = r_h; break;
+			case r_visEdit: rState = r_vis; break;
     	}
     	
     	return null;
@@ -8343,7 +8542,6 @@ class myMenuItemRing extends myMenuItem
 {
 	enum
 	{
-		r_vis,
 		r_type,
 		r_font,
 		r_start,
@@ -8351,11 +8549,11 @@ class myMenuItemRing extends myMenuItem
 		r_direction,
 		r_colorFilled,
 		r_colorUnfilled,
+		r_vis,
 		r_earlier,
 		r_later,
 		r_delete,
 
-		r_visEdit,
 		r_typeEdit,
 		r_fontEdit,
 		r_startEdit,
@@ -8363,9 +8561,10 @@ class myMenuItemRing extends myMenuItem
 		r_directionEdit,
 		r_colorFilledEdit,
 		r_colorUnfilledEdit,
+		r_visEdit,
 	}
 
-	var rState = r_vis;
+	var rState = r_type;
 
     function initialize()
     {
@@ -8376,7 +8575,6 @@ class myMenuItemRing extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: return "visibility";
 			case r_type: return "data";
 			case r_font: return "style";
 			case r_start: return "start";
@@ -8384,11 +8582,11 @@ class myMenuItemRing extends myMenuItem
 			case r_direction: return "direction";
 			case r_colorFilled: return "color filled";
 			case r_colorUnfilled: return "color unfilled";
+			case r_vis: return "visibility";
 			case r_earlier: return "move earlier";
 			case r_later: return "move later";
 			case r_delete: return "delete ring";
 
-			case r_visEdit: return editorView.fieldVisibilityString();
 			case r_typeEdit: return editorView.ringTypeString();
 			case r_fontEdit: return "editing ...";
 			case r_startEdit: return "editing ...";
@@ -8396,6 +8594,7 @@ class myMenuItemRing extends myMenuItem
 			case r_directionEdit: return editorView.ringDirectionString();
 			case r_colorFilledEdit: return "editing ...";
 			case r_colorUnfilledEdit: return "editing ...";
+			case r_visEdit: return editorView.fieldVisibilityString();
     	}
     	
     	return "unknown";
@@ -8405,19 +8604,18 @@ class myMenuItemRing extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: rState = r_type; break;
 			case r_type: rState = r_font; break;
 			case r_font: rState = r_start; break;
 			case r_start: rState = r_end; break;
 			case r_end: rState = r_direction; break;
 			case r_direction: rState = r_colorFilled; break;
 			case r_colorFilled: rState = r_colorUnfilled; break;
-			case r_colorUnfilled: rState = r_earlier; break;
+			case r_colorUnfilled: rState = r_vis; break;
+			case r_vis: rState = r_earlier; break;
 			case r_earlier: rState = r_later; break;
 			case r_later: rState = r_delete; break;
-			case r_delete: rState = r_vis; break;
+			case r_delete: rState = r_type; break;
 
-			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case r_typeEdit: editorView.ringTypeEditing(1); break;
 			case r_fontEdit: editorView.ringFontEditing(1); break;
 			case r_startEdit: editorView.ringStartEditing(1); break;
@@ -8425,6 +8623,7 @@ class myMenuItemRing extends myMenuItem
 			case r_directionEdit: editorView.ringDirectionEditing(); break;
 			case r_colorFilledEdit: editorView.ringColorFilledEditing(1); break;
 			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(1); break;
+			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
     	}
 
    		return null;
@@ -8434,19 +8633,18 @@ class myMenuItemRing extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: rState = r_delete; break;
-			case r_type: rState = r_vis; break;
+			case r_type: rState = r_delete; break;
 			case r_font: rState = r_type; break;
 			case r_start: rState = r_font; break;
 			case r_end: rState = r_start; break;
 			case r_direction: rState = r_end; break;
 			case r_colorFilled: rState = r_direction; break;
 			case r_colorUnfilled: rState = r_colorFilled; break;
-			case r_earlier: rState = r_colorUnfilled; break;
+			case r_vis: rState = r_colorUnfilled; break;
+			case r_earlier: rState = r_vis; break;
 			case r_later: rState = r_earlier; break;
 			case r_delete: rState = r_later; break;
 
-			case r_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
 			case r_typeEdit: editorView.ringTypeEditing(-1); break;
 			case r_fontEdit: editorView.ringFontEditing(-1); break;
 			case r_startEdit: editorView.ringStartEditing(-1); break;
@@ -8454,6 +8652,7 @@ class myMenuItemRing extends myMenuItem
 			case r_directionEdit: editorView.ringDirectionEditing(); break;
 			case r_colorFilledEdit: editorView.ringColorFilledEditing(-1); break;
 			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(-1); break;
+			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
     	}
 
    		return null;
@@ -8463,7 +8662,6 @@ class myMenuItemRing extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis: rState = r_visEdit; break;
 			case r_type: rState = r_typeEdit; break;
 			case r_font: rState = r_fontEdit; break;
 			case r_start: rState = r_startEdit; break;
@@ -8471,11 +8669,11 @@ class myMenuItemRing extends myMenuItem
 			case r_direction: rState = r_directionEdit; break;
 			case r_colorFilled: rState = r_colorFilledEdit; break;
 			case r_colorUnfilled: rState = r_colorUnfilledEdit; break;
+			case r_vis: rState = r_visEdit; break;
 			case r_earlier: editorView.fieldEarlier(); break;
 			case r_later: editorView.fieldLater(); break;
 			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
 
-			case r_visEdit: break;
 			case r_typeEdit: break;
 			case r_fontEdit: break;
 			case r_startEdit: break;
@@ -8483,6 +8681,7 @@ class myMenuItemRing extends myMenuItem
 			case r_directionEdit: break;
 			case r_colorFilledEdit: break;
 			case r_colorUnfilledEdit: break;
+			case r_visEdit: break;
     	}
     	
     	return null;
@@ -8492,7 +8691,6 @@ class myMenuItemRing extends myMenuItem
     {
     	switch (rState)
     	{
-			case r_vis:
 			case r_type:
 			case r_font:
 			case r_start:
@@ -8500,12 +8698,12 @@ class myMenuItemRing extends myMenuItem
 			case r_direction:
 			case r_colorFilled:
 			case r_colorUnfilled:
+			case r_vis:
 			case r_earlier:
 			case r_later:
 			case r_delete:
 				return new myMenuItemFieldSelect();
 
-			case r_visEdit: rState = r_vis; break;
 			case r_typeEdit: rState = r_type; break;
 			case r_fontEdit: rState = r_font; break;
 			case r_startEdit: rState = r_start; break;
@@ -8513,6 +8711,7 @@ class myMenuItemRing extends myMenuItem
 			case r_directionEdit: rState = r_direction; break;
 			case r_colorFilledEdit: rState = r_colorFilled; break;
 			case r_colorUnfilledEdit: rState = r_colorUnfilled; break;
+			case r_visEdit: rState = r_vis; break;
     	}
     	
    		return null;
@@ -8524,7 +8723,6 @@ class myMenuItemSeconds extends myMenuItem
 {
 	enum
 	{
-		s_vis,
 		s_font,
 		s_refresh,
 		s_color,
@@ -8532,9 +8730,9 @@ class myMenuItemSeconds extends myMenuItem
 		s_color10,
 		s_color15,
 		s_color0,
+		s_vis,
 		s_delete,
 
-		s_visEdit,
 		s_fontEdit,
 		s_refreshEdit,
 		s_colorEdit,
@@ -8542,9 +8740,10 @@ class myMenuItemSeconds extends myMenuItem
 		s_color10Edit,
 		s_color15Edit,
 		s_color0Edit,
+		s_visEdit,
 	}
 
-	var sState = s_vis;
+	var sState = s_font;
 
 	//visibility
 	//font
@@ -8564,7 +8763,6 @@ class myMenuItemSeconds extends myMenuItem
     {
     	switch (sState)
     	{
-			case s_vis: return "visibility";
 			case s_font: return "style";
 			case s_refresh: return "refresh";
 			case s_color: return "color";
@@ -8572,9 +8770,9 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10: return "color (10s)";
 			case s_color15: return "color (15s)";
 			case s_color0: return "color (0s)";
+			case s_vis: return "visibility";
 			case s_delete: return "delete seconds";
 
-			case s_visEdit: return editorView.fieldVisibilityString();
 			case s_fontEdit: return "editing ...";
 			case s_refreshEdit: return editorView.secondsRefreshString();
 			case s_colorEdit: return "editing ...";
@@ -8582,6 +8780,7 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10Edit: return "editing ...";
 			case s_color15Edit: return "editing ...";
 			case s_color0Edit: return "editing ...";
+			case s_visEdit: return editorView.fieldVisibilityString();
     	}
     	
     	return "unknown";
@@ -8591,17 +8790,16 @@ class myMenuItemSeconds extends myMenuItem
     {
     	switch (sState)
     	{
-			case s_vis: sState = s_font; break;
 			case s_font: sState = s_refresh; break;
 			case s_refresh: sState = s_color; break;
 			case s_color: sState = s_color5; break;
 			case s_color5: sState = s_color10; break;
 			case s_color10: sState = s_color15; break;
 			case s_color15: sState = s_color0; break;
-			case s_color0: sState = s_delete; break;
-			case s_delete: sState = s_vis; break;
+			case s_color0: sState = s_vis; break;
+			case s_vis: sState = s_delete; break;
+			case s_delete: sState = s_font; break;
 
-			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+1)%25/*STATUS_NUM*/); break;
 			case s_fontEdit: editorView.secondsFontEditing(1); break;
 			case s_refreshEdit: editorView.secondsRefreshEditing(1); break;
 			case s_colorEdit: editorView.secondsColorEditing(0, 1); break;
@@ -8609,6 +8807,7 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10Edit: editorView.secondsColorEditing(2, 1); break;
 			case s_color15Edit: editorView.secondsColorEditing(3, 1); break;
 			case s_color0Edit: editorView.secondsColorEditing(4, 1); break;
+			case s_visEdit: editorView.fieldVisibilityEditing(1); break;
     	}
     	
    		return null;
@@ -8618,17 +8817,16 @@ class myMenuItemSeconds extends myMenuItem
     {
     	switch (sState)
     	{
-			case s_vis: sState = s_delete; break;
-			case s_font: sState = s_vis; break;
+			case s_font: sState = s_delete; break;
 			case s_refresh: sState = s_font; break;
 			case s_color: sState = s_refresh; break;
 			case s_color5: sState = s_color; break;
 			case s_color10: sState = s_color5; break;
 			case s_color15: sState = s_color10; break;
 			case s_color0: sState = s_color15; break;
-			case s_delete: sState = s_color0; break;
+			case s_vis: sState = s_color0; break;
+			case s_delete: sState = s_vis; break;
 
-			case s_visEdit: editorView.fieldSetVisibility((editorView.fieldGetVisibility()+25/*STATUS_NUM*/-1)%25/*STATUS_NUM*/); break;
 			case s_fontEdit: editorView.secondsFontEditing(-1); break;
 			case s_refreshEdit: editorView.secondsRefreshEditing(-1); break;
 			case s_colorEdit: editorView.secondsColorEditing(0, -1); break;
@@ -8636,6 +8834,7 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10Edit: editorView.secondsColorEditing(2, -1); break;
 			case s_color15Edit: editorView.secondsColorEditing(3, -1); break;
 			case s_color0Edit: editorView.secondsColorEditing(4, -1); break;
+			case s_visEdit: editorView.fieldVisibilityEditing(-1); break;
     	}
     	
    		return null;
@@ -8645,7 +8844,6 @@ class myMenuItemSeconds extends myMenuItem
     {
     	switch (sState)
     	{
-			case s_vis: sState = s_visEdit; break;
 			case s_font: sState = s_fontEdit; break;
 			case s_refresh: sState = s_refreshEdit; break;
 			case s_color: sState = s_colorEdit; break;
@@ -8653,9 +8851,9 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10: sState = s_color10Edit; break;
 			case s_color15: sState = s_color15Edit; break;
 			case s_color0: sState = s_color0Edit; break;
+			case s_vis: sState = s_visEdit; break;
 			case s_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect(); break;
 
-			case s_visEdit: break;
 			case s_fontEdit: break;
 			case s_refreshEdit: break;
 			case s_colorEdit: break;
@@ -8663,6 +8861,7 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10Edit: break;
 			case s_color15Edit: break;
 			case s_color0Edit: break;
+			case s_visEdit: break;
     	}
     	
     	return null;
@@ -8672,7 +8871,6 @@ class myMenuItemSeconds extends myMenuItem
     {
     	switch (sState)
     	{
-			case s_vis:
 			case s_font:
 			case s_refresh:
 			case s_color:
@@ -8680,10 +8878,10 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10:
 			case s_color15:
 			case s_color0:
+			case s_vis:
 			case s_delete:
 				return new myMenuItemFieldSelect();
 
-			case s_visEdit: sState = s_vis; break;
 			case s_fontEdit: sState = s_font; break;
 			case s_refreshEdit: sState = s_refresh; break;
 			case s_colorEdit: sState = s_color; break;
@@ -8691,6 +8889,7 @@ class myMenuItemSeconds extends myMenuItem
 			case s_color10Edit: sState = s_color10; break;
 			case s_color15Edit: sState = s_color15; break;
 			case s_color0Edit: sState = s_color0; break;
+			case s_visEdit: sState = s_vis; break;
     	}
     	
    		return null;
