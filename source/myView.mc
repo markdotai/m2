@@ -864,6 +864,7 @@ class myView
 //    	}
 //    }
     	
+    (:m2face)
 	function parseSign(charArray, charArraySize)
 	{
 		if (parseIndex<charArraySize)
@@ -884,6 +885,7 @@ class myView
 		return 1;
 	}
 
+    (:m2face)
 	function parseNumber(charArray, charArraySize)
 	{
 		var v = 0;
@@ -913,6 +915,7 @@ class myView
 	}
 
 	// Parse (number separator number)
+    (:m2face)
 	function parseTwoNumbers(charArray, charArraySize)
 	{
 		var n = new[2];
@@ -1053,6 +1056,7 @@ class myView
 	}
 	
 	// Parse 2 numbers (number separator number) from a string
+    (:m2face)
 	function propertiesGetTwoNumbers(p)
 	{
 		var charArray = propertiesGetCharArray(p);
@@ -1063,6 +1067,7 @@ class myView
 	}
 	
 	// Parse a time (hours & minutes) from a string
+    (:m2face)
 	function propertiesGetTime(p)
 	{
 		var t = new[2];		// 0/1/2 for nothing/sunrise/sunset, then a time
@@ -7806,7 +7811,7 @@ class myMenuItemElementEdit extends myMenuItem
     	}
     }
     
-    function onNext()
+    function onEditing(val)
     {
 //    	if (fState<5)
 //    	{
@@ -7819,168 +7824,88 @@ class myMenuItemElementEdit extends myMenuItem
 //    		f[fState-5].invoke(1);
 //    	}
 
-    	if (fState<fNumCustom+4)
+		var numTop = fNumCustom+4;
+
+    	if (fState<numTop)
     	{
-    		fState = (fState+1)%(fNumCustom+4);
+    		fState = (fState+val+numTop)%numTop;
     	}
-    	else if (fState==fNumCustom+4+fNumCustom)
+    	else if (fState==numTop+fNumCustom)
     	{
-    		editorView.elementVisibilityEditing(1);
+    		editorView.elementVisibilityEditing(val);
     	}
     	else
     	{
     		if (fId>=2 && fId<=4)	// large
     		{
-		    	if (fState==fNumCustom+4+0)
+		    	if (fState==numTop)
 		    	{
-		    		editorView.largeColorEditing(1);
+		    		editorView.largeColorEditing(val);
 		    	}
-		    	else if (fState==fNumCustom+4+1)
+		    	else if (fState==numTop+1)
 		    	{
-	    			editorView.largeFontEditing(1);
+	    			editorView.largeFontEditing(val);
 		    	}
 		    }
     		else if (fId==5 || fId==6)	// string or icon
     		{
-		    	if (fState==fNumCustom+4+0)
+		    	if (fState==numTop)
 		    	{
-		    		editorView.stringColorEditing(1);
+		    		editorView.stringColorEditing(val);
 		    	}
-		    	else if (fState==fNumCustom+4+1)
+		    	else if (fState==numTop+1)
 		    	{
 		    		if (fId==5)
 		    		{
-		    			editorView.stringFontEditing(1);
+		    			editorView.stringFontEditing(val);
 		    		}
 		    		else
 		    		{
-		    			editorView.iconFontEditing(1);
+		    			editorView.iconFontEditing(val);
 		    		}
 		    	}
 		    }
     		else if (fId==7)	// movebar
     		{
-		    	if (fState==fNumCustom+4+0)
+		    	if (fState==numTop)
 		    	{
-		    		editorView.moveBarFontEditing(1);
+		    		editorView.moveBarFontEditing(val);
 		    	}
-		    	else if (fState<fNumCustom+4+6)
+		    	else if (fState<numTop+6)
 		    	{
-		    		editorView.moveBarColorEditing(fState-(fNumCustom+4+1), 1);
+		    		editorView.moveBarColorEditing(fState-(numTop+1), val);
 		    	}
-		    	else if (fState==fNumCustom+4+6)
+		    	else if (fState==numTop+6)
 		    	{
-		    		editorView.moveBarColorOffEditing(1);
+		    		editorView.moveBarColorOffEditing(val);
 		    	}
 		    }
     		else if (fId==8)	// chart
     		{
-		    	if (fState==fNumCustom+4+0)
+		    	if (fState==numTop)
 		    	{
-		    		editorView.chartTypeEditing(1);
+		    		editorView.chartTypeEditing(val);
 		    	}
-		    	else if (fState<=fNumCustom+4+2)
+		    	else if (fState<=numTop+2)
 		    	{
-		    		editorView.chartColorEditing(fState-(fNumCustom+4+1), 1);
+		    		editorView.chartColorEditing(fState-(numTop+1), val);
 		    	}
 		    }
 		}
 		    
-//    	switch (fState)
-//    	{
-//			case f_color: fState = f_font; break;
-//			case f_font: fState = f_earlier; break;
-//			case f_earlier: fState = f_later; break;
-//			case f_later: fState = f_delete; break;
-//			case f_delete: fState = f_color; break;
-//
-//			case f_colorEdit: editorView.stringColorEditing(1); break;
-//			case f_fontEdit: editorView.stringFontEditing(1); break;
-//    	}
-
    		return null;
+    }
+    
+    function onNext()
+    {
+    	onEditing(1);
+    	
+    	return null;
     }
     
     function onPrevious()
     {
-    	if (fState<(fNumCustom+4))
-    	{
-    		fState = (fState-1+fNumCustom+4)%(fNumCustom+4);
-    	}
-    	else if (fState==fNumCustom+4+fNumCustom)
-    	{
-    		editorView.elementVisibilityEditing(-1);
-    	}
-    	else
-    	{
-    		if (fId>=2 && fId<=4)	// large
-    		{
-		    	if (fState==fNumCustom+4+0)
-		    	{
-		    		editorView.largeColorEditing(-1);
-		    	}
-		    	else if (fState==fNumCustom+4+1)
-		    	{
-	    			editorView.largeFontEditing(-1);
-		    	}
-		    }
-    		else if (fId==5 || fId==6)	// string or icon
-    		{
-		    	if (fState==fNumCustom+4+0)
-		    	{
-		    		editorView.stringColorEditing(-1);
-		    	}
-		    	else if (fState==fNumCustom+4+1)
-		    	{
-		    		if (fId==5)
-		    		{
-		    			editorView.stringFontEditing(-1);
-		    		}
-		    		else
-		    		{
-		    			editorView.iconFontEditing(-1);
-		    		}
-		    	}
-		    }
-    		else if (fId==7)	// movebar
-    		{
-		    	if (fState==fNumCustom+4+0)
-		    	{
-		    		editorView.moveBarFontEditing(-1);
-		    	}
-		    	else if (fState<fNumCustom+4+6)
-		    	{
-		    		editorView.moveBarColorEditing(fState-(fNumCustom+4+1), -1);
-		    	}
-		    	if (fState==fNumCustom+4+6)
-		    	{
-		    		editorView.moveBarColorOffEditing(-1);
-		    	}
-		    }
-    		else if (fId==8)	// chart
-    		{
-		    	if (fState==fNumCustom+4+0)
-		    	{
-		    		editorView.chartTypeEditing(-1);
-		    	}
-		    	else if (fState<=fNumCustom+4+2)
-		    	{
-		    		editorView.chartColorEditing(fState-(fNumCustom+4+1), -1);
-		    	}
-		    }
-		}
-		    
-//    	switch (fState)
-//    	{
-//			case f_color: fState = f_delete; break;
-//			case f_font: fState = f_color; break;
-//			case f_earlier: fState = f_font; break;
-//			case f_later: fState = f_earlier; break;
-//			case f_delete: fState = f_later; break;
-//
-//			case f_colorEdit: editorView.stringColorEditing(-1); break;
-//			case f_fontEdit: editorView.stringFontEditing(-1); break;
-//    	}
+    	onEditing(-1);
 
    		return null;
     }
