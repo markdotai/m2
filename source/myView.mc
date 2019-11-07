@@ -6794,12 +6794,12 @@ class myEditorView extends myView
 
 	function rectanglePositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]+val, 0, 240);
+		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, 240);
 	}
 
 	function rectanglePositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = getMinMax(gfxData[menuFieldGfx+3]+val, 0, 240);
+		gfxData[menuFieldGfx+3] = getMinMax(gfxData[menuFieldGfx+3]-val, 0, 240);
 	}
 
 	function rectanglePositionCentreX()
@@ -6814,12 +6814,12 @@ class myEditorView extends myView
 
 	function rectangleWidthEditing(val)
 	{
-		if ((val<0) && (gfxData[menuFieldGfx+4]%2)==0)
+		if ((val>0) && (gfxData[menuFieldGfx+4]%2)==0)
 		{
 			gfxData[menuFieldGfx+2] += 1;
 		}
-		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]+val, 1, 240);
-		if ((val>0) && (gfxData[menuFieldGfx+4]%2)==0)
+		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]-val, 1, 240);
+		if ((val<0) && (gfxData[menuFieldGfx+4]%2)==0)
 		{
 			gfxData[menuFieldGfx+2] -= 1;
 		}
@@ -6827,12 +6827,12 @@ class myEditorView extends myView
 
 	function rectangleHeightEditing(val)
 	{
-		if ((val<0) && (gfxData[menuFieldGfx+5]%2)==0)
+		if ((val>0) && (gfxData[menuFieldGfx+5]%2)==0)
 		{
 			gfxData[menuFieldGfx+3] += 1;
 		}
-		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]+val, 1, 240);
-		if ((val>0) && (gfxData[menuFieldGfx+5]%2)==0)
+		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]-val, 1, 240);
+		if ((val<0) && (gfxData[menuFieldGfx+5]%2)==0)
 		{
 			gfxData[menuFieldGfx+3] -= 1;
 		}
@@ -7641,31 +7641,6 @@ class myMenuItemElementSelect extends myMenuItem
 (:m2app)
 class myMenuItemElementEdit extends myMenuItem
 {
-	var globalStrings = [
-		"unknown",
-		
-		"color",
-		"font",
-		
-		"visibility",
-		"move earlier",
-		"move later",
-		"delete element",
-		
-		"editing ...",
-
-		"color 1",
-		"color 2",
-		"color 3",
-		"color 4",
-		"color 5",
-		"color off",
-		
-		"axes type",
-		"color bars",
-		"color axes",
-	];
-	
 //	enum
 //	{
 //		//f_type,
@@ -7708,6 +7683,31 @@ class myMenuItemElementEdit extends myMenuItem
 //		gfxData[index+2] = 3+1;	// color chart
 //		gfxData[index+3] = 3+1;	// color axes
 
+	var globalStrings = [
+		"unknown",
+		
+		"color",
+		"font",
+		
+		"visibility",
+		"move earlier",
+		"move later",
+		"delete element",
+		
+		"editing ...",
+
+		"color 1",
+		"color 2",
+		"color 3",
+		"color 4",
+		"color 5",
+		"color off",
+		
+		"axes type",
+		"color bars",
+		"color axes",
+	];
+	
 	var fId = 0;
 
 	var fStringsLarge = [
@@ -7898,16 +7898,12 @@ class myMenuItemElementEdit extends myMenuItem
     
     function onNext()
     {
-    	onEditing(1);
-    	
-    	return null;
+    	return onEditing(1);
     }
     
     function onPrevious()
     {
-    	onEditing(-1);
-
-   		return null;
+    	return onEditing(-1);
     }
     
     function onSelect()
@@ -8276,32 +8272,77 @@ class myMenuItemElementAdd extends myMenuItem
 (:m2app)
 class myMenuItemRectangle extends myMenuItem
 {
-	enum
-	{
-		r_color,
-		r_position,
-		r_w,
-		r_h,
-		r_vis,
-		r_earlier,
-		r_later,
-		r_delete,
+//	enum
+//	{
+//		r_color,
+//		r_position,
+//		r_w,
+//		r_h,
+//		r_vis,
+//		r_earlier,
+//		r_later,
+//		r_delete,
+//
+//		r_x,
+//		r_y,
+//		r_xCentre,
+//		r_yCentre,
+//		r_tap,
+//
+//		r_colorEdit,
+//		r_xEdit,
+//		r_yEdit,
+//		r_wEdit,
+//		r_hEdit,
+//		r_visEdit,
+//	}
 
-		r_x,
-		r_y,
-		r_xCentre,
-		r_yCentre,
-		r_tap,
+	var globalStrings = [
+		"unknown",
+		
+		"color",
+		"position",
+		"width",
+		"height",
+		"visibility",
+		"move earlier",
+		"move later",
+		"delete rectangle",
 
-		r_colorEdit,
-		r_xEdit,
-		r_yEdit,
-		r_wEdit,
-		r_hEdit,
-		r_visEdit,
-	}
+		"horizontal",
+		"vertical",
+		"centre horizontal",
+		"centre vertical",
+		"tap",
 
-	var rState = r_color;
+		"editing ...",
+	];
+
+	var fStrings = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+
+		9,
+		10,
+		11,
+		12,
+		13,
+		
+		14,
+		14,
+		14,
+		14,
+		14,
+		0,
+	];
+	
+	var fState = 0;
 
     function initialize()
     {
@@ -8310,154 +8351,240 @@ class myMenuItemRectangle extends myMenuItem
     
     function getString()
     {
-    	switch (rState)
+//    	switch (fState)
+//    	{
+//			case r_color: return "color";
+//			case r_position: return "position";
+//			case r_w: return "width";
+//			case r_h: return "height";
+//			case r_vis: return "visibility";
+//			case r_earlier: return "move earlier";
+//			case r_later: return "move later";
+//			case r_delete: return "delete rectangle";
+//
+//			case r_x: return "horizontal";
+//			case r_y: return "vertical";
+//			case r_xCentre: return "centre horizontal";
+//			case r_yCentre: return "centre vertical";
+//			case r_tap: return "tap";
+//
+//			case r_colorEdit: return "editing ...";
+//			case r_xEdit: return "editing ...";
+//			case r_yEdit: return "editing ...";
+//			case r_wEdit: return "editing ...";
+//			case r_hEdit: return "editing ...";
+//			case r_visEdit: return editorView.fieldVisibilityString();
+//    	}
+//    	
+//    	return "unknown";
+
+    	if (fState==18/*r_visEdit*/)
     	{
-			case r_color: return "color";
-			case r_position: return "position";
-			case r_w: return "width";
-			case r_h: return "height";
-			case r_vis: return "visibility";
-			case r_earlier: return "move earlier";
-			case r_later: return "move later";
-			case r_delete: return "delete rectangle";
-
-			case r_x: return "horizontal";
-			case r_y: return "vertical";
-			case r_xCentre: return "centre horizontal";
-			case r_yCentre: return "centre vertical";
-			case r_tap: return "tap";
-
-			case r_colorEdit: return "editing ...";
-			case r_xEdit: return "editing ...";
-			case r_yEdit: return "editing ...";
-			case r_wEdit: return "editing ...";
-			case r_hEdit: return "editing ...";
-			case r_visEdit: return editorView.fieldVisibilityString();
+    		return editorView.fieldVisibilityString();
     	}
-    	
-    	return "unknown";
+    	else
+    	{
+    		return globalStrings[fStrings[fState]]; 
+    	}
+    }
+    
+    function onEditing(val)
+    {
+    	if (fState<=7/*r_delete*/)
+    	{
+    		fState = (fState+val+8)%8;
+    	}
+    	else if (fState<=12/*r_tap*/)
+    	{
+    		fState = (fState-8+val+5)%5 + 8;
+    	}
+    	else if (fState==13/*r_colorEdit*/)
+    	{
+    		editorView.rectangleColorEditing(val);
+    	}
+    	else if (fState==14/*r_xEdit*/)
+    	{
+    		editorView.rectanglePositionXEditing(val);
+    	}
+    	else if (fState==15/*r_yEdit*/)
+    	{
+    		editorView.rectanglePositionYEditing(val);
+    	}
+    	else if (fState==16/*r_wEdit*/)
+    	{
+    		editorView.rectangleWidthEditing(val);
+    	}
+    	else if (fState==17/*r_hEdit*/)
+    	{
+    		editorView.rectangleHeightEditing(val);
+    	}
+    	else if (fState==18/*r_visEdit*/)
+    	{
+    		editorView.fieldVisibilityEditing(val);
+    	}
+
+    	return null;
     }
     
     function onNext()
     {
-    	switch (rState)
-    	{
-			case r_color: rState = r_position; break;
-			case r_position: rState = r_w; break;
-			case r_w: rState = r_h; break;
-			case r_h: rState = r_vis; break;
-			case r_vis: rState = r_earlier; break;
-			case r_earlier: rState = r_later; break;
-			case r_later: rState = r_delete; break;
-			case r_delete: rState = r_color; break;
-
-			case r_x: rState = r_y; break;
-			case r_y: rState = r_xCentre; break;
-			case r_xCentre: rState = r_yCentre; break;
-			case r_yCentre: rState = r_tap; break;
-			case r_tap: rState = r_x; break;
-
-			case r_colorEdit: editorView.rectangleColorEditing(1); break;
-			case r_xEdit: editorView.rectanglePositionXEditing(-1); break;
-			case r_yEdit: editorView.rectanglePositionYEditing(-1); break;
-			case r_wEdit: editorView.rectangleWidthEditing(-1); break;
-			case r_hEdit: editorView.rectangleHeightEditing(-1); break;
-			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
-    	}
+//    	switch (fState)
+//    	{
+//			case r_color: fState = r_position; break;
+//			case r_position: fState = r_w; break;
+//			case r_w: fState = r_h; break;
+//			case r_h: fState = r_vis; break;
+//			case r_vis: fState = r_earlier; break;
+//			case r_earlier: fState = r_later; break;
+//			case r_later: fState = r_delete; break;
+//			case r_delete: fState = r_color; break;
+//
+//			case r_x: fState = r_y; break;
+//			case r_y: fState = r_xCentre; break;
+//			case r_xCentre: fState = r_yCentre; break;
+//			case r_yCentre: fState = r_tap; break;
+//			case r_tap: fState = r_x; break;
+//
+//			case r_colorEdit: editorView.rectangleColorEditing(1); break;
+//			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
+//			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
+//			case r_wEdit: editorView.rectangleWidthEditing(1); break;
+//			case r_hEdit: editorView.rectangleHeightEditing(1); break;
+//			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
+//    	}
+//    	
+//    	return null;
     	
-    	return null;
+    	return onEditing(1);
     }
     
     function onPrevious()
     {
-    	switch (rState)
-    	{
-			case r_color: rState = r_delete; break;
-			case r_position: rState = r_color; break;
-			case r_w: rState = r_position; break;
-			case r_h: rState = r_w; break;
-			case r_vis: rState = r_h; break;
-			case r_earlier: rState = r_vis; break;
-			case r_later: rState = r_earlier; break;
-			case r_delete: rState = r_later; break;
-
-			case r_x: rState = r_tap; break;
-			case r_y: rState = r_x; break;
-			case r_xCentre: rState = r_y; break;
-			case r_yCentre: rState = r_xCentre; break;
-			case r_tap: rState = r_yCentre; break;
-
-			case r_colorEdit: editorView.rectangleColorEditing(-1); break;
-			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
-			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
-			case r_wEdit: editorView.rectangleWidthEditing(1); break;
-			case r_hEdit: editorView.rectangleHeightEditing(1); break;
-			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
-    	}
+//    	switch (fState)
+//    	{
+//			case r_color: fState = r_delete; break;
+//			case r_position: fState = r_color; break;
+//			case r_w: fState = r_position; break;
+//			case r_h: fState = r_w; break;
+//			case r_vis: fState = r_h; break;
+//			case r_earlier: fState = r_vis; break;
+//			case r_later: fState = r_earlier; break;
+//			case r_delete: fState = r_later; break;
+//
+//			case r_x: fState = r_tap; break;
+//			case r_y: fState = r_x; break;
+//			case r_xCentre: fState = r_y; break;
+//			case r_yCentre: fState = r_xCentre; break;
+//			case r_tap: fState = r_yCentre; break;
+//
+//			case r_colorEdit: editorView.rectangleColorEditing(1); break;
+//			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
+//			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
+//			case r_wEdit: editorView.rectangleWidthEditing(1); break;
+//			case r_hEdit: editorView.rectangleHeightEditing(1); break;
+//			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
+//    	}
+//    	
+//    	return null;
     	
-    	return null;
+    	return onEditing(-1);
     }
     
     function onSelect()
     {
-    	switch (rState)
-    	{
-			case r_color: rState = r_colorEdit; break;
-			case r_position: rState = r_x; break;
-			case r_w: rState = r_wEdit; break;
-			case r_h: rState = r_hEdit; break;
-			case r_vis: rState = r_visEdit; break;
-			case r_earlier: editorView.fieldEarlier(); break;
-			case r_later: editorView.fieldLater(); break;
-			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-
-			case r_x: rState = r_xEdit; break;
-			case r_y: rState = r_yEdit; break;
-			case r_xCentre: editorView.rectanglePositionCentreX(); break;
-			case r_yCentre: editorView.rectanglePositionCentreY(); break;
-			case r_tap: break;
-
-			case r_colorEdit: break;
-			case r_xEdit: break;
-			case r_yEdit: break;
-			case r_wEdit: break;
-			case r_hEdit: break;
-			case r_visEdit: break;
-    	}
+//    	switch (fState)
+//    	{
+//			case r_color: fState = r_colorEdit; break;
+//			case r_position: fState = r_x; break;
+//			case r_w: fState = r_wEdit; break;
+//			case r_h: fState = r_hEdit; break;
+//			case r_vis: fState = r_visEdit; break;
+//			case r_earlier: editorView.fieldEarlier(); break;
+//			case r_later: editorView.fieldLater(); break;
+//			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+//
+//			case r_x: fState = r_xEdit; break;
+//			case r_y: fState = r_yEdit; break;
+//			case r_xCentre: editorView.rectanglePositionCentreX(); break;
+//			case r_yCentre: editorView.rectanglePositionCentreY(); break;
+//			case r_tap: break;
+//
+//			case r_colorEdit: break;
+//			case r_xEdit: break;
+//			case r_yEdit: break;
+//			case r_wEdit: break;
+//			case r_hEdit: break;
+//			case r_visEdit: break;
+//    	}
     	
+    	if (fState==5/*r_earlier*/)
+    	{
+    		editorView.fieldEarlier();
+    	}
+    	else if (fState==6/*r_later*/)
+    	{
+    		editorView.fieldLater();
+    	}
+    	else if (fState==7/*r_delete*/)
+    	{
+    		editorView.fieldDelete();
+    		return new myMenuItemFieldSelect();
+    	}
+    	else if (fState==10/*r_xCentre*/)
+    	{
+    		editorView.rectanglePositionCentreX();
+    	}
+    	else if (fState==11/*r_yCentre*/)
+    	{
+    		editorView.rectanglePositionCentreY();
+    	}
+    	else
+    	{
+    		fState = [13, 8, 16, 17, 18, 5, 6, 7, 14, 15, 10, 11, 12, 13, 14, 15, 16, 17, 18][fState];
+    	}
+
     	return null;
     }
     
     function onBack()
     {
-    	switch (rState)
-    	{
-			case r_color:
-			case r_position:
-			case r_w:
-			case r_h:
-			case r_vis:
-			case r_earlier:
-			case r_later:
-			case r_delete:
-				return new myMenuItemFieldSelect();
-				
-			case r_x:
-			case r_y:
-			case r_xCentre:
-			case r_yCentre:
-			case r_tap: 
-				rState = r_position;
-				break;
-
-			case r_colorEdit: rState = r_color; break;
-			case r_xEdit: rState = r_x; break;
-			case r_yEdit: rState = r_y; break;
-			case r_wEdit: rState = r_w; break;
-			case r_hEdit: rState = r_h; break;
-			case r_visEdit: rState = r_vis; break;
-    	}
+//    	switch (fState)
+//    	{
+//			case r_color:
+//			case r_position:
+//			case r_w:
+//			case r_h:
+//			case r_vis:
+//			case r_earlier:
+//			case r_later:
+//			case r_delete:
+//				return new myMenuItemFieldSelect();
+//				
+//			case r_x:
+//			case r_y:
+//			case r_xCentre:
+//			case r_yCentre:
+//			case r_tap: 
+//				fState = r_position;
+//				break;
+//
+//			case r_colorEdit: fState = r_color; break;
+//			case r_xEdit: fState = r_x; break;
+//			case r_yEdit: fState = r_y; break;
+//			case r_wEdit: fState = r_w; break;
+//			case r_hEdit: fState = r_h; break;
+//			case r_visEdit: fState = r_vis; break;
+//    	}
     	
+    	if (fState<=7/*r_delete*/)
+    	{
+    		return new myMenuItemFieldSelect();
+    	}
+    	else if (fState<=18/*r_visEdit*/)
+    	{
+    		fState = [1, 1, 1, 1, 1, 0, 8, 9, 2, 3, 4][fState-8];
+    	}
+
     	return null;
     }
 }
@@ -8465,31 +8592,72 @@ class myMenuItemRectangle extends myMenuItem
 (:m2app)
 class myMenuItemRing extends myMenuItem
 {
-	enum
-	{
-		r_type,
-		r_font,
-		r_start,
-		r_end,
-		r_direction,
-		r_colorFilled,
-		r_colorUnfilled,
-		r_vis,
-		r_earlier,
-		r_later,
-		r_delete,
+//	enum
+//	{
+//		r_type,
+//		r_font,
+//		r_start,
+//		r_end,
+//		r_direction,
+//		r_colorFilled,
+//		r_colorUnfilled,
+//		r_vis,
+//		r_earlier,
+//		r_later,
+//		r_delete,
+//
+//		r_typeEdit,
+//		r_fontEdit,
+//		r_startEdit,
+//		r_endEdit,
+//		r_directionEdit,
+//		r_colorFilledEdit,
+//		r_colorUnfilledEdit,
+//		r_visEdit,
+//	}
 
-		r_typeEdit,
-		r_fontEdit,
-		r_startEdit,
-		r_endEdit,
-		r_directionEdit,
-		r_colorFilledEdit,
-		r_colorUnfilledEdit,
-		r_visEdit,
-	}
+	var globalStrings = [
+		"unknown",
 
-	var rState = r_type;
+		"data",
+		"style",
+		"start",
+		"end",
+		"direction",
+		"color filled",
+		"color unfilled",
+		"visibility",
+		"move earlier",
+		"move later",
+		"delete ring",
+
+		"editing ...",	
+	];
+
+	var fStrings = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9,
+		10,
+		11,
+		
+		0,
+		12,
+		12,
+		12,
+		0,
+		12,
+		12,
+		0,
+	];
+	
+	var fState = 0;
 
     function initialize()
     {
@@ -8498,147 +8666,238 @@ class myMenuItemRing extends myMenuItem
     
     function getString()
     {
-    	switch (rState)
-    	{
-			case r_type: return "data";
-			case r_font: return "style";
-			case r_start: return "start";
-			case r_end: return "end";
-			case r_direction: return "direction";
-			case r_colorFilled: return "color filled";
-			case r_colorUnfilled: return "color unfilled";
-			case r_vis: return "visibility";
-			case r_earlier: return "move earlier";
-			case r_later: return "move later";
-			case r_delete: return "delete ring";
-
-			case r_typeEdit: return editorView.ringTypeString();
-			case r_fontEdit: return "editing ...";
-			case r_startEdit: return "editing ...";
-			case r_endEdit: return "editing ...";
-			case r_directionEdit: return editorView.ringDirectionString();
-			case r_colorFilledEdit: return "editing ...";
-			case r_colorUnfilledEdit: return "editing ...";
-			case r_visEdit: return editorView.fieldVisibilityString();
-    	}
+//    	switch (fState)
+//    	{
+//			case r_type: return "data";
+//			case r_font: return "style";
+//			case r_start: return "start";
+//			case r_end: return "end";
+//			case r_direction: return "direction";
+//			case r_colorFilled: return "color filled";
+//			case r_colorUnfilled: return "color unfilled";
+//			case r_vis: return "visibility";
+//			case r_earlier: return "move earlier";
+//			case r_later: return "move later";
+//			case r_delete: return "delete ring";
+//
+//			case r_typeEdit: return editorView.ringTypeString();
+//			case r_fontEdit: return "editing ...";
+//			case r_startEdit: return "editing ...";
+//			case r_endEdit: return "editing ...";
+//			case r_directionEdit: return editorView.ringDirectionString();
+//			case r_colorFilledEdit: return "editing ...";
+//			case r_colorUnfilledEdit: return "editing ...";
+//			case r_visEdit: return editorView.fieldVisibilityString();
+//    	}
+//    	
+//    	return "unknown";
     	
-    	return "unknown";
+    	if (fState==11/*r_typeEdit*/)
+    	{
+    		return editorView.ringTypeString();
+    	}
+    	else if (fState==15/*r_directionEdit*/)
+    	{
+    		return editorView.ringDirectionString();
+    	}
+    	else if (fState==18/*r_visEdit*/)
+    	{
+    		return editorView.fieldVisibilityString();
+    	}
+    	else
+    	{
+    		return globalStrings[fStrings[fState]]; 
+    	}
+    }
+    
+    function onEditing(val)
+    {
+       	if (fState<=10/*r_delete*/)
+    	{
+    		fState = (fState+val+11)%11;
+    	}
+       	else if (fState==11/*r_typeEdit*/)
+    	{
+    		editorView.ringTypeEditing(val);
+    	}
+       	else if (fState==12/*r_fontEdit*/)
+    	{
+    		editorView.ringFontEditing(val);
+    	}
+       	else if (fState==13/*r_startEdit*/)
+    	{
+    		editorView.ringStartEditing(val);
+    	}
+       	else if (fState==14/*r_endEdit*/)
+    	{
+    		editorView.ringEndEditing(val);
+    	}
+       	else if (fState==15/*r_directionEdit*/)
+    	{
+    		editorView.ringDirectionEditing();
+    	}
+       	else if (fState==16/*r_colorFilledEdit*/)
+    	{
+    		editorView.ringColorFilledEditing(val);
+    	}
+       	else if (fState==17/*r_colorUnfilledEdit*/)
+    	{
+    		editorView.ringColorUnfilledEditing(val);
+    	}
+       	else if (fState==18/*r_visEdit*/)
+    	{
+    		editorView.fieldVisibilityEditing(val);
+    	}
+    
+    	return null;
     }
     
     function onNext()
     {
-    	switch (rState)
-    	{
-			case r_type: rState = r_font; break;
-			case r_font: rState = r_start; break;
-			case r_start: rState = r_end; break;
-			case r_end: rState = r_direction; break;
-			case r_direction: rState = r_colorFilled; break;
-			case r_colorFilled: rState = r_colorUnfilled; break;
-			case r_colorUnfilled: rState = r_vis; break;
-			case r_vis: rState = r_earlier; break;
-			case r_earlier: rState = r_later; break;
-			case r_later: rState = r_delete; break;
-			case r_delete: rState = r_type; break;
+//    	switch (fState)
+//    	{
+//			case r_type: fState = r_font; break;
+//			case r_font: fState = r_start; break;
+//			case r_start: fState = r_end; break;
+//			case r_end: fState = r_direction; break;
+//			case r_direction: fState = r_colorFilled; break;
+//			case r_colorFilled: fState = r_colorUnfilled; break;
+//			case r_colorUnfilled: fState = r_vis; break;
+//			case r_vis: fState = r_earlier; break;
+//			case r_earlier: fState = r_later; break;
+//			case r_later: fState = r_delete; break;
+//			case r_delete: fState = r_type; break;
+//
+//			case r_typeEdit: editorView.ringTypeEditing(1); break;
+//			case r_fontEdit: editorView.ringFontEditing(1); break;
+//			case r_startEdit: editorView.ringStartEditing(1); break;
+//			case r_endEdit: editorView.ringEndEditing(1); break;
+//			case r_directionEdit: editorView.ringDirectionEditing(); break;
+//			case r_colorFilledEdit: editorView.ringColorFilledEditing(1); break;
+//			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(1); break;
+//			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
+//    	}
+//
+//   		return null;
 
-			case r_typeEdit: editorView.ringTypeEditing(1); break;
-			case r_fontEdit: editorView.ringFontEditing(1); break;
-			case r_startEdit: editorView.ringStartEditing(1); break;
-			case r_endEdit: editorView.ringEndEditing(1); break;
-			case r_directionEdit: editorView.ringDirectionEditing(); break;
-			case r_colorFilledEdit: editorView.ringColorFilledEditing(1); break;
-			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(1); break;
-			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
-    	}
-
-   		return null;
+		return onEditing(1);
     }
     
     function onPrevious()
     {
-    	switch (rState)
-    	{
-			case r_type: rState = r_delete; break;
-			case r_font: rState = r_type; break;
-			case r_start: rState = r_font; break;
-			case r_end: rState = r_start; break;
-			case r_direction: rState = r_end; break;
-			case r_colorFilled: rState = r_direction; break;
-			case r_colorUnfilled: rState = r_colorFilled; break;
-			case r_vis: rState = r_colorUnfilled; break;
-			case r_earlier: rState = r_vis; break;
-			case r_later: rState = r_earlier; break;
-			case r_delete: rState = r_later; break;
+//    	switch (fState)
+//    	{
+//			case r_type: fState = r_delete; break;
+//			case r_font: fState = r_type; break;
+//			case r_start: fState = r_font; break;
+//			case r_end: fState = r_start; break;
+//			case r_direction: fState = r_end; break;
+//			case r_colorFilled: fState = r_direction; break;
+//			case r_colorUnfilled: fState = r_colorFilled; break;
+//			case r_vis: fState = r_colorUnfilled; break;
+//			case r_earlier: fState = r_vis; break;
+//			case r_later: fState = r_earlier; break;
+//			case r_delete: fState = r_later; break;
+//
+//			case r_typeEdit: editorView.ringTypeEditing(-1); break;
+//			case r_fontEdit: editorView.ringFontEditing(-1); break;
+//			case r_startEdit: editorView.ringStartEditing(-1); break;
+//			case r_endEdit: editorView.ringEndEditing(-1); break;
+//			case r_directionEdit: editorView.ringDirectionEditing(); break;
+//			case r_colorFilledEdit: editorView.ringColorFilledEditing(-1); break;
+//			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(-1); break;
+//			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
+//    	}
+//
+//   		return null;
 
-			case r_typeEdit: editorView.ringTypeEditing(-1); break;
-			case r_fontEdit: editorView.ringFontEditing(-1); break;
-			case r_startEdit: editorView.ringStartEditing(-1); break;
-			case r_endEdit: editorView.ringEndEditing(-1); break;
-			case r_directionEdit: editorView.ringDirectionEditing(); break;
-			case r_colorFilledEdit: editorView.ringColorFilledEditing(-1); break;
-			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(-1); break;
-			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
-    	}
-
-   		return null;
+		return onEditing(-1);
     }
     
     function onSelect()
     {
-    	switch (rState)
-    	{
-			case r_type: rState = r_typeEdit; break;
-			case r_font: rState = r_fontEdit; break;
-			case r_start: rState = r_startEdit; break;
-			case r_end: rState = r_endEdit; break;
-			case r_direction: rState = r_directionEdit; break;
-			case r_colorFilled: rState = r_colorFilledEdit; break;
-			case r_colorUnfilled: rState = r_colorUnfilledEdit; break;
-			case r_vis: rState = r_visEdit; break;
-			case r_earlier: editorView.fieldEarlier(); break;
-			case r_later: editorView.fieldLater(); break;
-			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-
-			case r_typeEdit: break;
-			case r_fontEdit: break;
-			case r_startEdit: break;
-			case r_endEdit: break;
-			case r_directionEdit: break;
-			case r_colorFilledEdit: break;
-			case r_colorUnfilledEdit: break;
-			case r_visEdit: break;
-    	}
+//    	switch (fState)
+//    	{
+//			case r_type: fState = r_typeEdit; break;
+//			case r_font: fState = r_fontEdit; break;
+//			case r_start: fState = r_startEdit; break;
+//			case r_end: fState = r_endEdit; break;
+//			case r_direction: fState = r_directionEdit; break;
+//			case r_colorFilled: fState = r_colorFilledEdit; break;
+//			case r_colorUnfilled: fState = r_colorUnfilledEdit; break;
+//			case r_vis: fState = r_visEdit; break;
+//			
+//			case r_earlier: editorView.fieldEarlier(); break;
+//			case r_later: editorView.fieldLater(); break;
+//			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+//
+//			case r_typeEdit: break;
+//			case r_fontEdit: break;
+//			case r_startEdit: break;
+//			case r_endEdit: break;
+//			case r_directionEdit: break;
+//			case r_colorFilledEdit: break;
+//			case r_colorUnfilledEdit: break;
+//			case r_visEdit: break;
+//    	}
     	
+    	if (fState<=7/*r_vis*/)
+    	{
+    		fState += 11;
+    	}
+    	else if (fState==8/*r_earlier*/)
+    	{
+    		editorView.fieldEarlier();
+    	}
+    	else if (fState==9/*r_later*/)
+    	{
+    		editorView.fieldLater();
+    	}
+    	else if (fState==10/*r_delete*/)
+    	{
+    		editorView.fieldDelete();
+    		return new myMenuItemFieldSelect();
+    	}
+
     	return null;
     }
     
     function onBack()
     {
-    	switch (rState)
-    	{
-			case r_type:
-			case r_font:
-			case r_start:
-			case r_end:
-			case r_direction:
-			case r_colorFilled:
-			case r_colorUnfilled:
-			case r_vis:
-			case r_earlier:
-			case r_later:
-			case r_delete:
-				return new myMenuItemFieldSelect();
-
-			case r_typeEdit: rState = r_type; break;
-			case r_fontEdit: rState = r_font; break;
-			case r_startEdit: rState = r_start; break;
-			case r_endEdit: rState = r_end; break;
-			case r_directionEdit: rState = r_direction; break;
-			case r_colorFilledEdit: rState = r_colorFilled; break;
-			case r_colorUnfilledEdit: rState = r_colorUnfilled; break;
-			case r_visEdit: rState = r_vis; break;
-    	}
+//    	switch (fState)
+//    	{
+//			case r_type:
+//			case r_font:
+//			case r_start:
+//			case r_end:
+//			case r_direction:
+//			case r_colorFilled:
+//			case r_colorUnfilled:
+//			case r_vis:
+//			case r_earlier:
+//			case r_later:
+//			case r_delete:
+//				return new myMenuItemFieldSelect();
+//
+//			case r_typeEdit: fState = r_type; break;
+//			case r_fontEdit: fState = r_font; break;
+//			case r_startEdit: fState = r_start; break;
+//			case r_endEdit: fState = r_end; break;
+//			case r_directionEdit: fState = r_direction; break;
+//			case r_colorFilledEdit: fState = r_colorFilled; break;
+//			case r_colorUnfilledEdit: fState = r_colorUnfilled; break;
+//			case r_visEdit: fState = r_vis; break;
+//    	}
     	
+    	if (fState<=10/*r_delete*/)
+    	{
+    		return new myMenuItemFieldSelect();
+    	}
+    	else
+    	{
+    		fState -= 11;
+    	}
+
    		return null;
     }
 }
@@ -8646,29 +8905,27 @@ class myMenuItemRing extends myMenuItem
 (:m2app)
 class myMenuItemSeconds extends myMenuItem
 {
-	enum
-	{
-		s_font,
-		s_refresh,
-		s_color,
-		s_color5,
-		s_color10,
-		s_color15,
-		s_color0,
-		s_vis,
-		s_delete,
-
-		s_fontEdit,
-		s_refreshEdit,
-		s_colorEdit,
-		s_color5Edit,
-		s_color10Edit,
-		s_color15Edit,
-		s_color0Edit,
-		s_visEdit,
-	}
-
-	var sState = s_font;
+//	enum
+//	{
+//		s_font,
+//		s_refresh,
+//		s_color,
+//		s_color5,
+//		s_color10,
+//		s_color15,
+//		s_color0,
+//		s_vis,
+//		s_delete,
+//
+//		s_fontEdit,
+//		s_refreshEdit,
+//		s_colorEdit,
+//		s_color5Edit,
+//		s_color10Edit,
+//		s_color15Edit,
+//		s_color0Edit,
+//		s_visEdit,
+//	}
 
 	//visibility
 	//font
@@ -8679,6 +8936,45 @@ class myMenuItemSeconds extends myMenuItem
 	//color15
 	//color0
 
+	var globalStrings = [
+		"unknown",
+		
+		"style",
+		"refresh",
+		"color",
+		"color (5s)",
+		"color (10s)",
+		"color (15s)",
+		"color (0s)",
+		"visibility",
+		"delete seconds",
+		
+		"editing ...",
+	];
+
+	var fStrings = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9,
+		
+		10,
+		0,
+		10,
+		10,
+		10,
+		10,
+		10,
+		0,
+	];
+
+	var fState = 0;
+
     function initialize()
     {
     	myMenuItem.initialize();
@@ -8686,107 +8982,157 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-    	switch (sState)
+//    	switch (fState)
+//    	{
+//			case s_font: return "style";
+//			case s_refresh: return "refresh";
+//			case s_color: return "color";
+//			case s_color5: return "color (5s)";
+//			case s_color10: return "color (10s)";
+//			case s_color15: return "color (15s)";
+//			case s_color0: return "color (0s)";
+//			case s_vis: return "visibility";
+//			case s_delete: return "delete seconds";
+//
+//			case s_fontEdit: return "editing ...";
+//			case s_refreshEdit: return editorView.secondsRefreshString();
+//			case s_colorEdit: return "editing ...";
+//			case s_color5Edit: return "editing ...";
+//			case s_color10Edit: return "editing ...";
+//			case s_color15Edit: return "editing ...";
+//			case s_color0Edit: return "editing ...";
+//			case s_visEdit: return editorView.fieldVisibilityString();
+//    	}
+//    	
+//    	return "unknown";
+    	
+    	if (fState==10/*s_refreshEdit*/)
     	{
-			case s_font: return "style";
-			case s_refresh: return "refresh";
-			case s_color: return "color";
-			case s_color5: return "color (5s)";
-			case s_color10: return "color (10s)";
-			case s_color15: return "color (15s)";
-			case s_color0: return "color (0s)";
-			case s_vis: return "visibility";
-			case s_delete: return "delete seconds";
-
-			case s_fontEdit: return "editing ...";
-			case s_refreshEdit: return editorView.secondsRefreshString();
-			case s_colorEdit: return "editing ...";
-			case s_color5Edit: return "editing ...";
-			case s_color10Edit: return "editing ...";
-			case s_color15Edit: return "editing ...";
-			case s_color0Edit: return "editing ...";
-			case s_visEdit: return editorView.fieldVisibilityString();
+    		return editorView.secondsRefreshString();
+    	}
+    	else if (fState==16/*s_visEdit*/)
+    	{
+    		return editorView.fieldVisibilityString();
+    	}
+    	else
+    	{
+    		return globalStrings[fStrings[fState]]; 
+    	}
+    }
+    
+    function onEditing(val)
+    {
+    	if (fState<=8/*s_delete*/)
+    	{
+    		fState = (fState+val+9)%9;
+    	}
+    	else if (fState==9/*s_fontEdit*/)
+    	{
+    		editorView.secondsFontEditing(val);
+    	}
+    	else if (fState==10/*s_refreshEdit*/)
+    	{
+    		editorView.secondsRefreshEditing(val);
+    	}
+    	else if (fState==16/*s_visEdit*/)
+    	{
+    		editorView.fieldVisibilityEditing(val);
+    	}
+    	else
+    	{
+    		editorView.secondsColorEditing(fState-11/*s_colorEdit*/, val);
     	}
     	
-    	return "unknown";
+    	return null;
     }
     
     function onNext()
     {
-    	switch (sState)
-    	{
-			case s_font: sState = s_refresh; break;
-			case s_refresh: sState = s_color; break;
-			case s_color: sState = s_color5; break;
-			case s_color5: sState = s_color10; break;
-			case s_color10: sState = s_color15; break;
-			case s_color15: sState = s_color0; break;
-			case s_color0: sState = s_vis; break;
-			case s_vis: sState = s_delete; break;
-			case s_delete: sState = s_font; break;
-
-			case s_fontEdit: editorView.secondsFontEditing(1); break;
-			case s_refreshEdit: editorView.secondsRefreshEditing(1); break;
-			case s_colorEdit: editorView.secondsColorEditing(0, 1); break;
-			case s_color5Edit: editorView.secondsColorEditing(1, 1); break;
-			case s_color10Edit: editorView.secondsColorEditing(2, 1); break;
-			case s_color15Edit: editorView.secondsColorEditing(3, 1); break;
-			case s_color0Edit: editorView.secondsColorEditing(4, 1); break;
-			case s_visEdit: editorView.fieldVisibilityEditing(1); break;
-    	}
+//    	switch (fState)
+//    	{
+//			case s_font: fState = s_refresh; break;
+//			case s_refresh: fState = s_color; break;
+//			case s_color: fState = s_color5; break;
+//			case s_color5: fState = s_color10; break;
+//			case s_color10: fState = s_color15; break;
+//			case s_color15: fState = s_color0; break;
+//			case s_color0: fState = s_vis; break;
+//			case s_vis: fState = s_delete; break;
+//			case s_delete: fState = s_font; break;
+//
+//			case s_fontEdit: editorView.secondsFontEditing(1); break;
+//			case s_refreshEdit: editorView.secondsRefreshEditing(1); break;
+//			case s_colorEdit: editorView.secondsColorEditing(0, 1); break;
+//			case s_color5Edit: editorView.secondsColorEditing(1, 1); break;
+//			case s_color10Edit: editorView.secondsColorEditing(2, 1); break;
+//			case s_color15Edit: editorView.secondsColorEditing(3, 1); break;
+//			case s_color0Edit: editorView.secondsColorEditing(4, 1); break;
+//			case s_visEdit: editorView.fieldVisibilityEditing(1); break;
+//    	}
     	
-   		return null;
+   		return onEditing(1);
     }
     
     function onPrevious()
     {
-    	switch (sState)
-    	{
-			case s_font: sState = s_delete; break;
-			case s_refresh: sState = s_font; break;
-			case s_color: sState = s_refresh; break;
-			case s_color5: sState = s_color; break;
-			case s_color10: sState = s_color5; break;
-			case s_color15: sState = s_color10; break;
-			case s_color0: sState = s_color15; break;
-			case s_vis: sState = s_color0; break;
-			case s_delete: sState = s_vis; break;
-
-			case s_fontEdit: editorView.secondsFontEditing(-1); break;
-			case s_refreshEdit: editorView.secondsRefreshEditing(-1); break;
-			case s_colorEdit: editorView.secondsColorEditing(0, -1); break;
-			case s_color5Edit: editorView.secondsColorEditing(1, -1); break;
-			case s_color10Edit: editorView.secondsColorEditing(2, -1); break;
-			case s_color15Edit: editorView.secondsColorEditing(3, -1); break;
-			case s_color0Edit: editorView.secondsColorEditing(4, -1); break;
-			case s_visEdit: editorView.fieldVisibilityEditing(-1); break;
-    	}
+//    	switch (fState)
+//    	{
+//			case s_font: fState = s_delete; break;
+//			case s_refresh: fState = s_font; break;
+//			case s_color: fState = s_refresh; break;
+//			case s_color5: fState = s_color; break;
+//			case s_color10: fState = s_color5; break;
+//			case s_color15: fState = s_color10; break;
+//			case s_color0: fState = s_color15; break;
+//			case s_vis: fState = s_color0; break;
+//			case s_delete: fState = s_vis; break;
+//
+//			case s_fontEdit: editorView.secondsFontEditing(-1); break;
+//			case s_refreshEdit: editorView.secondsRefreshEditing(-1); break;
+//			case s_colorEdit: editorView.secondsColorEditing(0, -1); break;
+//			case s_color5Edit: editorView.secondsColorEditing(1, -1); break;
+//			case s_color10Edit: editorView.secondsColorEditing(2, -1); break;
+//			case s_color15Edit: editorView.secondsColorEditing(3, -1); break;
+//			case s_color0Edit: editorView.secondsColorEditing(4, -1); break;
+//			case s_visEdit: editorView.fieldVisibilityEditing(-1); break;
+//    	}
     	
-   		return null;
+   		return onEditing(-1);
     }
     
     function onSelect()
     {
-    	switch (sState)
-    	{
-			case s_font: sState = s_fontEdit; break;
-			case s_refresh: sState = s_refreshEdit; break;
-			case s_color: sState = s_colorEdit; break;
-			case s_color5: sState = s_color5Edit; break;
-			case s_color10: sState = s_color10Edit; break;
-			case s_color15: sState = s_color15Edit; break;
-			case s_color0: sState = s_color0Edit; break;
-			case s_vis: sState = s_visEdit; break;
-			case s_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect(); break;
+//    	switch (fState)
+//    	{
+//			case s_font: fState = s_fontEdit; break;
+//			case s_refresh: fState = s_refreshEdit; break;
+//			case s_color: fState = s_colorEdit; break;
+//			case s_color5: fState = s_color5Edit; break;
+//			case s_color10: fState = s_color10Edit; break;
+//			case s_color15: fState = s_color15Edit; break;
+//			case s_color0: fState = s_color0Edit; break;
+//			case s_vis: fState = s_visEdit; break;
 
-			case s_fontEdit: break;
-			case s_refreshEdit: break;
-			case s_colorEdit: break;
-			case s_color5Edit: break;
-			case s_color10Edit: break;
-			case s_color15Edit: break;
-			case s_color0Edit: break;
-			case s_visEdit: break;
+//			case s_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+//
+//			case s_fontEdit: break;
+//			case s_refreshEdit: break;
+//			case s_colorEdit: break;
+//			case s_color5Edit: break;
+//			case s_color10Edit: break;
+//			case s_color15Edit: break;
+//			case s_color0Edit: break;
+//			case s_visEdit: break;
+//    	}
+    	
+    	if (fState<=7/*s_vis*/)
+    	{
+    		fState += 9;
+    	}
+    	else if (fState==8/*s_delete*/)
+    	{
+    		editorView.fieldDelete();
+    		return new myMenuItemFieldSelect();
     	}
     	
     	return null;
@@ -8794,29 +9140,38 @@ class myMenuItemSeconds extends myMenuItem
     
     function onBack()
     {
-    	switch (sState)
-    	{
-			case s_font:
-			case s_refresh:
-			case s_color:
-			case s_color5:
-			case s_color10:
-			case s_color15:
-			case s_color0:
-			case s_vis:
-			case s_delete:
-				return new myMenuItemFieldSelect();
-
-			case s_fontEdit: sState = s_font; break;
-			case s_refreshEdit: sState = s_refresh; break;
-			case s_colorEdit: sState = s_color; break;
-			case s_color5Edit: sState = s_color5; break;
-			case s_color10Edit: sState = s_color10; break;
-			case s_color15Edit: sState = s_color15; break;
-			case s_color0Edit: sState = s_color0; break;
-			case s_visEdit: sState = s_vis; break;
-    	}
+//    	switch (fState)
+//    	{
+//			case s_font:
+//			case s_refresh:
+//			case s_color:
+//			case s_color5:
+//			case s_color10:
+//			case s_color15:
+//			case s_color0:
+//			case s_vis:
+//			case s_delete:
+//				return new myMenuItemFieldSelect();
+//
+//			case s_fontEdit: fState = s_font; break;
+//			case s_refreshEdit: fState = s_refresh; break;
+//			case s_colorEdit: fState = s_color; break;
+//			case s_color5Edit: fState = s_color5; break;
+//			case s_color10Edit: fState = s_color10; break;
+//			case s_color15Edit: fState = s_color15; break;
+//			case s_color0Edit: fState = s_color0; break;
+//			case s_visEdit: fState = s_vis; break;
+//    	}
     	
+    	if (fState<=8/*s_delete*/)
+    	{
+    		return new myMenuItemFieldSelect();
+    	}
+    	else
+    	{
+    		fState -= 9;
+    	}
+
    		return null;
     }
 }
