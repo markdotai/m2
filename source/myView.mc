@@ -4052,9 +4052,6 @@ class myView
     	var fonts = Rez.Fonts;
 		var graphics = Graphics;
 
-    	propSecondIndicatorOn = false;
-		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
-    	
 		var fontList = [
 			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
 			fonts.id_trivial_extra_light,		// APPFONT_EXTRA_LIGHT
@@ -4124,21 +4121,24 @@ class myView
 			fonts.id_outer,
 		];
 		
+    	propSecondIndicatorOn = false;
+		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
+    	
 		for (var index=0; index<gfxNum; )
 		{
 			var id = (gfxData[index] & 0xFF);
 			
 			switch(id)
 			{
-				case 0:		// header
-				{
-					break;
-				}
+//				case 0:		// header
+//				{
+//					break;
+//				}
 				
-				case 1:		// field
-				{
-					break;
-				}
+//				case 1:		// field
+//				{
+//					break;
+//				}
 				
 				case 2:		// hour large
 				case 3:		// minute large
@@ -4191,15 +4191,15 @@ class myView
 					break;
 				}
 				
-				case 8:		// chart
-				{
-					break;
-				}
+//				case 8:		// chart
+//				{
+//					break;
+//				}
 				
-				case 9:		// rectangle
-				{
-					break;
-				}
+//				case 9:		// rectangle
+//				{
+//					break;
+//				}
 				
 				case 10:	// ring
 				{
@@ -4425,10 +4425,10 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// header
-				{
-					break;
-				}
+//				case 0:		// header
+//				{
+//					break;
+//				}
 
 				case 1:		// field
 				{
@@ -4458,8 +4458,8 @@ class myView
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
-						gfxData[index+3] = 0;	// width 0
 						gfxData[index+4] = 0;	// width 0
+						gfxData[index+6] = 0;	// width 0
 						break;
 					}
 					
@@ -4482,59 +4482,49 @@ class myView
 					var charArraySize = charArray.size();
 					var charArrayIndex = 0;
 
-					if (charArraySize==1)
+					for (var j=0; j<=2; j+=2)
 					{
-						//gfxData[index+3] = 0;	// string 0
-						gfxData[index+4] = 0;	// width 0
-					}
-					else
-					{
+						var indexWidthJ = index+4+j; 
+					
+						if (j==0 && charArraySize==1)	// if only 1 character then store it in the 2nd slot
+						{
+							//gfxData[index+3] = 0;	// string 0
+							gfxData[indexWidthJ] = 0;	// width 0
+							continue;
+						}
+						
 						var c = charArray[charArrayIndex];
+						var cNum = c.toNumber();
 						charArrayIndex++;
-						gfxData[index+3] = c;	// string 0
-						gfxData[index+4] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0
-						gfxData[indexCurField+4] += gfxData[index+4];	// total width
+						gfxData[indexWidthJ-1] = c;	// string 0 or 1
+						gfxData[indexWidthJ] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0 or 1
+						gfxData[indexCurField+4] += gfxData[indexWidthJ];	// total width
 						
 						if (indexPrevLargeWidth>=0 && prevLargeFontKern<6 && fontTypeKern<6)
 						{
-							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
+							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, cNum - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
 							gfxData[indexPrevLargeWidth] -= k;
 							gfxData[indexCurField+4] -= k;	// total width
 						}
 						
-						indexPrevLargeWidth = index+4;
-						prevLargeNumber = c.toNumber();
+						indexPrevLargeWidth = indexWidthJ;
+						prevLargeNumber = cNum;
 						prevLargeFontKern = fontTypeKern;
-					}
 
-					{
-						var c = charArray[charArrayIndex];
-						gfxData[index+5] = c;	// string 1
-						gfxData[index+6] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 1
-						gfxData[indexCurField+4] += gfxData[index+6];	// total width
-	
-						if (indexPrevLargeWidth>=0 && prevLargeFontKern<6 && fontTypeKern<6)
+						if (j!=0)
 						{
-							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, c.toNumber() - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
-							gfxData[indexPrevLargeWidth] -= k;
-							gfxData[indexCurField+4] -= k;	// total width
-						}
-
-						indexPrevLargeWidth = index+6;
-						prevLargeNumber = c.toNumber();
-						prevLargeFontKern = fontTypeKern;
-						
-						gfxData[indexCurField+5] = 0;	// remove existing x adjustment
-						if (gfxData[indexCurField+3]==0)	// centre justification
-						{
-							//if (italic font)
-							//{
-							//	gfxData[indexCurField+5] += 1;	// shift right 1 pixel
-							//}
-							
-							if ((c.toNumber() - 48/*APPCHAR_0*/) == 4)		// last digit is a 4 
+							gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+							if (gfxData[indexCurField+3]==0)	// centre justification
 							{
-								gfxData[indexCurField+5] += 1;	// shift right 1 more pixel
+								//if (italic font)
+								//{
+								//	gfxData[indexCurField+5] += 1;	// shift right 1 pixel
+								//}
+								
+								if ((cNum - 48/*APPCHAR_0*/) == 4)		// last digit is a 4 
+								{
+									gfxData[indexCurField+5] += 1;	// shift right 1 more pixel
+								}
 							}
 						}
 					}
@@ -4548,10 +4538,6 @@ class myView
 					{
 						break;
 					}
-
-					gfxData[index+4] = 0;	// string start
-					gfxData[index+5] = 0;	// string end
-					gfxData[index+6] = 0;	// width
 
 					var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
 
@@ -4940,29 +4926,36 @@ class myView
 							gfxData[index+4] = sLen;
 							gfxData[index+5] = sLen;
 							gfxData[index+6] = 0;
-							break;
-						}
-	
-						if (checkDiacritics)
-						{
-							eLen = addStringToCharArrayWithDiacritics(eStr, gfxCharArray, sLen, 256);
-							gfxCharArrayLen = eLen + (eLen-sLen);
-							eStr = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));	// string without diacritics
-
-							gfxData[index+3] |= 0x80000000;		// diacritics flag
 						}
 						else
 						{
-							eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
-							gfxCharArrayLen = eLen;
-
-							gfxData[index+3] &= ~0x80000000;		// diacritics flag
-						}
+							if (checkDiacritics)
+							{
+								eLen = addStringToCharArrayWithDiacritics(eStr, gfxCharArray, sLen, 256);
+								gfxCharArrayLen = eLen + (eLen-sLen);
+								eStr = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));	// string without diacritics
 	
-						gfxData[index+4] = sLen;	// string start
-						gfxData[index+5] = eLen;	// string end
-						gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
-						gfxData[indexCurField+4] += gfxData[index+6];	// total width					
+								gfxData[index+3] |= 0x80000000;		// diacritics flag
+							}
+							else
+							{
+								eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
+								gfxCharArrayLen = eLen;
+	
+								gfxData[index+3] &= ~0x80000000;		// diacritics flag
+							}
+		
+							gfxData[index+4] = sLen;	// string start
+							gfxData[index+5] = eLen;	// string end
+							gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
+							gfxData[indexCurField+4] += gfxData[index+6];	// total width
+						}					
+					}
+					else
+					{
+						gfxData[index+4] = 0;	// string start
+						gfxData[index+5] = 0;	// string end
+						gfxData[index+6] = 0;	// width
 					}
 					
 					break;
@@ -5260,10 +5253,10 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// header
-				{
-					break;
-				}
+//				case 0:		// header
+//				{
+//					break;
+//				}
 				
 				case 1:		// field
 				{
@@ -5660,10 +5653,10 @@ class myView
 					break;
 				}
 				
-				case 11:	// seconds
-				{
-					break;
-				}
+//				case 11:	// seconds
+//				{
+//					break;
+//				}
 			}
 			
 			index += gfxSize(id);
@@ -5776,6 +5769,8 @@ class myEditorView extends myView
 		heart rate as text
 		seconds indicator
 		digital seconds
+		horizontal line
+		vertical line
 
 	save profile
 	load profile
