@@ -258,30 +258,30 @@ class myView
 	//enum
 	//{
 	//	STATUS_ALWAYSON = 0,
-	//	STATUS_DONOTDISTURB_ON = 1,
-	//	STATUS_DONOTDISTURB_OFF = 2,
-	//	STATUS_ALARM_ON = 3,
-	//	STATUS_ALARM_OFF = 4,
-	//	STATUS_NOTIFICATIONS_PENDING = 5,
-	//	STATUS_NOTIFICATIONS_NONE = 6,
-	//	STATUS_PHONE_CONNECTED = 7,
-	//	STATUS_PHONE_NOT = 8,
-	//	STATUS_LTE_CONNECTED = 9,
-	//	STATUS_LTE_NOT = 10,
-	//	STATUS_BATTERY_HIGHORMEDIUM = 11,
-	//	STATUS_BATTERY_HIGH = 12,
-	//	STATUS_BATTERY_MEDIUM = 13,
-	//	STATUS_BATTERY_LOW = 14,
-	//	STATUS_MOVEBARALERT_TRIGGERED = 15,
-	//	STATUS_MOVEBARALERT_NOT = 16,
-	//	STATUS_AM = 17,
-	//	STATUS_PM = 18,
-	//	STATUS_2ND_AM = 19,
-	//	STATUS_2ND_PM = 20,
-	//	STATUS_SUNEVENT_RISE = 21,
-	//	STATUS_SUNEVENT_SET = 22,
-	//	STATUS_GLANCE_ON = 23,
-	//	STATUS_GLANCE_OFF = 24,
+	//	STATUS_GLANCE_ON = 1,
+	//	STATUS_GLANCE_OFF = 2,
+	//	STATUS_DONOTDISTURB_ON = 3,
+	//	STATUS_DONOTDISTURB_OFF = 4,
+	//	STATUS_ALARM_ON = 5,
+	//	STATUS_ALARM_OFF = 6,
+	//	STATUS_NOTIFICATIONS_PENDING = 7,
+	//	STATUS_NOTIFICATIONS_NONE = 8,
+	//	STATUS_PHONE_CONNECTED = 9,
+	//	STATUS_PHONE_NOT = 10,
+	//	STATUS_LTE_CONNECTED = 11,
+	//	STATUS_LTE_NOT = 12,
+	//	STATUS_BATTERY_HIGHORMEDIUM = 13,
+	//	STATUS_BATTERY_HIGH = 14,
+	//	STATUS_BATTERY_MEDIUM = 15,
+	//	STATUS_BATTERY_LOW = 16,
+	//	STATUS_MOVEBARALERT_TRIGGERED = 17,
+	//	STATUS_MOVEBARALERT_NOT = 18,
+	//	STATUS_AM = 19,
+	//	STATUS_PM = 20,
+	//	STATUS_2ND_AM = 21,
+	//	STATUS_2ND_PM = 22,
+	//	STATUS_SUNEVENT_RISE = 23,
+	//	STATUS_SUNEVENT_SET = 24,
 	//
 	//	STATUS_NUM = 25
 	//}
@@ -326,66 +326,67 @@ class myView
 	//	FIELD_FLOORSGOAL = 34,
 	//	FIELD_NOTIFICATIONSCOUNT = 35,
 	//	FIELD_BATTERYPERCENTAGE = 36,
-	//	FIELD_MOVEBAR = 37,
 	//
-	//	FIELD_SHAPE_CIRCLE = 41,
-	//	//!FIELD_SHAPE_CIRCLE_SOLID = 42,
-	//	//!FIELD_SHAPE_ROUNDED = 43,
-	//	//!FIELD_SHAPE_ROUNDED_SOLID = 44,
-	//	//!FIELD_SHAPE_SQUARE = 45,
-	//	//!FIELD_SHAPE_SQUARE_SOLID = 46,
-	//	//!FIELD_SHAPE_TRIANGLE = 47,
-	//	//!FIELD_SHAPE_TRIANGLE_SOLID = 48,
-	//	//!FIELD_SHAPE_DIAMOND = 49,
-	//	//!FIELD_SHAPE_DIAMOND_SOLID = 50,
-	//	//!FIELD_SHAPE_STAR = 51,
-	//	//!FIELD_SHAPE_STAR_SOLID = 52,
-	//	//!FIELD_SHAPE_ALARM = 53,
-	//	//!FIELD_SHAPE_LOCK = 54,
-	//	//!FIELD_SHAPE_PHONE = 55,
-	//	//!FIELD_SHAPE_NOTIFICATION = 56,
-	//	//!FIELD_SHAPE_FIGURE = 57,
-	//	//!FIELD_SHAPE_BATTERY = 58,
-	//	//!FIELD_SHAPE_BATTERY_SOLID = 59,
-	//	//!FIELD_SHAPE_BED = 60,
-	//	//!FIELD_SHAPE_FLOWER = 61,
-	//	//!FIELD_SHAPE_FOOTSTEPS = 62,
-	//	//!FIELD_SHAPE_NETWORK = 63,
-	//	//!FIELD_SHAPE_STAIRS = 64,
-	//	//!FIELD_SHAPE_PHONE_HANDSET = 65,
-	//	//!FIELD_SHAPE_STOPWATCH = 66,
-	//	//!FIELD_SHAPE_FIRE = 67,
-	//	//!FIELD_SHAPE_HEART = 68,
-	//	//!FIELD_SHAPE_SUNRISE = 69,
-	//	//!FIELD_SHAPE_SUNSET = 70,
-	//	//!FIELD_SHAPE_SUN = 71,
-	//	//!FIELD_SHAPE_MOON = 72,
-	//	//!FIELD_SHAPE_MOUNTAIN = 73,
+	//	FIELD_HEART_MIN = 37
+	//	FIELD_HEART_MAX = 38
+	//	FIELD_HEART_AVERAGE = 39
+	//	FIELD_HEART_LATEST = 40
+	//	FIELD_SUNRISE_HOUR = 41,
+	//	FIELD_SUNRISE_MINUTE = 42,
+	//	FIELD_SUNSET_HOUR = 43,
+	//	FIELD_SUNSET_MINUTE = 44,
+	//	FIELD_SUNEVENT_HOUR = 45,
+	//	FIELD_SUNEVENT_MINUTE = 46,
+	//	FIELD_2ND_HOUR = 47,
+	//	FIELD_CALORIES = 48,
+	//	FIELD_ACTIVE_CALORIES = 49,
+	//	FIELD_INTENSITY = 50,
+	//	FIELD_INTENSITY_GOAL = 51,
+	//	FIELD_SMART_GOAL = 52,
+	//	FIELD_DISTANCE = 53,
+	//	FIELD_DISTANCE_UNITS = 54,
+	//	FIELD_PRESSURE = 55,
+	//	FIELD_PRESSURE_UNITS = 56,
+	//	FIELD_ALTITUDE = 57,
+	//	FIELD_ALTITUDE_UNITS = 58,
 	//
-	//	FIELD_HEART_MIN = 76
-	//	FIELD_HEART_MAX = 77
-	//	FIELD_HEART_AVERAGE = 78
-	//	FIELD_HEART_LATEST = 79
-	//	FIELD_HEART_BARS = 80
-	//	FIELD_HEART_AXES = 81
-	//	FIELD_SUNRISE_HOUR = 82,
-	//	FIELD_SUNRISE_MINUTE = 83,
-	//	FIELD_SUNSET_HOUR = 84,
-	//	FIELD_SUNSET_MINUTE = 85,
-	//	FIELD_SUNEVENT_HOUR = 86,
-	//	FIELD_SUNEVENT_MINUTE = 87,
-	//	FIELD_2ND_HOUR = 88,
-	//	FIELD_CALORIES = 89,
-	//	FIELD_ACTIVE_CALORIES = 90,
-	//	FIELD_INTENSITY = 91,
-	//	FIELD_INTENSITY_GOAL = 92,
-	//	FIELD_SMART_GOAL = 93,
-	//	FIELD_DISTANCE = 94,
-	//	FIELD_DISTANCE_UNITS = 95,
-	//	FIELD_PRESSURE = 96,
-	//	FIELD_PRESSURE_UNITS = 97,
-	//	FIELD_ALTITUDE = 98,
-	//	FIELD_ALTITUDE_UNITS = 99,
+//	//	FIELD_HEART_BARS = 80
+//	//	FIELD_HEART_AXES = 81
+//	//	FIELD_MOVEBAR = 37,
+//	//
+//	//	FIELD_SHAPE_CIRCLE = 41,
+//	//	//!FIELD_SHAPE_CIRCLE_SOLID = 42,
+//	//	//!FIELD_SHAPE_ROUNDED = 43,
+//	//	//!FIELD_SHAPE_ROUNDED_SOLID = 44,
+//	//	//!FIELD_SHAPE_SQUARE = 45,
+//	//	//!FIELD_SHAPE_SQUARE_SOLID = 46,
+//	//	//!FIELD_SHAPE_TRIANGLE = 47,
+//	//	//!FIELD_SHAPE_TRIANGLE_SOLID = 48,
+//	//	//!FIELD_SHAPE_DIAMOND = 49,
+//	//	//!FIELD_SHAPE_DIAMOND_SOLID = 50,
+//	//	//!FIELD_SHAPE_STAR = 51,
+//	//	//!FIELD_SHAPE_STAR_SOLID = 52,
+//	//	//!FIELD_SHAPE_ALARM = 53,
+//	//	//!FIELD_SHAPE_LOCK = 54,
+//	//	//!FIELD_SHAPE_PHONE = 55,
+//	//	//!FIELD_SHAPE_NOTIFICATION = 56,
+//	//	//!FIELD_SHAPE_FIGURE = 57,
+//	//	//!FIELD_SHAPE_BATTERY = 58,
+//	//	//!FIELD_SHAPE_BATTERY_SOLID = 59,
+//	//	//!FIELD_SHAPE_BED = 60,
+//	//	//!FIELD_SHAPE_FLOWER = 61,
+//	//	//!FIELD_SHAPE_FOOTSTEPS = 62,
+//	//	//!FIELD_SHAPE_NETWORK = 63,
+//	//	//!FIELD_SHAPE_STAIRS = 64,
+//	//	//!FIELD_SHAPE_PHONE_HANDSET = 65,
+//	//	//!FIELD_SHAPE_STOPWATCH = 66,
+//	//	//!FIELD_SHAPE_FIRE = 67,
+//	//	//!FIELD_SHAPE_HEART = 68,
+//	//	//!FIELD_SHAPE_SUNRISE = 69,
+//	//	//!FIELD_SHAPE_SUNSET = 70,
+//	//	//!FIELD_SHAPE_SUN = 71,
+//	//	//!FIELD_SHAPE_MOON = 72,
+//	//	//!FIELD_SHAPE_MOUNTAIN = 73,
 	//
 	//	//!FIELD_UNUSED
 	//}
@@ -4330,41 +4331,41 @@ class myView
 		// calculate fields to display
 		var visibilityStatus = new[25/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
-	    visibilityStatus[1/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && deviceSettings.doNotDisturb);
-	    visibilityStatus[2/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !deviceSettings.doNotDisturb);
+	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
+	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
+	    visibilityStatus[3/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && deviceSettings.doNotDisturb);
+	    visibilityStatus[4/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !deviceSettings.doNotDisturb);
 	    var alarmCount = deviceSettings.alarmCount;
-	    visibilityStatus[3/*STATUS_ALARM_ON*/] = (alarmCount > 0);
-	    visibilityStatus[4/*STATUS_ALARM_OFF*/] = (alarmCount == 0);
+	    visibilityStatus[5/*STATUS_ALARM_ON*/] = (alarmCount > 0);
+	    visibilityStatus[6/*STATUS_ALARM_OFF*/] = (alarmCount == 0);
 	    var notificationCount = deviceSettings.notificationCount;
-	    visibilityStatus[5/*STATUS_NOTIFICATIONS_PENDING*/] = (notificationCount > 0);
-	    visibilityStatus[6/*STATUS_NOTIFICATIONS_NONE*/] = (notificationCount == 0);
+	    visibilityStatus[7/*STATUS_NOTIFICATIONS_PENDING*/] = (notificationCount > 0);
+	    visibilityStatus[8/*STATUS_NOTIFICATIONS_NONE*/] = (notificationCount == 0);
 	    var phoneConnected = deviceSettings.phoneConnected;
-	    visibilityStatus[7/*STATUS_PHONE_CONNECTED*/] = phoneConnected;
-	    visibilityStatus[8/*STATUS_PHONE_NOT*/] = !phoneConnected;
+	    visibilityStatus[9/*STATUS_PHONE_CONNECTED*/] = phoneConnected;
+	    visibilityStatus[10/*STATUS_PHONE_NOT*/] = !phoneConnected;
 	    var lteState = lteConnected();
-	    visibilityStatus[9/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
-	    visibilityStatus[10/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
+	    visibilityStatus[11/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
+	    visibilityStatus[12/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
 	    var batteryLevel = systemStats.battery;
-	    visibilityStatus[12/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
-	    visibilityStatus[14/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
-	    visibilityStatus[13/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[14/*STATUS_BATTERY_LOW*/]);
-	    visibilityStatus[11/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[14/*STATUS_BATTERY_LOW*/];
+	    visibilityStatus[14/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
+	    visibilityStatus[16/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
+	    visibilityStatus[15/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[14/*STATUS_BATTERY_LOW*/]);
+	    visibilityStatus[13/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[14/*STATUS_BATTERY_LOW*/];
 		// moveBarLevel 0 = not triggered
 		// moveBarLevel has range 1 to 5
 		// propFieldMoveAlarmTriggerTime has range 1 to 5
 		var activityTrackingOn = deviceSettings.activityTrackingOn;
 		var activityMonitorMoveBarLevel = getNullCheckZero(activityMonitorInfo.moveBarLevel);
 	    var moveBarAlertTriggered = (activityMonitorMoveBarLevel >= propMoveBarAlertTriggerLevel); 
-	    visibilityStatus[15/*STATUS_MOVEBARALERT_TRIGGERED*/] = (activityTrackingOn && moveBarAlertTriggered);
-	    visibilityStatus[16/*STATUS_MOVEBARALERT_NOT*/] = (activityTrackingOn && !moveBarAlertTriggered);
-	    visibilityStatus[17/*STATUS_AM*/] = (hour < 12);
-	    visibilityStatus[18/*STATUS_PM*/] = (hour >= 12);
-	    visibilityStatus[19/*STATUS_2ND_AM*/] = (hour2nd < 12);
-	    visibilityStatus[20/*STATUS_2ND_PM*/] = (hour2nd >= 12);
-	    visibilityStatus[21/*STATUS_SUNEVENT_RISE*/] = null;	// calculated on demand
-	    visibilityStatus[22/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
-	    visibilityStatus[23/*STATUS_GLANCE_ON*/] = glanceActive;
-	    visibilityStatus[24/*STATUS_GLANCE_OFF*/] = !glanceActive;
+	    visibilityStatus[17/*STATUS_MOVEBARALERT_TRIGGERED*/] = (activityTrackingOn && moveBarAlertTriggered);
+	    visibilityStatus[18/*STATUS_MOVEBARALERT_NOT*/] = (activityTrackingOn && !moveBarAlertTriggered);
+	    visibilityStatus[19/*STATUS_AM*/] = (hour < 12);
+	    visibilityStatus[20/*STATUS_PM*/] = (hour >= 12);
+	    visibilityStatus[21/*STATUS_2ND_AM*/] = (hour2nd < 12);
+	    visibilityStatus[22/*STATUS_2ND_PM*/] = (hour2nd >= 12);
+	    visibilityStatus[23/*STATUS_SUNEVENT_RISE*/] = null;	// calculated on demand
+	    visibilityStatus[24/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
 
 		fieldActivePhoneStatus = null;
 		fieldActiveNotificationsStatus = null;
@@ -4761,43 +4762,43 @@ class myView
 							break;
 						}
 						
-						case 76/*FIELD_HEART_MIN*/:
-						case 77/*FIELD_HEART_MAX*/:
-						case 78/*FIELD_HEART_AVERAGE*/:
-						case 79/*FIELD_HEART_LATEST*/:
+						case 37/*FIELD_HEART_MIN*/:
+						case 38/*FIELD_HEART_MAX*/:
+						case 39/*FIELD_HEART_AVERAGE*/:
+						case 40/*FIELD_HEART_LATEST*/:
 						{
 							calculateHeartRate(minute, second);
 
-							var heartVal = (eDisplay==79/*FIELD_HEART_LATEST*/) ? heartDisplayLatest : 
-										((eDisplay==76/*FIELD_HEART_MIN*/) ? heartDisplayMin : ((eDisplay==77/*FIELD_HEART_MAX*/) ? heartDisplayMax : heartDisplayAverage));
+							var heartVal = (eDisplay==40/*FIELD_HEART_LATEST*/) ? heartDisplayLatest : 
+										((eDisplay==37/*FIELD_HEART_MIN*/) ? heartDisplayMin : ((eDisplay==38/*FIELD_HEART_MAX*/) ? heartDisplayMax : heartDisplayAverage));
 							eStr = (heartVal!=null) ? heartVal.format("%d") : "--";
 							break;
 						}
 
-						case 82/*FIELD_SUNRISE_HOUR*/:
-						case 83/*FIELD_SUNRISE_MINUTE*/:
-						case 84/*FIELD_SUNSET_HOUR*/:
-						case 85/*FIELD_SUNSET_MINUTE*/:
-						case 86/*FIELD_SUNEVENT_HOUR*/:
-						case 87/*FIELD_SUNEVENT_MINUTE*/:
+						case 41/*FIELD_SUNRISE_HOUR*/:
+						case 42/*FIELD_SUNRISE_MINUTE*/:
+						case 43/*FIELD_SUNSET_HOUR*/:
+						case 44/*FIELD_SUNSET_MINUTE*/:
+						case 45/*FIELD_SUNEVENT_HOUR*/:
+						case 46/*FIELD_SUNEVENT_MINUTE*/:
 						{
 							calculateSun(dateInfoShort);
 
 							var t = null;
-							if (eDisplay>=86/*FIELD_SUNEVENT_HOUR*/)	// next sun event?
+							if (eDisplay>=45/*FIELD_SUNEVENT_HOUR*/)	// next sun event?
 							{
 								t = sunTimes[6];	// null or time of next sun event
 							}
 							else
 							{
 								// sunrise or sunset today
-								t = ((eDisplay<=83/*FIELD_SUNRISE_MINUTE*/) ? sunTimes[0] : sunTimes[1]);
+								t = ((eDisplay<=42/*FIELD_SUNRISE_MINUTE*/) ? sunTimes[0] : sunTimes[1]);
 							}
 																	
 							if (t!=null)
 							{
 								t += 24*60;		// add 24 hours to make sure it is a positive number (if sunrise was before midnight ...) 
-								if ((eDisplay-82/*FIELD_SUNRISE_HOUR*/)%2==1)
+								if ((eDisplay-41/*FIELD_SUNRISE_HOUR*/)%2==1)
 								{
 									eStr = (t%60).format("%02d");		// minutes
 								}
@@ -4814,19 +4815,19 @@ class myView
 							break;
 						}
 
-						case 88/*FIELD_2ND_HOUR*/:
+						case 47/*FIELD_2ND_HOUR*/:
 						{
 							eStr = formatHourForDisplayString(hour2nd, deviceSettings.is24Hour, propAddLeadingZero);	// hours
 							break;
 						}
 
-						case 89/*FIELD_CALORIES*/:
+						case 48/*FIELD_CALORIES*/:
 						{
 							eStr = "" + getNullCheckZero(activityMonitorInfo.calories);
 							break;
 						}
 
-						case 90/*FIELD_ACTIVE_CALORIES*/:
+						case 49/*FIELD_ACTIVE_CALORIES*/:
 						{
 							var nonActiveCalories = propNonActiveCalories;
 							if (nonActiveCalories<=0)
@@ -4840,25 +4841,25 @@ class myView
 							break;
 						}
 
-						case 91/*FIELD_INTENSITY*/:
+						case 50/*FIELD_INTENSITY*/:
 						{
 							eStr = "" + activityMonitorActiveMinutesWeekTotal;
 							break;
 						}
 
-						case 92/*FIELD_INTENSITY_GOAL*/:
+						case 51/*FIELD_INTENSITY_GOAL*/:
 						{
 							eStr = "" + activityMonitorActiveMinutesWeekGoal;
 							break;
 						}
 
-						case 93/*FIELD_SMART_GOAL*/:
+						case 52/*FIELD_SMART_GOAL*/:
 						{
 							eStr = "" + activeMinutesWeekSmartGoal;
 							break;
 						}
 
-						case 94/*FIELD_DISTANCE*/:
+						case 53/*FIELD_DISTANCE*/:
 						{
 							// convert cm to miles or km
 							var d = getNullCheckZero(activityMonitorInfo.distance) / ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? 160934.4 : 100000.0);
@@ -4866,14 +4867,14 @@ class myView
 							break;
 						}
 
-						case 95/*FIELD_DISTANCE_UNITS*/:
+						case 54/*FIELD_DISTANCE_UNITS*/:
 						{
 							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
 							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
 							break;
 						}
 
-						case 96/*FIELD_PRESSURE*/:
+						case 55/*FIELD_PRESSURE*/:
 						{
 							if (hasPressureHistory)
 							{
@@ -4890,21 +4891,21 @@ class myView
 							break;
 						}
 
-						case 97/*FIELD_PRESSURE_UNITS*/:
+						case 56/*FIELD_PRESSURE_UNITS*/:
 						{
 							eStr = "mb"; 	// mbar
 							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
 							break;
 						}
 
-						case 98/*FIELD_ALTITUDE*/:
+						case 57/*FIELD_ALTITUDE*/:
 						{
 							// convert m to feet or m
 							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
 							break;
 						}
 
-						case 99/*FIELD_ALTITUDE_UNITS*/:
+						case 58/*FIELD_ALTITUDE_UNITS*/:
 						{
 							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "ft" : "m");
 							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
@@ -5815,29 +5816,31 @@ class myEditorView extends myView
 	function gfxIsField(index)
 	{
 		var id = (gfxData[index] & 0xFF);
-		switch(id)
-		{
-			case 0:		// header
-			case 1:		// field
-			case 9:		// rectangle
-			case 10:	// ring
-			case 11:	// seconds
-			{
-				return true;
-			}
-
-			case 2:		// hour large
-			case 3:		// minute large
-			case 4:		// colon large
-			case 5:		// string
-			case 6:		// icon
-			case 7:		// movebar
-			case 8:		// chart
-			{
-				break;
-			}
-		}
-		return false;
+		return (id<=1 || id>=9);
+		
+//		switch(id)
+//		{
+//			case 0:		// header
+//			case 1:		// field
+//			case 9:		// rectangle
+//			case 10:	// ring
+//			case 11:	// seconds
+//			{
+//				return true;
+//			}
+//
+//			case 2:		// hour large
+//			case 3:		// minute large
+//			case 4:		// colon large
+//			case 5:		// string
+//			case 6:		// icon
+//			case 7:		// movebar
+//			case 8:		// chart
+//			{
+//				break;
+//			}
+//		}
+//		return false;
 	}
 
 	function afterGfxField(index)
@@ -6044,13 +6047,17 @@ class myEditorView extends myView
     	
     	// then draw any menus on top
     	var eStr = menuItem.getString();
-
 		if (eStr != null)
 		{
 	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
     		dc.drawText(50, 50, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
 		}
     }
+
+	function safeStringFromArray(arr, index)
+	{
+		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
+	}
 
 	function getGfxId(index)
 	{
@@ -6059,436 +6066,555 @@ class myEditorView extends myView
 	
 	function getGfxName(index)
 	{
-		var eStr = null;
-	
-		switch(getGfxId(index))
-		{
-			case 0:		// header
-			{
-				eStr = "header";
-				break;
-			}
-
-			case 1:		// field
-			{
-				eStr = "field";
-				break;
-			}
-
-			case 2:		// hour large
-			{
-				eStr = "hour (large)";
-				break;
-			}
-
-			case 3:		// minute large
-			{
-				eStr = "minute (large)";
-				break;
-			}
-
-			case 4:		// colon large
-			{
-				eStr = "colon (large)";
-				break;
-			}
-
-			case 5:		// string
-			{
-				var eDisplay = gfxData[index+1];
-				eStr = getStringTypeName(eDisplay);
-				break;
-			}
-			
-			case 6:		// icon
-			{
-				eStr = "icon";
-				break;
-			}
-			
-			case 7:		// movebar
-			{
-				eStr = "move bar";
-				break;
-			}
-			
-			case 8:		// chart
-			{
-				eStr = "heart rate chart";
-				break;
-			}
-			
-			case 9:		// rectangle
-			{
-				eStr = "rectangle";
-				break;
-			}
-			
-			case 10:	// ring
-			{
-				eStr = "ring";
-				break;
-			}
-			
-			case 11:	// seconds
-			{
-				eStr = "seconds indicator";
-				break;
-			}
-		}
+		var id = getGfxId(index);
 		
-		return eStr;
+		if (id==5)		// string
+		{
+			return getStringTypeName(gfxData[index+1]);
+		}
+		else
+		{
+			var sArray = [
+				"header",
+				"field",
+				"hour (large)",
+				"minute (large)",
+				"colon (large)",
+				"string",
+				"icon",
+				"move bar",
+				"heart rate chart",
+				"rectangle",
+				"ring",
+				"seconds indicator",
+			];
+		
+			return safeStringFromArray(sArray, id);
+		}
+
+//		var eStr = null;
+//	
+//		switch(getGfxId(index))
+//		{
+//			case 0:		// header
+//			{
+//				eStr = "header";
+//				break;
+//			}
+//
+//			case 1:		// field
+//			{
+//				eStr = "field";
+//				break;
+//			}
+//
+//			case 2:		// hour large
+//			{
+//				eStr = "hour (large)";
+//				break;
+//			}
+//
+//			case 3:		// minute large
+//			{
+//				eStr = "minute (large)";
+//				break;
+//			}
+//
+//			case 4:		// colon large
+//			{
+//				eStr = "colon (large)";
+//				break;
+//			}
+//
+//			case 5:		// string
+//			{
+//				var eDisplay = gfxData[index+1];
+//				eStr = getStringTypeName(eDisplay);
+//				break;
+//			}
+//			
+//			case 6:		// icon
+//			{
+//				eStr = "icon";
+//				break;
+//			}
+//			
+//			case 7:		// movebar
+//			{
+//				eStr = "move bar";
+//				break;
+//			}
+//			
+//			case 8:		// chart
+//			{
+//				eStr = "heart rate chart";
+//				break;
+//			}
+//			
+//			case 9:		// rectangle
+//			{
+//				eStr = "rectangle";
+//				break;
+//			}
+//			
+//			case 10:	// ring
+//			{
+//				eStr = "ring";
+//				break;
+//			}
+//			
+//			case 11:	// seconds
+//			{
+//				eStr = "seconds indicator";
+//				break;
+//			}
+//		}
+//		
+//		return eStr;
 	}
 
 	function getStringTypeName(eDisplay)
 	{
-		var eStr = null;
-		
-		switch(eDisplay)	// type of string
-		{
-			case 1/*FIELD_HOUR*/:			// hour
-		    {
-				eStr = "hour";
-				break;
-			}
+		var sArray = [
+			"hour",
+			"minute",
+			"day (name)",
+			"day (number of week)",
+			"day (number of month)",
+			"day (of month XX)",
+			"day (number of year)",
+			"day (of year XXX)",
+			"month (name)",
+			"month (number)",
+			"month (number XX)",
+			"year (XX)",
+			"year (XXXX)",
+			"week (ISO XX)",
+			"week (ISO WXX)",
+			"year (ISO week XXXX)",
+			"week (calendar)",
+			"year (calendar week XXXX)",
+			"AM",
+			"PM",
+	    	"<space>",
+	    	"/",
+	    	"\\",
+	    	":",
+	    	"-",
+	    	".",
+	    	",",
+	    	"%",
+	    	"unknown",
+	    	"unknown",
+			"steps count",
+			"steps goal",
+			"floors count",
+			"floors goal",
+			"notifications count",
+			"battery percentage",
+			"heart rate min",
+			"heart rate max",
+			"heart rate average",
+			"heart rate",
+			"sunrise hour",
+			"sunrise minute",
+			"sunset hour",
+			"sunset minute",
+			"next sun event hour",
+			"next sun event minute",
+			"2nd time zone hour",
+			"calories",
+			"active calories",
+			"intensity minutes",
+			"intensity goal",
+			"smart intensity goal",
+			"distance",
+			"distance units (mi/km)",
+			"pressure",
+			"pressure units (mb)",
+			"altitude",
+			"altitude units (ft/m)",
+		];
+	
+		return safeStringFromArray(sArray, eDisplay-1);
 
-			case 2/*FIELD_MINUTE*/:			// minute
-		    {
-				eStr = "minute";
-				break;
-			}
-
-			case 3/*FIELD_DAY_NAME*/:		// day name
-		    {
-				eStr = "day (name)";
-				break;
-			}
-			
-			case 9/*FIELD_MONTH_NAME*/:		// month name
-		    {
-				eStr = "month (name)";
-				break;
-			}
-
-			case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
-		    {
-				eStr = "day (number of week)";	// 1-7
-				break;
-			}
-
-			case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
-		    {
-				eStr = "day (number of month)";
-				break;
-			}
-
-			case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
-		    {
-				eStr = "day (of month XX)";
-				break;
-			}
-
-			case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
-		    {
-				eStr = "day (number of year)";
-				break;
-			}
-
-			case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
-		    {
-				eStr = "day (of year XXX)";
-				break;
-			}
-
-			case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
-		    {
-				eStr = "month (number)";
-				break;
-			}
-
-			case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
-		    {
-				eStr = "month (number XX)";
-				break;
-			}
-
-			case 12/*FIELD_YEAR_XX*/:		// year XX
-			{
-				eStr = "year (XX)";
-				break;
-			}
-
-			case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
-		    {
-				eStr = "year (XXXX)";
-				break;
-			}
-
-			case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
-		    {
-				eStr = "week (ISO XX)";
-				break;
-			}
-
-			case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
-		    {
-				eStr = "week (ISO WXX)";
-				break;
-			}
-
-			case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
-		    {
-				eStr = "year (ISO week XXXX)";
-				break;
-			}
-
-			case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
-		    {
-				eStr = "week (calendar)";
-				break;
-			}
-
-			case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
-			{
-				eStr = "year (calendar week XXXX)";
-				break;
-			}
-
-			case 19/*FIELD_AM*/:
-		    {
-				eStr = "AM";
-				break;
-			}
-
-			case 20/*FIELD_PM*/:
-		    {
-				eStr = "PM";
-				break;
-			}
-
-		    case 21/*FIELD_SEPARATOR_SPACE*/:
-		    {
-		    	eStr = "<space>";
-		    	break;
-		    }
-		    
-		    case 22:
-		    case 23:
-		    case 24/*FIELD_SEPARATOR_COLON*/:
-		    case 25:
-		    case 26:
-		    case 27:
-		    case 28/*FIELD_SEPARATOR_PERCENT*/:
-		    {
-				var separatorString = " /\\:-.,%";
-    			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
-    			break;
-		    }
-
-			case 31/*FIELD_STEPSCOUNT*/:
-			{
-				eStr = "steps count";
-				break;
-			}
-
-			case 32/*FIELD_STEPSGOAL*/:
-			{
-				eStr = "steps goal";
-				break;
-			}
-
-			case 33/*FIELD_FLOORSCOUNT*/:
-			{
-				eStr = "floors count";
-				break;
-			}
-
-			case 34/*FIELD_FLOORSGOAL*/:
-			{
-				eStr = "floors goal";
-				break;
-			}
-
-			case 35/*FIELD_NOTIFICATIONSCOUNT*/:
-			{
-				eStr = "notifications count";
-				break;
-			}
-			
-			case 36/*FIELD_BATTERYPERCENTAGE*/:
-			{
-				eStr = "battery percentage";
-				break;
-			}
-			
-			case 76/*FIELD_HEART_MIN*/:
-			{
-				eStr = "heart rate min";
-				break;
-			}
-
-			case 77/*FIELD_HEART_MAX*/:
-			{
-				eStr = "heart rate max";
-				break;
-			}
-
-			case 78/*FIELD_HEART_AVERAGE*/:
-			{
-				eStr = "heart rate average";
-				break;
-			}
-
-			case 79/*FIELD_HEART_LATEST*/:
-			{
-				eStr = "heart rate";
-				break;
-			}
-
-			case 82/*FIELD_SUNRISE_HOUR*/:
-			{
-				eStr = "sunrise hour";
-				break;
-			}
-
-			case 83/*FIELD_SUNRISE_MINUTE*/:
-			{
-				eStr = "sunrise minute";
-				break;
-			}
-
-			case 84/*FIELD_SUNSET_HOUR*/:
-			{
-				eStr = "sunset hour";
-				break;
-			}
-
-			case 85/*FIELD_SUNSET_MINUTE*/:
-			{
-				eStr = "sunset minute";
-				break;
-			}
-
-			case 86/*FIELD_SUNEVENT_HOUR*/:
-			{
-				eStr = "next sun event hour";
-				break;
-			}
-
-			case 87/*FIELD_SUNEVENT_MINUTE*/:
-			{
-				eStr = "next sun event minute";
-				break;
-			}
-
-			case 88/*FIELD_2ND_HOUR*/:
-			{
-				eStr = "2nd time zone hour";
-				break;
-			}
-
-			case 89/*FIELD_CALORIES*/:
-			{
-				eStr = "calories";
-				break;
-			}
-
-			case 90/*FIELD_ACTIVE_CALORIES*/:
-			{
-				eStr = "active calories";
-				break;
-			}
-
-			case 91/*FIELD_INTENSITY*/:
-			{
-				eStr = "intensity minutes";
-				break;
-			}
-
-			case 92/*FIELD_INTENSITY_GOAL*/:
-			{
-				eStr = "intensity goal";
-				break;
-			}
-
-			case 93/*FIELD_SMART_GOAL*/:
-			{
-				eStr = "smart intensity goal";
-				break;
-			}
-
-			case 94/*FIELD_DISTANCE*/:
-			{
-				eStr = "distance";
-				break;
-			}
-
-			case 95/*FIELD_DISTANCE_UNITS*/:
-			{
-				eStr = "distance units (mi/km)";
-				break;
-			}
-
-			case 96/*FIELD_PRESSURE*/:
-			{
-				eStr = "pressure";
-				break;
-			}
-
-			case 97/*FIELD_PRESSURE_UNITS*/:
-			{
-				eStr = "pressure units (mb)";
-				break;
-			}
-
-			case 98/*FIELD_ALTITUDE*/:
-			{
-				eStr = "altitude";
-				break;
-			}
-
-			case 99/*FIELD_ALTITUDE_UNITS*/:
-			{
-				eStr = "altitude units (ft/m)";
-				break;
-			}
-		}
-
-		return eStr;
+//		var eStr = null;
+//		
+//		switch(eDisplay)	// type of string
+//		{
+//			case 1/*FIELD_HOUR*/:			// hour
+//		    {
+//				eStr = "hour";
+//				break;
+//			}
+//
+//			case 2/*FIELD_MINUTE*/:			// minute
+//		    {
+//				eStr = "minute";
+//				break;
+//			}
+//
+//			case 3/*FIELD_DAY_NAME*/:		// day name
+//		    {
+//				eStr = "day (name)";
+//				break;
+//			}
+//			
+//			case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
+//		    {
+//				eStr = "day (number of week)";	// 1-7
+//				break;
+//			}
+//
+//			case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
+//		    {
+//				eStr = "day (number of month)";
+//				break;
+//			}
+//
+//			case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
+//		    {
+//				eStr = "day (of month XX)";
+//				break;
+//			}
+//
+//			case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
+//		    {
+//				eStr = "day (number of year)";
+//				break;
+//			}
+//
+//			case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
+//		    {
+//				eStr = "day (of year XXX)";
+//				break;
+//			}
+//
+//			case 9/*FIELD_MONTH_NAME*/:		// month name
+//		    {
+//				eStr = "month (name)";
+//				break;
+//			}
+//
+//			case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
+//		    {
+//				eStr = "month (number)";
+//				break;
+//			}
+//
+//			case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
+//		    {
+//				eStr = "month (number XX)";
+//				break;
+//			}
+//
+//			case 12/*FIELD_YEAR_XX*/:		// year XX
+//			{
+//				eStr = "year (XX)";
+//				break;
+//			}
+//
+//			case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
+//		    {
+//				eStr = "year (XXXX)";
+//				break;
+//			}
+//
+//			case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
+//		    {
+//				eStr = "week (ISO XX)";
+//				break;
+//			}
+//
+//			case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
+//		    {
+//				eStr = "week (ISO WXX)";
+//				break;
+//			}
+//
+//			case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
+//		    {
+//				eStr = "year (ISO week XXXX)";
+//				break;
+//			}
+//
+//			case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
+//		    {
+//				eStr = "week (calendar)";
+//				break;
+//			}
+//
+//			case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
+//			{
+//				eStr = "year (calendar week XXXX)";
+//				break;
+//			}
+//
+//			case 19/*FIELD_AM*/:
+//		    {
+//				eStr = "AM";
+//				break;
+//			}
+//
+//			case 20/*FIELD_PM*/:
+//		    {
+//				eStr = "PM";
+//				break;
+//			}
+//
+//		    case 21/*FIELD_SEPARATOR_SPACE*/:
+//		    {
+//		    	eStr = "<space>";
+//		    	break;
+//		    }
+//		    
+//		    case 22:
+//		    case 23:
+//		    case 24/*FIELD_SEPARATOR_COLON*/:
+//		    case 25:
+//		    case 26:
+//		    case 27:
+//		    case 28/*FIELD_SEPARATOR_PERCENT*/:
+//		    {
+//				var separatorString = " /\\:-.,%";
+//    			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
+//    			break;
+//		    }
+//
+//			case 31/*FIELD_STEPSCOUNT*/:
+//			{
+//				eStr = "steps count";
+//				break;
+//			}
+//
+//			case 32/*FIELD_STEPSGOAL*/:
+//			{
+//				eStr = "steps goal";
+//				break;
+//			}
+//
+//			case 33/*FIELD_FLOORSCOUNT*/:
+//			{
+//				eStr = "floors count";
+//				break;
+//			}
+//
+//			case 34/*FIELD_FLOORSGOAL*/:
+//			{
+//				eStr = "floors goal";
+//				break;
+//			}
+//
+//			case 35/*FIELD_NOTIFICATIONSCOUNT*/:
+//			{
+//				eStr = "notifications count";
+//				break;
+//			}
+//			
+//			case 36/*FIELD_BATTERYPERCENTAGE*/:
+//			{
+//				eStr = "battery percentage";
+//				break;
+//			}
+//			
+//			case 37/*FIELD_HEART_MIN*/:
+//			{
+//				eStr = "heart rate min";
+//				break;
+//			}
+//
+//			case 38/*FIELD_HEART_MAX*/:
+//			{
+//				eStr = "heart rate max";
+//				break;
+//			}
+//
+//			case 39/*FIELD_HEART_AVERAGE*/:
+//			{
+//				eStr = "heart rate average";
+//				break;
+//			}
+//
+//			case 40/*FIELD_HEART_LATEST*/:
+//			{
+//				eStr = "heart rate";
+//				break;
+//			}
+//
+//			case 41/*FIELD_SUNRISE_HOUR*/:
+//			{
+//				eStr = "sunrise hour";
+//				break;
+//			}
+//
+//			case 42/*FIELD_SUNRISE_MINUTE*/:
+//			{
+//				eStr = "sunrise minute";
+//				break;
+//			}
+//
+//			case 43/*FIELD_SUNSET_HOUR*/:
+//			{
+//				eStr = "sunset hour";
+//				break;
+//			}
+//
+//			case 44/*FIELD_SUNSET_MINUTE*/:
+//			{
+//				eStr = "sunset minute";
+//				break;
+//			}
+//
+//			case 45/*FIELD_SUNEVENT_HOUR*/:
+//			{
+//				eStr = "next sun event hour";
+//				break;
+//			}
+//
+//			case 46/*FIELD_SUNEVENT_MINUTE*/:
+//			{
+//				eStr = "next sun event minute";
+//				break;
+//			}
+//
+//			case 47/*FIELD_2ND_HOUR*/:
+//			{
+//				eStr = "2nd time zone hour";
+//				break;
+//			}
+//
+//			case 48/*FIELD_CALORIES*/:
+//			{
+//				eStr = "calories";
+//				break;
+//			}
+//
+//			case 49/*FIELD_ACTIVE_CALORIES*/:
+//			{
+//				eStr = "active calories";
+//				break;
+//			}
+//
+//			case 50/*FIELD_INTENSITY*/:
+//			{
+//				eStr = "intensity minutes";
+//				break;
+//			}
+//
+//			case 51/*FIELD_INTENSITY_GOAL*/:
+//			{
+//				eStr = "intensity goal";
+//				break;
+//			}
+//
+//			case 52/*FIELD_SMART_GOAL*/:
+//			{
+//				eStr = "smart intensity goal";
+//				break;
+//			}
+//
+//			case 53/*FIELD_DISTANCE*/:
+//			{
+//				eStr = "distance";
+//				break;
+//			}
+//
+//			case 54/*FIELD_DISTANCE_UNITS*/:
+//			{
+//				eStr = "distance units (mi/km)";
+//				break;
+//			}
+//
+//			case 55/*FIELD_PRESSURE*/:
+//			{
+//				eStr = "pressure";
+//				break;
+//			}
+//
+//			case 56/*FIELD_PRESSURE_UNITS*/:
+//			{
+//				eStr = "pressure units (mb)";
+//				break;
+//			}
+//
+//			case 57/*FIELD_ALTITUDE*/:
+//			{
+//				eStr = "altitude";
+//				break;
+//			}
+//
+//			case 58/*FIELD_ALTITUDE_UNITS*/:
+//			{
+//				eStr = "altitude units (ft/m)";
+//				break;
+//			}
+//		}
+//
+//		return eStr;
 	}
 
 	function getVisibilityString(vis)
 	{
-		switch (vis)
-		{
-			case 0/*STATUS_ALWAYSON*/: return "always on";
-		    case 1/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
-		    case 2/*STATUS_DONOTDISTURB_OFF*/: return "do not disturb off";
-		    case 3/*STATUS_ALARM_ON*/: return "alarm on";
-		    case 4/*STATUS_ALARM_OFF*/: return "alarm off";
-		    case 5/*STATUS_NOTIFICATIONS_PENDING*/: return "notifications pending";
-		    case 6/*STATUS_NOTIFICATIONS_NONE*/: return "no notifications";
-		    case 7/*STATUS_PHONE_CONNECTED*/: return "phone connected";
-		    case 8/*STATUS_PHONE_NOT*/: return "phone not connected";
-		    case 9/*STATUS_LTE_CONNECTED*/: return "LTE connected";
-		    case 10/*STATUS_LTE_NOT*/: return "LTE not connected";
-		    case 11/*STATUS_BATTERY_HIGHORMEDIUM*/: return "battery high or medium";
-		    case 12/*STATUS_BATTERY_HIGH*/: return "battery high";
-		    case 13/*STATUS_BATTERY_MEDIUM*/: return "battery medium";
-		    case 14/*STATUS_BATTERY_LOW*/: return "battery low";
-		    case 15/*STATUS_MOVEBARALERT_TRIGGERED*/: return "move bar alert triggered";
-		    case 16/*STATUS_MOVEBARALERT_NOT*/: return "move bar alert not triggered";
-		    case 17/*STATUS_AM*/: return "AM";
-		    case 18/*STATUS_PM*/: return "PM";
-		    case 19/*STATUS_2ND_AM*/: return "2nd time zone AM";
-		    case 20/*STATUS_2ND_PM*/: return "2nd time zone PM";
-		    case 21/*STATUS_SUNEVENT_RISE*/: return "next sun event is rise";
-		    case 22/*STATUS_SUNEVENT_SET*/: return "next sun event is set";
-		    case 23/*STATUS_GLANCE_ON*/: return "gesture active";
-		    case 24/*STATUS_GLANCE_OFF*/: return "gesture not active";
-		}
-		
-    	return "unknown";
+		var sArray = [
+			"always on",
+		    "gesture active",
+		    "gesture not active",
+		    "do not disturb on",
+		    "do not disturb off",
+		    "alarm on",
+		    "alarm off",
+		    "notifications pending",
+		    "no notifications",
+		    "phone connected",
+		    "phone not connected",
+		    "LTE connected",
+		    "LTE not connected",
+		    "battery high or medium",
+		    "battery high",
+		    "battery medium",
+		    "battery low",
+		    "move bar alert triggered",
+		    "move bar alert not triggered",
+		    "AM",
+		    "PM",
+		    "2nd time zone AM",
+		    "2nd time zone PM",
+		    "next sun event is rise",
+		    "next sun event is set",
+		];
+	
+		return safeStringFromArray(sArray, vis);
+	
+//		switch (vis)
+//		{
+//			case 0/*STATUS_ALWAYSON*/: return "always on";
+//		    case 1/*STATUS_GLANCE_ON*/: return "gesture active";
+//		    case 2/*STATUS_GLANCE_OFF*/: return "gesture not active";
+//		    case 3/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
+//		    case 4/*STATUS_DONOTDISTURB_OFF*/: return "do not disturb off";
+//		    case 5/*STATUS_ALARM_ON*/: return "alarm on";
+//		    case 6/*STATUS_ALARM_OFF*/: return "alarm off";
+//		    case 7/*STATUS_NOTIFICATIONS_PENDING*/: return "notifications pending";
+//		    case 8/*STATUS_NOTIFICATIONS_NONE*/: return "no notifications";
+//		    case 9/*STATUS_PHONE_CONNECTED*/: return "phone connected";
+//		    case 10/*STATUS_PHONE_NOT*/: return "phone not connected";
+//		    case 11/*STATUS_LTE_CONNECTED*/: return "LTE connected";
+//		    case 12/*STATUS_LTE_NOT*/: return "LTE not connected";
+//		    case 13/*STATUS_BATTERY_HIGHORMEDIUM*/: return "battery high or medium";
+//		    case 14/*STATUS_BATTERY_HIGH*/: return "battery high";
+//		    case 15/*STATUS_BATTERY_MEDIUM*/: return "battery medium";
+//		    case 16/*STATUS_BATTERY_LOW*/: return "battery low";
+//		    case 17/*STATUS_MOVEBARALERT_TRIGGERED*/: return "move bar alert triggered";
+//		    case 18/*STATUS_MOVEBARALERT_NOT*/: return "move bar alert not triggered";
+//		    case 19/*STATUS_AM*/: return "AM";
+//		    case 20/*STATUS_PM*/: return "PM";
+//		    case 21/*STATUS_2ND_AM*/: return "2nd time zone AM";
+//		    case 22/*STATUS_2ND_PM*/: return "2nd time zone PM";
+//		    case 23/*STATUS_SUNEVENT_RISE*/: return "next sun event is rise";
+//		    case 24/*STATUS_SUNEVENT_SET*/: return "next sun event is set";
+//		}
+//		
+//    	return "unknown";
 	}
 	
 	function fieldVisibilityString()
@@ -6725,7 +6851,7 @@ class myEditorView extends myView
 	function largeFontEditing(val)
 	{
 		// 0-5, 33-38, 29-32
-		var f = [0, 1, 2, 3, 4, 5, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32];
+		var f = [0, 1, 2, 3, 4, 5, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
 		
 		var temp = (gfxData[menuElementGfx+2] & 0xFF);
 		var i = f.indexOf(temp);
@@ -6869,23 +6995,40 @@ class myEditorView extends myView
 
 	function ringTypeString()
 	{
-		switch (gfxData[menuFieldGfx+1] & 0xFF)
-		{
-	   		case 0: return "plain color";		// plain color
-			case 1: return "steps";				// steps
-			case 2:	return "minutes";			// minutes
-			case 3:	return "hours";				// hours
-	   		case 4: return "battery";			// battery percentage
-			case 5: return "2nd time zone hours";	// 2nd time zone hours
-	   		case 6: return "sun (now top)";			// sunrise & sunset now top
-	   		case 7: return "sun (midnight top)";	// sunrise & sunset midnight top
-	   		case 8: return "sun (noon top)";		// sunrise & sunset noon top
-			case 9: return "intensity";			// intensity
-			case 10: return "smart intensity";	// smart intensity
-	   		case 11: return "heart rate";		// heart rate
-		}
-		
-    	return "unknown";
+		var sArray = [
+	   		"plain color",			// plain color
+			"steps",				// steps
+			"minutes",				// minutes
+			"hours",				// hours
+	   		"battery",				// battery percentage
+			"2nd time zone hours",	// 2nd time zone hours
+	   		"sun (now top)",		// sunrise & sunset now top
+	   		"sun (midnight top)",	// sunrise & sunset midnight top
+	   		"sun (noon top)",		// sunrise & sunset noon top
+			"intensity",			// intensity
+			"smart intensity",		// smart intensity
+	   		"heart rate",			// heart rate
+		];
+	
+		return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
+	
+//		switch (gfxData[menuFieldGfx+1] & 0xFF)
+//		{
+//	   		case 0: return "plain color";		// plain color
+//			case 1: return "steps";				// steps
+//			case 2:	return "minutes";			// minutes
+//			case 3:	return "hours";				// hours
+//	   		case 4: return "battery";			// battery percentage
+//			case 5: return "2nd time zone hours";	// 2nd time zone hours
+//	   		case 6: return "sun (now top)";			// sunrise & sunset now top
+//	   		case 7: return "sun (midnight top)";	// sunrise & sunset midnight top
+//	   		case 8: return "sun (noon top)";		// sunrise & sunset noon top
+//			case 9: return "intensity";			// intensity
+//			case 10: return "smart intensity";	// smart intensity
+//	   		case 11: return "heart rate";		// heart rate
+//		}
+//		
+//    	return "unknown";
 	}
 	
 	function ringTypeEditing(val)
@@ -6945,22 +7088,30 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function secondsGetRefresh()
+	{
+		return ((gfxData[menuFieldGfx+1]>>8) & 0xFF);
+	}
+	
 	function secondsRefreshString()
 	{
-		switch ((gfxData[menuFieldGfx+1]>>8) & 0xFF)
+		if (secondsGetRefresh()==1)
 		{
-	   		case 0: return "every second";
-			case 1: return "every minute";
-			case 2:	return "alernate minutes";
+			return "every minute";
 		}
-		
-    	return "unknown";
+		else if (secondsGetRefresh()==2)
+		{
+			return "alernate minutes";
+		}
+		else
+		{
+	   		return "every second";
+		}
 	}
 	
 	function secondsRefreshEditing(val)
 	{
-		var temp = ((gfxData[menuFieldGfx+1]>>8) & 0xFF);
-		temp = (temp + val + 3)%3;
+		var temp = (secondsGetRefresh() + val + 3)%3;
 		
 		gfxData[menuFieldGfx+1] &= ~0xFF00; 
 		gfxData[menuFieldGfx+1] |= (temp<<8); 
@@ -7068,44 +7219,35 @@ class myMenuItemFieldSelect extends myMenuItem
     
     function onSelect()
     {
-		switch (editorView.getGfxId(editorView.menuFieldGfx))
+		var id = editorView.getGfxId(editorView.menuFieldGfx);
+		if (id==0)		// header
 		{
-			case 0:		// header
-			{
-    			return new myMenuItemHeader();
-			}
-
-			case 1:		// field
-			{
-    			return new myMenuItemFieldEdit();
-			}
-
-			case 9:		// rectangle
-			{
-    			return new myMenuItemRectangle();
-			}
-
-			case 10:	// ring
-			{
-    			return new myMenuItemRing();
-			}
-
-			case 11:	// seconds
-			{
-    			return new myMenuItemSeconds();
-			}
-
-			case 2:		// hour large
-			case 3:		// minute large
-			case 4:		// colon large
-			case 5:		// string
-			case 6:		// icon
-			case 7:		// movebar
-			case 8:		// chart
-			{
-				break;
-			}
+			return new myMenuItemHeader();
 		}
+		else if (id==1)		// field
+		{
+			return new myMenuItemFieldEdit();
+		}
+		else if (id==9)		// rectangle
+		{
+			return new myMenuItemRectangle();
+		}
+		else if (id==10)	// ring
+		{
+			return new myMenuItemRing();
+		}
+		else if (id==11)	// seconds
+		{
+			return new myMenuItemSeconds();
+		}
+
+//		case 2:		// hour large
+//		case 3:		// minute large
+//		case 4:		// colon large
+//		case 5:		// string
+//		case 6:		// icon
+//		case 7:		// movebar
+//		case 8:		// chart
 			
 		return null;
     }
@@ -7119,92 +7261,159 @@ class myMenuItemFieldSelect extends myMenuItem
 (:m2app)
 class myMenuItemFieldAdd extends myMenuItem
 {
-	enum
-	{
-		s_top,
-		s_addHorizontal,
-		s_addFree,
-		s_addRectangle,
-		s_addRing,
-		s_addSeconds,
-	}
+//	enum
+//	{
+//		s_top,
+//		s_addHorizontal,
+//		s_addFree,
+//		s_addRectangle,
+//		s_addRing,
+//		s_addSeconds,
+//	}
+
+	var globalString = [
+		"add field",
+		"add horizontal",
+		"add freeform",
+		"add rectangle",
+		"add ring",
+		"add seconds",
+	];
 	
-	var sState = s_top;
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+
+    	fState = 0;
     }
     
     function getString()
     {
-    	switch (sState)
-    	{
-			case s_top: return "add field";
-			
-			case s_addHorizontal: return "add horizontal";
-			case s_addFree:	return "add freeform";
-			case s_addRectangle: return "add rectangle";
-			case s_addRing: return "add ring";
-			case s_addSeconds: return "add seconds";
-    	}
+//    	switch (fState)
+//    	{
+//			case s_top: return "add field";
+//			
+//			case s_addHorizontal: return "add horizontal";
+//			case s_addFree:	return "add freeform";
+//			case s_addRectangle: return "add rectangle";
+//			case s_addRing: return "add ring";
+//			case s_addSeconds: return "add seconds";
+//    	}
+//    	
+//    	return "unknown";
     	
-    	return "unknown";
+    	return globalString[fState];
     }
+
+	function onEditing(val)
+	{
+		if (fState==0/*s_top*/)
+		{
+			return ((val>0) ? new myMenuItemQuickAdd() : new myMenuItemFieldSelect());
+		}
+		else
+		{
+			fState = (fState+val-1+5)%5 + 1;
+		}
+
+		return null;
+	}
     
     function onNext()
     {
-    	switch (sState)
-    	{
-			case s_top: return new myMenuItemQuickAdd();
-			
-			case s_addHorizontal: sState = s_addFree; break;
-			case s_addFree: sState = s_addRectangle; break;
-			case s_addRectangle: sState = s_addRing; break;
-			case s_addRing: sState = s_addSeconds; break;
-			case s_addSeconds: sState = s_addHorizontal; break;
-    	}
+//    	switch (fState)
+//    	{
+//			case s_top: return new myMenuItemQuickAdd();
+//			
+//			case s_addHorizontal: fState = s_addFree; break;
+//			case s_addFree: fState = s_addRectangle; break;
+//			case s_addRectangle: fState = s_addRing; break;
+//			case s_addRing: fState = s_addSeconds; break;
+//			case s_addSeconds: fState = s_addHorizontal; break;
+//    	}
+//
+//		return null;
 
-		return null;
+		return onEditing(1);
     }
     
     function onPrevious()
     {
-    	switch (sState)
-    	{
-			case s_top: return new myMenuItemFieldSelect();
-			
-			case s_addHorizontal: sState = s_addSeconds; break;
-			case s_addFree: sState = s_addHorizontal; break;
-			case s_addRectangle: sState = s_addFree; break;
-			case s_addRing: sState = s_addRectangle; break;
-			case s_addSeconds: sState = s_addRing; break;
-    	}
+//    	switch (fState)
+//    	{
+//			case s_top: return new myMenuItemFieldSelect();
+//			
+//			case s_addHorizontal: fState = s_addSeconds; break;
+//			case s_addFree: fState = s_addHorizontal; break;
+//			case s_addRectangle: fState = s_addFree; break;
+//			case s_addRing: fState = s_addRectangle; break;
+//			case s_addSeconds: fState = s_addRing; break;
+//    	}
+//
+//		return null;
 
-		return null;
+		return onEditing(-1);
     }
     
     function onSelect()
-    {
-    	var index = -1;
-    	
-    	switch (sState)
-    	{
-			case s_top: sState = s_addHorizontal; return null;
-			
-			case s_addHorizontal: index = editorView.gfxAddField(editorView.gfxNum); break;
-			case s_addFree: index = editorView.gfxAddField(editorView.gfxNum); break;
-			case s_addRectangle: index = editorView.gfxAddRectangle(editorView.gfxNum); break;
-			case s_addRing: index = editorView.gfxAddRing(editorView.gfxNum); break;
-			case s_addSeconds: index = editorView.gfxAddSeconds(editorView.gfxNum); break;
-    	}
+    {   	
+//    	switch (fState)
+//    	{
+//			case s_top: fState = s_addHorizontal; return null;
+//			
+//			case s_addHorizontal: index = editorView.gfxAddField(editorView.gfxNum); break;
+//			case s_addFree: index = editorView.gfxAddField(editorView.gfxNum); break;
+//			case s_addRectangle: index = editorView.gfxAddRectangle(editorView.gfxNum); break;
+//			case s_addRing: index = editorView.gfxAddRing(editorView.gfxNum); break;
+//			case s_addSeconds: index = editorView.gfxAddSeconds(editorView.gfxNum); break;
+//    	}
 
-    	if (index>=0)
-    	{
-    		editorView.menuFieldGfx = index;
-    		return new myMenuItemFieldSelect();
-    	}
-    	
+		if (fState==0/*s_top*/)
+		{
+			fState = 1/*s_addHorizontal*/;
+		}
+		else
+		{
+			var fArray = [
+				editorView.method(:gfxAddField),
+				editorView.method(:gfxAddField),
+				editorView.method(:gfxAddRectangle),
+				editorView.method(:gfxAddRing),
+				editorView.method(:gfxAddSeconds),
+			];
+    		
+    		var index = fArray[fState-1].invoke(editorView.gfxNum);
+	
+//			if (fState==1/*s_addHorizontal*/)
+//			{
+//				index = editorView.gfxAddField(editorView.gfxNum);
+//			}
+//			else if (fState==2/*s_addFree*/)
+//			{
+//				index = editorView.gfxAddField(editorView.gfxNum);
+//			}
+//			else if (fState==3/*s_addRectangle*/)
+//			{
+//				index = editorView.gfxAddRectangle(editorView.gfxNum);
+//			}
+//			else if (fState==4/*s_addRing*/)
+//			{
+//				index = editorView.gfxAddRing(editorView.gfxNum);
+//			}
+//			else if (fState==5/*s_addSeconds*/)
+//			{
+//				index = editorView.gfxAddSeconds(editorView.gfxNum);
+//			}
+
+	    	if (index>=0)
+	    	{
+	    		editorView.menuFieldGfx = index;
+	    		return new myMenuItemFieldSelect();
+	    	}
+		}
+		
     	return null;
     }
     
@@ -7410,7 +7619,6 @@ class myMenuItemFieldEdit extends myMenuItem
 //	}
 
 	var globalStrings = [
-    	"unknown",
 		"edit elements",
 		"position",
 		"alignment",
@@ -7427,6 +7635,7 @@ class myMenuItemFieldEdit extends myMenuItem
 	];
 
 	var fStrings = [
+		0,
 		1,
 		2,
 		3,
@@ -7439,15 +7648,16 @@ class myMenuItemFieldEdit extends myMenuItem
 		10,
 		11,
 		12,
-		13,
-		13,
-	];
+		12,
+	]b;
 
-	var fState = 0;
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+
+    	fState = 0;
     }
     
     function getString()
@@ -7657,7 +7867,8 @@ class myMenuItemFieldEdit extends myMenuItem
 		}
 		else if (fState==6/*f_delete*/)
 		{
-			editorView.fieldDelete(); return new myMenuItemFieldSelect();
+			editorView.fieldDelete();
+			return new myMenuItemFieldSelect();
 		}
 		else if (fState==7/*f_x*/)
 		{
@@ -7825,7 +8036,6 @@ class myMenuItemElementSelect extends myMenuItem
     }
 }
 
-
 (:m2app)
 class myMenuItemElementEdit extends myMenuItem
 {
@@ -7872,8 +8082,6 @@ class myMenuItemElementEdit extends myMenuItem
 //		gfxData[index+3] = 3+1;	// color axes
 
 	var globalStrings = [
-		"unknown",
-		
 		"color",
 		"font",
 		
@@ -7898,78 +8106,78 @@ class myMenuItemElementEdit extends myMenuItem
 		"type",
 	];
 	
-	var fId = 0;
+	var fId;
 
 	var fStringsLarge = [
+		0,
 		1,
 		2,
 		3,
 		4,
 		5,
 		6,
-		7,
-		7,
-	];
+		6,
+	]b;
 	
 	var fStringsString = [
+		0,
 		1,
 		2,
 		3,
 		4,
 		5,
 		6,
-		7,
-		7,
-	];
+		6,
+	]b;
 	
 	var fStringsIcon = [
-		17,
+		16,
+		0,
 		1,
 		2,
 		3,
 		4,
 		5,
 		6,
-		7,
-		7,
-		7,
-	];
+		6,
+		6,
+	]b;
 	
 	var fStringsMoveBar = [
-		2,
+		1,
+		7,
 		8,
 		9,
 		10,
 		11,
 		12,
-		13,
+		2,
 		3,
 		4,
 		5,
 		6,
-		7,
-		7,
-		7,
-		7,
-		7,
-		7,
-		7,
-	];
+		6,
+		6,
+		6,
+		6,
+		6,
+		6,
+	]b;
 	
 	var fStringsChart = [
+		13,
 		14,
 		15,
-		16,
+		2,
 		3,
 		4,
 		5,
 		6,
-		7,
-		7,
-		7,
-	];
+		6,
+		6,
+	]b;
 	
-	var fState = 0;
+	var fState;
 
 	var fStrings;
 	var fNumCustom;
@@ -7978,6 +8186,7 @@ class myMenuItemElementEdit extends myMenuItem
     {
     	myMenuItem.initialize();
     	
+    	fState = 0;
     	fId = id;
     	
     	if (fId>=2 && fId<=4)	// large
@@ -8203,7 +8412,6 @@ class myMenuItemElementEdit extends myMenuItem
     }
 }
 
-
 (:m2app)
 class myMenuItemElementAdd extends myMenuItem
 {
@@ -8213,14 +8421,14 @@ class myMenuItemElementAdd extends myMenuItem
 		24/*FIELD_SEPARATOR_COLON*/,
 		19/*FIELD_AM*/,
 		20/*FIELD_PM*/,
-		88/*FIELD_2ND_HOUR*/,
-		82/*FIELD_SUNRISE_HOUR*/,
-		83/*FIELD_SUNRISE_MINUTE*/,
-		84/*FIELD_SUNSET_HOUR*/,
-		85/*FIELD_SUNSET_MINUTE*/,
-		86/*FIELD_SUNEVENT_HOUR*/,
-		87/*FIELD_SUNEVENT_MINUTE*/,
-	];
+		47/*FIELD_2ND_HOUR*/,
+		41/*FIELD_SUNRISE_HOUR*/,
+		42/*FIELD_SUNRISE_MINUTE*/,
+		43/*FIELD_SUNSET_HOUR*/,
+		44/*FIELD_SUNSET_MINUTE*/,
+		45/*FIELD_SUNEVENT_HOUR*/,
+		46/*FIELD_SUNEVENT_MINUTE*/,
+	]b;
 	
 	var separatorIds = [
 		21/*FIELD_SEPARATOR_SPACE*/,
@@ -8231,7 +8439,7 @@ class myMenuItemElementAdd extends myMenuItem
 		26,
 		27,
 		28/*FIELD_SEPARATOR_PERCENT*/,
-	];
+	]b;
 	
 	var dateIds = [
 		3/*FIELD_DAY_NAME*/,		// day name
@@ -8250,7 +8458,7 @@ class myMenuItemElementAdd extends myMenuItem
 		16/*FIELD_YEAR_ISO_WEEK_XXXX*/,
 		17/*FIELD_WEEK_CALENDAR_XX*/,			// week number of year XX
 		18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/,
-	];
+	]b;
 	
 	var valueIds = [
 		31/*FIELD_STEPSCOUNT*/,
@@ -8260,25 +8468,25 @@ class myMenuItemElementAdd extends myMenuItem
 		35/*FIELD_NOTIFICATIONSCOUNT*/,
 		36/*FIELD_BATTERYPERCENTAGE*/,
 		28/*FIELD_SEPARATOR_PERCENT*/,
-		76/*FIELD_HEART_MIN*/,
-		77/*FIELD_HEART_MAX*/,
-		78/*FIELD_HEART_AVERAGE*/,
-		79/*FIELD_HEART_LATEST*/,
-		89/*FIELD_CALORIES*/,
-		90/*FIELD_ACTIVE_CALORIES*/,
-		91/*FIELD_INTENSITY*/,
-		92/*FIELD_INTENSITY_GOAL*/,
-		93/*FIELD_SMART_GOAL*/,
-		94/*FIELD_DISTANCE*/,
-		95/*FIELD_DISTANCE_UNITS*/,
-		96/*FIELD_PRESSURE*/,
-		97/*FIELD_PRESSURE_UNITS*/,
-		98/*FIELD_ALTITUDE*/,
-		99/*FIELD_ALTITUDE_UNITS*/,
-	];
+		37/*FIELD_HEART_MIN*/,
+		38/*FIELD_HEART_MAX*/,
+		39/*FIELD_HEART_AVERAGE*/,
+		40/*FIELD_HEART_LATEST*/,
+		48/*FIELD_CALORIES*/,
+		49/*FIELD_ACTIVE_CALORIES*/,
+		50/*FIELD_INTENSITY*/,
+		51/*FIELD_INTENSITY_GOAL*/,
+		52/*FIELD_SMART_GOAL*/,
+		53/*FIELD_DISTANCE*/,
+		54/*FIELD_DISTANCE_UNITS*/,
+		55/*FIELD_PRESSURE*/,
+		56/*FIELD_PRESSURE_UNITS*/,
+		57/*FIELD_ALTITUDE*/,
+		58/*FIELD_ALTITUDE_UNITS*/,
+	]b;
 	
-	var idIndex = 0;
-	var idArray = dateIds;
+	var idIndex;
+	var idArray;
 	
 //	enum
 //	{
@@ -8318,11 +8526,15 @@ class myMenuItemElementAdd extends myMenuItem
 		"add colon (large)",
 	];
 
-	var fState = 0;
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+
+    	fState = 0;
+		idIndex = 0;
+		idArray = dateIds;
     }
     
     function getString()
@@ -8580,8 +8792,6 @@ class myMenuItemRectangle extends myMenuItem
 //	}
 
 	var globalStrings = [
-		"unknown",
-		
 		"color",
 		"position",
 		"width",
@@ -8601,6 +8811,7 @@ class myMenuItemRectangle extends myMenuItem
 	];
 
 	var fStrings = [
+		0,
 		1,
 		2,
 		3,
@@ -8608,27 +8819,28 @@ class myMenuItemRectangle extends myMenuItem
 		5,
 		6,
 		7,
-		8,
 
+		8,
 		9,
 		10,
 		11,
 		12,
-		13,
 		
-		14,
-		14,
-		14,
-		14,
-		14,
-		0,
-	];
+		13,
+		13,
+		13,
+		13,
+		13,
+		13,
+	]b;
 	
-	var fState = 0;
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+
+    	fState = 0;
     }
     
     function getString()
@@ -8822,7 +9034,7 @@ class myMenuItemRectangle extends myMenuItem
     	}
     	else
     	{
-    		fState = [13, 8, 16, 17, 18, 5, 6, 7, 14, 15, 10, 11, 12, 13, 14, 15, 16, 17, 18][fState];
+    		fState = [13, 8, 16, 17, 18, 5, 6, 7, 14, 15, 10, 11, 12, 13, 14, 15, 16, 17, 18]b[fState];
     	}
 
     	return null;
@@ -8864,7 +9076,7 @@ class myMenuItemRectangle extends myMenuItem
     	}
     	else if (fState<=18/*r_visEdit*/)
     	{
-    		fState = [1, 1, 1, 1, 1, 0, 8, 9, 2, 3, 4][fState-8];
+    		fState = [1, 1, 1, 1, 1, 0, 8, 9, 2, 3, 4]b[fState-8];
     	}
 
     	return null;
@@ -8899,8 +9111,6 @@ class myMenuItemRing extends myMenuItem
 //	}
 
 	var globalStrings = [
-		"unknown",
-
 		"data",
 		"style",
 		"start",
@@ -8917,6 +9127,7 @@ class myMenuItemRing extends myMenuItem
 	];
 
 	var fStrings = [
+		0,
 		1,
 		2,
 		3,
@@ -8927,23 +9138,24 @@ class myMenuItemRing extends myMenuItem
 		8,
 		9,
 		10,
-		11,
 		
-		0,
-		12,
-		12,
-		12,
-		0,
-		12,
-		12,
-		0,
-	];
+		11,
+		11,
+		11,
+		11,
+		11,
+		11,
+		11,
+		11,
+	]b;
 	
-	var fState = 0;
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+
+		fState = 0;
     }
     
     function getString()
@@ -9219,8 +9431,6 @@ class myMenuItemSeconds extends myMenuItem
 	//color0
 
 	var globalStrings = [
-		"unknown",
-		
 		"style",
 		"refresh",
 		"color",
@@ -9235,6 +9445,7 @@ class myMenuItemSeconds extends myMenuItem
 	];
 
 	var fStrings = [
+		0,
 		1,
 		2,
 		3,
@@ -9243,23 +9454,24 @@ class myMenuItemSeconds extends myMenuItem
 		6,
 		7,
 		8,
-		9,
 		
-		10,
-		0,
-		10,
-		10,
-		10,
-		10,
-		10,
-		0,
-	];
+		9,
+		9,
+		9,
+		9,
+		9,
+		9,
+		9,
+		9,
+	]b;
 
-	var fState = 0;
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+
+    	fState = 0;
     }
     
     function getString()
