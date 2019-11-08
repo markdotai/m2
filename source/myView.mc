@@ -1254,7 +1254,7 @@ class myView
 		
 //System.println("Timer loadmem=" + (System.getTimer()-timeStamp) + "ms");
 
-		loadProfileData();		// load profile times
+		loadProfileTimeData();		// load profile times
 		
 //System.println("Timer loadprof=" + (System.getTimer()-timeStamp) + "ms");
 
@@ -1680,7 +1680,7 @@ class myView
 		if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
 		{
 			// set the profile properties from our profile times array			
-			var days = profileData[profileIndex*6 + 2];		
+			var days = profileTimeData[profileIndex*6 + 2];		
 			var daysNumber = 0;
 			for (var i=0; i<7; i++)
 			{
@@ -1692,21 +1692,21 @@ class myView
 			}
 			applicationProperties.setValue("PD", daysNumber);
 	
-			var startTime = profileData[profileIndex*6 + 0];
-			var endTime = profileData[profileIndex*6 + 1];
-			var profileFlags = profileData[profileIndex*6 + 3];
+			var startTime = profileTimeData[profileIndex*6 + 0];
+			var endTime = profileTimeData[profileIndex*6 + 1];
+			var profileFlags = profileTimeData[profileIndex*6 + 3];
 			applicationProperties.setValue("PS", profileTimeString(startTime, (profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0, (profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0));
 			applicationProperties.setValue("PE", profileTimeString(endTime, (profileFlags&0x04/*PROFILE_END_SUNRISE*/)!=0, (profileFlags&0x08/*PROFILE_END_SUNSET*/)!=0));
 
-			applicationProperties.setValue("35", (profileData[profileIndex*6 + 5] >= 0) ? (profileData[profileIndex*6 + 5] + 1) : "");		// glance profile
+			applicationProperties.setValue("35", (profileTimeData[profileIndex*6 + 5] >= 0) ? (profileTimeData[profileIndex*6 + 5] + 1) : "");		// glance profile
 
 			applicationProperties.setValue("PB", ((profileFlags&0x10/*PROFILE_BLOCK_MASK*/)!=0));
-			applicationProperties.setValue("PR", profileData[profileIndex*6 + 4]);		
+			applicationProperties.setValue("PR", profileTimeData[profileIndex*6 + 4]);		
 		}
 	}
 
 	(:m2face)		
-	function getProfileDataFromPropertiesFaceOrApp(profileIndex)
+	function getProfileTimeDataFromPropertiesFaceOrApp(profileIndex)
 	{
 		if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
 		{
@@ -1723,23 +1723,23 @@ class myView
 					days |= (0x1<<(d-1));					
 				}
 			}
-			profileData[profileIndex*6 + 2] = days;
+			profileTimeData[profileIndex*6 + 2] = days;
 
 			var startTime = propertiesGetTime("PS");
 			var endTime = propertiesGetTime("PE");
-			profileData[profileIndex*6 + 0] = startTime[1];		// start time
-			profileData[profileIndex*6 + 1] = endTime[1];		// end time
+			profileTimeData[profileIndex*6 + 0] = startTime[1];		// start time
+			profileTimeData[profileIndex*6 + 1] = endTime[1];		// end time
 			
-			profileData[profileIndex*6 + 5] = propertiesGetNumber("35") - 1;	// glance profile
+			profileTimeData[profileIndex*6 + 5] = propertiesGetNumber("35") - 1;	// glance profile
 
 			var profileFlags = ((startTime[0] & 0x03) | ((endTime[0] & 0x03) << 2));
 			if (propertiesGetBoolean("PB"))
 			{
 				profileFlags |= 0x10/*PROFILE_BLOCK_MASK*/;
 			}
-			profileData[profileIndex*6 + 3] = profileFlags;
+			profileTimeData[profileIndex*6 + 3] = profileFlags;
 
-			profileData[profileIndex*6 + 4] = getMinMax(propertiesGetNumber("PR"), 0, 0xFF/*PROFILE_EVENTS_MASK*/);
+			profileTimeData[profileIndex*6 + 4] = getMinMax(propertiesGetNumber("PR"), 0, 0xFF/*PROFILE_EVENTS_MASK*/);
 		}
 	}
 	
@@ -1749,8 +1749,34 @@ class myView
 	}
 	
 	(:m2app)		
-	function getProfileDataFromPropertiesFaceOrApp(profileIndex)
+	function getProfileTimeDataFromPropertiesFaceOrApp(profileIndex)
 	{
+	}
+	
+	function loadProfile(profileNumber)
+	{
+		if (profileNumber>=0 && profileNumber<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+		{
+			var s = getProfileString(profileNumber);
+			if (s!=null && (s instanceof String))
+			{
+				applicationProperties.setValue("EP", s);
+			}
+
+			setProfilePropertiesFaceOrApp(profileNumber);
+		}
+	}
+	
+	function saveProfile(profileNumber)
+	{
+		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER)
+		{
+			var s = propertiesGetString("EP");
+			applicationStorage.setValue("P" + profileNumber, s);
+
+			getProfileTimeDataFromPropertiesFaceOrApp(profileNumber);
+			saveProfileTimeData();		// remember new values
+		}
 	}
 	
 	function handleSettingsChanged(second)
@@ -1771,8 +1797,8 @@ class myView
 
 			applicationProperties.setValue("PN", profileActive+1);		// set the profile number
 
-			getProfileDataFromPropertiesFaceOrApp(profileActive);
-			saveProfileData();		// remember new values
+			getProfileTimeDataFromPropertiesFaceOrApp(profileActive);
+			saveProfileTimeData();		// remember new values
 		}
 		else
 		{
@@ -1780,35 +1806,19 @@ class myView
 
 			if (profileManagement == 1)			// load from profile
 			{
-				if (profileNumber>=0 && profileNumber<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
-				{
-					var s = getProfileString(profileNumber);
-					if (s!=null && (s instanceof String))
-					{
-						applicationProperties.setValue("EP", s);
-					}
-
-					setProfilePropertiesFaceOrApp(profileNumber);
-				}
+				loadProfile(profileNumber);
 			}
 			else if (profileManagement == 2)	// save to profile
 			{
-				if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER)
-				{
-					var s = propertiesGetString("EP");
-					applicationStorage.setValue("P" + profileNumber, s);
-
-					getProfileDataFromPropertiesFaceOrApp(profileNumber);
-					saveProfileData();		// remember new values
-				}
+				saveProfile(profileNumber);
 			}
+
+			profileActive = profileNumber;		// set the active profile number
 
 			profileDelayEnd = updateTimeNowValue + ((60-second)%60) + 2*60;		// delay of 2 minutes before any auto profile switching
 			profileRandomEnd = 0;							// clear this
 			demoProfilesCurrentEnd = 0;
 		}
-		
-		profileActive = profileNumber;		// set the active profile number
 	}
 		
 //	// forceChange is set to true when either the settings have been changed by the user or a new profile has loaded
@@ -1963,16 +1973,11 @@ class myView
 			releaseDynamicResources();
 			doLoadDynamicResources = true;
 
-			// copy saved profile string from storage to properties
-			var s = getProfileString(profileToActivate);
-			if (s!=null && (s instanceof String))
-			{
-				applicationProperties.setValue("EP", s);
-			}
-			
-			applicationProperties.setValue("PN", profileToActivate+1);		// set the profile number
+			loadProfile(profileToActivate);
 
-			setProfilePropertiesFaceOrApp(profileToActivate);
+			profileActive = profileToActivate;		// set the active profile number
+
+			applicationProperties.setValue("PN", profileToActivate+1);		// set the profile number
 
 //if (showTimer)
 //{
@@ -2523,9 +2528,9 @@ class myView
 		{
 			if (profileGlance<0)
 			{
-				if (profileData[profileActive*6 + 5]>=0 && profileData[profileActive*6 + 5]<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+				if (profileTimeData[profileActive*6 + 5]>=0 && profileTimeData[profileActive*6 + 5]<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 				{
-					doActivate = profileData[profileActive*6 + 5];
+					doActivate = profileTimeData[profileActive*6 + 5];
 					profileGlanceReturn = profileActive;	// return to this profile after glance 
 				}
 			}
@@ -2563,19 +2568,19 @@ class myView
 			{
 				if (doActivate==0)	// not found a profile to activate yet
 				{
-					var startTime = profileData[i*6 + 0];
-					var endTime = profileData[i*6 + 1];
+					var startTime = profileTimeData[i*6 + 0];
+					var endTime = profileTimeData[i*6 + 1];
 
 					// see if the start or end time uses sunrise/sunset					
-					if ((profileData[i*6 + 3]&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/))!=0)
+					if ((profileTimeData[i*6 + 3]&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/))!=0)
 					{
 						calculateSun(dateInfoShort);
 						
-						startTime = getProfileSunTime(startTime, profileData[i*6 + 3], 0);
-						endTime = getProfileSunTime(endTime, profileData[i*6 + 3], 2);
+						startTime = getProfileSunTime(startTime, profileTimeData[i*6 + 3], 0);
+						endTime = getProfileSunTime(endTime, profileTimeData[i*6 + 3], 2);
 					}
 					
-					var dayFlags = profileData[i*6 + 2];
+					var dayFlags = profileTimeData[i*6 + 2];
 					if (startTime<endTime)		// Note: if 2 times are equal then go for 24 hours (e.g. by default both times are 0)
 					{
 						if (timeNowInMinutesToday>=startTime && timeNowInMinutesToday<endTime && (dayFlags&(0x01<<nowDayNumber))!=0)	// current day set?
@@ -2594,7 +2599,7 @@ class myView
 					}
 				}
 
-				var numEvents = profileData[i*6 + 4];
+				var numEvents = profileTimeData[i*6 + 4];
 				if (numEvents>0)
 				{
 					randomProfiles[randomNum] = i;
@@ -2605,7 +2610,7 @@ class myView
 			}
 			
 			// doActivate must be in range (0 to PROFILE_NUM_USER-1) when we get here
-			if ((profileData[doActivate*6 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
+			if ((profileTimeData[doActivate*6 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
 			{
 				if (profileRandom>=0)					// random already active
 				{
@@ -2697,19 +2702,41 @@ class myView
 		return doActivate;
 	}
 	
+	var appWantsToLoadProfile = -1;
+	
 	(:m2app)
 	function checkProfileToActivate(timeNow)
 	{
-		return profileActive;
+		if (appWantsToLoadProfile>=0)
+		{
+			profileActive = -1;
+
+			var temp = appWantsToLoadProfile;
+			appWantsToLoadProfile = -1;
+			return temp;
+		}
+		else
+		{
+			return profileActive;
+		}
 	}
 	
 	var reloadDynamicResources = false;
 
+	(:m2face)
 	function checkReloadDynamicResources()
 	{
 		return false;
 	}
 	
+	(:m2app)
+	function checkReloadDynamicResources()
+	{
+		var temp = reloadDynamicResources;
+		reloadDynamicResources = false; 
+		return temp;
+	}
+
 	var dayWeekYearCalculatedDay = [-1, -1, -1];	// dayOfYear, ISO, Calendar
 	var dayOfYear;		// the day number of the year (0-364)
 	var ISOWeek;		// in ISO format the first week of the year always includes the first Thursday
@@ -3417,34 +3444,34 @@ class myView
 	//const PROFILE_END_SUNRISE = 0x04;
 	//const PROFILE_END_SUNSET = 0x08;
 	//const PROFILE_BLOCK_MASK = 0x10;			// block random
-	var profileData = new[PROFILE_NUM_USER*6];
+	var profileTimeData = new[PROFILE_NUM_USER*6];
 	
 	(:m2face)
-	function loadProfileData()
+	function loadProfileTimeData()
 	{
 		var charArray = propertiesGetCharArray("sd");
 
-		valDecodeArray(profileData, PROFILE_NUM_USER*6, charArray, charArray.size());
+		valDecodeArray(profileTimeData, PROFILE_NUM_USER*6, charArray, charArray.size());
 
-		//System.println("profileData=" + profileData.toString());
+		//System.println("profileTimeData=" + profileTimeData.toString());
 	}
 	
 	(:m2face)
-	function saveProfileData()
+	function saveProfileTimeData()
 	{
 		var tempCharArray = new[PROFILE_NUM_USER*6*2];
-		valEncodeArray(profileData, PROFILE_NUM_USER*6, tempCharArray, PROFILE_NUM_USER*6*2);
+		valEncodeArray(profileTimeData, PROFILE_NUM_USER*6, tempCharArray, PROFILE_NUM_USER*6*2);
 		
 		applicationProperties.setValue("sd", StringUtil.charArrayToString(tempCharArray));
 	}
 
 	(:m2app)
-	function loadProfileData()
+	function loadProfileTimeData()
 	{
 	}
 	
 	(:m2app)
-	function saveProfileData()
+	function saveProfileTimeData()
 	{
 	}
 	
@@ -3553,6 +3580,7 @@ class myView
 		return v;
 	}		
 	
+	(:m2face)
 	function valEncodeArray(arr, arrSize, charArray, charArraySize)
 	{
 		for (var i=0; i<arrSize; i++)
@@ -3575,6 +3603,7 @@ class myView
 		}
 	}
 
+	(:m2face)
 	function valDecodeArray(arr, arrSize, charArray, charArraySize)
 	{
 		for (var i=0; i<arrSize; i++)
@@ -3593,6 +3622,7 @@ class myView
 		}
 	}
 
+	(:m2app)
 	function gfxToCharArray()
 	{
 		var charArray = new[1024];
@@ -5690,13 +5720,6 @@ class myEditorView extends myView
     	WatchUi.requestUpdate();
 	}
 	
-	function checkReloadDynamicResources()
-	{
-		var temp = reloadDynamicResources;
-		reloadDynamicResources = false; 
-		return temp;
-	}
-
 	/*
 	select field
 		edit elements
@@ -6024,20 +6047,24 @@ class myEditorView extends myView
     	return false;
     }    
 
+	function copyGfxToPropertyString()
+	{
+		var charArray = gfxToCharArray();
+		var s = StringUtil.charArrayToString(charArray);
+		if (s!=null)
+		{
+			applicationProperties.setValue("EP", s);
+		}
+	}
+
     function onUpdate(dc)
     {
-    	if (true)
+    	if (reloadDynamicResources)
     	{
-			applicationProperties.setValue("PM", 0);
-
-			var charArray = gfxToCharArray();
-			var s = StringUtil.charArrayToString(charArray);
-			if (s!=null)
-			{
-				applicationProperties.setValue("EP", s);
-			}
-		}
-
+    		// reloading the dynamic resources causes the gfx to be read from "EP" so update it first!
+			copyGfxToPropertyString();
+    	}
+    
     	myView.onUpdate(dc);	// draw the normal watchface
     	
     	// then draw any menus on top
@@ -6046,6 +6073,12 @@ class myEditorView extends myView
 		{
 	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
     		dc.drawText(50, 50, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+		}
+
+    	if (true)
+    	{
+    		// make sure "EP" is up to date at the end of every frame!
+    		copyGfxToPropertyString();
 		}
     }
 
@@ -6745,6 +6778,13 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function fieldDeleteAll()
+	{
+		menuFieldGfx = 0;
+		gfxNum = nextGfxField(0);
+		reloadDynamicResources = true;
+	}
+
 	function elementVisibilityString()
 	{
 		return getVisibilityString(elementGetVisibility());
@@ -7433,7 +7473,7 @@ class myMenuItemQuickAdd extends myMenuItem
     
     function onNext()
     {
-   		return new myMenuItemSaveProfile();
+   		return new myMenuItemSaveLoadProfile(0);
     }
     
     function onPrevious()
@@ -7453,70 +7493,133 @@ class myMenuItemQuickAdd extends myMenuItem
 }
 
 (:m2app)
-class myMenuItemSaveProfile extends myMenuItem
+class myMenuItemSaveLoadProfile extends myMenuItem
 {
-    function initialize()
-    {
-    	myMenuItem.initialize();
-    }
-    
-    function getString()
-    {
-    	return "save profile";
-    }
-    
-    function onNext()
-    {
-   		return new myMenuItemLoadProfile();
-    }
-    
-    function onPrevious()
-    {
-   		return new myMenuItemQuickAdd();
-    }
-    
-    function onSelect()
-    {
-    	return null;
-    }
-    
-    function onBack()
-    {
-    	return new myMenuItemExitApp();
-    }
-}
+	var type;	// 0==save, 1==load, 2==load preset
 
-(:m2app)
-class myMenuItemLoadProfile extends myMenuItem
-{
-    function initialize()
+	var min;
+	var max;
+
+	var editing = false;
+	var profileIndex = 0;
+
+    function initialize(t)
     {
     	myMenuItem.initialize();
+    	
+    	type = t;
+    	
+    	if (type==2)
+    	{
+    		min = editorView.PROFILE_NUM_USER;
+    		max = editorView.PROFILE_NUM_USER + editorView.PROFILE_NUM_PRESET - 1;
+    	}
+    	else
+    	{
+    		min = 0;
+    		max = editorView.PROFILE_NUM_USER - 1;
+    	}
+    	
+    	profileIndex = min;
     }
     
     function getString()
     {
-    	return "load profile";
+    	if (editing)
+    	{
+    		return "" + (profileIndex+1);
+    	}
+		else
+		{
+    		return ["save profile", "load profile", "load preset"][type];
+    	}
     }
     
     function onNext()
     {
-   		return new myMenuItemReset();
+    	if (editing)
+    	{
+   			profileIndex++;
+    		if (profileIndex > max)
+    		{
+    			profileIndex = min;
+    		}
+    		
+    		return null;
+    	}
+		else
+		{
+			if (type<2)
+			{
+   				return new myMenuItemSaveLoadProfile(type+1);
+   			}
+   			else
+   			{
+   				return new myMenuItemReset();
+   			}
+   		}
     }
     
     function onPrevious()
     {
-   		return new myMenuItemSaveProfile();
+    	if (editing)
+    	{
+    		profileIndex--;
+    		if (profileIndex < min)
+    		{
+    			profileIndex = max;
+    		}
+
+    		return null;
+    	}
+    	else
+    	{
+			if (type>0)
+			{
+   				return new myMenuItemSaveLoadProfile(type-1);
+   			}
+   			else
+   			{
+   				return new myMenuItemQuickAdd();
+   			}
+   		}
     }
     
     function onSelect()
     {
+    	if (editing)
+    	{
+    		if (type==0)
+    		{
+    			editorView.saveProfile(profileIndex);
+				
+				editorView.profileActive = profileIndex;		// set the active profile number
+				applicationProperties.setValue("PN", profileIndex+1);		// set the profile number
+    		}
+    		else
+    		{
+				editorView.appWantsToLoadProfile = profileIndex;
+    		}
+    	}
+    	else
+    	{
+    		editing = true;
+    	}
+    	
     	return null;
     }
     
     function onBack()
     {
-    	return new myMenuItemExitApp();
+    	if (editing)
+    	{
+    		editing = false;
+    		return null;
+    	}
+    	else
+    	{
+    		return new myMenuItemExitApp();
+    	}
     }
 }
 
@@ -7540,11 +7643,13 @@ class myMenuItemReset extends myMenuItem
     
     function onPrevious()
     {
-   		return new myMenuItemLoadProfile();
+   		return new myMenuItemSaveLoadProfile(2);
     }
     
     function onSelect()
     {
+    	editorView.fieldDeleteAll();
+    	
     	return null;
     }
     
