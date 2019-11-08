@@ -6511,12 +6511,12 @@ class myEditorView extends myView
 
 	function fieldPositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]+val, 0, 240);
+		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, 240);
 	}
 
 	function fieldPositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]+val, 0, 240);
+		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, 240);
 	}
 
 	function fieldPositionCentreX()
@@ -6534,6 +6534,22 @@ class myEditorView extends myView
 		return gfxData[menuFieldGfx+3];
 	}
 
+	function fieldAlignmentString()
+	{
+		if (fieldGetAlignment()==1)
+		{
+			return "left edge";
+		}
+		else if (fieldGetAlignment()==2)
+		{
+			return "right edge";
+		}
+		else
+		{
+			return "centre"; 
+		}
+	}
+	
 	function fieldAlignmentEditing(val)
 	{
 		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
@@ -6749,6 +6765,19 @@ class myEditorView extends myView
 		
 		gfxData[menuElementGfx+3] = temp;
 		reloadDynamicResources = true;
+	}
+
+	function iconTypeEditing(val)
+	{
+//		var eDisplay = gfxData[index+1];
+//	    if (eDisplay>=0/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=32/*FIELD_SHAPE_MOUNTAIN*/)
+
+		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+32/*FIELD_SHAPE_MOUNTAIN*/+1)%(32/*FIELD_SHAPE_MOUNTAIN*/+1);
+	}
+
+	function iconColorEditing(val)
+	{
+		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64)%64;
 	}
 
 	function iconFontEditing(val)
@@ -7358,29 +7387,63 @@ class myMenuItemHeader extends myMenuItem
 (:m2app)
 class myMenuItemFieldEdit extends myMenuItem
 {
-	enum
-	{
-		f_elements,
-		f_position,
-		f_align,
-		f_vis,
-		f_earlier,
-		f_later,
-		f_delete,
+//	enum
+//	{
+//		f_elements,
+//		f_position,
+//		f_align,
+//		f_vis,
+//		f_earlier,
+//		f_later,
+//		f_delete,
+//
+//		f_x,
+//		f_y,
+//		f_xCentre,
+//		f_yCentre,
+//		f_tap,
+//
+//		f_xEdit,
+//		f_yEdit,
+//		f_alignEdit,
+//		f_visEdit,
+//	}
 
-		f_x,
-		f_y,
-		f_xCentre,
-		f_yCentre,
-		f_tap,
+	var globalStrings = [
+    	"unknown",
+		"edit elements",
+		"position",
+		"alignment",
+		"visibility",
+		"move earlier",
+		"move later",
+		"delete field",
+		"horizontal",
+		"vertical",
+		"centre horizontal",
+		"centre vertical",
+		"tap",
+		"editing ...",
+	];
 
-		f_xEdit,
-		f_yEdit,
-		f_alignEdit,
-		f_visEdit,
-	}
+	var fStrings = [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9,
+		10,
+		11,
+		12,
+		13,
+		13,
+	];
 
-	var fState = f_elements;
+	var fState = 0;
 
     function initialize()
     {
@@ -7389,159 +7452,284 @@ class myMenuItemFieldEdit extends myMenuItem
     
     function getString()
     {
-    	switch (fState)
-    	{
-			case f_elements: return "edit elements";
-			case f_position: return "position";
-			case f_align: return "alignment";
-			case f_vis: return "visibility";
-			case f_earlier: return "move earlier";
-			case f_later: return "move later";
-			case f_delete: return "delete field";
-
-			case f_x: return "horizontal";
-			case f_y: return "vertical";
-			case f_xCentre: return "centre horizontal";
-			case f_yCentre: return "centre vertical";
-			case f_tap: return "tap";
-
-			case f_xEdit: return "editing ...";
-			case f_yEdit: return "editing ...";			
-			case f_alignEdit:
-		    	switch (editorView.fieldGetAlignment())
-		    	{
-		    		case 0: return "centre"; 
-		    		case 1: return "left edge";
-		    		case 2: return "right edge";
-		    	}
-				break;
-			case f_visEdit: return editorView.fieldVisibilityString();
-    	}
+//    	switch (fState)
+//    	{
+//			case f_elements: return "edit elements";
+//			case f_position: return "position";
+//			case f_align: return "alignment";
+//			case f_vis: return "visibility";
+//			case f_earlier: return "move earlier";
+//			case f_later: return "move later";
+//			case f_delete: return "delete field";
+//
+//			case f_x: return "horizontal";
+//			case f_y: return "vertical";
+//			case f_xCentre: return "centre horizontal";
+//			case f_yCentre: return "centre vertical";
+//			case f_tap: return "tap";
+//
+//			case f_xEdit: return "editing ...";
+//			case f_yEdit: return "editing ...";			
+//			case f_alignEdit:
+//		    	switch (editorView.fieldGetAlignment())
+//		    	{
+//		    		case 0: return "centre"; 
+//		    		case 1: return "left edge";
+//		    		case 2: return "right edge";
+//		    	}
+//				break;
+//			case f_visEdit: return editorView.fieldVisibilityString();
+//    	}
+//    	
+//    	return "unknown";
     	
-    	return "unknown";
+    	if (fState==14/*f_alignEdit*/)
+    	{
+    		return editorView.fieldAlignmentString();
+    	}
+    	else if (fState==15/*f_visEdit*/)
+    	{
+    		return editorView.fieldVisibilityString();
+    	}
+    	else
+    	{
+    		return globalStrings[fStrings[fState]]; 
+    	}
+    }
+    
+    function onEditing(val)
+    {
+		if (fState<=6/*r_delete*/)
+    	{
+    		fState = (fState+val+7)%7;
+    	}
+		else if (fState<=11/*f_tap*/)
+    	{
+    		fState = (fState+val+5-7)%5 + 7;
+    	}
+		else if (fState==12/*f_xEdit*/)
+    	{
+    		editorView.fieldPositionXEditing(val);
+    	}
+		else if (fState==13/*f_yEdit*/)
+    	{
+    		editorView.fieldPositionYEditing(val);
+    	}
+		else if (fState==14/*f_alignEdit*/)
+    	{
+    		editorView.fieldAlignmentEditing(val);
+    	}
+		else if (fState==15/*f_visEdit*/)
+    	{
+    		editorView.fieldVisibilityEditing(val);
+    	}
+
+   		return null;
     }
     
     function onNext()
     {
-    	switch (fState)
-    	{
-			case f_elements: fState = f_position; break;
-			case f_position: fState = f_align; break;
-			case f_align: fState = f_vis; break;
-			case f_vis: fState = f_earlier; break;
-			case f_earlier: fState = f_later; break;
-			case f_later: fState = f_delete; break;
-			case f_delete: fState = f_elements; break;
-
-			case f_x: fState = f_y; break;
-			case f_y: fState = f_xCentre; break;
-			case f_xCentre: fState = f_yCentre; break;
-			case f_yCentre: fState = f_tap; break;
-			case f_tap: fState = f_x; break;
-
-			case f_xEdit: editorView.fieldPositionXEditing(-1); break;
-			case f_yEdit: editorView.fieldPositionYEditing(-1); break;
-			case f_alignEdit: editorView.fieldAlignmentEditing(1); break;
-			case f_visEdit: editorView.fieldVisibilityEditing(1); break;
-    	}
-
-   		return null;
+//    	switch (fState)
+//    	{
+//			case f_elements: fState = f_position; break;
+//			case f_position: fState = f_align; break;
+//			case f_align: fState = f_vis; break;
+//			case f_vis: fState = f_earlier; break;
+//			case f_earlier: fState = f_later; break;
+//			case f_later: fState = f_delete; break;
+//			case f_delete: fState = f_elements; break;
+//
+//			case f_x: fState = f_y; break;
+//			case f_y: fState = f_xCentre; break;
+//			case f_xCentre: fState = f_yCentre; break;
+//			case f_yCentre: fState = f_tap; break;
+//			case f_tap: fState = f_x; break;
+//
+//			case f_xEdit: editorView.fieldPositionXEditing(1); break;
+//			case f_yEdit: editorView.fieldPositionYEditing(1); break;
+//			case f_alignEdit: editorView.fieldAlignmentEditing(1); break;
+//			case f_visEdit: editorView.fieldVisibilityEditing(1); break;
+//    	}
+//
+//   		return null;
+   		
+   		return onEditing(1);
     }
     
     function onPrevious()
     {
-    	switch (fState)
-    	{
-			case f_elements: fState = f_delete; break;
-			case f_position: fState = f_elements; break;
-			case f_align: fState = f_position; break;
-			case f_vis: fState = f_align; break;
-			case f_earlier: fState = f_vis; break;
-			case f_later: fState = f_earlier; break;
-			case f_delete: fState = f_later; break;
-
-			case f_x: fState = f_tap; break;
-			case f_y: fState = f_x; break;
-			case f_xCentre: fState = f_y; break;
-			case f_yCentre: fState = f_xCentre; break;
-			case f_tap: fState = f_yCentre; break;
-
-			case f_xEdit: editorView.fieldPositionXEditing(1); break;
-			case f_yEdit: editorView.fieldPositionYEditing(1); break;
-			case f_alignEdit: editorView.fieldAlignmentEditing(-1); break;
-			case f_visEdit: editorView.fieldVisibilityEditing(-1); break;
-    	}
-
-   		return null;
+//    	switch (fState)
+//    	{
+//			case f_elements: fState = f_delete; break;
+//			case f_position: fState = f_elements; break;
+//			case f_align: fState = f_position; break;
+//			case f_vis: fState = f_align; break;
+//			case f_earlier: fState = f_vis; break;
+//			case f_later: fState = f_earlier; break;
+//			case f_delete: fState = f_later; break;
+//
+//			case f_x: fState = f_tap; break;
+//			case f_y: fState = f_x; break;
+//			case f_xCentre: fState = f_y; break;
+//			case f_yCentre: fState = f_xCentre; break;
+//			case f_tap: fState = f_yCentre; break;
+//
+//			case f_xEdit: editorView.fieldPositionXEditing(-1); break;
+//			case f_yEdit: editorView.fieldPositionYEditing(-1); break;
+//			case f_alignEdit: editorView.fieldAlignmentEditing(-1); break;
+//			case f_visEdit: editorView.fieldVisibilityEditing(-1); break;
+//    	}
+//
+//   		return null;
+   		
+   		return onEditing(-1);
     }
     
     function onSelect()
     {
-    	switch (fState)
-    	{
-			case f_elements:
+//    	switch (fState)
+//    	{
+//			case f_elements:
+//			{
+//				var nextIndex = editorView.nextGfx(editorView.menuFieldGfx);
+//				if (nextIndex>=0 && nextIndex<editorView.afterGfxField(editorView.menuFieldGfx))
+//				{
+//					editorView.menuElementGfx = nextIndex;
+//					return new myMenuItemElementSelect();
+//				}
+//				else
+//				{
+//					return new myMenuItemElementAdd();
+//				}
+//			}
+//				
+//			case f_position: fState = f_x; break;
+//			case f_align: fState = f_alignEdit; break;
+//			case f_vis: fState = f_visEdit; break;
+//			case f_earlier: editorView.fieldEarlier(); break;
+//			case f_later: editorView.fieldLater(); break;
+//			case f_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
+//
+//			case f_x: fState = f_xEdit; break;
+//			case f_y: fState = f_yEdit; break;
+//			case f_xCentre: editorView.fieldPositionCentreX(); break;
+//			case f_yCentre: editorView.fieldPositionCentreY(); break;
+//			case f_tap: break;
+//
+//			case f_xEdit: break;
+//			case f_yEdit: break;
+//			case f_alignEdit: break;
+//			case f_visEdit: break;
+//    	}
+
+		if (fState==0/*f_elements*/)
+		{
+			var nextIndex = editorView.nextGfx(editorView.menuFieldGfx);
+			if (nextIndex>=0 && nextIndex<editorView.afterGfxField(editorView.menuFieldGfx))
 			{
-				var nextIndex = editorView.nextGfx(editorView.menuFieldGfx);
-				if (nextIndex>=0 && nextIndex<editorView.afterGfxField(editorView.menuFieldGfx))
-				{
-					editorView.menuElementGfx = nextIndex;
-					return new myMenuItemElementSelect();
-				}
-				else
-				{
-					return new myMenuItemElementAdd();
-				}
-				return null;
+				editorView.menuElementGfx = nextIndex;
+				return new myMenuItemElementSelect();
 			}
-				
-			case f_position: fState = f_x; break;
-			case f_align: fState = f_alignEdit; break;
-			case f_vis: fState = f_visEdit; break;
-			case f_earlier: editorView.fieldEarlier(); break;
-			case f_later: editorView.fieldLater(); break;
-			case f_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-
-			case f_x: fState = f_xEdit; break;
-			case f_y: fState = f_yEdit; break;
-			case f_xCentre: editorView.fieldPositionCentreX(); break;
-			case f_yCentre: editorView.fieldPositionCentreY(); break;
-			case f_tap: break;
-
-			case f_xEdit: break;
-			case f_yEdit: break;
-			case f_alignEdit: break;
-			case f_visEdit: break;
-    	}
+			else
+			{
+				return new myMenuItemElementAdd();
+			}
+		}
+		else if (fState==1/*f_position*/)
+		{
+			fState = 7/*f_x*/;
+		}
+		else if (fState==2/*f_align*/)
+		{
+			fState = 14/*f_alignEdit*/;
+		}
+		else if (fState==3/*f_vis*/)
+		{
+			fState = 15/*f_visEdit*/;
+		}
+		else if (fState==4/*f_earlier*/)
+		{
+			editorView.fieldEarlier();
+		}
+		else if (fState==5/*f_later*/)
+		{
+			editorView.fieldLater();
+		}
+		else if (fState==6/*f_delete*/)
+		{
+			editorView.fieldDelete(); return new myMenuItemFieldSelect();
+		}
+		else if (fState==7/*f_x*/)
+		{
+			fState = 12/*f_xEdit*/;
+		}
+		else if (fState==8/*f_y*/)
+		{
+			fState = 13/*f_yEdit*/;
+		}
+		else if (fState==9/*f_xCentre*/)
+		{
+			editorView.fieldPositionCentreX();
+		}
+		else if (fState==10/*f_yCentre*/)
+		{
+			editorView.fieldPositionCentreY();
+		}
 
     	return null;
     }
     
     function onBack()
     {
-    	switch (fState)
-    	{
-			case f_elements:
-			case f_position:
-			case f_align:
-			case f_vis:
-			case f_earlier:
-			case f_later:
-			case f_delete:
-				return new myMenuItemFieldSelect();
+//    	switch (fState)
+//    	{
+//			case f_elements:
+//			case f_position:
+//			case f_align:
+//			case f_vis:
+//			case f_earlier:
+//			case f_later:
+//			case f_delete:
+//				return new myMenuItemFieldSelect();
+//
+//			case f_x:
+//			case f_y:
+//			case f_xCentre:
+//			case f_yCentre:
+//			case f_tap:
+//				fState = f_position;
+//				break;
+//
+//			case f_xEdit: fState = f_x; break;
+//			case f_yEdit: fState = f_y; break;
+//			case f_alignEdit: fState = f_align; break;
+//			case f_visEdit: fState = f_vis; break;
+//    	}
 
-			case f_x:
-			case f_y:
-			case f_xCentre:
-			case f_yCentre:
-			case f_tap:
-				fState = f_position;
-				break;
-
-			case f_xEdit: fState = f_x; break;
-			case f_yEdit: fState = f_y; break;
-			case f_alignEdit: fState = f_align; break;
-			case f_visEdit: fState = f_vis; break;
-    	}
+		if (fState<=6/*f_delete*/)
+		{
+			return new myMenuItemFieldSelect();
+		}
+		else if (fState<=11/*f_tap*/)
+		{
+			fState = 1/*f_position*/;
+		}
+		else if (fState==12/*f_xEdit*/)
+		{
+			fState = 7/*f_x*/;
+		}
+		else if (fState==13/*f_yEdit*/)
+		{
+			fState = 8/*f_y*/;
+		}
+		else if (fState==14/*f_alignEdit*/)
+		{
+			fState = 2/*f_align*/;
+		}
+		else if (fState==15/*f_visEdit*/)
+		{
+			fState = 3/*f_vis*/;
+		}
 
    		return null;
     }
@@ -7706,6 +7894,8 @@ class myMenuItemElementEdit extends myMenuItem
 		"axes type",
 		"color bars",
 		"color axes",
+		
+		"type",
 	];
 	
 	var fId = 0;
@@ -7728,6 +7918,19 @@ class myMenuItemElementEdit extends myMenuItem
 		4,
 		5,
 		6,
+		7,
+		7,
+	];
+	
+	var fStringsIcon = [
+		17,
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
 		7,
 		7,
 	];
@@ -7782,10 +7985,15 @@ class myMenuItemElementEdit extends myMenuItem
     		fStrings = fStringsLarge;
     		fNumCustom = 2;
     	}
-    	else if (fId==5 || fId==6)	// string or icon
+    	else if (fId==5)	// string
     	{
     		fStrings = fStringsString;
     		fNumCustom = 2;
+    	}
+    	else if (fId==6)	// icon
+    	{
+    		fStrings = fStringsIcon;
+    		fNumCustom = 3;
     	}
     	else if (fId==7)	// movebar
     	{
@@ -7847,7 +8055,7 @@ class myMenuItemElementEdit extends myMenuItem
 	    			editorView.largeFontEditing(val);
 		    	}
 		    }
-    		else if (fId==5 || fId==6)	// string or icon
+    		else if (fId==5)	// string
     		{
 		    	if (fState==numTop)
 		    	{
@@ -7855,14 +8063,22 @@ class myMenuItemElementEdit extends myMenuItem
 		    	}
 		    	else if (fState==numTop+1)
 		    	{
-		    		if (fId==5)
-		    		{
-		    			editorView.stringFontEditing(val);
-		    		}
-		    		else
-		    		{
-		    			editorView.iconFontEditing(val);
-		    		}
+	    			editorView.stringFontEditing(val);
+		    	}
+		    }
+    		else if (fId==6)	// icon
+    		{
+		    	if (fState==numTop)
+		    	{
+	    			editorView.iconTypeEditing(val);
+		    	}
+		    	else if (fState==numTop+1)
+		    	{
+		    		editorView.iconColorEditing(val);
+		    	}
+		    	else if (fState==numTop+2)
+		    	{
+	    			editorView.iconFontEditing(val);
 		    	}
 		    }
     		else if (fId==7)	// movebar
@@ -7991,31 +8207,6 @@ class myMenuItemElementEdit extends myMenuItem
 (:m2app)
 class myMenuItemElementAdd extends myMenuItem
 {
-	enum
-	{
-		s_top,
-		
-		s_timeLarge,
-		s_time,
-		s_separator,
-		s_date,
-		s_value,
-		s_icon,
-		s_moveBar,
-		s_chart,
-
-		s_hourLarge,
-		s_minuteLarge,
-		s_colonLarge,
-
-		s_timeEdit,
-		s_separatorEdit,
-		s_dateEdit,
-		s_valueEdit,
-	}
-
-	var sState = s_top;
-
 	var timeIds = [
 		1/*FIELD_HOUR*/,			// hour
 		2/*FIELD_MINUTE*/,			// minute
@@ -8089,6 +8280,46 @@ class myMenuItemElementAdd extends myMenuItem
 	var idIndex = 0;
 	var idArray = dateIds;
 	
+//	enum
+//	{
+//		s_top,
+//		
+//		s_timeLarge,
+//		s_time,
+//		s_separator,
+//		s_date,
+//		s_value,
+//		s_icon,
+//		s_moveBar,
+//		s_chart,
+//
+//		s_hourLarge,
+//		s_minuteLarge,
+//		s_colonLarge,
+//
+//		s_timeEdit,
+//		s_separatorEdit,
+//		s_dateEdit,
+//		s_valueEdit,
+//	}
+
+	var globalStrings = [
+		"add element",
+		"add time (large)",
+		"add time",
+		"add separator",
+		"add date",
+		"add value",
+		"add icon",
+		"add move bar",
+		"add chart",
+		"add hour (large)",
+		"add minute (large)",
+		"add colon (large)",
+	];
+
+	var fState = 0;
+
     function initialize()
     {
     	myMenuItem.initialize();
@@ -8096,101 +8327,117 @@ class myMenuItemElementAdd extends myMenuItem
     
     function getString()
     {
-    	switch (sState)
+    	if (fState<=11/*s_colonLarge*/)
     	{
-			case s_top: return "add element";
-			
-			case s_timeLarge: return "add time (large)";
-			case s_time: return "add time";
-			case s_separator: return "add separator";
-			case s_date: return "add date";
-			case s_value: return "add value";
-			case s_icon: return "add icon";
-			case s_moveBar: return "add move bar";
-			case s_chart: return "add chart";
-
-			case s_hourLarge: return "add hour (large)";
-			case s_minuteLarge: return "add minute (large)";
-			case s_colonLarge: return "add colon (large)";
-			
-			case s_timeEdit:
-			case s_separatorEdit:
-			case s_dateEdit:
-			case s_valueEdit:
-				if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
-				{
-					return editorView.getStringTypeName(idArray[idIndex]);
-				}
-				break;
+			return globalStrings[fState];
+		}
+		else if (fState<=15/*s_valueEdit*/)
+		{			
+			if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
+			{
+				return editorView.getStringTypeName(idArray[idIndex]);
+			}
     	}
 
     	return "unknown";
     }
     
+    function onEditing(val)
+    {
+    	if (fState==0/*s_top*/)
+    	{
+    		if (val<0)
+    		{
+    			return new myMenuItemElementSelect();
+    		}
+    	}
+    	else if (fState<=8/*s_chart*/)
+    	{
+    		fState = (fState+val+8-1)%8 + 1;
+    	}
+    	else if (fState<=11/*s_colonLarge*/)
+    	{
+    		fState = (fState+val+3-9)%3 + 9;
+    	}
+		else if (fState<=15/*s_valueEdit*/)
+		{			
+			if (idArray!=null)
+			{
+				idIndex = (idIndex+val+idArray.size())%idArray.size();
+			}
+    	}
+    
+    	return null;
+    }
+    
     function onNext()
     {
-    	switch (sState)
-    	{
-			case s_top: break;
-			
-			case s_timeLarge: sState = s_time; break;
-			case s_time: sState = s_separator; break;
-			case s_separator: sState = s_date; break;
-			case s_date: sState = s_value; break;
-			case s_value: sState = s_icon; break;
-			case s_icon: sState = s_moveBar; break;
-			case s_moveBar: sState = s_chart; break;
-			case s_chart: sState = s_timeLarge; break;
+//    	switch (fState)
+//    	{
+//			case s_top: break;
+//			
+//			case s_timeLarge: fState = s_time; break;
+//			case s_time: fState = s_separator; break;
+//			case s_separator: fState = s_date; break;
+//			case s_date: fState = s_value; break;
+//			case s_value: fState = s_icon; break;
+//			case s_icon: fState = s_moveBar; break;
+//			case s_moveBar: fState = s_chart; break;
+//			case s_chart: fState = s_timeLarge; break;
+//
+//			case s_hourLarge: fState = s_minuteLarge; break;
+//			case s_minuteLarge: fState = s_colonLarge; break;
+//			case s_colonLarge: fState = s_hourLarge; break;
+//
+//			case s_timeEdit:
+//			case s_separatorEdit:
+//			case s_dateEdit:
+//			case s_valueEdit:
+//				if (idArray!=null)
+//				{
+//					idIndex = (idIndex+1)%idArray.size();
+//				}
+//				break;
+//    	}
+//
+//		return null;
 
-			case s_hourLarge: sState = s_minuteLarge; break;
-			case s_minuteLarge: sState = s_colonLarge; break;
-			case s_colonLarge: sState = s_hourLarge; break;
-
-			case s_timeEdit:
-			case s_separatorEdit:
-			case s_dateEdit:
-			case s_valueEdit:
-				if (idArray!=null)
-				{
-					idIndex = (idIndex+1)%idArray.size();
-				}
-				break;
-    	}
-
-		return null;
+		return onEditing(1);
     }
     
     function onPrevious()
     {
-    	switch (sState)
-    	{
-			case s_top: return new myMenuItemElementSelect();
-			
-			case s_timeLarge: sState = s_chart; break;
-			case s_time: sState = s_timeLarge; break;
-			case s_separator: sState = s_time; break;
-			case s_date: sState = s_separator; break;
-			case s_value: sState = s_date; break;
-			case s_icon: sState = s_value; break;
-			case s_moveBar: sState = s_icon; break;
-			case s_chart: sState = s_moveBar; break;
+//    	switch (fState)
+//    	{
+//			case s_top: return new myMenuItemElementSelect();
+//			
+//			case s_timeLarge: fState = s_chart; break;
+//			case s_time: fState = s_timeLarge; break;
+//			case s_separator: fState = s_time; break;
+//			case s_date: fState = s_separator; break;
+//			case s_value: fState = s_date; break;
+//			case s_icon: fState = s_value; break;
+//			case s_moveBar: fState = s_icon; break;
+//			case s_chart: fState = s_moveBar; break;
+//
+//			case s_hourLarge: fState = s_colonLarge; break;
+//			case s_minuteLarge: fState = s_hourLarge; break;
+//			case s_colonLarge: fState = s_minuteLarge; break;
+//
+//			case s_timeEdit:
+//			case s_separatorEdit:
+//			case s_dateEdit:
+//			case s_valueEdit:
+//				if (idArray!=null)
+//				{
+//					idIndex = (idIndex-1+idArray.size())%idArray.size();
+//				}
+//				break;
+//    	}
+//
+//		return null;
 
-			case s_hourLarge: sState = s_colonLarge; break;
-			case s_minuteLarge: sState = s_hourLarge; break;
-			case s_colonLarge: sState = s_minuteLarge; break;
-
-			case s_timeEdit:
-			case s_separatorEdit:
-			case s_dateEdit:
-			case s_valueEdit:
-				if (idArray!=null)
-				{
-					idIndex = (idIndex-1+idArray.size())%idArray.size();
-				}
-				break;
-    	}
-
-		return null;
+		return onEditing(-1);
     }
     
     function onSelect()
@@ -8199,32 +8446,50 @@ class myMenuItemElementAdd extends myMenuItem
     	
     	var afterIndex = editorView.afterGfxField(editorView.menuFieldGfx);
     	
-    	switch (sState)
-    	{
-			case s_top: sState = s_timeLarge; break;
-			
-			case s_timeLarge: sState = s_hourLarge; break;
-			case s_time: idArray = timeIds; idIndex = 0; sState = s_timeEdit; break;
-			case s_separator: idArray = separatorIds; idIndex = 0; sState = s_separatorEdit; break;
-			case s_date: idArray = dateIds; idIndex = 0; sState = s_dateEdit; break;
-			case s_value: idArray = valueIds; idIndex = 0; sState = s_valueEdit; break;
-			case s_icon: index = editorView.gfxAddIcon(afterIndex); break;
-			case s_moveBar: index = editorView.gfxAddMoveBar(afterIndex); break;
-			case s_chart: index = editorView.gfxAddChart(afterIndex); break;
-
-			case s_hourLarge: index = editorView.gfxAddHourLarge(afterIndex); break;
-			case s_minuteLarge: index = editorView.gfxAddMinuteLarge(afterIndex); break;
-			case s_colonLarge: index = editorView.gfxAddColonLarge(afterIndex); break;
-
-			case s_timeEdit:
-			case s_separatorEdit:
-			case s_dateEdit:
-			case s_valueEdit:
-				if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
-				{
-					index = editorView.gfxAddString(afterIndex, idArray[idIndex]);
-				}
-				break;
+		if (fState==0/*s_top*/)
+		{
+			fState = 1/*s_timeLarge*/;
+		}
+		else if (fState==1/*s_timeLarge*/)
+		{
+			fState = 9/*s_hourLarge*/;
+		}
+		else if (fState<=5/*s_value*/)
+		{
+			idArray = [timeIds, separatorIds, dateIds, valueIds][fState-2];
+			idIndex = 0;
+			fState += 10;
+		}
+		else if (fState==6/*s_icon*/)
+		{
+			index = editorView.gfxAddIcon(afterIndex);
+		}
+		else if (fState==7/*s_moveBar*/)
+		{
+			index = editorView.gfxAddMoveBar(afterIndex);
+		}
+		else if (fState==8/*s_chart*/)
+		{
+			index = editorView.gfxAddChart(afterIndex);
+		}
+		else if (fState==9/*s_hourLarge*/)
+		{
+			index = editorView.gfxAddHourLarge(afterIndex);
+		}
+		else if (fState==10/*s_minuteLarge*/)
+		{
+			index = editorView.gfxAddMinuteLarge(afterIndex);
+		}
+		else if (fState==11/*s_colonLarge*/)
+		{
+			index = editorView.gfxAddColonLarge(afterIndex);
+		}
+		else if (fState<=15/*s_valueEdit*/)
+		{
+			if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
+			{
+				index = editorView.gfxAddString(afterIndex, idArray[idIndex]);
+			}
     	}
 
     	if (index>=0)
@@ -8238,32 +8503,49 @@ class myMenuItemElementAdd extends myMenuItem
     
     function onBack()
     {
-    	switch (sState)
-    	{
-			case s_top: return new myMenuItemFieldEdit();
-			
-			case s_timeLarge:
-			case s_time:
-			case s_separator:
-			case s_date:
-			case s_value:
-			case s_icon:
-			case s_moveBar:
-			case s_chart:
-				sState = s_top;
-				break;
+//    	switch (fState)
+//    	{
+//			case s_top: return new myMenuItemFieldEdit();
+//			
+//			case s_timeLarge:
+//			case s_time:
+//			case s_separator:
+//			case s_date:
+//			case s_value:
+//			case s_icon:
+//			case s_moveBar:
+//			case s_chart:
+//				fState = s_top;
+//				break;
+//
+//			case s_hourLarge:
+//			case s_minuteLarge:
+//			case s_colonLarge:
+//				fState = s_timeLarge;
+//				break;
+//
+//			case s_timeEdit: fState = s_time; break;
+//			case s_separatorEdit: fState = s_separator; break;
+//			case s_dateEdit: fState = s_date; break;
+//			case s_valueEdit: fState = s_value; break;
+//    	}
 
-			case s_hourLarge:
-			case s_minuteLarge:
-			case s_colonLarge:
-				sState = s_timeLarge;
-				break;
-
-			case s_timeEdit: sState = s_time; break;
-			case s_separatorEdit: sState = s_separator; break;
-			case s_dateEdit: sState = s_date; break;
-			case s_valueEdit: sState = s_value; break;
-    	}
+		if (fState==0/*s_top*/)
+		{
+			return new myMenuItemFieldEdit();
+		}
+		else if (fState<=8/*s_chart*/)
+		{
+			fState = 0;
+		}
+		else if (fState<=11/*s_colonLarge*/)
+		{
+			fState = 1/*s_timeLarge*/;
+		}
+		else if (fState<=15/*s_valueEdit*/)
+		{
+			fState -= 10;
+		}
 
     	return null;
     }
@@ -8396,7 +8678,7 @@ class myMenuItemRectangle extends myMenuItem
     	}
     	else if (fState<=12/*r_tap*/)
     	{
-    		fState = (fState-8+val+5)%5 + 8;
+    		fState = (fState+val+5-8)%5 + 8;
     	}
     	else if (fState==13/*r_colorEdit*/)
     	{
