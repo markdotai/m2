@@ -3752,17 +3752,6 @@ class myView
 		][id];
 	}
 
-	function gfxDelete(index)
-	{
-		var id = (gfxData[index] & 0xFF);
-		var size = gfxSize(id);
-		for (var i=index+size; i<gfxNum; i++)
-		{
-			gfxData[i-size] = gfxData[i];
-		}
-		gfxNum -= size;
-	}
-
 	function gfxInsert(index, id)
 	{
 		var size = gfxSize(id);
@@ -5805,6 +5794,17 @@ class myEditorView extends myView
 	var menuFieldGfx = 0;
 	var menuElementGfx = 0;
 
+	function gfxDelete(index)
+	{
+		var id = (gfxData[index] & 0xFF);
+		var size = gfxSize(id);
+		for (var i=index+size; i<gfxNum; i++)
+		{
+			gfxData[i-size] = gfxData[i];
+		}
+		gfxNum -= size;
+	}
+
 	function nextGfx(index)
 	{
 		var id = (gfxData[index] & 0xFF);
@@ -6852,26 +6852,10 @@ class myEditorView extends myView
 
 	function elementDelete()
 	{
-		var nextElement = nextGfx(menuElementGfx);
-		if (nextElement>=0)
+		gfxDelete(menuElementGfx);
+
+		if (menuElementGfx>=afterGfxField(menuFieldGfx))
 		{
-			var diff = nextElement - menuElementGfx;
-			for (var index=nextElement; index<gfxNum; index++)
-			{
-				gfxData[index-diff] = gfxData[index];
-			}			
-
-			gfxNum -= diff;
-
-			if (menuElementGfx>=afterGfxField(menuFieldGfx))
-			{
-				menuElementGfx = prevGfx(menuElementGfx);	// new current position is previous gfx
-			}
-		}
-		else
-		{
-			gfxNum = menuElementGfx;	// new end of array is current position
-
 			menuElementGfx = prevGfx(menuElementGfx);	// new current position is previous gfx
 		}
 
@@ -8448,7 +8432,7 @@ class myMenuItemElementEdit extends myMenuItem
     	else if (fState==(fNumCustom+3))
     	{
 			editorView.elementDelete();
-			if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
+			if (editorView.menuElementGfx>editorView.menuFieldGfx && editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
 			{
 				return new myMenuItemElementSelect();
 			}
