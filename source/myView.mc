@@ -8642,7 +8642,7 @@ class myMenuItemElementAdd extends myMenuItem
     {
     	if (fState==0/*s_top*/)
     	{
-    		if (val<0)
+    		if (val<0 && editorView.menuElementGfx>editorView.menuFieldGfx)
     		{
     			return new myMenuItemElementSelect();
     		}
