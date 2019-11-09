@@ -6073,6 +6073,8 @@ class myEditorView extends myView
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
+    	//drawColorGrid(dc);
+    	
     	// then draw any menus on top
     	var eStr = menuItem.getString();
 		if (eStr != null)
@@ -6087,6 +6089,95 @@ class myEditorView extends myView
     		copyGfxToPropertyString();
 		}
     }
+
+	function drawColorGrid(dc)
+	{
+		var g = [
+			7, 32,
+			7, 33,
+			7, 34,
+			7, 35,
+
+			3, 0,
+			3, 2,
+			3, 4,
+			3, 6,
+			3, 8,
+			3, 10,
+			3, 12,
+			3, 14,
+			3, 16,
+			3, 18,
+			3, 20,
+			3, 22,
+			3, 24,
+			3, 26,
+			3, 28,
+			3, 30,
+			3, 32,
+			3, 34,
+
+			4, 0,
+			4, 6,
+			4, 12,
+			4, 18,
+			4, 24,
+			4, 30,
+
+			2, 0,
+			2, 3,
+			2, 6,
+			2, 9,
+			2, 12,
+			2, 15,
+			2, 18,
+			2, 21,
+			2, 24,
+			2, 27,
+			2, 30,
+			2, 33,
+
+			1, 0,
+			1, 6,
+			1, 12,
+			1, 18,
+			1, 24,
+			1, 30,
+
+			5, 0,
+			5, 3,
+			5, 6,
+			5, 9,
+			5, 12,
+			5, 15,
+			5, 18,
+			5, 21,
+			5, 24,
+			5, 27,
+			5, 30,
+			5, 33,
+
+			6, 0,
+			6, 6,
+			6, 12,
+			6, 18,
+			6, 24,
+			6, 30,
+		]b;
+	
+		for (var i=0; i<64; i++)
+		{
+	        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);
+	        
+	        var i2 = i * 2;
+	        var r = g[i2] * 14;
+	        var a = Math.toRadians(g[i2+1] * 10);
+	        var x = Math.round(r * Math.sin(a));
+	        var y = Math.round(r * Math.cos(a));
+	         
+    		dc.drawText(120 + x, 120 - y, Graphics.FONT_SYSTEM_XTINY, "o", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+		}
+	}
 
 	function safeStringFromArray(arr, index)
 	{
