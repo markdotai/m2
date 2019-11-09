@@ -63,16 +63,16 @@ class myView
 	//}
 	
 	// prop or "property" variables - are the ones which we store in onUpdate, so they don't change when they are used in onPartialUpdate
-	var propBackgroundColor = 0x00000000;
 	var propAddLeadingZero = false;
     var propFieldFontSystemCase = 0;
     var propFieldFontUnsupported = 0;
 	var fontFieldUnsupportedResource = null;
-    var propMoveBarAlertTriggerLevel = 0; 
-    var propBatteryHighPercentage = 75.0;
-	var propBatteryLowPercentage = 25.0;	
-	var prop2ndTimeZoneOffset = 0;
     
+	var propBackgroundColor = 0x00000000;
+    var propBatteryHighPercentage = 75;
+	var propBatteryLowPercentage = 25;	
+	var prop2ndTimeZoneOffset = 0;
+    var propMoveBarAlertTriggerLevel = 1; 
     var propSecondIndicatorOn = false;
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 	var propSecondMoveInABit;
@@ -3719,7 +3719,7 @@ class myView
 	function gfxSize(id)
 	{
 		return [
-			6,		// header
+			8,		// header
 			6,		// field
 			7,		// hour large
 			7,		// minute large
@@ -3737,7 +3737,7 @@ class myView
 	function gfxSizeSave(id)
 	{
 		return [
-			6,		// header
+			8,		// header
 			4,		// field
 			3,		// hour large
 			3,		// minute large
@@ -3779,8 +3779,12 @@ class myView
 			gfxData[index+1] = 0;	// version
 			gfxData[index+2] = 120;	// watch display size
 			gfxData[index+3] = 0+1;	// background color
-			gfxData[index+4] = 3+1;	// default field color
-			gfxData[index+5] = 0;	// default field font
+	    	gfxData[index+4] = 75;	// battery high percentage
+	    	gfxData[index+5] = 25;	// battery low percentage
+			gfxData[index+6] = 24; 	// prop2ndTimeZoneOffset
+    		gfxData[index+7] = 1;	// propMoveBarAlertTriggerLevel
+			//gfxData[index+8] = 3+1;	// default field color
+			//gfxData[index+9] = 0;	// default field font
 		}
 		return index;
 	}
@@ -3969,14 +3973,10 @@ class myView
 
 	function gfxDemo()
 	{
-		propBackgroundColor = getColor64(0);
 		propAddLeadingZero = false;
 		propFieldFontSystemCase = 0;		// get case for system fonts
     	propFieldFontUnsupported = 0;		
-    	propMoveBarAlertTriggerLevel = 0;
-	    propBatteryHighPercentage = 75;
-	    propBatteryLowPercentage = 25;
-		prop2ndTimeZoneOffset = 0;
+
 
 		gfxCharArrayLen = 0;
 
@@ -4335,7 +4335,7 @@ class myView
 		var dateInfoShort = gregorian.info(timeNow, Time.FORMAT_SHORT);
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		var dayNumberOfWeek = (((dateInfoShort.day_of_week - firstDayOfWeek + 7) % 7) + 1);		// 1-7
-		var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 24)%24;		// 2nd time zone
+		var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 48)%24;		// 2nd time zone
 
         // Get the current time and format it correctly
     	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
@@ -4444,10 +4444,16 @@ class myView
 			
 			switch(id)
 			{
-//				case 0:		// header
-//				{
-//					break;
-//				}
+				case 0:		// header
+				{
+					propBackgroundColor = getColor64(gfxData[index+3]-1);
+    				propBatteryHighPercentage = gfxData[index+4];		// 0 to 100
+					propBatteryLowPercentage = gfxData[index+5];		// 0 to 100
+					prop2ndTimeZoneOffset = gfxData[index+6] - 24;		// 24==0 (0 to 48)
+    				propMoveBarAlertTriggerLevel = gfxData[index+7];	// 1 to 5
+
+					break;
+				}
 
 				case 1:		// field
 				{
@@ -5476,7 +5482,7 @@ class myView
 
 						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
 						{ 
-							var col = getColor64((barIsOn || gfxData[index+8]==(COLOR_NOTSET+1)) ? (gfxData[index+3+i]-1) : (gfxData[index+8]-1));
+							var col = ((barIsOn || gfxData[index+8]==(COLOR_NOTSET+1)) ? getColor64(gfxData[index+3+i]-1) : getColor64(gfxData[index+8]-1));
 							
 					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(dateX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -6103,7 +6109,7 @@ class myEditorView extends myView
 		else
 		{
 			var sArray = [
-				"header",
+				"global settings",
 				"field",
 				"hour (large)",
 				"minute (large)",
@@ -6126,7 +6132,7 @@ class myEditorView extends myView
 //		{
 //			case 0:		// header
 //			{
-//				eStr = "header";
+//				eStr = "global settings";
 //				break;
 //			}
 //
@@ -6785,6 +6791,31 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function headerBackgroundColorEditing(val)
+	{
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+64-1)%64 + 1;	// 1 to 64
+	}
+	
+	function headerBatteryEditing(n, val)
+	{
+		var cur = gfxData[menuFieldGfx+4+n];
+		if ((val<0 && cur>=10 && cur<=85) || (val>0 && cur>=15 && cur<=90))
+		{
+			val = val*5;
+		} 
+		gfxData[menuFieldGfx+4+n] = getMinMax(cur-val, 0, 100);	// 0 to 100
+	}
+	
+	function header2ndTimeZoneEditing(val)
+	{
+		gfxData[menuFieldGfx+6] = getMinMax(gfxData[menuFieldGfx+6]-val, 0, 48);	// 0 to 48
+	}
+	
+	function headerMoveBarAlertEditing(val)
+	{
+		gfxData[menuFieldGfx+7] = getMinMax(gfxData[menuFieldGfx+7]-val, 1, 5);		// 1 to 5
+	}
+	
 	function elementVisibilityString()
 	{
 		return getVisibilityString(elementGetVisibility());
@@ -6864,7 +6895,7 @@ class myEditorView extends myView
 
 	function largeColorEditing(val)
 	{
-		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+64)%64;
+		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function largeFontEditing(val)
@@ -6891,7 +6922,7 @@ class myEditorView extends myView
 
 	function stringColorEditing(val)
 	{
-		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64)%64;
+		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function stringFontEditing(val)
@@ -6922,7 +6953,7 @@ class myEditorView extends myView
 
 	function iconColorEditing(val)
 	{
-		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64)%64;
+		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function iconFontEditing(val)
@@ -6939,12 +6970,12 @@ class myEditorView extends myView
 
 	function moveBarColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]+val+64)%64;
+		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]+val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function moveBarColorOffEditing(val)
 	{
-		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]+1+val+65)%65 - 1;		// allow for COLOR_NOTSET (-1)
+		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]+val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 
 	function chartTypeEditing(val)
@@ -6958,12 +6989,12 @@ class myEditorView extends myView
 
 	function chartColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]+val+64)%64;
+		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]+val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function rectangleColorEditing(val)
 	{
-		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]+val+64)%64;
+		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]+val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function rectanglePositionXEditing(val)
@@ -7088,14 +7119,14 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4] + val + 60)%60;
 	}
 	
-	function ringColorFilledEditing(val)
+	function ringFilledColorEditing(val)
 	{
-		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]+val+64)%64;
+		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]+val+64-1)%64 + 1;	// 1 to 64
 	}
 	
-	function ringColorUnfilledEditing(val)
+	function ringUnfilledColorEditing(val)
 	{
-		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]+val+64)%64;
+		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]+val+64-1)%64 + 1;	// 1 to 64
 	}
 	
 	function secondsFontEditing(val)
@@ -7138,7 +7169,14 @@ class myEditorView extends myView
 	
 	function secondsColorEditing(n, val)
 	{
-		gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]+val+64)%64;
+		if (n==0)	/* base color */
+		{
+			gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]+val+64-1)%64 + 1;	// 1 to 64
+		}
+		else		/* optional override colors */
+		{
+			gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]+val+65)%65;		// 0 to 64
+		}
 
 		buildSecondsColorArray(menuFieldGfx);
 	}
@@ -7646,34 +7684,138 @@ class myMenuItemReset extends myMenuItem
 (:m2app)
 class myMenuItemHeader extends myMenuItem
 {
+//	enum
+//	{
+//		f_background,
+//		f_batteryHigh,
+//		f_batteryLow,
+//		f_2ndTime,
+//		f_moveBarAlert,
+//
+//		f_backgroundEdit,
+//		f_batteryHighEdit,
+//		f_batteryLowEdit,
+//		f_2ndTimeEdit,
+//		f_moveBarAlertEdit,
+//	}
+
+	var globalStrings = [
+		"background color",
+		"battery high",
+		"battery low",
+		"2nd time zone offset",
+		"move bar alert level",
+		
+		"editing ...",
+	];
+
+	var fStrings = [
+		0,
+		1,
+		2,
+		3,
+		4,
+		
+		5,
+		5,
+		5,
+		5,
+		5,
+	]b;
+
+	var fState;
+
     function initialize()
     {
     	myMenuItem.initialize();
+
+    	fState = 0;
     }
     
     function getString()
     {
-    	return "header data";
+    	if (fState==6/*f_batteryHighEdit*/)
+    	{
+    		return "" + editorView.propBatteryHighPercentage;
+    	}
+    	else if (fState==7/*f_batteryLowEdit*/)
+    	{
+    		return "" + editorView.propBatteryLowPercentage;
+    	}
+    	else if (fState==8/*f_2ndTimeEdit*/)
+    	{
+    		return "" + editorView.prop2ndTimeZoneOffset;
+    	}
+    	else if (fState==9/*f_moveBarAlertEdit*/)
+    	{
+    		return "" + editorView.propMoveBarAlertTriggerLevel;
+    	}
+    	else
+    	{
+    		return globalStrings[fStrings[fState]];
+    	}
+    }
+    
+    function onEditing(val)
+    {
+		if (fState<=4)
+		{
+			fState = (fState+val+5)%5;    	
+		}
+    	else if (fState==5/*f_backgroundEdit*/)
+    	{
+    		editorView.headerBackgroundColorEditing(val);
+    	}
+    	else if (fState==6/*f_batteryHighEdit*/)
+    	{
+    		editorView.headerBatteryEditing(0, val);
+    	}
+    	else if (fState==7/*f_batteryLowEdit*/)
+    	{
+    		editorView.headerBatteryEditing(1, val);
+    	}
+    	else if (fState==8/*f_2ndTimeEdit*/)
+    	{
+    		editorView.header2ndTimeZoneEditing(val);
+    	}
+    	else if (fState==9/*f_moveBarAlertEdit*/)
+    	{
+    		editorView.headerMoveBarAlertEditing(val);
+    	}
     }
     
     function onNext()
     {
-   		return null;
+   		return onEditing(1);
     }
     
     function onPrevious()
     {
-   		return null;
+   		return onEditing(-1);
     }
     
     function onSelect()
     {
+		if (fState<=4)
+		{
+			fState += 5;    	
+		}
+    	
     	return null;
     }
     
     function onBack()
     {
-   		return new myMenuItemFieldSelect();
+    	if (fState<=4)
+    	{    
+   			return new myMenuItemFieldSelect();
+   		}
+   		else
+   		{
+   			fState -= 5;
+   		}
+
+   		return null;
     }
 }
 
@@ -9316,11 +9458,11 @@ class myMenuItemRing extends myMenuItem
     	}
        	else if (fState==16/*r_colorFilledEdit*/)
     	{
-    		editorView.ringColorFilledEditing(val);
+    		editorView.ringFilledColorEditing(val);
     	}
        	else if (fState==17/*r_colorUnfilledEdit*/)
     	{
-    		editorView.ringColorUnfilledEditing(val);
+    		editorView.ringUnfilledColorEditing(val);
     	}
        	else if (fState==18/*r_visEdit*/)
     	{
@@ -9351,8 +9493,8 @@ class myMenuItemRing extends myMenuItem
 //			case r_startEdit: editorView.ringStartEditing(1); break;
 //			case r_endEdit: editorView.ringEndEditing(1); break;
 //			case r_directionEdit: editorView.ringDirectionEditing(); break;
-//			case r_colorFilledEdit: editorView.ringColorFilledEditing(1); break;
-//			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(1); break;
+//			case r_colorFilledEdit: editorView.ringFilledColorEditing(1); break;
+//			case r_colorUnfilledEdit: editorView.ringUnfilledColorEditing(1); break;
 //			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
 //    	}
 //
@@ -9382,8 +9524,8 @@ class myMenuItemRing extends myMenuItem
 //			case r_startEdit: editorView.ringStartEditing(-1); break;
 //			case r_endEdit: editorView.ringEndEditing(-1); break;
 //			case r_directionEdit: editorView.ringDirectionEditing(); break;
-//			case r_colorFilledEdit: editorView.ringColorFilledEditing(-1); break;
-//			case r_colorUnfilledEdit: editorView.ringColorUnfilledEditing(-1); break;
+//			case r_colorFilledEdit: editorView.ringFilledColorEditing(-1); break;
+//			case r_colorUnfilledEdit: editorView.ringUnfilledColorEditing(-1); break;
 //			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
 //    	}
 //
