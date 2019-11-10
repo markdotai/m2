@@ -3879,12 +3879,12 @@ class myView
 		return index;
 	}
 
-	function gfxAddIcon(index)
+	function gfxAddIcon(index, iconType)
 	{
 		index = gfxInsert(index, 6);
 		if (index>=0)
 		{
-			gfxData[index+1] = 0;	// type
+			gfxData[index+1] = iconType;	// type
 			gfxData[index+2] = 3+1;	// color
 			gfxData[index+3] = 0;	// font
 			// char
@@ -3996,7 +3996,7 @@ class myView
 
 		gfxAddField(gfxNum);	// field
 		gfxAddString(gfxNum, 3/*FIELD_DAY_NAME*/);	// string
-		//gfxAddIcon(gfxNum);	// icon
+		//gfxAddIcon(gfxNum, 0);	// icon
 		gfxAddMoveBar(gfxNum);	// movebar
 		//gfxAddChart(gfxNum);	// chart
 
@@ -6098,13 +6098,7 @@ class myEditorView extends myView
     	
     	//drawColorGrid(dc);
     	
-    	// then draw any menus on top
-    	var eStr = menuItem.getString();
-		if (eStr != null)
-		{
-	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-    		dc.drawText(50, 50, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
-		}
+    	menuItem.draw(dc);    	// then draw any menus on top
 
     	if (true)
     	{
@@ -7315,6 +7309,16 @@ class myMenuItem extends Lang.Object
     function exitApp()
     {
     	return false;
+    }
+    
+    function draw(dc)
+    {
+    	var eStr = getString();
+		if (eStr != null)
+		{
+	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+    		dc.drawText(50, 50, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+		}
     }
     
     function getString()
@@ -8881,6 +8885,7 @@ class myMenuItemElementAdd extends myMenuItem
 //		s_separatorEdit,
 //		s_dateEdit,
 //		s_valueEdit,
+//		s_iconEdit,
 //	}
 
 	var globalStrings = [
@@ -8916,11 +8921,15 @@ class myMenuItemElementAdd extends myMenuItem
 			return globalStrings[fState];
 		}
 		else if (fState<=15/*s_valueEdit*/)
-		{			
+		{
 			if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
 			{
 				return editorView.getStringTypeName(idArray[idIndex]);
 			}
+    	}
+		else if (fState==16/*s_iconEdit*/)
+		{
+			return "editing...";
     	}
 
     	return "unknown";
@@ -8949,6 +8958,10 @@ class myMenuItemElementAdd extends myMenuItem
 			{
 				idIndex = (idIndex+val+idArray.size())%idArray.size();
 			}
+    	}
+		else if (fState==16/*s_iconEdit*/)
+		{
+			editorView.iconTypeEditing(val);
     	}
     
     	return null;
@@ -9046,7 +9059,8 @@ class myMenuItemElementAdd extends myMenuItem
 		}
 		else if (fState==6/*s_icon*/)
 		{
-			index = editorView.gfxAddIcon(afterIndex);
+			editorView.menuElementGfx = editorView.gfxAddIcon(afterIndex, 0);
+			fState += 10;
 		}
 		else if (fState==7/*s_moveBar*/)
 		{
@@ -9074,6 +9088,10 @@ class myMenuItemElementAdd extends myMenuItem
 			{
 				index = editorView.gfxAddString(afterIndex, idArray[idIndex]);
 			}
+    	}
+		else if (fState<=16/*s_iconEdit*/)
+		{
+    		return new myMenuItemElementSelect();
     	}
 
     	if (index>=0)
@@ -9128,7 +9146,11 @@ class myMenuItemElementAdd extends myMenuItem
 		}
 		else if (fState<=15/*s_valueEdit*/)
 		{
-			fState -= 10;
+			fState -= 10;			
+		}
+		else if (fState==16/*s_iconEdit*/)
+		{
+			return new myMenuItemElementSelect();			
 		}
 
     	return null;
