@@ -35,10 +35,10 @@ class myView
 //	{
 //	}
 
-	const PROFILE_VERSION = 21;			// a version number
-	const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
-
+	const GFX_VERSION = 0;			// a version number
+	
 	const PROFILE_NUM_USER = 24;		// number of user profiles
+	const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
 
 	var updateTimeNowValue;
 	var updateTimeTodayValue;
@@ -64,15 +64,16 @@ class myView
 	
 	// prop or "property" variables - are the ones which we store in onUpdate, so they don't change when they are used in onPartialUpdate
 	var propAddLeadingZero = false;
-    var propFieldFontSystemCase = 0;
-    var propFieldFontUnsupported = 0;
-	var fontFieldUnsupportedResource = null;
-    
+
 	var propBackgroundColor = 0x00000000;
     var propBatteryHighPercentage = 75;
 	var propBatteryLowPercentage = 25;	
 	var prop2ndTimeZoneOffset = 0;
     var propMoveBarAlertTriggerLevel = 1; 
+
+    var propFieldFontSystemCase = 0;	// 0, 1, 2
+    var propFieldFontUnsupported = 0;	// 0=tiny to 4=large
+
     var propSecondIndicatorOn = false;
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 	var propSecondMoveInABit;
@@ -186,7 +187,7 @@ class myView
 	{
 		return (hasLTE && (System.getDeviceSettings().connectionInfo[:lte].state==System.CONNECTION_STATE_CONNECTED));
     }
-        	
+    
 	var fieldActivePhoneStatus = null;
 	var fieldActiveNotificationsStatus = null;
 	var fieldActiveNotificationsCount = null;
@@ -1996,7 +1997,7 @@ class myView
 			var charArray = propertiesGetCharArray("EP");		// get the profile string "EP"
 			gfxFromCharArray(charArray);			// load gfx from that
 
-			gfxLoadDynamicResources();
+			gfxLoadDynamicResources(-1);
 //if (showTimer)
 //{
 //	System.println("Timer load0=" + (System.getTimer()-timeStamp) + "ms");
@@ -3630,7 +3631,7 @@ class myView
 	
 		for (var index=0; index<gfxNum; )
 		{
-			var id = (gfxData[index] & 0xFF);
+			var id = getGfxId(index);
 		
 			var saveSize = gfxSizeSave(id);
 			for (var i=0; i<saveSize; i++)
@@ -3716,10 +3717,15 @@ class myView
 		//System.println("");
 	}
 
+	function getGfxId(index)
+	{
+		return (gfxData[index] & 0xFF);
+	}
+	
 	function gfxSize(id)
 	{
 		return [
-			8,		// header
+			10,		// header
 			6,		// field
 			7,		// hour large
 			7,		// minute large
@@ -3737,7 +3743,7 @@ class myView
 	function gfxSizeSave(id)
 	{
 		return [
-			8,		// header
+			10,		// header
 			4,		// field
 			3,		// hour large
 			3,		// minute large
@@ -3776,13 +3782,15 @@ class myView
 		index = gfxInsert(index, 0);
 		if (index>=0)
 		{
-			gfxData[index+1] = 0;	// version
+			gfxData[index+1] = GFX_VERSION;	// version
 			gfxData[index+2] = 120;	// watch display size
 			gfxData[index+3] = 0+1;	// background color
 	    	gfxData[index+4] = 75;	// battery high percentage
 	    	gfxData[index+5] = 25;	// battery low percentage
 			gfxData[index+6] = 24; 	// prop2ndTimeZoneOffset
     		gfxData[index+7] = 1;	// propMoveBarAlertTriggerLevel
+    		gfxData[index+8] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
+    		gfxData[index+9] = 0;	// propFieldFontUnsupported (0=tiny to 4=large)
 			//gfxData[index+8] = 3+1;	// default field color
 			//gfxData[index+9] = 0;	// default field font
 		}
@@ -3974,9 +3982,6 @@ class myView
 	function gfxDemo()
 	{
 		propAddLeadingZero = false;
-		propFieldFontSystemCase = 0;		// get case for system fonts
-    	propFieldFontUnsupported = 0;		
-
 
 		gfxCharArrayLen = 0;
 
@@ -4066,12 +4071,13 @@ class myView
     	return ((i<dynResNum) && (dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
     }
 
-	function gfxLoadDynamicResources()
+	function gfxLoadDynamicResources(fontIndex)
 	{	
     	var fonts = Rez.Fonts;
 		var graphics = Graphics;
 
 		var fontList = [
+		// 0
 			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
 			fonts.id_trivial_extra_light,		// APPFONT_EXTRA_LIGHT
 			fonts.id_trivial_light,				// APPFONT_LIGHT
@@ -4079,6 +4085,7 @@ class myView
 			fonts.id_trivial_bold,				// APPFONT_BOLD
 			fonts.id_trivial_heavy,				// APPFONT_HEAVY
 
+		// 6
 			fonts.id_trivial_ultra_light_tiny,	// APPFONT_ULTRA_LIGHT_TINY
 			fonts.id_trivial_extra_light_tiny,	// APPFONT_EXTRA_LIGHT_TINY
 			fonts.id_trivial_light_tiny,		// APPFONT_LIGHT_TINY
@@ -4098,24 +4105,33 @@ class myView
 			fonts.id_trivial_bold_medium,		// APPFONT_BOLD_MEDIUM
 			fonts.id_trivial_heavy_medium,		// APPFONT_HEAVY_MEDIUM
 
+		// 24
 			graphics.FONT_SYSTEM_XTINY, 			// APPFONT_SYSTEM_XTINY
 			graphics.FONT_SYSTEM_TINY, 				// APPFONT_SYSTEM_TINY
 			graphics.FONT_SYSTEM_SMALL, 			// APPFONT_SYSTEM_SMALL
 			graphics.FONT_SYSTEM_MEDIUM,			// APPFONT_SYSTEM_MEDIUM
 			graphics.FONT_SYSTEM_LARGE,				// APPFONT_SYSTEM_LARGE
+			
+		// 29
 			graphics.FONT_SYSTEM_NUMBER_MILD,		// APPFONT_SYSTEM_NUMBER_NORMAL 
 			graphics.FONT_SYSTEM_NUMBER_MEDIUM,		// APPFONT_SYSTEM_NUMBER_MEDIUM 
 			graphics.FONT_SYSTEM_NUMBER_HOT,		// APPFONT_SYSTEM_NUMBER_LARGE 
 			graphics.FONT_SYSTEM_NUMBER_THAI_HOT,	// APPFONT_SYSTEM_NUMBER_HUGE 
 
-			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT
-			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT
-			fonts.id_trivial_light_italic,			// APPFONT_LIGHT
-			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR
-			fonts.id_trivial_bold_italic,			// APPFONT_BOLD
-			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY
+		// 33
+			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT_ITALIC
+			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT_ITALIC
+			fonts.id_trivial_light_italic,			// APPFONT_LIGHT_ITALIC
+			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR_ITALIC
+			fonts.id_trivial_bold_italic,			// APPFONT_BOLD_ITALIC
+			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY_ITALIC
 		];
-				
+		
+		if (fontIndex>=0)
+		{
+			return addDynamicResource(fontList[fontIndex]);
+		}
+		
 		var secondFontList = [
 			fonts.id_seconds_tri,			// SECONDFONT_TRI
 			fonts.id_seconds_v,				// SECONDFONT_V
@@ -4145,7 +4161,7 @@ class myView
     	
 		for (var index=0; index<gfxNum; )
 		{
-			var id = (gfxData[index] & 0xFF);
+			var id = getGfxId(index);
 			
 			switch(id)
 			{
@@ -4171,7 +4187,6 @@ class myView
 					var resourceIndex = addDynamicResource(fontList[r]);
 					
 					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
-					gfxData[index+2] |= ((r & 0xFF) << 24);		// fontTypeKern
 
 					break;
 				}
@@ -4250,6 +4265,8 @@ class myView
 			
 			index += gfxSize(id);
 		}
+		
+		return null;
 	}
 	
 	function buildSecondsColorArray(index)
@@ -4326,6 +4343,17 @@ class myView
         var minute = clockTime.min;
         var second = clockTime.sec;
         var timeNowInMinutesToday = hour*60 + minute;
+
+		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here as they are used early ...
+		{
+			propBackgroundColor = getColor64(gfxData[0+3]-1);
+			propBatteryHighPercentage = getMinMax(gfxData[0+4], 0, 100);	// 0 to 100
+			propBatteryLowPercentage = getMinMax(gfxData[0+5], 0, 100);		// 0 to 100
+			prop2ndTimeZoneOffset = getMinMax(gfxData[0+6] - 24, -24, 24);	// 24==0 (0 to 48)
+			propMoveBarAlertTriggerLevel = getMinMax(gfxData[0+7], 1, 5);	// 1 to 5
+			propFieldFontSystemCase = getMinMax(gfxData[0+8], 0, 2); 		// (0=any, 1=upper, 2=lower)
+			propFieldFontUnsupported = getMinMax(gfxData[0+9], 0, 4);		// (0=tiny to 4=large)
+		}
 
         var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
 		var activityMonitorInfo = ActivityMonitor.getInfo();  	// 560 bytes, but uses less code memory
@@ -4405,7 +4433,7 @@ class myView
 	
 		for (var index=0; index<gfxNum; )
 		{
-			var id = (gfxData[index] & 0xFF);
+			var id = getGfxId(index);
 			var eVisible = ((gfxData[index] >> 8) & 0xFF);
 
 			var isVisible = true;
@@ -4444,16 +4472,10 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// header
-				{
-					propBackgroundColor = getColor64(gfxData[index+3]-1);
-    				propBatteryHighPercentage = gfxData[index+4];		// 0 to 100
-					propBatteryLowPercentage = gfxData[index+5];		// 0 to 100
-					prop2ndTimeZoneOffset = gfxData[index+6] - 24;		// 24==0 (0 to 48)
-    				propMoveBarAlertTriggerLevel = gfxData[index+7];	// 1 to 5
-
-					break;
-				}
+//				case 0:		// header - handled above before visibility calculations
+//				{
+//					break;
+//				}
 
 				case 1:		// field
 				{
@@ -4488,7 +4510,20 @@ class myView
 						break;
 					}
 					
-					var fontTypeKern = ((gfxData[index+2] >> 24) & 0xFF);
+					var narrowKern = false;
+
+					var fontTypeKern = (gfxData[index+2] & 0xFF);
+					if (fontTypeKern>=6)
+					{
+						if (fontTypeKern>=33 && fontTypeKern<39)	// large italic
+						{
+							fontTypeKern -= 33;
+						}
+						else
+						{
+							fontTypeKern = -1;		// no kerning
+						}
+					}
 
 					var charArray;
 					if (id==2)
@@ -4525,9 +4560,9 @@ class myView
 						gfxData[indexWidthJ] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0 or 1
 						gfxData[indexCurField+4] += gfxData[indexWidthJ];	// total width
 						
-						if (indexPrevLargeWidth>=0 && prevLargeFontKern<6 && fontTypeKern<6)
+						if (indexPrevLargeWidth>=0 && prevLargeFontKern>=0 && fontTypeKern>=0)
 						{
-							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, cNum - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, false);
+							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, cNum - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, narrowKern);
 							gfxData[indexPrevLargeWidth] -= k;
 							gfxData[indexCurField+4] -= k;	// total width
 						}
@@ -4599,14 +4634,14 @@ class myView
 								// can display all diacritics
 								// can display upper & lower case
 							
-								//if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
-								//{
-								//	makeUpperCase = true;
-								//}
-								//else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
-								//{
-								//	eStr = eStr.toLower();
-								//}
+								if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
+								{
+									makeUpperCase = true;
+								}
+								else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
+								{
+									eStr = eStr.toLower();
+								}
 							}
 							else
 							{
@@ -4615,14 +4650,14 @@ class myView
 									useUnsupportedFont = true;
 
 									// will be using system font - so use case for that as specified by user
-									//if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
-									//{
-									//	makeUpperCase = true;
-									//}
-									//else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
-									//{
-									//	eStr = eStr.toLower();
-									//}
+									if (propFieldFontSystemCase==1)	// APPCASE_UPPER = 1
+									{
+										makeUpperCase = true;
+									}
+									else if (propFieldFontSystemCase==2)	// APPCASE_LOWER = 2
+									{
+										eStr = eStr.toLower();
+									}
 								}
 								else
 								{
@@ -4934,17 +4969,14 @@ class myView
 						var sLen = gfxCharArrayLen;
 						var eLen;
 						
-						var dynamicResource;
 						if (useUnsupportedFont)
 						{
-							gfxData[index+3] |= 0x40000000;		// unsupported flag
-							dynamicResource = Graphics.FONT_SYSTEM_SMALL;
+							resourceIndex = gfxLoadDynamicResources(24/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
+							gfxData[index+3] &= ~0x00FF0000;
+							gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
 						}
-						else
-						{
-							gfxData[index+3] &= ~0x40000000;		// unsupported flag
-							dynamicResource = getDynamicResource(resourceIndex);
-						}
+
+						var dynamicResource = getDynamicResource(resourceIndex);
 
 						if (dynamicResource==null)
 						{
@@ -5273,7 +5305,7 @@ class myView
 
 		for (var index=0; index<gfxNum; )
 		{
-			var id = (gfxData[index] & 0xFF);
+			var id = getGfxId(index);
 			var isVisible = ((gfxData[index] & 0x10000) != 0);
 			
 			switch(id)
@@ -5379,17 +5411,8 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
 						{ 
-							var dynamicResource;							
-							if ((gfxData[index+3]&0x40000000)!=0)		// unsupported flag
-							{
-								dynamicResource = graphics.FONT_SYSTEM_SMALL;
-							}
-							else
-							{
-								var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
-								dynamicResource = getDynamicResource(resourceIndex);
-							}
-							
+							var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
+							var dynamicResource = getDynamicResource(resourceIndex);							
 							if (dynamicResource==null)
 							{
 								break;
@@ -5802,7 +5825,7 @@ class myEditorView extends myView
 
 	function gfxDelete(index)
 	{
-		var id = (gfxData[index] & 0xFF);
+		var id = getGfxId(index);
 		var size = gfxSize(id);
 		for (var i=index+size; i<gfxNum; i++)
 		{
@@ -5813,7 +5836,7 @@ class myEditorView extends myView
 
 	function nextGfx(index)
 	{
-		var id = (gfxData[index] & 0xFF);
+		var id = getGfxId(index);
 		var nextIndex = index + gfxSize(id);
 		return ((nextIndex<gfxNum) ? nextIndex : -1);
 	}
@@ -5830,7 +5853,7 @@ class myEditorView extends myView
 			
 			prevIndex = temp;
 
-			var id = (gfxData[temp] & 0xFF);
+			var id = getGfxId(temp);
 			temp += gfxSize(id);
 		}
 		
@@ -5839,7 +5862,7 @@ class myEditorView extends myView
 
 	function gfxIsField(index)
 	{
-		var id = (gfxData[index] & 0xFF);
+		var id = getGfxId(index);
 		return (id<=1 || id>=9);
 		
 //		switch(id)
@@ -6092,6 +6115,7 @@ class myEditorView extends myView
 
 	function drawColorGrid(dc)
 	{
+		// distance from centre (0-7) + clockwise angle (0-36)
 		var g = [
 			7, 32,
 			7, 33,
@@ -6184,11 +6208,6 @@ class myEditorView extends myView
 		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
 	}
 
-	function getGfxId(index)
-	{
-		return (gfxData[index] & 0xFF);
-	}
-	
 	function getGfxName(index)
 	{
 		var id = getGfxId(index);
@@ -6905,6 +6924,16 @@ class myEditorView extends myView
 	function headerMoveBarAlertEditing(val)
 	{
 		gfxData[menuFieldGfx+7] = getMinMax(gfxData[menuFieldGfx+7]-val, 1, 5);		// 1 to 5
+	}
+	
+	function headerFontSystemCaseEditing(val)
+	{
+		gfxData[menuFieldGfx+8] = (gfxData[menuFieldGfx+8]-val+3)%3;		// 0 to 2
+	}
+	
+	function headerFontUnsupportedEditing(val)
+	{
+		gfxData[menuFieldGfx+9] = (gfxData[menuFieldGfx+9]-val+5)%5;		// 0 to 4
 	}
 	
 	function elementVisibilityString()
@@ -7782,12 +7811,16 @@ class myMenuItemHeader extends myMenuItem
 //		f_batteryLow,
 //		f_2ndTime,
 //		f_moveBarAlert,
+//		f_fontSystemCase,
+//		f_fontUnsupported,
 //
 //		f_backgroundEdit,
 //		f_batteryHighEdit,
 //		f_batteryLowEdit,
 //		f_2ndTimeEdit,
 //		f_moveBarAlertEdit,
+//		f_fontSystemCaseEdit,
+//		f_fontUnsupportedEdit,
 //	}
 
 	var globalStrings = [
@@ -7796,6 +7829,8 @@ class myMenuItemHeader extends myMenuItem
 		"battery low",
 		"2nd time zone offset",
 		"move bar alert level",
+		"font system case",
+		"font unsupported",
 		
 		"editing ...",
 	];
@@ -7806,12 +7841,16 @@ class myMenuItemHeader extends myMenuItem
 		2,
 		3,
 		4,
+		5,
+		6,
 		
-		5,
-		5,
-		5,
-		5,
-		5,
+		7,
+		7,
+		7,
+		7,
+		7,
+		7,
+		7,
 	]b;
 
 	var fState;
@@ -7825,21 +7864,29 @@ class myMenuItemHeader extends myMenuItem
     
     function getString()
     {
-    	if (fState==6/*f_batteryHighEdit*/)
+    	if (fState==8/*f_batteryHighEdit*/)
     	{
     		return "" + editorView.propBatteryHighPercentage;
     	}
-    	else if (fState==7/*f_batteryLowEdit*/)
+    	else if (fState==9/*f_batteryLowEdit*/)
     	{
     		return "" + editorView.propBatteryLowPercentage;
     	}
-    	else if (fState==8/*f_2ndTimeEdit*/)
+    	else if (fState==10/*f_2ndTimeEdit*/)
     	{
     		return "" + editorView.prop2ndTimeZoneOffset;
     	}
-    	else if (fState==9/*f_moveBarAlertEdit*/)
+    	else if (fState==11/*f_moveBarAlertEdit*/)
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
+    	}
+    	else if (fState==12/*f_fontSystemCaseEdit*/)
+    	{
+    		return ["any case", "upper case", "lower case"][editorView.propFieldFontSystemCase];
+    	}
+    	else if (fState==13/*f_fontUnsupportedEdit*/)
+    	{
+    		return ["extra tiny", "tiny", "small", "medium", "large"][editorView.propFieldFontUnsupported];
     	}
     	else
     	{
@@ -7849,29 +7896,37 @@ class myMenuItemHeader extends myMenuItem
     
     function onEditing(val)
     {
-		if (fState<=4)
+		if (fState<=6)
 		{
-			fState = (fState+val+5)%5;    	
+			fState = (fState+val+7)%7;    	
 		}
-    	else if (fState==5/*f_backgroundEdit*/)
+    	else if (fState==7/*f_backgroundEdit*/)
     	{
     		editorView.headerBackgroundColorEditing(val);
     	}
-    	else if (fState==6/*f_batteryHighEdit*/)
+    	else if (fState==8/*f_batteryHighEdit*/)
     	{
     		editorView.headerBatteryEditing(0, val);
     	}
-    	else if (fState==7/*f_batteryLowEdit*/)
+    	else if (fState==9/*f_batteryLowEdit*/)
     	{
     		editorView.headerBatteryEditing(1, val);
     	}
-    	else if (fState==8/*f_2ndTimeEdit*/)
+    	else if (fState==10/*f_2ndTimeEdit*/)
     	{
     		editorView.header2ndTimeZoneEditing(val);
     	}
-    	else if (fState==9/*f_moveBarAlertEdit*/)
+    	else if (fState==11/*f_moveBarAlertEdit*/)
     	{
     		editorView.headerMoveBarAlertEditing(val);
+    	}
+    	else if (fState==12/*f_fontSystemCaseEdit*/)
+    	{
+    		editorView.headerFontSystemCaseEditing(val);
+    	}
+    	else if (fState==13/*f_fontUnsupportedEdit*/)
+    	{
+    		editorView.headerFontUnsupportedEditing(val);
     	}
     }
     
@@ -7887,9 +7942,9 @@ class myMenuItemHeader extends myMenuItem
     
     function onSelect()
     {
-		if (fState<=4)
+		if (fState<=6)
 		{
-			fState += 5;    	
+			fState += 7;    	
 		}
     	
     	return null;
@@ -7897,13 +7952,13 @@ class myMenuItemHeader extends myMenuItem
     
     function onBack()
     {
-    	if (fState<=4)
+    	if (fState<=6)
     	{    
    			return new myMenuItemFieldSelect();
    		}
    		else
    		{
-   			fState -= 5;
+   			fState -= 7;
    		}
 
    		return null;
