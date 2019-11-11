@@ -427,31 +427,31 @@ class myView
 //			//     16           17           18          19
 //			// FF00FF       FF00AA       FF0055      FF0000
 //			(0x33<<24) | (0x32<<16) | (0x31<<8) | (0x30),
-//							          // dim.......
+//							          // pale.......
 //			//     20           21           22          23
-//			// FF5500       FFAA00       AAAA55      55AA55
-//			(0x34<<24) | (0x38<<16) | (0x29<<8) | (0x19),
+//			// FF5500       FFAA00       FFFF55      AAFF55
+//			(0x34<<24) | (0x38<<16) | (0x3D<<8) | (0x2D),
 //			//     24           25           26          27
-//			// 55AAAA       5555AA       AA55AA      AA5555
-//			(0x1A<<24) | (0x16<<16) | (0x26<<8) | (0x25),
-//			// pale......
+//			// 55FF55       55FFAA       55FFFF      55AAFF
+//			(0x1D<<24) | (0x1E<<16) | (0x1F<<8) | (0x1B),
 //			//     28           29           30          31
-//			// FFFF55       AAFF55       55FF55      55FFAA
-//			(0x3D<<24) | (0x2D<<16) | (0x1D<<8) | (0x1E),
+//			// 5555FF       AA55FF       FF55FF      FF55AA
+//			(0x17<<24) | (0x27<<16) | (0x37<<8) | (0x36),
+//									  // palest......
 //			//     32           33           34          35
-//			// 55FFFF       55AAFF       5555FF      AA55FF
-//			(0x1F<<24) | (0x1B<<16) | (0x17<<8) | (0x27),
+//			// FF5555       FFAA55       FFFFAA      AAFFAA
+//			(0x35<<24) | (0x39<<16) | (0x3E<<8) | (0x2E),
 //			//     36           37           38          39
-//			// FF55FF       FF55AA       FF5555      FFAA55
-//			(0x37<<24) | (0x36<<16) | (0x35<<8) | (0x39),
-//			// palest......
+//			// AAFFFF       AAAAFF       FFAAFF      FFAAAA
+//			(0x2F<<24) | (0x2B<<16) | (0x3B<<8) | (0x3A),
+//          // dim.......
 //			//     40           41           42          43
-//			// FFFFAA       AAFFAA       AAFFFF      AAAAFF
-//			(0x3E<<24) | (0x2E<<16) | (0x2F<<8) | (0x2B),
+//			// AAAA55       55AA55       55AAAA      5555AA
+//			(0x29<<24) | (0x19<<16) | (0x1A<<8) | (0x16),
 //									  // dark......
 //			//     44           45           46          47
-//			// FFAAFF       FFAAAA       AAAA00      55AA00
-//			(0x3B<<24) | (0x3A<<16) | (0x28<<8) | (0x18),
+//			// AA55AA       AA5555       AAAA00      55AA00
+//			(0x26<<24) | (0x25<<16) | (0x28<<8) | (0x18),
 //			//     48           49           50          51
 //			// 00AA00       00AA55       00AAAA      0055AA
 //			(0x08<<24) | (0x09<<16) | (0x0A<<8) | (0x06),
@@ -1997,7 +1997,7 @@ class myView
 			var charArray = propertiesGetCharArray("EP");		// get the profile string "EP"
 			gfxFromCharArray(charArray);			// load gfx from that
 
-			gfxLoadDynamicResources(-1);
+			gfxAddDynamicResources(-1);
 //if (showTimer)
 //{
 //	System.println("Timer load0=" + (System.getTimer()-timeStamp) + "ms");
@@ -3644,13 +3644,15 @@ class myView
 				
 				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range)
 				
+				//System.print("" + val);
+
 				var c;
 				if (val<31)
 				{
 					c = valEncodeChar(val);
 					charArray[charArrayLen] = c;
 					charArrayLen++;
-					//System.print("" + c.toString() + ", ");
+					//System.print("[" + c.toString() + "], ");
 				}
 				else
 				{
@@ -3660,12 +3662,12 @@ class myView
 					c = valEncodeChar(v0);
 					charArray[charArrayLen] = c;
 					charArrayLen++;
-					//System.print("" + c.toString() + ", ");
+					//System.print("[" + c.toString() + "+");
 
 					c = valEncodeChar(v1);
 					charArray[charArrayLen] = c;
 					charArrayLen++;
-					//System.print("" + c.toString() + ", ");
+					//System.print("" + c.toString() + "], ");
 				}
 			}		
 		
@@ -4071,7 +4073,7 @@ class myView
     	return ((i<dynResNum) && (dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
     }
 
-	function gfxLoadDynamicResources(fontIndex)
+	function gfxAddDynamicResources(fontIndex)
 	{	
     	var fonts = Rez.Fonts;
 		var graphics = Graphics;
@@ -4249,7 +4251,9 @@ class myView
 				{
 					buildSecondsColorArray(index);
 					
-					var r = (gfxData[index+1] & 0xFF);
+					var r = (gfxData[index+1] & 0x00FF);	// font
+					var r2 = (gfxData[index+1] & 0xFF00);	// refresh style
+
 				 	if (r<0 || r>=12/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 0/*SECONDFONT_TRI*/;
@@ -4257,7 +4261,7 @@ class myView
 				 	
 					var resourceIndex = addDynamicResource(secondFontList[r]);
 					
-					gfxData[index+1] = r | ((resourceIndex & 0xFF) << 16);
+					gfxData[index+1] = r | r2 | ((resourceIndex & 0xFF) << 16);
 					
 					break;
 				}
@@ -4971,7 +4975,7 @@ class myView
 						
 						if (useUnsupportedFont)
 						{
-							resourceIndex = gfxLoadDynamicResources(24/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
+							resourceIndex = gfxAddDynamicResources(24/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
 							gfxData[index+3] &= ~0x00FF0000;
 							gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
 						}
@@ -5716,6 +5720,8 @@ class myView
 class myEditorView extends myView
 {
 	var timer;
+	
+	var editorFontResource;
 
     function initialize()
     {
@@ -5724,6 +5730,8 @@ class myEditorView extends myView
 
 	function onLayout(dc)
 	{
+		editorFontResource = WatchUi.loadResource(Rez.Fonts.id_editor);
+
 		myView.onLayout(dc);
 		
 		timer = new Timer.Timer();
@@ -6096,7 +6104,7 @@ class myEditorView extends myView
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
-    	//drawColorGrid(dc);
+    	drawColorGrid(dc);
     	
     	menuItem.draw(dc);    	// then draw any menus on top
 
@@ -6107,16 +6115,18 @@ class myEditorView extends myView
 		}
     }
 
+	var iGrid = -1;
+
 	function drawColorGrid(dc)
 	{
 		// distance from centre (0-7) + clockwise angle (0-36)
 		var g = [
-			7, 32,
+			7, 32,		// grayscale
 			7, 33,
 			7, 34,
 			7, 35,
 
-			3, 0,
+			3, 0,		// bright
 			3, 2,
 			3, 4,
 			3, 6,
@@ -6135,14 +6145,7 @@ class myEditorView extends myView
 			3, 32,
 			3, 34,
 
-			4, 0,
-			4, 6,
-			4, 12,
-			4, 18,
-			4, 24,
-			4, 30,
-
-			2, 0,
+			2, 0,		// pale
 			2, 3,
 			2, 6,
 			2, 9,
@@ -6155,14 +6158,21 @@ class myEditorView extends myView
 			2, 30,
 			2, 33,
 
-			1, 0,
+			1, 0,		// palest
 			1, 6,
 			1, 12,
 			1, 18,
 			1, 24,
 			1, 30,
 
-			5, 0,
+			4, 0,		// dim
+			4, 6,
+			4, 12,
+			4, 18,
+			4, 24,
+			4, 30,
+
+			5, 0,		// dark
 			5, 3,
 			5, 6,
 			5, 9,
@@ -6175,13 +6185,15 @@ class myEditorView extends myView
 			5, 30,
 			5, 33,
 
-			6, 0,
+			6, 0,		// darkest
 			6, 6,
 			6, 12,
 			6, 18,
 			6, 24,
 			6, 30,
 		]b;
+	
+		iGrid = (iGrid+1)%64;
 	
 		for (var i=0; i<64; i++)
 		{
@@ -6193,7 +6205,7 @@ class myEditorView extends myView
 	        var x = Math.round(r * Math.sin(a));
 	        var y = Math.round(r * Math.cos(a));
 	         
-    		dc.drawText(120 + x, 120 - y, Graphics.FONT_SYSTEM_XTINY, "o", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    		dc.drawText(120 + x, 120 - y, editorFontResource, (i==iGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 		}
 	}
 
@@ -7248,7 +7260,8 @@ class myEditorView extends myView
 		var temp = (gfxData[menuFieldGfx+1] & 0xFF);
 		temp = (temp+val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
 		
-		gfxData[menuFieldGfx+1] = temp;
+		gfxData[menuFieldGfx+1] &= ~0x00FF; 
+		gfxData[menuFieldGfx+1] |= temp;
 		reloadDynamicResources = true;
 	}
 

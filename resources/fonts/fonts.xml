@@ -52,6 +52,8 @@
 
 	<font id="id_outer" filename="outer60_240x240.fnt" antialias="true"></font>
 
+	<font id="id_editor" filename="editor.fnt" antialias="true"></font>
+
 <!-- 
 	<font id="id_circle" filename="circle_240x240.fnt" antialias="true"></font>
 	<font id="id_circle" filename="world.fnt" antialias="true"></font>
