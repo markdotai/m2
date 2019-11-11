@@ -6206,6 +6206,15 @@ class myEditorView extends myView
 	        var y = Math.round(r * Math.cos(a));
 	         
     		dc.drawText(120 + x, 120 - y, editorFontResource, (i==iGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    		
+    		// editorfont
+    		// A = small circle
+    		// B = circle
+    		// C = up triangle
+    		// D = down triangle
+    		// E = left triangle
+    		// F = right triangle
+    		// G = rotating arrow
 		}
 	}
 
