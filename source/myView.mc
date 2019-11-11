@@ -2056,7 +2056,7 @@ class myView
 		bufferIndex = -1;		// clear any background buffer being known
 
 		// draw the seconds indicator to the screen
-		if (propSecondIndicatorOn)
+		if (propSecondIndicatorOn && doDrawGfx)
 		{
         	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
         	{
@@ -2088,6 +2088,8 @@ class myView
 //	var outerOffscreenStart;
 //	var outerOffscreenEnd;
 	var outerValues = new[24]b;
+
+	var doDrawGfx = true;
 
 	function drawBackgroundToDc(useDc)
 	{ 
@@ -2127,7 +2129,10 @@ class myView
 		//}
         useDc.clear();
 		
-		gfxDrawBackground(useDc, dcX, dcY, toBuffer);
+		if (doDrawGfx)
+		{
+			gfxDrawBackground(useDc, dcX, dcY, toBuffer);
+		}
 
 //		if (propDemoDisplayOn)
 //		{
@@ -5973,6 +5978,8 @@ class myEditorView extends myView
 
     function onSelect()		// tap right top
     {
+		switchColorEditing();	// do this before menu handles select so that we don't change when first start editing a color
+
     	var newMenuItem = menuItem.onSelect();
     	if (newMenuItem!=null)
     	{
@@ -6094,6 +6101,10 @@ class myEditorView extends myView
 		}
 	}
 
+	var doDrawFace = true;
+	var doDrawColorGrid = true;
+	var getColorGfxIndex = -1;
+
     function onUpdate(dc)
     {
     	if (reloadDynamicResources)
@@ -6102,12 +6113,19 @@ class myEditorView extends myView
 			copyGfxToPropertyString();
     	}
     
+    	doDrawGfx = (doDrawFace || !(getColorGfxIndex>=0 && doDrawColorGrid));
+    
     	myView.onUpdate(dc);	// draw the normal watchface
     	
-    	drawColorGrid(dc);
-    	
-    	menuItem.draw(dc);    	// then draw any menus on top
-
+    	if (getColorGfxIndex>=0 && doDrawColorGrid)
+		{
+    		drawColorGrid(dc);
+    	}
+    	else
+		{
+	    	menuItem.draw(dc);    	// then draw any menus on top
+		}
+		
     	if (true)
     	{
     		// make sure "EP" is up to date at the end of every frame!
@@ -6115,7 +6133,35 @@ class myEditorView extends myView
 		}
     }
 
-	var iGrid = -1;
+	function startColorEditing(gfxIndex)
+	{
+		getColorGfxIndex = gfxIndex;
+	}
+
+	function switchColorEditing()
+	{
+		if (getColorGfxIndex>=0)
+		{
+			if (doDrawFace && doDrawColorGrid)
+			{
+				doDrawFace = false;
+			}
+			else if (!doDrawFace)
+			{
+				doDrawFace = true;
+				doDrawColorGrid = false;
+			}
+			else
+			{
+				doDrawColorGrid = true;
+			}
+		}
+	}
+
+	function endColorEditing()
+	{
+		getColorGfxIndex = -1;
+	}
 
 	function drawColorGrid(dc)
 	{
@@ -6125,6 +6171,26 @@ class myEditorView extends myView
 			7, 33,
 			7, 34,
 			7, 35,
+
+			1, 0,		// palest
+			1, 6,
+			1, 12,
+			1, 18,
+			1, 24,
+			1, 30,
+
+			2, 0,		// pale
+			2, 3,
+			2, 6,
+			2, 9,
+			2, 12,
+			2, 15,
+			2, 18,
+			2, 21,
+			2, 24,
+			2, 27,
+			2, 30,
+			2, 33,
 
 			3, 0,		// bright
 			3, 2,
@@ -6144,26 +6210,6 @@ class myEditorView extends myView
 			3, 30,
 			3, 32,
 			3, 34,
-
-			2, 0,		// pale
-			2, 3,
-			2, 6,
-			2, 9,
-			2, 12,
-			2, 15,
-			2, 18,
-			2, 21,
-			2, 24,
-			2, 27,
-			2, 30,
-			2, 33,
-
-			1, 0,		// palest
-			1, 6,
-			1, 12,
-			1, 18,
-			1, 24,
-			1, 30,
 
 			4, 0,		// dim
 			4, 6,
@@ -6193,7 +6239,7 @@ class myEditorView extends myView
 			6, 30,
 		]b;
 	
-		iGrid = (iGrid+1)%64;
+		var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
 	
 		for (var i=0; i<64; i++)
 		{
@@ -6205,7 +6251,7 @@ class myEditorView extends myView
 	        var x = Math.round(r * Math.sin(a));
 	        var y = Math.round(r * Math.cos(a));
 	         
-    		dc.drawText(120 + x, 120 - y, editorFontResource, (i==iGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    		dc.drawText(120 + x, 120 - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
     		
     		// editorfont
     		// A = small circle
@@ -6918,7 +6964,7 @@ class myEditorView extends myView
 
 	function headerBackgroundColorEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+64-1)%64 + 1;	// 1 to 64
 	}
 	
 	function headerBatteryEditing(n, val)
@@ -7030,7 +7076,7 @@ class myEditorView extends myView
 
 	function largeColorEditing(val)
 	{
-		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function largeFontEditing(val)
@@ -7057,7 +7103,7 @@ class myEditorView extends myView
 
 	function stringColorEditing(val)
 	{
-		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function stringFontEditing(val)
@@ -7088,7 +7134,7 @@ class myEditorView extends myView
 
 	function iconColorEditing(val)
 	{
-		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function iconFontEditing(val)
@@ -7105,12 +7151,12 @@ class myEditorView extends myView
 
 	function moveBarColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
-	function moveBarColorOffEditing(val)
+	function moveBarOffColorEditing(val)
 	{
-		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]+val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
+		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 
 	function chartTypeEditing(val)
@@ -7124,12 +7170,12 @@ class myEditorView extends myView
 
 	function chartColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function rectangleColorEditing(val)
 	{
-		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function rectanglePositionXEditing(val)
@@ -7256,12 +7302,12 @@ class myEditorView extends myView
 	
 	function ringFilledColorEditing(val)
 	{
-		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 	
 	function ringUnfilledColorEditing(val)
 	{
-		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]+val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 	
 	function secondsFontEditing(val)
@@ -7307,11 +7353,11 @@ class myEditorView extends myView
 	{
 		if (n==0)	/* base color */
 		{
-			gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]+val+64-1)%64 + 1;	// 1 to 64
+			gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]-val+64-1)%64 + 1;	// 1 to 64
 		}
 		else		/* optional override colors */
 		{
-			gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]+val+65)%65;		// 0 to 64
+			gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]-val+65)%65;		// 0 to 64
 		}
 
 		buildSecondsColorArray(menuFieldGfx);
@@ -7970,6 +8016,11 @@ class myMenuItemHeader extends myMenuItem
     {
 		if (fState<=6)
 		{
+			if (fState==0/*f_background*/)
+			{
+				editorView.startColorEditing(editorView.menuFieldGfx+3);
+			}
+		
 			fState += 7;    	
 		}
     	
@@ -7984,6 +8035,11 @@ class myMenuItemHeader extends myMenuItem
    		}
    		else
    		{
+   			//if (fState==7/*f_backgroundEdit*/)
+   			//{
+				editorView.endColorEditing();
+   			//}
+   		
    			fState -= 7;
    		}
 
@@ -8700,7 +8756,7 @@ class myMenuItemElementEdit extends myMenuItem
 		    	}
 		    	else if (fState==numTop+6)
 		    	{
-		    		editorView.moveBarColorOffEditing(val);
+		    		editorView.moveBarOffColorEditing(val);
 		    	}
 		    }
     		else if (fId==8)	// chart
@@ -8731,9 +8787,47 @@ class myMenuItemElementEdit extends myMenuItem
     
     function onSelect()
     {
+		var numTop = fNumCustom+4;
+
     	if (fState<(fNumCustom+1))
     	{
-			fState += (fNumCustom+4);
+			fState += numTop;
+
+    		if (fId>=2 && fId<=4)	// large
+    		{
+		    	if (fState==numTop)
+		    	{
+		    		editorView.startColorEditing(editorView.menuElementGfx+1);
+		    	}
+		    }
+    		else if (fId==5)	// string
+    		{
+		    	if (fState==numTop)
+		    	{
+		    		editorView.startColorEditing(editorView.menuElementGfx+2);
+		    	}
+		    }
+    		else if (fId==6)	// icon
+    		{
+		    	if (fState==numTop+1)
+		    	{
+		    		editorView.startColorEditing(editorView.menuElementGfx+2);
+		    	}
+		    }
+    		else if (fId==7)	// movebar
+    		{
+		    	if (fState>numTop && fState<=numTop+6)
+		    	{
+		    		editorView.startColorEditing(editorView.menuElementGfx+3+fState-(numTop+1));
+		    	}
+		    }
+    		else if (fId==8)	// chart
+    		{
+		    	if (fState>numTop && fState<=numTop+2)
+		    	{
+		    		editorView.startColorEditing(editorView.menuElementGfx+2+fState-(numTop+1));
+		    	}
+		    }
     	}
     	else if (fState==(fNumCustom+1))
     	{
@@ -8784,13 +8878,17 @@ class myMenuItemElementEdit extends myMenuItem
     
     function onBack()
     {
-    	if (fState<(fNumCustom+4))
+		var numTop = fNumCustom+4;
+
+    	if (fState<numTop)
     	{
 			return new myMenuItemElementSelect();
     	}
     	else
     	{
-			fState -= (fNumCustom+4);
+    		editorView.endColorEditing();
+
+			fState -= numTop;
     	}
     
 //    	switch (fState)
@@ -9451,6 +9549,11 @@ class myMenuItemRectangle extends myMenuItem
     	else
     	{
     		fState = [13, 8, 16, 17, 18, 5, 6, 7, 14, 15, 10, 11, 12, 13, 14, 15, 16, 17, 18]b[fState];
+
+    		if (fState==13/*r_colorEdit*/)
+	    	{
+	    		editorView.startColorEditing(editorView.menuFieldGfx+1);
+	    	}
     	}
 
     	return null;
@@ -9492,6 +9595,11 @@ class myMenuItemRectangle extends myMenuItem
     	}
     	else if (fState<=18/*r_visEdit*/)
     	{
+    		//if (fState==13/*r_colorEdit*/)
+	    	//{
+	    		editorView.endColorEditing();
+	    	//}
+
     		fState = [1, 1, 1, 1, 1, 0, 8, 9, 2, 3, 4]b[fState-8];
     	}
 
@@ -9754,6 +9862,15 @@ class myMenuItemRing extends myMenuItem
     	if (fState<=7/*r_vis*/)
     	{
     		fState += 11;
+
+	       	if (fState==16/*r_colorFilledEdit*/)
+	    	{
+	    		editorView.startColorEditing(editorView.menuFieldGfx+5);
+	    	}
+	       	else if (fState==17/*r_colorUnfilledEdit*/)
+	    	{
+	    		editorView.startColorEditing(editorView.menuFieldGfx+6);
+	    	}
     	}
     	else if (fState==8/*r_earlier*/)
     	{
@@ -9805,6 +9922,11 @@ class myMenuItemRing extends myMenuItem
     	}
     	else
     	{
+	       	//if (fState==16/*r_colorFilledEdit*/ || fState==17/*r_colorUnfilledEdit*/)
+	    	//{
+	    		editorView.endColorEditing();
+	    	//}
+
     		fState -= 11;
     	}
 
@@ -10038,6 +10160,11 @@ class myMenuItemSeconds extends myMenuItem
     	if (fState<=7/*s_vis*/)
     	{
     		fState += 9;
+
+	    	if (fState>=11/*s_colorEdit*/ && fState<=15/*s_color0Edit*/)
+	    	{
+	    		editorView.startColorEditing(editorView.menuFieldGfx+fState+2-11/*s_colorEdit*/);
+	    	}
     	}
     	else if (fState==8/*s_delete*/)
     	{
@@ -10079,6 +10206,11 @@ class myMenuItemSeconds extends myMenuItem
     	}
     	else
     	{
+	    	//if (fState>=11/*s_colorEdit*/ && fState<=15/*s_color0Edit*/)
+	    	//{
+	    		editorView.endColorEditing();
+	    	//}
+
     		fState -= 9;
     	}
 
