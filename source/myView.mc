@@ -40,6 +40,9 @@ class myView
 	const PROFILE_NUM_USER = 24;		// number of user profiles
 	const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
 
+	var displaySize = 240;
+	var displayHalf = 120;
+
 	var updateTimeNowValue;
 	var updateTimeTodayValue;
 	var updateTimeZoneOffset;
@@ -72,7 +75,7 @@ class myView
     var propMoveBarAlertTriggerLevel = 1; 
 
     var propFieldFontSystemCase = 0;	// 0, 1, 2
-    var propFieldFontUnsupported = 0;	// 0=tiny to 4=large
+    var propFieldFontUnsupported = 1;	// 0=xtiny to 4=large
 
     var propSecondIndicatorOn = false;
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
@@ -1181,6 +1184,9 @@ class myView
 		hasPressureHistory = SensorHistory has :getPressureHistory;
 		hasHeartRateHistory = SensorHistory has :getHeartRateHistory;
 
+		displaySize = dc.getWidth();
+		displayHalf = displaySize/2;
+
 		// need to seed the random number generator?
 		//var clockTime = System.getClockTime();
 		//var seed = clockTime.sec + clockTime.min*60 + clockTime.hour*(60*60) + System.getTimer();
@@ -2093,7 +2099,7 @@ class myView
 
 	function drawBackgroundToDc(useDc)
 	{ 
-		var graphics = Graphics;
+//		var graphics = Graphics;
 	
 		var dcX;
 		var dcY;
@@ -2116,8 +2122,8 @@ class myView
 			dcY = 0;
 		}
 
-		var dcWidth = useDc.getWidth();
-		var dcHeight = useDc.getHeight();
+//		var dcWidth = useDc.getWidth();
+//		var dcHeight = useDc.getHeight();
 
     	// reset to the background color
 		useDc.clearClip();
@@ -3790,14 +3796,14 @@ class myView
 		if (index>=0)
 		{
 			gfxData[index+1] = GFX_VERSION;	// version
-			gfxData[index+2] = 120;	// watch display size
+			gfxData[index+2] = displaySize;	// watch display size
 			gfxData[index+3] = 0+1;	// background color
 	    	gfxData[index+4] = 75;	// battery high percentage
 	    	gfxData[index+5] = 25;	// battery low percentage
 			gfxData[index+6] = 24; 	// prop2ndTimeZoneOffset
     		gfxData[index+7] = 1;	// propMoveBarAlertTriggerLevel
     		gfxData[index+8] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
-    		gfxData[index+9] = 0;	// propFieldFontUnsupported (0=tiny to 4=large)
+    		gfxData[index+9] = 1;	// propFieldFontUnsupported (0=xtiny to 4=large)
 			//gfxData[index+8] = 3+1;	// default field color
 			//gfxData[index+9] = 0;	// default field font
 		}
@@ -3809,8 +3815,8 @@ class myView
 		index = gfxInsert(index, 1);
 		if (index>=0)
 		{
-			gfxData[index+1] = 120;	// x from left
-			gfxData[index+2] = 120;	// y from bottom
+			gfxData[index+1] = displayHalf;	// x from left
+			gfxData[index+2] = displayHalf;	// y from bottom
 			gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
 			// total width
 			// x adjustment
@@ -3942,8 +3948,8 @@ class myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 120-10;	// x from left
-			gfxData[index+3] = 120-10;	// y from bottom
+			gfxData[index+2] = displayHalf;	// x from left
+			gfxData[index+3] = displayHalf;	// y from bottom
 			gfxData[index+4] = 20;	// width
 			gfxData[index+5] = 20;	// height
 		}
@@ -4361,7 +4367,7 @@ class myView
 			prop2ndTimeZoneOffset = getMinMax(gfxData[0+6] - 24, -24, 24);	// 24==0 (0 to 48)
 			propMoveBarAlertTriggerLevel = getMinMax(gfxData[0+7], 1, 5);	// 1 to 5
 			propFieldFontSystemCase = getMinMax(gfxData[0+8], 0, 2); 		// (0=any, 1=upper, 2=lower)
-			propFieldFontUnsupported = getMinMax(gfxData[0+9], 0, 4);		// (0=tiny to 4=large)
+			propFieldFontUnsupported = getMinMax(gfxData[0+9], 0, 4);		// (0=xtiny to 4=large)
 		}
 
         var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
@@ -5307,10 +5313,10 @@ class myView
 		var dcHeight = dc.getHeight();
 
 		var fieldDraw = false;
-		var fieldXStart = 120;
-		var fieldYStart = 120;
+		var fieldXStart = displayHalf;
+		var fieldYStart = displayHalf;
 
-		var fieldX = 120;
+		var fieldX = displayHalf;
 
 		for (var index=0; index<gfxNum; )
 		{
@@ -5337,7 +5343,7 @@ class myView
 					var totalWidth = gfxData[index+4];
 
 					fieldXStart = gfxData[index+1] - dcX + gfxData[index+5];	// add x adjustment
-					fieldYStart = 240 - gfxData[index+2] - dcY;
+					fieldYStart = displaySize - gfxData[index+2] - dcY;
 			
 					if (gfxData[index+3]==0)	// centre justification
 					{
@@ -5557,8 +5563,8 @@ class myView
 
 					var w = gfxData[index+4];
 					var h = gfxData[index+5];
-					var x = gfxData[index+2] - dcX;
-					var y = 240 - gfxData[index+3] - dcY - h;
+					var x = gfxData[index+2] - dcX - w/2;
+					var y = displaySize - gfxData[index+3] - dcY - h/2;
 
 					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
@@ -6251,7 +6257,7 @@ class myEditorView extends myView
 	        var x = Math.round(r * Math.sin(a));
 	        var y = Math.round(r * Math.cos(a));
 	         
-    		dc.drawText(120 + x, 120 - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    		dc.drawText(displayHalf + x, displayHalf - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
     		
     		// editorfont
     		// A = small circle
@@ -6842,22 +6848,22 @@ class myEditorView extends myView
 
 	function fieldPositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, 240);
+		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, displaySize);
 	}
 
 	function fieldPositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, 240);
+		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
 	}
 
 	function fieldPositionCentreX()
 	{
-		gfxData[menuFieldGfx+1] = 120;
+		gfxData[menuFieldGfx+1] = displayHalf;
 	}
 
 	function fieldPositionCentreY()
 	{
-		gfxData[menuFieldGfx+2] = 120;
+		gfxData[menuFieldGfx+2] = displayHalf;
 	}
 
 	function fieldGetAlignment()
@@ -7180,48 +7186,32 @@ class myEditorView extends myView
 
 	function rectanglePositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, 240);
+		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
 	}
 
 	function rectanglePositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = getMinMax(gfxData[menuFieldGfx+3]-val, 0, 240);
+		gfxData[menuFieldGfx+3] = getMinMax(gfxData[menuFieldGfx+3]-val, 0, displaySize);
 	}
 
 	function rectanglePositionCentreX()
 	{
-		gfxData[menuFieldGfx+2] = 120 - gfxData[menuFieldGfx+4]/2;
+		gfxData[menuFieldGfx+2] = displayHalf;
 	}
 
 	function rectanglePositionCentreY()
 	{
-		gfxData[menuFieldGfx+3] = 120 - gfxData[menuFieldGfx+5]/2;
+		gfxData[menuFieldGfx+3] = displayHalf;
 	}
 
 	function rectangleWidthEditing(val)
 	{
-		if ((val>0) && (gfxData[menuFieldGfx+4]%2)==0)
-		{
-			gfxData[menuFieldGfx+2] += 1;
-		}
-		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]-val, 1, 240);
-		if ((val<0) && (gfxData[menuFieldGfx+4]%2)==0)
-		{
-			gfxData[menuFieldGfx+2] -= 1;
-		}
+		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]-val, 1, displaySize);
 	}
 
 	function rectangleHeightEditing(val)
 	{
-		if ((val>0) && (gfxData[menuFieldGfx+5]%2)==0)
-		{
-			gfxData[menuFieldGfx+3] += 1;
-		}
-		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]-val, 1, 240);
-		if ((val<0) && (gfxData[menuFieldGfx+5]%2)==0)
-		{
-			gfxData[menuFieldGfx+3] -= 1;
-		}
+		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]-val, 1, displaySize);
 	}
 
 	function ringTypeString()
@@ -7385,7 +7375,8 @@ class myMenuItem extends Lang.Object
 		if (eStr != null)
 		{
 	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-    		dc.drawText(50, 50, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+    		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+    		dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_TINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
 		}
     }
     
