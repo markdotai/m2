@@ -1642,16 +1642,16 @@ class myView
 	{
 	}
 	
-	function getPresetProfileString(profileIndex)
+	function getPresetProfileString(profileIndex, n)
 	{
 		var jsonData = Rez.JsonData;
 		var loadPreset = [jsonData.id_preset0, jsonData.id_preset1, jsonData.id_preset2, jsonData.id_preset3, jsonData.id_preset4, jsonData.id_preset5, jsonData.id_preset6, jsonData.id_preset7, jsonData.id_preset8, jsonData.id_preset9, jsonData.id_preset10, jsonData.id_preset11, jsonData.id_preset12, jsonData.id_preset13, jsonData.id_preset14, jsonData.id_preset15, jsonData.id_preset16];
-		return WatchUi.loadResource(loadPreset[profileIndex - PROFILE_NUM_USER]);
+		return WatchUi.loadResource(loadPreset[profileIndex - PROFILE_NUM_USER])[n];
 	}
 
 	function getProfileString(profileIndex)
 	{
-		return ((profileIndex<PROFILE_NUM_USER) ? applicationStorage.getValue("P" + profileIndex) : getPresetProfileString(profileIndex));
+		return ((profileIndex<PROFILE_NUM_USER) ? applicationStorage.getValue("P" + profileIndex) : getPresetProfileString(profileIndex, 1));
 	}
 	
 	function profileTimeString(t, isSunrise, isSunset)
@@ -3640,6 +3640,8 @@ class myView
 		var charArray = new[1024];
 		var charArrayLen = 0;
 	
+		//System.println("gfxNum=" + gfxNum);
+
 		for (var index=0; index<gfxNum; )
 		{
 			var id = getGfxId(index);
@@ -3692,22 +3694,35 @@ class myView
 
 	function gfxFromCharArray(charArray)
 	{
+		var gotError = false;
 		var charArraySize = charArray.size();
 
 		gfxNum = 0;
 
-		for (var index=0; index<charArraySize; )
+		for (var index=0; index<charArraySize && !gotError; )
 		{
 			var id = 0;
 		
 			var saveSize = 1;
 			for (var i=0; i<saveSize; i++)
 			{
+				if (index>=charArraySize)
+				{
+					gotError = true;
+					break;
+				}
+
 				var v = valDecodeChar(charArray[index]);
 				index++;
 
 				if (v>=31)
 				{
+					if (index>=charArraySize)
+					{
+						gotError = true;
+						break;
+					}
+
 					var v1 = valDecodeChar(charArray[index]);
 					index++;
 					v = (v-31)*62 + v1;
@@ -3724,7 +3739,19 @@ class myView
 				}
 			}
 			
-			gfxNum += gfxSize(id);
+			var size = gfxSize(id);
+			if (size <= 0)
+			{
+				gotError = true; 
+			}
+
+			gfxNum += size;
+		}
+
+		if (gotError || gfxNum<gfxSize(0) || getGfxId(0)!=0)	// check no error and header gfx at start
+		{
+			gfxNum = 0; 
+			gfxAddHeader(gfxNum);	
 		}
 
 		//System.println("");
@@ -3737,6 +3764,11 @@ class myView
 	
 	function gfxSize(id)
 	{
+		if (id<0 || id>11)
+		{
+			return 0;
+		}
+	
 		return [
 			10,		// header
 			6,		// field
@@ -3755,6 +3787,11 @@ class myView
 
 	function gfxSizeSave(id)
 	{
+		if (id<0 || id>11)
+		{
+			return 0;
+		}
+
 		return [
 			10,		// header
 			4,		// field
@@ -4084,6 +4121,15 @@ class myView
     	return ((i<dynResNum) && (dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
     }
 
+	function gfxScalePositionSize(index, origSize)
+	{
+		// adjust sizes so they convert backwards & forwards to be the same (by adding 0.5)
+		if (origSize!=displaySize) 
+		{
+			gfxData[index] = (gfxData[index]*displaySize + origSize/2)/origSize;
+		}		
+	}
+
 	function gfxAddDynamicResources(fontIndex)
 	{	
     	var fonts = Rez.Fonts;
@@ -4171,6 +4217,8 @@ class myView
 		
     	propSecondIndicatorOn = false;
 		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
+
+		var origSize = 240;
     	
 		for (var index=0; index<gfxNum; )
 		{
@@ -4178,15 +4226,19 @@ class myView
 			
 			switch(id)
 			{
-//				case 0:		// header
-//				{
-//					break;
-//				}
+				case 0:		// header
+				{
+					origSize = getMinMax(gfxData[index+2], 218, 280);	// displaysize stored in gfx
+					gfxData[index+2] = displaySize;	// everything will be updated to match the real displaysize of this watch
+					break;
+				}
 				
-//				case 1:		// field
-//				{
-//					break;
-//				}
+				case 1:		// field
+				{
+					gfxScalePositionSize(index+1, origSize);	// x from left
+					gfxScalePositionSize(index+2, origSize);	// y from bottom
+					break;
+				}
 				
 				case 2:		// hour large
 				case 3:		// minute large
@@ -4243,10 +4295,14 @@ class myView
 //					break;
 //				}
 				
-//				case 9:		// rectangle
-//				{
-//					break;
-//				}
+				case 9:		// rectangle
+				{
+					gfxScalePositionSize(index+2, origSize);	// x from left
+					gfxScalePositionSize(index+3, origSize);	// y from bottom
+					gfxScalePositionSize(index+4, origSize);	// width
+					gfxScalePositionSize(index+5, origSize);	// height
+					break;
+				}
 				
 				case 10:	// ring
 				{
@@ -6964,7 +7020,17 @@ class myEditorView extends myView
 	function fieldDeleteAll()
 	{
 		menuFieldGfx = 0;
-		gfxNum = nextGfxField(0);
+		
+		if (getGfxId(0)==0)		// should be a header gfx at 0
+		{
+			gfxNum = nextGfxField(0);
+		}
+		else
+		{
+			gfxNum = 0; 
+			gfxAddHeader(gfxNum);	
+		}
+		
 		reloadDynamicResources = true;
 	}
 
@@ -7551,7 +7617,25 @@ class myMenuItemFieldAdd extends myMenuItem
 	{
 		if (fState==0/*s_top*/)
 		{
-			return ((val>0) ? new myMenuItemQuickAdd() : new myMenuItemFieldSelect());
+			if (val>0)
+			{
+				return new myMenuItemQuickAdd();
+			}
+			else
+			{
+				// set menuFieldGfx to the last field
+				for (editorView.menuFieldGfx = 0; ;)
+				{
+					var nextIndex = editorView.nextGfxField(editorView.menuFieldGfx);
+					if (nextIndex<0)
+					{
+						break;
+					}
+					editorView.menuFieldGfx = nextIndex;
+				}
+
+				return new myMenuItemFieldSelect();
+			}
 		}
 		else
 		{
@@ -7732,7 +7816,14 @@ class myMenuItemSaveLoadProfile extends myMenuItem
     {
     	if (editing)
     	{
-    		return "" + (profileIndex+1);
+    		if (type!=2)
+    		{
+    			return "" + (profileIndex+1);
+    		}
+    		else
+    		{
+    			return "" + (profileIndex+1) + ". " + editorView.getPresetProfileString(profileIndex, 0);
+    		}
     	}
 		else
 		{

@@ -20,10 +20,6 @@
         <settingConfig type="numeric" />
     </setting>
 
-    <setting propertyKey="@Properties.0" title="@Strings.ProfileNameTitle">
-        <settingConfig type="alphaNumeric" maxLength="20" />
-    </setting>
-
     <setting propertyKey="@Properties.PD" title="@Strings.ProfileDaysTitle">
         <settingConfig type="numeric" />
     </setting>

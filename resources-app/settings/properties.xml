@@ -3,7 +3,6 @@
 
     <property id="PM" type="number">0</property>			<!-- profile management -->
     <property id="PN" type="number">1</property>			<!-- profile number -->
-    <property id="0" type="string"></property>				<!-- profile name -->
 
     <property id="pg" type="boolean">false</property>		<!-- position got -->
     <property id="lo" type="float">0</property>				<!-- longitude -->

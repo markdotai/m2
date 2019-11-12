@@ -1,12 +1,10 @@
 <strings>
     <string id="AppName">M2 App</string>
 
-    <string id="ExportProfileTitle">Export/Import Profile Text (use profile management above)</string>
+    <string id="ExportProfileTitle">Profile Text (for current display)</string>
 
-    <string id="ProfileManagementTitle">Profile Management (save/load settings above to watch/profile)</string>
-    <string id="ProfileNumberTitle">Profile Number To Save/Load (1-24) (or presets 25+)</string>
-
-    <string id="ProfileNameTitle">Profile Name (limited to 20 characters)</string>
+    <string id="ProfileManagementTitle">Profile Management (save/load display to profile number)</string>
+    <string id="ProfileNumberTitle">Profile Number (to save/load 1-24) (or presets 25+)</string>
 
     <string id="ProfileCurrent">Current Profile</string>
     <string id="ProfileLoad">Load Profile</string>

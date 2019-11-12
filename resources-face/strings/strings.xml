@@ -3,12 +3,15 @@
 
     <string id="HonestyTitle">Honesty Box</string>
 
-    <string id="ExportProfileTitle">Export/Import Profile Text (use profile management above)</string>
+    <string id="ExportProfileTitle">Profile Text (for current display)</string>
 
-    <string id="ProfileManagementTitle">Profile Management (save/load settings above to watch/profile)</string>
-    <string id="ProfileNumberTitle">Profile Number To Save/Load (1-24) (or presets 25+)</string>
+    <string id="ProfileManagementTitle">Profile Management (save/load display to profile number)</string>
+    <string id="ProfileNumberTitle">Profile Number (to save/load 1-24) (or presets 25+)</string>
 
-    <string id="ProfileNameTitle">Profile Name (limited to 20 characters)</string>
+    <string id="ProfileCurrent">Current Profile</string>
+    <string id="ProfileLoad">Load Profile</string>
+    <string id="ProfileSave">Save Profile</string>
+    
     <string id="ProfileDaysTitle">Profile Activation Days (of week 1-7, e.g. 456 or 71 or 1234567)</string>
     <string id="ProfileStartTimeTitle">Profile Start Time [Sunrise+-] HH:MM (activate from this time)</string>
     <string id="ProfileEndTimeTitle">Profile End Time [Sunset+-] HH:MM (activate until this time)</string>
@@ -22,8 +25,4 @@
 	<string id="SunAltitudeAdjustTitle">Sunrise/Sunset Altitude Adjustment</string>
 	<string id="NonActiveCalorieOverrideTitle">Non-Active Calorie Override (0 for not set, or BMR x 1.2)</string>
 
-    <string id="ProfileCurrent">Current Profile</string>
-    <string id="ProfileLoad">Load Profile</string>
-    <string id="ProfileSave">Save Profile</string>
-    
 </strings>
