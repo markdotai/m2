@@ -4419,6 +4419,7 @@ class myView
 						prevLargeNumber = cNum;
 						prevLargeFontKern = fontTypeKern;
 
+						// for last digit in current field (if it is large font)
 						if (j!=0)
 						{
 							gfxData[indexCurField+5] = 0;	// remove existing x adjustment
@@ -4854,6 +4855,7 @@ class myView
 							gfxData[index+5] = eLen;	// string end
 							gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
 							gfxData[indexCurField+4] += gfxData[index+6];	// total width
+							gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 						}					
 					}
 					else
@@ -4897,6 +4899,7 @@ class myView
 						gfxData[index+4] = c;	// char
 						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
+						gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 				    }
 
 					break;
@@ -4932,6 +4935,7 @@ class myView
 					}
 					
 					gfxData[indexCurField+4] += gfxData[index+10];	// total width					
+					gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
 				}
@@ -4951,6 +4955,7 @@ class myView
 
 					gfxData[index+4] = (axesSide ? 55 : 51);	// width
 					gfxData[indexCurField+4] += gfxData[index+4];	// total width					
+					gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
 				}
@@ -5221,6 +5226,11 @@ class myView
 
 					var timeY = fieldYStart - graphics.getFontAscent(dynamicResource) + 30;
 					
+//	// font ascent & font height are all over the place with system fonts on different watches
+//	// - have to hard code some values for each font and for each watch?
+//	dc.setColor(graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+//	dc.fillRectangle(fieldX, timeY, gfxData[index+4]+gfxData[index+6], graphics.getFontHeight(dynamicResource));
+
         			//System.println("ascent=" + graphics.getFontAscent(dynamicResource));
 					
 					if (gfxData[index+4]>0)	// width 1
@@ -5795,7 +5805,7 @@ class myEditorView extends myView
 			gfxData[index+6] = 3+1;	// color 4
 			gfxData[index+7] = 3+1;	// color 5
 			gfxData[index+8] = COLOR_NOTSET+1;	// color off
-			// level
+			// level to draw
 			// width
 
 			reloadDynamicResources = true;
@@ -7477,14 +7487,31 @@ class myMenuItem extends Lang.Object
 (:m2app)
 class myMenuItemExitApp extends myMenuItem
 {
+	var doExit = false;
+	
     function initialize()
     {   	
     	myMenuItem.initialize();
     }
     
+    function getString()
+    {
+    	return "press back to exit";
+    }
+    
     function exitApp()
     {
-    	return true;
+    	return doExit;
+    }
+
+    function onSelect()
+    {
+		return new myMenuItemFieldSelect();
+    }
+    
+    function onBack()
+    {
+    	doExit = true;
     }
 }
 
