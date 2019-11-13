@@ -7511,7 +7511,9 @@ class myMenuItemExitApp extends myMenuItem
     
     function onBack()
     {
-    	doExit = true;
+    	var ret = new myMenuItemExitApp();
+    	ret.doExit = true;
+    	return ret;
     }
 }
 
