@@ -1265,7 +1265,7 @@ class myView
 		
 //System.println("Timer loadprof=" + (System.getTimer()-timeStamp) + "ms");
 
-		gfxDemo();
+		//gfxDemo();
     }
 
 	function saveDataForStop()
@@ -2540,7 +2540,7 @@ class myView
 		{
 			if (profileGlance<0)
 			{
-				if (profileTimeData[profileActive*6 + 5]>=0 && profileTimeData[profileActive*6 + 5]<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+				if (profileActive>=0 && profileActive<PROFILE_NUM_USER && profileTimeData[profileActive*6 + 5]>=0 && profileTimeData[profileActive*6 + 5]<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 				{
 					doActivate = profileTimeData[profileActive*6 + 5];
 					profileGlanceReturn = profileActive;	// return to this profile after glance 
@@ -2564,7 +2564,7 @@ class myView
 		
 		if (!(glanceActive && profileGlance>=0) && timeNowValue>=profileDelayEnd)
 		{
-			doActivate = 0;		// assume want to be in normal watch settings
+			var autoActivate = -1;		// not found one to activate yet
 
 			var dateInfoShort = Time.Gregorian.info(timeNow, Time.FORMAT_SHORT);
 			var nowDayNumber = (dateInfoShort.day_of_week+5)%7;		// 1=Sun, 2=Mon 3=Tue, etc so convert to 0=Mon, 1=Tue ... 6=Sun
@@ -2578,7 +2578,7 @@ class myView
 			
 			for (var i=0; i<PROFILE_NUM_USER; i++)
 			{
-				if (doActivate==0)	// not found a profile to activate yet
+				if (autoActivate<0)	// not found a profile to activate yet
 				{
 					var startTime = profileTimeData[i*6 + 0];
 					var endTime = profileTimeData[i*6 + 1];
@@ -2597,7 +2597,7 @@ class myView
 					{
 						if (timeNowInMinutesToday>=startTime && timeNowInMinutesToday<endTime && (dayFlags&(0x01<<nowDayNumber))!=0)	// current day set?
 						{
-							doActivate = i;
+							autoActivate = i;
 						}
 					}
 					else
@@ -2606,7 +2606,7 @@ class myView
 						if ((timeNowInMinutesToday>=startTime && (dayFlags&(0x01<<nowDayNumber))!=0) ||			// current day 
 							(timeNowInMinutesToday<endTime && (dayFlags&(0x01<<prevDayNumber))!=0))				// previous day
 						{
-							doActivate = i;
+							autoActivate = i;
 						}
 					}
 				}
@@ -2621,8 +2621,13 @@ class myView
 				}
 			}
 			
-			// doActivate must be in range (0 to PROFILE_NUM_USER-1) when we get here
-			if ((profileTimeData[doActivate*6 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
+			if (autoActivate>=0)
+			{
+				doActivate = autoActivate;
+			}
+			
+			// check for random activates
+			if (doActivate>=0 && doActivate<PROFILE_NUM_USER && (profileTimeData[doActivate*6 + 3]&0x10/*PROFILE_BLOCK_MASK*/)==0)
 			{
 				if (profileRandom>=0)					// random already active
 				{
@@ -2680,7 +2685,7 @@ class myView
 
 			if (demoProfilesOn /*|| forceDemoProfiles*/)
 			{
-				if (doActivate!=0)
+				if (autoActivate>=0)
 				{
 					// end current demo profile
 					demoProfilesCurrentEnd = 0;
@@ -2733,22 +2738,11 @@ class myView
 		}
 	}
 	
-	var reloadDynamicResources = false;
-
-	(:m2face)
 	function checkReloadDynamicResources()
 	{
 		return false;
 	}
 	
-	(:m2app)
-	function checkReloadDynamicResources()
-	{
-		var temp = reloadDynamicResources;
-		reloadDynamicResources = false; 
-		return temp;
-	}
-
 	var dayWeekYearCalculatedDay = [-1, -1, -1];	// dayOfYear, ISO, Calendar
 	var dayOfYear;		// the day number of the year (0-364)
 	var ISOWeek;		// in ISO format the first week of the year always includes the first Thursday
@@ -3847,223 +3841,6 @@ class myView
 		return index;
 	}
 
-	function gfxAddField(index)
-	{
-		index = gfxInsert(index, 1);
-		if (index>=0)
-		{
-			gfxData[index+1] = displayHalf;	// x from left
-			gfxData[index+2] = displayHalf;	// y from bottom
-			gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
-			// total width
-			// x adjustment
-		}
-		return index;
-	}
-
-	function gfxAddHourLarge(index)
-	{
-		index = gfxInsert(index, 2);
-		if (index>=0)
-		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
-			// string 0
-			// width 0
-			// string 1
-			// width 1
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddMinuteLarge(index)
-	{
-		index = gfxInsert(index, 3);
-		if (index>=0)
-		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
-			// string 0
-			// width 0
-			// string 1
-			// width 1
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddColonLarge(index)
-	{
-		index = gfxInsert(index, 4);
-		if (index>=0)
-		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
-			// string 0 dummy
-			// width 0 dummy
-			// string 1
-			// width 1
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddString(index, dataType)
-	{
-		index = gfxInsert(index, 5);
-		if (index>=0)
-		{
-			gfxData[index+1] = dataType;		// type
-			gfxData[index+2] = 3+1;	// color
-			gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
-			// string start
-			// string end
-			// width
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddIcon(index, iconType)
-	{
-		index = gfxInsert(index, 6);
-		if (index>=0)
-		{
-			gfxData[index+1] = iconType;	// type
-			gfxData[index+2] = 3+1;	// color
-			gfxData[index+3] = 0;	// font
-			// char
-			// width
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddMoveBar(index)
-	{
-		index = gfxInsert(index, 7);
-		if (index>=0)
-		{
-			gfxData[index+1] = 0;	// type
-			gfxData[index+2] = 0;	// font
-			gfxData[index+3] = 3+1;	// color 1
-			gfxData[index+4] = 3+1;	// color 2
-			gfxData[index+5] = 3+1;	// color 3
-			gfxData[index+6] = 3+1;	// color 4
-			gfxData[index+7] = 3+1;	// color 5
-			gfxData[index+8] = COLOR_NOTSET+1;	// color off
-			// level
-			// width
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddChart(index)
-	{
-		index = gfxInsert(index, 8);
-		if (index>=0)
-		{
-			gfxData[index+1] = 0;	// type
-			gfxData[index+2] = 3+1;	// color chart
-			gfxData[index+3] = 3+1;	// color axes
-			// width
-		}
-		return index;
-	}
-
-	function gfxAddRectangle(index)
-	{
-		index = gfxInsert(index, 9);
-		if (index>=0)
-		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = displayHalf;	// x from left
-			gfxData[index+3] = displayHalf;	// y from bottom
-			gfxData[index+4] = 20;	// width
-			gfxData[index+5] = 20;	// height
-		}
-		return index;
-	}
-
-	function gfxAddRing(index)
-	{
-		index = gfxInsert(index, 10);
-		if (index>=0)
-		{
-			gfxData[index+1] = 0;	// type & direction
-			gfxData[index+2] = 0;	// font
-			gfxData[index+3] = 0;	// start
-			gfxData[index+4] = 59;	// end
-			gfxData[index+5] = 3+1;	// color filled
-			gfxData[index+6] = 0+1;	// color unfilled
-			// start fill, end fill & no fill flag
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddSeconds(index)
-	{
-		index = gfxInsert(index, 11);
-		if (index>=0)
-		{
-			gfxData[index+1] = 0;			// font
-			gfxData[index+1] |= (0 << 8);	// refresh style
-			gfxData[index+2] = 3+1; // color
-			gfxData[index+3] = COLOR_NOTSET+1; // color5
-			gfxData[index+4] = COLOR_NOTSET+1; // color10
-			gfxData[index+5] = COLOR_NOTSET+1; // color15
-			gfxData[index+6] = COLOR_NOTSET+1; // color0
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxDemo()
-	{
-		propAddLeadingZero = false;
-
-		gfxCharArrayLen = 0;
-
-		gfxNum = 0;
-		
-		gfxAddHeader(gfxNum);	// header	
-
-		gfxAddField(gfxNum);	// field	
-		gfxAddHourLarge(gfxNum);	// large hour 
-		gfxAddColonLarge(gfxNum);	// large colon
-		gfxAddMinuteLarge(gfxNum);	// large minute
-
-		gfxAddField(gfxNum);	// field
-		gfxAddString(gfxNum, 3/*FIELD_DAY_NAME*/);	// string
-		//gfxAddIcon(gfxNum, 0);	// icon
-		gfxAddMoveBar(gfxNum);	// movebar
-		//gfxAddChart(gfxNum);	// chart
-
-		gfxAddField(gfxNum);	// field
-		gfxAddRing(gfxNum);		// ring
-
-		gfxAddRectangle(gfxNum);	// rectangle
-
-		gfxAddSeconds(gfxNum);	// seconds
-
-		//gfxToCharArray();
-		//System.println("array=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
-		//gfxFromCharArray();
-		//gfxToCharArray();
-		//System.println("arra2=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
-	}
-	
 	// seconds, ring, hour, minute, icon, field
 	const MAX_DYNAMIC_RESOURCES = 16;
 	
@@ -5898,6 +5675,232 @@ class myEditorView extends myView
 	var menuFieldGfx = 0;
 	var menuElementGfx = 0;
 
+	var reloadDynamicResources = false;
+
+	function checkReloadDynamicResources()
+	{
+		var temp = reloadDynamicResources;
+		reloadDynamicResources = false; 
+		return temp;
+	}
+
+	function gfxAddField(index)
+	{
+		index = gfxInsert(index, 1);
+		if (index>=0)
+		{
+			gfxData[index+1] = displayHalf;	// x from left
+			gfxData[index+2] = displayHalf;	// y from bottom
+			gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
+			// total width
+			// x adjustment
+		}
+		return index;
+	}
+
+	function gfxAddHourLarge(index)
+	{
+		index = gfxInsert(index, 2);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			// string 0
+			// width 0
+			// string 1
+			// width 1
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddMinuteLarge(index)
+	{
+		index = gfxInsert(index, 3);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			// string 0
+			// width 0
+			// string 1
+			// width 1
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddColonLarge(index)
+	{
+		index = gfxInsert(index, 4);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			// string 0 dummy
+			// width 0 dummy
+			// string 1
+			// width 1
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddString(index, dataType)
+	{
+		index = gfxInsert(index, 5);
+		if (index>=0)
+		{
+			gfxData[index+1] = dataType;		// type
+			gfxData[index+2] = 3+1;	// color
+			gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
+			// string start
+			// string end
+			// width
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddIcon(index, iconType)
+	{
+		index = gfxInsert(index, 6);
+		if (index>=0)
+		{
+			gfxData[index+1] = iconType;	// type
+			gfxData[index+2] = 3+1;	// color
+			gfxData[index+3] = 0;	// font
+			// char
+			// width
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddMoveBar(index)
+	{
+		index = gfxInsert(index, 7);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type
+			gfxData[index+2] = 0;	// font
+			gfxData[index+3] = 3+1;	// color 1
+			gfxData[index+4] = 3+1;	// color 2
+			gfxData[index+5] = 3+1;	// color 3
+			gfxData[index+6] = 3+1;	// color 4
+			gfxData[index+7] = 3+1;	// color 5
+			gfxData[index+8] = COLOR_NOTSET+1;	// color off
+			// level
+			// width
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddChart(index)
+	{
+		index = gfxInsert(index, 8);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type
+			gfxData[index+2] = 3+1;	// color chart
+			gfxData[index+3] = 3+1;	// color axes
+			// width
+		}
+		return index;
+	}
+
+	function gfxAddRectangle(index)
+	{
+		index = gfxInsert(index, 9);
+		if (index>=0)
+		{
+			gfxData[index+1] = 3+1;	// color
+			gfxData[index+2] = displayHalf;	// x from left
+			gfxData[index+3] = displayHalf;	// y from bottom
+			gfxData[index+4] = 20;	// width
+			gfxData[index+5] = 20;	// height
+		}
+		return index;
+	}
+
+	function gfxAddRing(index)
+	{
+		index = gfxInsert(index, 10);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;	// type & direction
+			gfxData[index+2] = 0;	// font
+			gfxData[index+3] = 0;	// start
+			gfxData[index+4] = 59;	// end
+			gfxData[index+5] = 3+1;	// color filled
+			gfxData[index+6] = 0+1;	// color unfilled
+			// start fill, end fill & no fill flag
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+	function gfxAddSeconds(index)
+	{
+		index = gfxInsert(index, 11);
+		if (index>=0)
+		{
+			gfxData[index+1] = 0;			// font
+			gfxData[index+1] |= (0 << 8);	// refresh style
+			gfxData[index+2] = 3+1; // color
+			gfxData[index+3] = COLOR_NOTSET+1; // color5
+			gfxData[index+4] = COLOR_NOTSET+1; // color10
+			gfxData[index+5] = COLOR_NOTSET+1; // color15
+			gfxData[index+6] = COLOR_NOTSET+1; // color0
+
+			reloadDynamicResources = true;
+		}
+		return index;
+	}
+
+//	function gfxDemo()
+//	{
+//		propAddLeadingZero = false;
+//
+//		gfxCharArrayLen = 0;
+//
+//		gfxNum = 0;
+//		
+//		gfxAddHeader(gfxNum);	// header	
+//
+//		gfxAddField(gfxNum);	// field	
+//		gfxAddHourLarge(gfxNum);	// large hour 
+//		gfxAddColonLarge(gfxNum);	// large colon
+//		gfxAddMinuteLarge(gfxNum);	// large minute
+//
+//		gfxAddField(gfxNum);	// field
+//		gfxAddString(gfxNum, 3/*FIELD_DAY_NAME*/);	// string
+//		//gfxAddIcon(gfxNum, 0);	// icon
+//		gfxAddMoveBar(gfxNum);	// movebar
+//		//gfxAddChart(gfxNum);	// chart
+//
+//		gfxAddField(gfxNum);	// field
+//		gfxAddRing(gfxNum);		// ring
+//
+//		gfxAddRectangle(gfxNum);	// rectangle
+//
+//		gfxAddSeconds(gfxNum);	// seconds
+//
+//		//gfxToCharArray();
+//		//System.println("array=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
+//		//gfxFromCharArray();
+//		//gfxToCharArray();
+//		//System.println("arra2=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
+//	}
+	
 	function gfxDelete(index)
 	{
 		var id = getGfxId(index);
@@ -7157,8 +7160,7 @@ class myEditorView extends myView
 		var f = [0, 1, 2, 3, 4, 5, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
 		
 		var temp = (gfxData[menuElementGfx+2] & 0xFF);
-		var i = f.indexOf(temp);
-		i = i+val;
+		var i = f.indexOf(temp) - val;
 		
 		if (i<0)
 		{
@@ -7182,7 +7184,7 @@ class myEditorView extends myView
 	{
 		var temp = (gfxData[menuElementGfx+3] & 0xFF);
 		// 6 to 28
-		temp = temp+val;
+		temp = temp - val;
 		if (temp>28)
 		{
 			temp = 6;

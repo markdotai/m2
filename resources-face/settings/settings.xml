@@ -1,9 +1,5 @@
 <settings>
 
-    <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle">
-        <settingConfig type="boolean" />
-    </setting>
-
     <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
         <settingConfig type="alphaNumeric" maxLength="1024" />
     </setting>
@@ -58,6 +54,10 @@
 
     <setting propertyKey="@Properties.NC" title="@Strings.NonActiveCalorieOverrideTitle">
         <settingConfig type="numeric" />
+    </setting>
+
+    <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle">
+        <settingConfig type="boolean" />
     </setting>
 
 </settings>
