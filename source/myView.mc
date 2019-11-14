@@ -4408,34 +4408,34 @@ class myView
 						gfxData[indexWidthJ] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0 or 1
 						gfxData[indexCurField+4] += gfxData[indexWidthJ];	// total width
 						
-						if (indexPrevLargeWidth>=0 && prevLargeFontKern>=0 && fontTypeKern>=0)
-						{
-							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, cNum - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, narrowKern);
-							gfxData[indexPrevLargeWidth] -= k;
-							gfxData[indexCurField+4] -= k;	// total width
-						}
+//						if (indexPrevLargeWidth>=0 && prevLargeFontKern>=0 && fontTypeKern>=0)
+//						{
+//							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, cNum - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, narrowKern);
+//							gfxData[indexPrevLargeWidth] -= k;
+//							gfxData[indexCurField+4] -= k;	// total width
+//						}
 						
 						indexPrevLargeWidth = indexWidthJ;
 						prevLargeNumber = cNum;
 						prevLargeFontKern = fontTypeKern;
 
 						// for last digit in current field (if it is large font)
-						if (j!=0)
-						{
-							gfxData[indexCurField+5] = 0;	// remove existing x adjustment
-							if (gfxData[indexCurField+3]==0)	// centre justification
-							{
-								//if (italic font)
-								//{
-								//	gfxData[indexCurField+5] += 1;	// shift right 1 pixel
-								//}
-								
-								if ((cNum - 48/*APPCHAR_0*/) == 4)		// last digit is a 4 
-								{
-									gfxData[indexCurField+5] += 1;	// shift right 1 more pixel
-								}
-							}
-						}
+//						if (j!=0)
+//						{
+//							gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+//							if (gfxData[indexCurField+3]==0)	// centre justification
+//							{
+//								//if (italic font)
+//								//{
+//								//	gfxData[indexCurField+5] += 1;	// shift right 1 pixel
+//								//}
+//								
+//								if ((cNum - 48/*APPCHAR_0*/) == 4)		// last digit is a 4 
+//								{
+//									gfxData[indexCurField+5] += 1;	// shift right 1 more pixel
+//								}
+//							}
+//						}
 					}
 					
 					break;
