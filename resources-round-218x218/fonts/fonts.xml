@@ -1,5 +1,6 @@
 <fonts>
 
+	<font id="id_trivial_ultra_light" filename="TrivialUltraLight70Mono218.fnt" antialias="true"></font>
 	<font id="id_trivial_regular" filename="TrivialRegular70Mono218.fnt" antialias="true"></font>
 	<font id="id_trivial_heavy" filename="TrivialHeavy70Mono218.fnt" antialias="true"></font>
 	
