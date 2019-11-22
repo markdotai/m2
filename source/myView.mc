@@ -3914,12 +3914,12 @@ class myView
 
 		var fontList = [
 		// 0
-			fonts.id_trivial_ultra_light,		// APPFONT_ULTRA_LIGHT
-			fonts.id_trivial_extra_light,		// APPFONT_EXTRA_LIGHT
-			fonts.id_trivial_light,				// APPFONT_LIGHT
-			fonts.id_trivial_regular,			// APPFONT_REGULAR
-			fonts.id_trivial_bold,				// APPFONT_BOLD
-			fonts.id_trivial_heavy,				// APPFONT_HEAVY
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
 
 		// 6
 			fonts.id_trivial_ultra_light_tiny,	// APPFONT_ULTRA_LIGHT_TINY
@@ -3961,6 +3961,28 @@ class myView
 			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR_ITALIC
 			fonts.id_trivial_bold_italic,			// APPFONT_BOLD_ITALIC
 			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY_ITALIC
+
+		// 39
+			fonts.id_large_s_1,		// large font minus (ultra light)
+			fonts.id_large_s_2,		// large font minus (extra light)
+			fonts.id_large_s_3,		// large font minus (light)
+			fonts.id_large_s_4,		// large font minus (regular)
+			fonts.id_large_s_5,		// large font minus (bold)
+			fonts.id_large_s_6,		// large font minus (heavy)
+		// 45
+			fonts.id_large_m_1,		// large font (ultra light)
+			fonts.id_large_m_2,		// large font (extra light)
+			fonts.id_large_m_3,		// large font (light)
+			fonts.id_large_m_4,		// large font (regular)
+			fonts.id_large_m_5,		// large font (bold)
+			fonts.id_large_m_6,		// large font (heavy)
+		// 51
+			fonts.id_large_l_1,		// large font plus (ultra light)
+			fonts.id_large_l_2,		// large font plus (extra light)
+			fonts.id_large_l_3,		// large font plus (light)
+			fonts.id_large_l_4,		// large font plus (regular)
+			fonts.id_large_l_5,		// large font plus (bold)
+			fonts.id_large_l_6,		// large font plus (heavy)
 		];
 		
 		if (fontIndex>=0)
@@ -4022,9 +4044,9 @@ class myView
 				case 4:		// colon large
 				{
 					var r = (gfxData[index+2] & 0xFF);
-				 	if (r<0 || r>38)
+				 	if (r<6 || r>56)
 				 	{
-				 		r = 3/*APPFONT_REGULAR*/;
+				 		r = 48/*large font (regular)*/;
 				 	}
 					var resourceIndex = addDynamicResource(fontList[r]);
 					
@@ -4036,7 +4058,7 @@ class myView
 				case 5:		// string
 				{
 					var r = (gfxData[index+3] & 0xFF);
-				 	if (r<0 || r>38)
+				 	if (r<6 || r>56)
 				 	{
 				 		r = 15/*APPFONT_REGULAR_SMALL*/;
 				 	}
@@ -4363,9 +4385,13 @@ class myView
 					var fontTypeKern = (gfxData[index+2] & 0xFF);
 					if (fontTypeKern>=6)
 					{
-						if (fontTypeKern>=33 && fontTypeKern<39)	// large italic
+						if (fontTypeKern>=33 && fontTypeKern<=38)	// large italic
 						{
 							fontTypeKern -= 33;
+						}
+						else if (fontTypeKern>=39 && fontTypeKern<=56)	// large mono
+						{
+							fontTypeKern = (fontTypeKern - 39)%6;
 						}
 						else
 						{
@@ -7166,8 +7192,8 @@ class myEditorView extends myView
 
 	function largeFontEditing(val)
 	{
-		// 0-5, 33-38, 29-32
-		var f = [0, 1, 2, 3, 4, 5, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
+		// 39-56, 33-38, 29-32
+		var f = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
 		
 		var temp = (gfxData[menuElementGfx+2] & 0xFF);
 		var i = f.indexOf(temp) - val;

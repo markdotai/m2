@@ -1,10 +1,24 @@
 <fonts>
 
-	<font id="id_trivial_ultra_light" filename="TrivialUltraLight70Mono260.fnt" antialias="true"></font>
-	<font id="id_trivial_extra_light" filename="TrivialExtraLight70Mono260.fnt" antialias="true"></font>
-	<font id="id_trivial_light" filename="TrivialLight70Mono260.fnt" antialias="true"></font>
-	<font id="id_trivial_regular" filename="TrivialRegular70Mono260.fnt" antialias="true"></font>
-	<font id="id_trivial_bold" filename="TrivialBold70Mono260.fnt" antialias="true"></font>
-	<font id="id_trivial_heavy" filename="TrivialHeavy70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_s_1" filename="TrivialUltraLight70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_s_2" filename="TrivialExtraLight70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_s_3" filename="TrivialLight70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_s_4" filename="TrivialRegular70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_s_5" filename="TrivialBold70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_s_6" filename="TrivialHeavy70Mono240.fnt" antialias="true"></font>
+
+	<font id="id_large_m_1" filename="TrivialUltraLight70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_m_2" filename="TrivialExtraLight70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_m_3" filename="TrivialLight70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_m_4" filename="TrivialRegular70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_m_5" filename="TrivialBold70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_m_6" filename="TrivialHeavy70Mono260.fnt" antialias="true"></font>
+
+	<font id="id_large_l_1" filename="TrivialUltraLight70Mono280.fnt" antialias="true"></font>
+	<font id="id_large_l_2" filename="TrivialExtraLight70Mono280.fnt" antialias="true"></font>
+	<font id="id_large_l_3" filename="TrivialLight70Mono280.fnt" antialias="true"></font>
+	<font id="id_large_l_4" filename="TrivialRegular70Mono280.fnt" antialias="true"></font>
+	<font id="id_large_l_5" filename="TrivialBold70Mono280.fnt" antialias="true"></font>
+	<font id="id_large_l_6" filename="TrivialHeavy70Mono280.fnt" antialias="true"></font>
 	
 </fonts>
