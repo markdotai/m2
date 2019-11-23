@@ -3874,6 +3874,16 @@ class myView
 		return ((i<dynResNum) ? dynResResource[i] : null);
 	}
 
+	function getDynamicResourceAscent(i)
+	{
+		return ((i<dynResNum) ? Graphics.getFontAscent(dynResResource[i]) : 0);
+	}
+
+	function getDynamicResourceHeight(i)
+	{
+		return ((i<dynResNum) ? Graphics.getFontHeight(dynResResource[i]) : 0);
+	}
+
     function releaseDynamicResources()
     {
 		for (var i=0; i<dynResNum; i++)
@@ -4355,7 +4365,8 @@ class myView
 					fieldVisible = isVisible;
 
 					gfxData[index+4] = 0;	// total width
-					gfxData[index+5] = 0;	// no x adjustment yet
+					gfxData[index+5] = 0;	// ascent
+					//gfxData[index+5] = 0;	// no x adjustment yet
 					
 					break;
 				}
@@ -4463,6 +4474,8 @@ class myView
 //							}
 //						}
 					}
+
+					gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
 					
 					break;
 				}
@@ -4881,7 +4894,8 @@ class myView
 							gfxData[index+5] = eLen;	// string end
 							gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
 							gfxData[indexCurField+4] += gfxData[index+6];	// total width
-							gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+							gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+							//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 						}					
 					}
 					else
@@ -4925,7 +4939,8 @@ class myView
 						gfxData[index+4] = c;	// char
 						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
-						gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+						gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+						//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 				    }
 
 					break;
@@ -4960,8 +4975,9 @@ class myView
 						gfxData[index+10] += w + ((i<4) ? -5 : 0);
 					}
 					
-					gfxData[indexCurField+4] += gfxData[index+10];	// total width					
-					gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+					gfxData[indexCurField+4] += gfxData[index+10];	// total width
+					gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
 				}
@@ -4981,7 +4997,8 @@ class myView
 
 					gfxData[index+4] = (axesSide ? 55 : 51);	// width
 					gfxData[indexCurField+4] += gfxData[index+4];	// total width					
-					gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+					gfxData[indexCurField+5] = getMinMax(20/*heartChartHeight*/, gfxData[indexCurField+5], displaySize);		// store max ascent in field
+					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
 				}
@@ -5206,7 +5223,7 @@ class myView
 
 					var totalWidth = gfxData[index+4];
 
-					fieldXStart = gfxData[index+1] - dcX + gfxData[index+5];	// add x adjustment
+					fieldXStart = gfxData[index+1] - dcX; // + gfxData[index+5];	// add x adjustment
 					fieldYStart = displaySize - gfxData[index+2] - dcY;
 			
 					if (gfxData[index+3]==0)	// centre justification
@@ -5250,14 +5267,14 @@ class myView
 						break;
 					}
 
-					var timeY = fieldYStart - graphics.getFontAscent(dynamicResource) + 30;
-					
+					var timeY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
+			
 //	// font ascent & font height are all over the place with system fonts on different watches
 //	// - have to hard code some values for each font and for each watch?
 //	dc.setColor(graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
 //	dc.fillRectangle(fieldX, timeY, gfxData[index+4]+gfxData[index+6], graphics.getFontHeight(dynamicResource));
 
-        			//System.println("ascent=" + graphics.getFontAscent(dynamicResource));
+//System.println("ascent=" + graphics.getFontAscent(dynamicResource));
 					
 					if (gfxData[index+4]>0)	// width 1
 					{
@@ -5302,7 +5319,7 @@ class myView
 								break;
 							}
 
-							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
+							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
 					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 
@@ -5349,7 +5366,7 @@ class myView
 								break;
 							}
 
-							var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
+							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
 					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5376,7 +5393,7 @@ class myView
 					}
 
 					var dateX = fieldX;
-					var dateY = fieldYStart - graphics.getFontAscent(dynamicResource) + 6;		// align bottom of text with bottom of icons
+					var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -5729,7 +5746,7 @@ class myEditorView extends myView
 			gfxData[index+2] = displayHalf;	// y from bottom
 			gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
 			// total width
-			// x adjustment
+			// ascent
 		}
 		return index;
 	}
@@ -6958,7 +6975,7 @@ class myEditorView extends myView
 
 	function fieldPositionCentreY()
 	{
-		gfxData[menuFieldGfx+2] = displayHalf;
+		gfxData[menuFieldGfx+2] = displayHalf - (gfxData[menuFieldGfx+5]+1)/2;	// subtract half the max ascent
 	}
 
 	function fieldGetAlignment()
