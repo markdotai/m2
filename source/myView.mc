@@ -7006,7 +7006,8 @@ class myEditorView extends myView
 
 	function fieldPositionCentreY()
 	{
-		gfxData[menuFieldGfx+2] = displayHalf - (gfxData[menuFieldGfx+5]+1)/2;	// subtract half the max ascent
+		var fieldAscent = (gfxData[menuFieldGfx+5] & 0xFF);
+		gfxData[menuFieldGfx+2] = displayHalf - (fieldAscent+1)/2;	// subtract half the max ascent
 	}
 
 	function fieldGetAlignment()
