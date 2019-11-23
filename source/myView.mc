@@ -3869,21 +3869,6 @@ class myView
 		return MAX_DYNAMIC_RESOURCES;
 	}
 
-	function getDynamicResource(i)
-	{
-		return ((i<dynResNum) ? dynResResource[i] : null);
-	}
-
-	function getDynamicResourceAscent(i)
-	{
-		return ((i<dynResNum) ? Graphics.getFontAscent(dynResResource[i]) : 0);
-	}
-
-	function getDynamicResourceHeight(i)
-	{
-		return ((i<dynResNum) ? Graphics.getFontHeight(dynResResource[i]) : 0);
-	}
-
     function releaseDynamicResources()
     {
 		for (var i=0; i<dynResNum; i++)
@@ -3903,6 +3888,48 @@ class myView
 		}
     }
     
+	function getDynamicResource(i)
+	{
+		return ((i<dynResNum) ? dynResResource[i] : null);
+	}
+
+	function getDynamicResourceAscent(i)
+	{
+		return ((i<dynResNum) ? Graphics.getFontAscent(dynResResource[i]) : 0);
+	}
+
+	function getDynamicResourceDescent(i)
+	{
+		return ((i<dynResNum) ? Graphics.getFontDescent(dynResResource[i]) : 0);
+	}
+
+	function updateFieldMaxAscentDescent(val, i, ascent, descent)
+	{
+		if (i>=0 && i<dynResNum)
+		{
+			if (dynResList[i]>=Graphics.FONT_SYSTEM_NUMBER_MILD && dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT)
+			{
+				if (ascent>80)
+				{
+					ascent = 80;
+				}
+
+				if (descent>0)
+				{
+					descent = 0;
+				}
+			}
+		}
+	
+		var a = (val&0xFF);
+		var d = ((val&0xFF00) >> 8);
+		
+		a = getMinMax(ascent, a, displaySize);	// max ascent
+		d = getMinMax(descent, d, displaySize);	// max descent
+					
+		return ((a&0xFF) | ((d&0xFF) << 8));
+	}
+
     function isDynamicResourceSystemFont(i)
     {
     	return ((i<dynResNum) && (dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
@@ -4365,7 +4392,7 @@ class myView
 					fieldVisible = isVisible;
 
 					gfxData[index+4] = 0;	// total width
-					gfxData[index+5] = 0;	// ascent
+					gfxData[index+5] = 0;	// ascent & descent
 					//gfxData[index+5] = 0;	// no x adjustment yet
 					
 					break;
@@ -4475,7 +4502,7 @@ class myView
 //						}
 					}
 
-					gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
 					
 					break;
 				}
@@ -4894,7 +4921,7 @@ class myView
 							gfxData[index+5] = eLen;	// string end
 							gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
 							gfxData[indexCurField+4] += gfxData[index+6];	// total width
-							gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+							gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
 							//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 						}					
 					}
@@ -4939,7 +4966,7 @@ class myView
 						gfxData[index+4] = c;	// char
 						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
-						gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+						gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
 						//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 				    }
 
@@ -4976,7 +5003,7 @@ class myView
 					}
 					
 					gfxData[indexCurField+4] += gfxData[index+10];	// total width
-					gfxData[indexCurField+5] = getMinMax(getDynamicResourceAscent(resourceIndex), gfxData[indexCurField+5], displaySize);		// store max ascent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
@@ -4997,7 +5024,7 @@ class myView
 
 					gfxData[index+4] = (axesSide ? 55 : 51);	// width
 					gfxData[indexCurField+4] += gfxData[index+4];	// total width					
-					gfxData[indexCurField+5] = getMinMax(20/*heartChartHeight*/, gfxData[indexCurField+5], displaySize);		// store max ascent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], -1, 20/*heartChartHeight*/, 0);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
@@ -5239,10 +5266,13 @@ class myView
 					//	// ok as is
 					//}
 			
-					fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-32)<=dcHeight && (fieldYStart-32+64)>=0));
-					
-					// should check height of data in field (large or small font etc)
-					//Old field check: if (dateX<=dcWidth && (dateX+backgroundFieldTotalWidth[f])>=0 && (dateYOffset-23)<=dcHeight && (dateYOffset-23+38)>=0)
+					var fieldAscent = (gfxData[index+5] & 0xFF);
+					var fieldDescent = ((gfxData[index+5] & 0xFF00) >> 8) + 2;	// add 2 because the drawing seems out a bit (shifted down 1 pixel)
+			
+					fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-fieldAscent)<=dcHeight && (fieldYStart+fieldDescent)>=0));
+
+//	dc.setColor(graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+//	dc.fillRectangle(fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
 			
 					fieldX = fieldXStart;
 
@@ -5282,6 +5312,7 @@ class myView
 						{
 							// align bottom of text
 				       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
+//	dc.setColor(getColor64(gfxData[index+1]-1), graphics.COLOR_BLUE);
 			        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 													
@@ -5746,7 +5777,7 @@ class myEditorView extends myView
 			gfxData[index+2] = displayHalf;	// y from bottom
 			gfxData[index+3] = 0;	// justification (0==centre, 1==left, 2==right)
 			// total width
-			// ascent
+			// ascent & descent
 		}
 		return index;
 	}
