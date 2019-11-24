@@ -8188,6 +8188,7 @@ class myMenuItemHeader extends myMenuItem
 //		f_moveBarAlert,
 //		f_fontSystemCase,
 //		f_fontUnsupported,
+//		f_menuhide,
 //
 //		f_backgroundEdit,
 //		f_batteryHighEdit,
@@ -8196,6 +8197,7 @@ class myMenuItemHeader extends myMenuItem
 //		f_moveBarAlertEdit,
 //		f_fontSystemCaseEdit,
 //		f_fontUnsupportedEdit,
+//		f_menuHideEdit,
 //	}
 
 	var globalStrings = [
@@ -8206,6 +8208,7 @@ class myMenuItemHeader extends myMenuItem
 		"move bar alert level",
 		"font system case",
 		"font unsupported",
+		"menu hide",
 		
 		"editing ...",
 	];
@@ -8218,14 +8221,16 @@ class myMenuItemHeader extends myMenuItem
 		4,
 		5,
 		6,
+		7,
 		
-		7,
-		7,
-		7,
-		7,
-		7,
-		7,
-		7,
+		8,
+		8,
+		8,
+		8,
+		8,
+		8,
+		8,
+		8,
 	]b;
 
 	var fState;
@@ -8239,27 +8244,27 @@ class myMenuItemHeader extends myMenuItem
     
     function getString()
     {
-    	if (fState==8/*f_batteryHighEdit*/)
+    	if (fState==9/*f_batteryHighEdit*/)
     	{
     		return "" + editorView.propBatteryHighPercentage;
     	}
-    	else if (fState==9/*f_batteryLowEdit*/)
+    	else if (fState==10/*f_batteryLowEdit*/)
     	{
     		return "" + editorView.propBatteryLowPercentage;
     	}
-    	else if (fState==10/*f_2ndTimeEdit*/)
+    	else if (fState==11/*f_2ndTimeEdit*/)
     	{
     		return "" + editorView.prop2ndTimeZoneOffset;
     	}
-    	else if (fState==11/*f_moveBarAlertEdit*/)
+    	else if (fState==12/*f_moveBarAlertEdit*/)
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
     	}
-    	else if (fState==12/*f_fontSystemCaseEdit*/)
+    	else if (fState==13/*f_fontSystemCaseEdit*/)
     	{
     		return ["any case", "upper case", "lower case"][editorView.propFieldFontSystemCase];
     	}
-    	else if (fState==13/*f_fontUnsupportedEdit*/)
+    	else if (fState==14/*f_fontUnsupportedEdit*/)
     	{
     		return ["extra tiny", "tiny", "small", "medium", "large"][editorView.propFieldFontUnsupported];
     	}
@@ -8269,46 +8274,60 @@ class myMenuItemHeader extends myMenuItem
     	}
     }
     
+    function draw(dc)
+    {
+    	if (fState!=15/*f_menuHideEdit*/)
+    	{
+    		myMenuItem.draw(dc);
+    	}
+    }
+
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<7/*f_backgroundEdit*/);
+    	return (d!=3 || fState<8/*f_backgroundEdit*/);
     }
 
     function onEditing(val)
     {
-		if (fState<=6)
+		if (fState<=7)
 		{
-			fState = (fState+val+7)%7;    	
+			fState = (fState+val+8)%8;    	
 		}
-    	else if (fState==7/*f_backgroundEdit*/)
+    	else if (fState==8/*f_backgroundEdit*/)
     	{
     		editorView.headerBackgroundColorEditing(val);
     	}
-    	else if (fState==8/*f_batteryHighEdit*/)
+    	else if (fState==9/*f_batteryHighEdit*/)
     	{
     		editorView.headerBatteryEditing(0, val);
     	}
-    	else if (fState==9/*f_batteryLowEdit*/)
+    	else if (fState==10/*f_batteryLowEdit*/)
     	{
     		editorView.headerBatteryEditing(1, val);
     	}
-    	else if (fState==10/*f_2ndTimeEdit*/)
+    	else if (fState==11/*f_2ndTimeEdit*/)
     	{
     		editorView.header2ndTimeZoneEditing(val);
     	}
-    	else if (fState==11/*f_moveBarAlertEdit*/)
+    	else if (fState==12/*f_moveBarAlertEdit*/)
     	{
     		editorView.headerMoveBarAlertEditing(val);
     	}
-    	else if (fState==12/*f_fontSystemCaseEdit*/)
+    	else if (fState==13/*f_fontSystemCaseEdit*/)
     	{
     		editorView.headerFontSystemCaseEditing(val);
     	}
-    	else if (fState==13/*f_fontUnsupportedEdit*/)
+    	else if (fState==14/*f_fontUnsupportedEdit*/)
     	{
     		editorView.headerFontUnsupportedEditing(val);
     	}
+    	else if (fState==15/*f_menuHideEdit*/)
+    	{
+			fState -= 8;    	
+    	}
+    	
+    	return null;
     }
     
     function onNext()
@@ -8323,22 +8342,26 @@ class myMenuItemHeader extends myMenuItem
     
     function onSelect()
     {
-		if (fState<=6)
+		if (fState<=7)
 		{
 			if (fState==0/*f_background*/)
 			{
 				editorView.startColorEditing(editorView.menuFieldGfx+3);
 			}
 		
-			fState += 7;    	
+			fState += 8;    	
 		}
+    	else if (fState==15/*f_menuHideEdit*/)
+    	{
+			fState -= 8;    	
+    	}
     	
     	return null;
     }
     
     function onBack()
     {
-    	if (fState<=6)
+    	if (fState<=7)
     	{    
    			return new myMenuItemFieldSelect();
    		}
@@ -8349,7 +8372,7 @@ class myMenuItemHeader extends myMenuItem
 				editorView.endColorEditing();
    			//}
    		
-   			fState -= 7;
+   			fState -= 8;
    		}
 
    		return null;
