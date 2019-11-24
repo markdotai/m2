@@ -58,6 +58,8 @@ class myView
 
 	var glanceActive = false;
 	
+	var systemNumberMaxAscent;
+	
 	//enum
 	//{
 	//	//!APPCASE_ANY = 0,
@@ -1204,6 +1206,11 @@ class myView
 			bitsSupported = dataResource[1];
 		}
 
+		// load in permanent global custom data
+//		{
+//			var dataResource = watchUi.loadResource(Rez.JsonData.id_custom);
+//		}
+
 //System.println("Timer json1=" + (System.getTimer()-timeStamp) + "ms");
 
         // If this device supports BufferedBitmap, allocate the buffer for what's behind the seconds indicator 
@@ -1250,6 +1257,13 @@ class myView
 			tempResource = null;
 		}
 
+		// load in custom data values which are stored as byte arrays (to save memory) 
+		{
+			var tempResource = watchUi.loadResource(Rez.JsonData.id_customBytes);
+
+			systemNumberMaxAscent = tempResource[0][0];
+		}
+					
 //System.println("Timer json2=" + (System.getTimer()-timeStamp) + "ms");
 
 		var timeNowValue = Time.now().value();
@@ -3909,9 +3923,9 @@ class myView
 		{
 			if (dynResList[i]>=Graphics.FONT_SYSTEM_NUMBER_MILD && dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT)
 			{
-				if (ascent>80)
+				if (ascent>systemNumberMaxAscent)
 				{
-					ascent = 80;
+					ascent = systemNumberMaxAscent;
 				}
 
 				if (descent>0)
@@ -6312,6 +6326,11 @@ class myEditorView extends myView
 		getColorGfxIndex = -1;
 	}
 
+	function isColorEditing()
+	{
+		return (getColorGfxIndex != -1);
+	}
+
 	function drawColorGrid(dc)
 	{
 		// distance from centre (0-7) + clockwise angle (0-36)
@@ -7521,23 +7540,83 @@ class myMenuItem extends Lang.Object
     {
     	return false;
     }
+
+	function drawText(dc, s, x, y, font)
+	{
+        dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+        for (var i=-1; i<=1; i+=2)
+        {
+        	for (var j=-1; j<=1; j+=2)
+        	{
+				dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+        	}
+        }
+        
+        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+        //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+		dc.drawText(x, y, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+	}
     
     function draw(dc)
     {
+    	var x = (editorView.displaySize*30)/240;
+    	var y = (editorView.displaySize*100)/240;
+    	var xEnd = x + 30;
+    
     	var eStr = getString();
 		if (eStr != null)
 		{
-	        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-    		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
-    		dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_TINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+			var xText = x + 35;
+			var yText = y - Graphics.getFontAscent(Graphics.FONT_SYSTEM_TINY);
+		
+			drawText(dc, eStr, xText, yText, Graphics.FONT_SYSTEM_TINY);
+			
+			xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
+		}
+
+		// editorfont
+		// A = small circle
+		// B = circle
+		// C = up triangle
+		// D = down triangle
+		// E = left triangle
+		// F = right triangle
+		// G = rotating arrow
+
+    	if (hasDirection(2))
+    	{
+			drawText(dc, "E", x, y-15, editorView.editorFontResource);
+		}
+
+    	if (hasDirection(0))
+    	{
+			drawText(dc, "C", x+15, y-30, editorView.editorFontResource);
+		}
+
+    	if (hasDirection(1))
+    	{
+			drawText(dc, "D", x+15, y-0, editorView.editorFontResource);
+		}
+
+    	if (hasDirection(3))
+    	{
+			drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
 		}
     }
-    
+        
     function getString()
     {
     	return "unknown";
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return false;
+    }
+
     function onNext()
     {
     	return null;
@@ -7574,6 +7653,12 @@ class myMenuItemExitApp extends myMenuItem
     	return "press back to exit";
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d>=2);
+    }
+
     function exitApp()
     {
     	return doExit;
@@ -7605,6 +7690,12 @@ class myMenuItemFieldSelect extends myMenuItem
     	return editorView.getGfxName(editorView.menuFieldGfx);
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=0 || editorView.prevGfxField(editorView.menuFieldGfx)>=0);
+    }
+
     function onNext()
     {
 		var nextIndex = editorView.nextGfxField(editorView.menuFieldGfx);
@@ -7717,6 +7808,12 @@ class myMenuItemFieldAdd extends myMenuItem
 //    	return "unknown";
     	
     	return globalString[fState];
+    }
+
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return true;
     }
 
 	function onEditing(val)
@@ -7866,6 +7963,12 @@ class myMenuItemQuickAdd extends myMenuItem
     	return "quick add";
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return true;
+    }
+
     function onNext()
     {
    		return new myMenuItemSaveLoadProfile(0);
@@ -7937,6 +8040,12 @@ class myMenuItemSaveLoadProfile extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return true;
+    }
+
     function onNext()
     {
     	if (editing)
@@ -8038,6 +8147,12 @@ class myMenuItemReset extends myMenuItem
     	return "reset (delete all)";
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=1);
+    }
+
     function onNext()
     {
     	return null;
@@ -8154,6 +8269,12 @@ class myMenuItemHeader extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=3 || fState<7/*f_backgroundEdit*/);
+    }
+
     function onEditing(val)
     {
 		if (fState<=6)
@@ -8349,6 +8470,12 @@ class myMenuItemFieldEdit extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=3 || fState<11/*f_tap*/);
+    }
+
     function onEditing(val)
     {
 		if (fState<=6/*r_delete*/)
@@ -8612,6 +8739,12 @@ class myMenuItemElementSelect extends myMenuItem
     	return editorView.getGfxName(editorView.menuElementGfx);
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=0 || editorView.prevGfx(editorView.menuElementGfx)>editorView.menuFieldGfx);
+    }
+
     function onNext()
     {
 		var nextIndex = editorView.nextGfx(editorView.menuElementGfx);
@@ -8870,6 +9003,12 @@ class myMenuItemElementEdit extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=3 || fState<(fNumCustom+4));
+    }
+
     function onEditing(val)
     {
 //    	if (fState<5)
@@ -9243,6 +9382,12 @@ class myMenuItemElementAdd extends myMenuItem
     	return "unknown";
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return true;
+    }
+
     function onEditing(val)
     {
     	if (fState==0/*s_top*/)
@@ -9584,6 +9729,12 @@ class myMenuItemRectangle extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=3 || fState<12/*r_tap*/);
+    }
+
     function onEditing(val)
     {
     	if (fState<=7/*r_delete*/)
@@ -9916,6 +10067,12 @@ class myMenuItemRing extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=3 || fState<11/*r_typeEdit*/);
+    }
+
     function onEditing(val)
     {
        	if (fState<=10/*r_delete*/)
@@ -10240,6 +10397,12 @@ class myMenuItemSeconds extends myMenuItem
     	}
     }
     
+    // up=0 down=1 left=2 right=3
+    function hasDirection(d)
+    {
+    	return (d!=3 || fState<9/*s_fontEdit*/);
+    }
+
     function onEditing(val)
     {
     	if (fState<=8/*s_delete*/)
