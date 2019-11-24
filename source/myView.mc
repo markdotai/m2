@@ -5227,15 +5227,14 @@ class myView
 		}
 	}
 	
-	function gfxBackgroundColor(index)
-	{
-		return -1/*COLOR_TRANSPARENT*/;
-	}
-	
 	function gfxFieldHighlight(dc, index, x, y, w, h)
 	{
 	}
 		
+	function gfxElementHighlight(dc, index, x, y, w, h)
+	{
+	}
+	
 	function gfxDrawBackground(dc, dcX, dcY, toBuffer)
 	{
 		var graphics = Graphics;
@@ -5322,7 +5321,6 @@ class myView
 						break;
 					}
 
-					var backgroundColor = gfxBackgroundColor(index);
 					var timeY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 			
 //	// font ascent & font height are all over the place with system fonts on different watches
@@ -5332,12 +5330,14 @@ class myView
 
 //System.println("ascent=" + graphics.getFontAscent(dynamicResource));
 					
+					gfxElementHighlight(dc, index, fieldX, timeY, gfxData[index+4]+gfxData[index+6], fieldYStart-timeY+2);
+
 					if (gfxData[index+4]>0)	// width 1
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
-				       		dc.setColor(getColor64(gfxData[index+1]-1), backgroundColor);
+				       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
 //	dc.setColor(getColor64(gfxData[index+1]-1), graphics.COLOR_BLUE);
 			        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
@@ -5347,7 +5347,7 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 					{
-			       		dc.setColor(getColor64(gfxData[index+1]-1), backgroundColor);
+			       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
 		        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
 
@@ -5378,7 +5378,9 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-					        dc.setColor(getColor64(gfxData[index+2]-1), gfxBackgroundColor(index));
+							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+6], fieldYStart-dateY+2);
+
+					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
 			        		dc.drawText(fieldX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5425,7 +5427,9 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-					        dc.setColor(getColor64(gfxData[index+2]-1), gfxBackgroundColor(index));
+							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+5], fieldYStart-dateY+2);
+
+					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 
@@ -5451,7 +5455,8 @@ class myView
 
 					var dateX = fieldX;
 					var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
-					var backgroundColor = gfxBackgroundColor(index);
+
+					gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+10], fieldYStart-dateY+2);
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -5466,7 +5471,7 @@ class myView
 						{ 
 							var col = ((barIsOn || gfxData[index+8]==(COLOR_NOTSET+1)) ? getColor64(gfxData[index+3+i]-1) : getColor64(gfxData[index+8]-1));
 							
-					        dc.setColor(col, backgroundColor);
+					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(dateX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 						
@@ -5485,12 +5490,14 @@ class myView
 						break;
 					}
 
+					gfxElementHighlight(dc, index, fieldX, fieldYStart-20/*heartChartHeight*/, gfxData[index+4], 20/*heartChartHeight*/+2);
+
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)	// check element x overlaps buffer
 					{
 						var axesSide = ((gfxData[index+1]&0x01)!=0);
 						var axesBottom = ((gfxData[index+1]&0x02)!=0);
 	
-						drawHeartChart(dc, fieldX, fieldYStart+6, getColor64(gfxData[index+2]-1), getColor64(gfxData[index+3]-1), axesSide, axesBottom);		// draw heart rate chart
+						drawHeartChart(dc, fieldX, fieldYStart, getColor64(gfxData[index+2]-1), getColor64(gfxData[index+3]-1), axesSide, axesBottom);		// draw heart rate chart
 					}
 
 		        	fieldX += gfxData[index+4];
@@ -5625,7 +5632,6 @@ class myView
 					var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
 					var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/;
 					var curCol = COLOR_NOTSET;
-					var backgroundColor = gfxBackgroundColor(index);
 			
 					// draw the correct segments
 					for (var j=loopStart; j<=loopEnd; j++)
@@ -5647,7 +5653,7 @@ class myView
 							if (curCol!=indexCol)
 							{
 								curCol = indexCol;
-			       				dc.setColor(curCol, backgroundColor);
+			       				dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
 			       			}
 		
 							//var s = characterString.substring(index, index+1);
@@ -6310,25 +6316,32 @@ class myEditorView extends myView
 		}
     }
 
-	function gfxBackgroundColor(index)
-	{
-		if (index==menuElementGfx)
-		{
-			return Graphics.COLOR_RED;
-		}
-
-		return -1/*COLOR_TRANSPARENT*/;
-	}
-	
 	function gfxFieldHighlight(dc, index, x, y, w, h)
 	{
 		if (index==menuFieldGfx && menuElementGfx==0)
 		{
 			dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
-			dc.fillRectangle(x, y, w, h);
+		
+			dc.setPenWidth(1);		  
+			//dc.drawRectangle(x, y, w, h);
+			dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+			//dc.fillRectangle(x, y, w, h);
 		}
 	}
 		
+	function gfxElementHighlight(dc, index, x, y, w, h)
+	{
+		if (index==menuElementGfx)
+		{
+			dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+
+			dc.setPenWidth(1);		  
+			//dc.drawRectangle(x, y, w, h);
+			dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+			//dc.fillRectangle(x, y, w, h);
+		}
+	}
+	
 	function startColorEditing(gfxIndex)
 	{
 		getColorGfxIndex = gfxIndex;
@@ -6585,21 +6598,21 @@ class myEditorView extends myView
 			"hour",
 			"minute",
 			"day (name)",
-			"day (number of week)",
-			"day (number of month)",
-			"day (of month XX)",
-			"day (number of year)",
-			"day (of year XXX)",
+			"day (# of week)",
+			"day (# of month)",
+			"day (## of month)",
+			"day (# of year)",
+			"day (### of year)",
 			"month (name)",
-			"month (number)",
-			"month (number XX)",
-			"year (XX)",
-			"year (XXXX)",
-			"week (ISO XX)",
-			"week (ISO WXX)",
-			"year (ISO week XXXX)",
+			"month (#)",
+			"month (##)",
+			"year (##)",
+			"year (####)",
+			"week (ISO ##)",
+			"week (ISO W##)",
+			"year (ISO week ####)",
 			"week (calendar)",
-			"year (calendar week XXXX)",
+			"year (calendar week ####)",
 			"AM",
 			"PM",
 	    	"<space>",
