@@ -5227,6 +5227,15 @@ class myView
 		}
 	}
 	
+	function gfxBackgroundColor(index)
+	{
+		return -1/*COLOR_TRANSPARENT*/;
+	}
+	
+	function gfxFieldHighlight(dc, index, x, y, w, h)
+	{
+	}
+		
 	function gfxDrawBackground(dc, dcX, dcY, toBuffer)
 	{
 		var graphics = Graphics;
@@ -5290,6 +5299,8 @@ class myView
 			
 					fieldX = fieldXStart;
 
+					gfxFieldHighlight(dc, index, fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
+
 					break;
 				}
 
@@ -5311,6 +5322,7 @@ class myView
 						break;
 					}
 
+					var backgroundColor = gfxBackgroundColor(index);
 					var timeY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 			
 //	// font ascent & font height are all over the place with system fonts on different watches
@@ -5325,7 +5337,7 @@ class myView
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
-				       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
+				       		dc.setColor(getColor64(gfxData[index+1]-1), backgroundColor);
 //	dc.setColor(getColor64(gfxData[index+1]-1), graphics.COLOR_BLUE);
 			        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
@@ -5335,7 +5347,7 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 					{
-			       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
+			       		dc.setColor(getColor64(gfxData[index+1]-1), backgroundColor);
 		        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
 
@@ -5366,7 +5378,7 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64(gfxData[index+2]-1), gfxBackgroundColor(index));
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
 			        		dc.drawText(fieldX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5413,7 +5425,7 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64(gfxData[index+2]-1), gfxBackgroundColor(index));
 			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 
@@ -5439,6 +5451,7 @@ class myView
 
 					var dateX = fieldX;
 					var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
+					var backgroundColor = gfxBackgroundColor(index);
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -5453,7 +5466,7 @@ class myView
 						{ 
 							var col = ((barIsOn || gfxData[index+8]==(COLOR_NOTSET+1)) ? getColor64(gfxData[index+3+i]-1) : getColor64(gfxData[index+8]-1));
 							
-					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(col, backgroundColor);
 			        		dc.drawText(dateX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 						
@@ -5612,6 +5625,7 @@ class myView
 					var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
 					var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/;
 					var curCol = COLOR_NOTSET;
+					var backgroundColor = gfxBackgroundColor(index);
 			
 					// draw the correct segments
 					for (var j=loopStart; j<=loopEnd; j++)
@@ -5633,7 +5647,7 @@ class myView
 							if (curCol!=indexCol)
 							{
 								curCol = indexCol;
-			       				dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
+			       				dc.setColor(curCol, backgroundColor);
 			       			}
 		
 							//var s = characterString.substring(index, index+1);
@@ -6296,6 +6310,25 @@ class myEditorView extends myView
 		}
     }
 
+	function gfxBackgroundColor(index)
+	{
+		if (index==menuElementGfx)
+		{
+			return Graphics.COLOR_RED;
+		}
+
+		return -1/*COLOR_TRANSPARENT*/;
+	}
+	
+	function gfxFieldHighlight(dc, index, x, y, w, h)
+	{
+		if (index==menuFieldGfx && menuElementGfx==0)
+		{
+			dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
+			dc.fillRectangle(x, y, w, h);
+		}
+	}
+		
 	function startColorEditing(gfxIndex)
 	{
 		getColorGfxIndex = gfxIndex;
@@ -8444,6 +8477,8 @@ class myMenuItemFieldEdit extends myMenuItem
     	myMenuItem.initialize();
 
     	fState = 0;
+
+		editorView.menuElementGfx = 0;	// clear any selected element
     }
     
     function getString()
@@ -9408,7 +9443,7 @@ class myMenuItemElementAdd extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return true;
+    	return (d!=1 || fState!=0/*s_top*/);
     }
 
     function onEditing(val)
