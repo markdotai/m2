@@ -4034,6 +4034,11 @@ class myView
 			fonts.id_large_l_4,		// large font plus (regular)
 			fonts.id_large_l_5,		// large font plus (bold)
 			fonts.id_large_l_6,		// large font plus (heavy)
+
+		// 57
+			fonts.id_colon_s,		// colon font minus
+			fonts.id_colon_m,		// colon font
+			fonts.id_colon_l,		// colon font plus
 		];
 		
 		if (fontIndex>=0)
@@ -4095,12 +4100,13 @@ class myView
 				case 4:		// colon large
 				{
 					var r = (gfxData[index+2] & 0xFF);
-				 	if (r<6 || r>56)
+				 	if (r<0 || r>21)	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
 				 	{
-				 		r = 48/*large font (regular)*/;
+				 		r = 9/*m regular*/;
 				 	}
-					var resourceIndex = addDynamicResource(fontList[r]);
-					
+				 	//								colon								hour/minute
+				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 57) : (r-18+29)) : ((r<18) ? (r+39) : (r-18+29));  
+					var resourceIndex = addDynamicResource(fontList[fontListIndex]);			
 					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -4346,9 +4352,9 @@ class myView
 		var indexCurField = -1;
 		var fieldVisible = false;
 		
-		var indexPrevLargeWidth = -1;
-		var prevLargeNumber = -1;
-		var prevLargeFontKern = -1;
+//		var indexPrevLargeWidth = -1;
+//		var prevLargeNumber = -1;
+//		var prevLargeFontKern = -1;
 	
 		gfxCharArrayLen = 0;
 	
@@ -4432,24 +4438,24 @@ class myView
 						break;
 					}
 					
-					var narrowKern = false;
-
-					var fontTypeKern = (gfxData[index+2] & 0xFF);
-					if (fontTypeKern>=6)
-					{
-						if (fontTypeKern>=33 && fontTypeKern<=38)	// large italic
-						{
-							fontTypeKern -= 33;
-						}
-						else if (fontTypeKern>=39 && fontTypeKern<=56)	// large mono
-						{
-							fontTypeKern = (fontTypeKern - 39)%6;
-						}
-						else
-						{
-							fontTypeKern = -1;		// no kerning
-						}
-					}
+//					var narrowKern = false;
+//
+//					var fontTypeKern = (gfxData[index+2] & 0xFF);
+//					if (fontTypeKern>=6)
+//					{
+//						if (fontTypeKern>=33 && fontTypeKern<=38)	// large italic
+//						{
+//							fontTypeKern -= 33;
+//						}
+//						else if (fontTypeKern>=39 && fontTypeKern<=56)	// large mono
+//						{
+//							fontTypeKern = (fontTypeKern - 39)%6;
+//						}
+//						else
+//						{
+//							fontTypeKern = -1;		// no kerning
+//						}
+//					}
 
 					var charArray;
 					if (id==2)
@@ -4462,7 +4468,15 @@ class myView
 					}
 					else //if (id==4)
 					{
-						charArray = ":".toCharArray();
+						var r = (gfxData[index+2] & 0xFF);
+					 	if (r<18)	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
+					 	{
+							charArray = [((r%6) + 48).toChar()];
+					 	}
+					 	else
+					 	{
+							charArray = ":".toCharArray();
+					 	}
 					}
 					
 					var charArraySize = charArray.size();
@@ -4493,9 +4507,9 @@ class myView
 //							gfxData[indexCurField+4] -= k;	// total width
 //						}
 						
-						indexPrevLargeWidth = indexWidthJ;
-						prevLargeNumber = cNum;
-						prevLargeFontKern = fontTypeKern;
+//						indexPrevLargeWidth = indexWidthJ;
+//						prevLargeNumber = cNum;
+//						prevLargeFontKern = fontTypeKern;
 
 						// for last digit in current field (if it is large font)
 //						if (j!=0)
@@ -5822,7 +5836,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
 			// string 0
 			// width 0
 			// string 1
@@ -5839,7 +5853,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
 			// string 0
 			// width 0
 			// string 1
@@ -5850,13 +5864,13 @@ class myEditorView extends myView
 		return index;
 	}
 
-	function gfxAddColonLarge(index)
+	function gfxAddColonLarge(index)	// colon large
 	{
 		index = gfxInsert(index, 4);
 		if (index>=0)
 		{
 			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex
 			// string 0 dummy
 			// width 0 dummy
 			// string 1
@@ -7305,23 +7319,23 @@ class myEditorView extends myView
 	}
 
 	function largeFontEditing(val)
-	{
-		// 39-56, 33-38, 29-32
-		var f = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
-		
+	{	
 		var temp = (gfxData[menuElementGfx+2] & 0xFF);
-		var i = f.indexOf(temp) - val;
+
+//		// 39-56, 33-38, 29-32
+//		var f = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
+//		var i = f.indexOf(temp) - val;		
+//		if (i<0)
+//		{
+//			i = f.size()-1;
+//		}
+//		else if (i>=f.size())
+//		{
+//			i = 0;
+//		}
+//		gfxData[menuElementGfx+2] = f[i];
 		
-		if (i<0)
-		{
-			i = f.size()-1;
-		}
-		else if (i>=f.size())
-		{
-			i = 0;
-		}
-		
-		gfxData[menuElementGfx+2] = f[i];
+		gfxData[menuElementGfx+2] = ((temp-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)		
 		reloadDynamicResources = true;
 	}
 

@@ -20,5 +20,9 @@
 	<font id="id_large_l_4" filename="TrivialRegular70Mono240.fnt" antialias="true"></font>
 	<font id="id_large_l_5" filename="TrivialBold70Mono240.fnt" antialias="true"></font>
 	<font id="id_large_l_6" filename="TrivialHeavy70Mono240.fnt" antialias="true"></font>
-	
+
+	<font id="id_colon_s" filename="ColonMono198.fnt" antialias="true"></font>
+	<font id="id_colon_m" filename="ColonMono218.fnt" antialias="true"></font>
+	<font id="id_colon_l" filename="ColonMono240.fnt" antialias="true"></font>
+
 </fonts>
