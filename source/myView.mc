@@ -7639,7 +7639,7 @@ class myMenuItem extends Lang.Object
     function draw(dc)
     {
     	var x = (editorView.displaySize*30)/240;
-    	var y = (editorView.displaySize*100)/240;
+    	var y = (editorView.displaySize*50)/240;
     	var xEnd = x + 30;
     
     	var eStr = getString();
