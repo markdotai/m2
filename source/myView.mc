@@ -5830,9 +5830,9 @@ class myEditorView extends myView
 		return index;
 	}
 
-	function gfxAddHourLarge(index)
+	function gfxAddLarge(index, largeType)	// 0==hour large, 1==minute large, 2==colon large 
 	{
-		index = gfxInsert(index, 2);
+		index = gfxInsert(index, 2+largeType);
 		if (index>=0)
 		{
 			gfxData[index+1] = 3+1;	// color
@@ -5847,39 +5847,56 @@ class myEditorView extends myView
 		return index;
 	}
 
-	function gfxAddMinuteLarge(index)
-	{
-		index = gfxInsert(index, 3);
-		if (index>=0)
-		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
-			// string 0
-			// width 0
-			// string 1
-			// width 1
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
-
-	function gfxAddColonLarge(index)	// colon large
-	{
-		index = gfxInsert(index, 4);
-		if (index>=0)
-		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex
-			// string 0 dummy
-			// width 0 dummy
-			// string 1
-			// width 1
-
-			reloadDynamicResources = true;
-		}
-		return index;
-	}
+//	function gfxAddHourLarge(index)
+//	{
+//		index = gfxInsert(index, 2);
+//		if (index>=0)
+//		{
+//			gfxData[index+1] = 3+1;	// color
+//			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
+//			// string 0
+//			// width 0
+//			// string 1
+//			// width 1
+//
+//			reloadDynamicResources = true;
+//		}
+//		return index;
+//	}
+//
+//	function gfxAddMinuteLarge(index)
+//	{
+//		index = gfxInsert(index, 3);
+//		if (index>=0)
+//		{
+//			gfxData[index+1] = 3+1;	// color
+//			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
+//			// string 0
+//			// width 0
+//			// string 1
+//			// width 1
+//
+//			reloadDynamicResources = true;
+//		}
+//		return index;
+//	}
+//
+//	function gfxAddColonLarge(index)	// colon large
+//	{
+//		index = gfxInsert(index, 4);
+//		if (index>=0)
+//		{
+//			gfxData[index+1] = 3+1;	// color
+//			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex
+//			// string 0 dummy
+//			// width 0 dummy
+//			// string 1
+//			// width 1
+//
+//			reloadDynamicResources = true;
+//		}
+//		return index;
+//	}
 
 	function gfxAddString(index, dataType)
 	{
@@ -9608,17 +9625,9 @@ class myMenuItemElementAdd extends myMenuItem
 		{
 			index = editorView.gfxAddChart(afterIndex);
 		}
-		else if (fState==9/*s_hourLarge*/)
+		else if (fState>=9/*s_hourLarge*/ && fState<=11/*s_colonLarge*/)
 		{
-			index = editorView.gfxAddHourLarge(afterIndex);
-		}
-		else if (fState==10/*s_minuteLarge*/)
-		{
-			index = editorView.gfxAddMinuteLarge(afterIndex);
-		}
-		else if (fState==11/*s_colonLarge*/)
-		{
-			index = editorView.gfxAddColonLarge(afterIndex);
+			index = editorView.gfxAddLarge(afterIndex, fState-9);
 		}
 		else if (fState<=15/*s_valueEdit*/)
 		{
