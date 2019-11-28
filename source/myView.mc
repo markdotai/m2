@@ -3973,24 +3973,24 @@ class myView
 			null,
 
 		// 6
-			fonts.id_trivial_ultra_light_tiny,	// APPFONT_ULTRA_LIGHT_TINY
-			fonts.id_trivial_extra_light_tiny,	// APPFONT_EXTRA_LIGHT_TINY
-			fonts.id_trivial_light_tiny,		// APPFONT_LIGHT_TINY
-			fonts.id_trivial_regular_tiny,		// APPFONT_REGULAR_TINY
-			fonts.id_trivial_bold_tiny,			// APPFONT_BOLD_TINY
-			fonts.id_trivial_heavy_tiny,		// APPFONT_HEAVY_TINY
-			fonts.id_trivial_ultra_light_small,	// APPFONT_ULTRA_LIGHT_SMALL
-			fonts.id_trivial_extra_light_small,	// APPFONT_EXTRA_LIGHT_SMALL
-			fonts.id_trivial_light_small,		// APPFONT_LIGHT_SMALL
-			fonts.id_trivial_regular_small,		// APPFONT_REGULAR_SMALL
-			fonts.id_trivial_bold_small,		// APPFONT_BOLD_SMALL
-			fonts.id_trivial_heavy_small,		// APPFONT_HEAVY_SMALL
-			fonts.id_trivial_ultra_light_medium,// APPFONT_ULTRA_LIGHT_MEDIUM
-			fonts.id_trivial_extra_light_medium,// APPFONT_EXTRA_LIGHT_MEDIUM
-			fonts.id_trivial_light_medium,		// APPFONT_LIGHT_MEDIUM
-			fonts.id_trivial_regular_medium,	// APPFONT_REGULAR_MEDIUM
-			fonts.id_trivial_bold_medium,		// APPFONT_BOLD_MEDIUM
-			fonts.id_trivial_heavy_medium,		// APPFONT_HEAVY_MEDIUM
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
 
 		// 24
 			graphics.FONT_SYSTEM_XTINY, 			// APPFONT_SYSTEM_XTINY
@@ -4039,6 +4039,38 @@ class myView
 			fonts.id_colon_s,		// colon font minus
 			fonts.id_colon_m,		// colon font
 			fonts.id_colon_l,		// colon font plus
+			
+		// 60
+			fonts.id_num_s_1,		// number font minus (extra light)
+			fonts.id_num_s_2,		// number font minus (light)
+			fonts.id_num_s_3,		// number font minus (regular)
+			fonts.id_num_s_4,		// number font minus (heavy)
+
+			fonts.id_num_m_1,		// number font (extra light)
+			fonts.id_num_m_2,		// number font (light)
+			fonts.id_num_m_3,		// number font (regular)
+			fonts.id_num_m_4,		// number font (heavy)
+
+			fonts.id_num_l_1,		// number font plus (extra light)
+			fonts.id_num_l_2,		// number font plus (light)
+			fonts.id_num_l_3,		// number font plus (regular)
+			fonts.id_num_l_4,		// number font plus (heavy)
+
+		// 72
+			fonts.id_abc_s_1,		// alphabet font minus (extra light)
+			fonts.id_abc_s_2,		// alphabet font minus (light)
+			fonts.id_abc_s_3,		// alphabet font minus (regular)
+			fonts.id_abc_s_4,		// alphabet font minus (heavy)
+
+			fonts.id_abc_m_1,		// alphabet font (extra light)
+			fonts.id_abc_m_2,		// alphabet font (light)
+			fonts.id_abc_m_3,		// alphabet font (regular)
+			fonts.id_abc_m_4,		// alphabet font (heavy)
+
+			fonts.id_abc_l_1,		// alphabet font plus (extra light)
+			fonts.id_abc_l_2,		// alphabet font plus (light)
+			fonts.id_abc_l_3,		// alphabet font plus (regular)
+			fonts.id_abc_l_4,		// alphabet font plus (heavy)
 		];
 		
 		if (fontIndex>=0)
@@ -4100,12 +4132,12 @@ class myView
 				case 4:		// colon large
 				{
 					var r = (gfxData[index+2] & 0xFF);
-				 	if (r<0 || r>21)	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
+				 	if (r<0 || r>21)	// 0-17 (s,m,l fonts), 18-21 (4 system number fonts)
 				 	{
 				 		r = 9/*m regular*/;
 				 	}
 				 	//								colon								hour/minute
-				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 57) : (r-18+29)) : ((r<18) ? (r+39) : (r-18+29));  
+				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 57) : (r-18+29)) : ((r<18) ? (r+39) : (r-18+29));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex]);			
 					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -4115,12 +4147,13 @@ class myView
 				case 5:		// string
 				{
 					var r = (gfxData[index+3] & 0xFF);
-				 	if (r<6 || r>56)
+				 	if (r<0 || r>16)	// 0-11 (s,m,l fonts), 12-16 (5 system fonts)
 				 	{
-				 		r = 15/*APPFONT_REGULAR_SMALL*/;
+				 		r = (r&~0xFF) + 6/*m regular*/;
 				 	}
-					var resourceIndex = addDynamicResource(fontList[r]);
-					
+				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
+				 	var fontListIndex = ((r<12) ? (r + (useNumFont?60:72)) : (r-12+24));
+					var resourceIndex = addDynamicResource(fontList[fontListIndex]);
 					gfxData[index+3] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -4545,7 +4578,7 @@ class myView
 					var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
 
 					var eStr = null;
-					var eDisplay = gfxData[index+1];
+					var eDisplay = (gfxData[index+1] & 0x7F);
 					var makeUpperCase = false;
 					var checkDiacritics = false;
 					var useUnsupportedFont = false;
@@ -4663,20 +4696,17 @@ class myView
 							break;
 						}
 
+						case 15/*FIELD_WEEK_ISO_W*/:		// W
+						{
+							eStr = "W";
+							break;
+						}
+	
 						case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
-						case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
 						case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
 						{
 							calculateDayWeekYearData(1, firstDayOfWeek, dateInfoMedium);							
-						
-							if (eDisplay == 16/*FIELD_YEAR_ISO_WEEK_XXXX*/)
-							{
-	        					eStr = "" + ISOYear;
-							}
-							else
-							{
-	        					eStr = ((eDisplay == 14/*FIELD_WEEK_ISO_XX*/) ? "" : "W") + ISOWeek.format("%02d");
-	        				}
+        					eStr = ((eDisplay==14/*FIELD_WEEK_ISO_XX*/) ? ISOWeek.format("%02d") : "" + ISOYear);
     						break;
 						}
 	
@@ -5905,7 +5935,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = dataType;		// type
 			gfxData[index+2] = 3+1;	// color
-			gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
+			gfxData[index+3] = 6/*m_regular*/;	// font & diacritics
 			// string start
 			// string end
 			// width
@@ -6640,7 +6670,7 @@ class myEditorView extends myView
 			"year (##)",
 			"year (####)",
 			"week (ISO ##)",
-			"week (ISO W##)",
+			"ISO W symbol",
 			"year (ISO week ####)",
 			"week (calendar)",
 			"year (calendar week ####)",
@@ -6686,7 +6716,7 @@ class myEditorView extends myView
 			"altitude units (ft/m)",
 		];
 	
-		return safeStringFromArray(sArray, eDisplay-1);
+		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
 
 //		var eStr = null;
 //		
@@ -7352,7 +7382,7 @@ class myEditorView extends myView
 //		}
 //		gfxData[menuElementGfx+2] = f[i];
 		
-		gfxData[menuElementGfx+2] = ((temp-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)		
+		gfxData[menuElementGfx+2] = ((temp-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -7364,18 +7394,19 @@ class myEditorView extends myView
 	function stringFontEditing(val)
 	{
 		var temp = (gfxData[menuElementGfx+3] & 0xFF);
-		// 6 to 28
-		temp = temp - val;
-		if (temp>28)
-		{
-			temp = 6;
-		}
-		else if (temp<6)
-		{
-			temp = 28;
-		}
-		
-		gfxData[menuElementGfx+3] = temp;
+
+//		// 6 to 28
+//		temp = temp - val;
+//		if (temp>28)
+//		{
+//			temp = 6;
+//		}
+//		else if (temp<6)
+//		{
+//			temp = 28;
+//		}
+
+		gfxData[menuElementGfx+3] = (temp-val+17)%17;	// 0-11 (s,m,l fonts), 12-16 (system fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -8936,7 +8967,7 @@ class myMenuItemElementEdit extends myMenuItem
 // string
 //		gfxData[index+1] = dataType;		// type
 //		gfxData[index+2] = 3+1;	// color
-//		gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & makeUpperCase & diacritics
+//		gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & diacritics
 
 // icon
 //		gfxData[index+1] = 0;	// type
@@ -9343,9 +9374,9 @@ class myMenuItemElementAdd extends myMenuItem
 	var timeIds = [
 		1/*FIELD_HOUR*/,			// hour
 		2/*FIELD_MINUTE*/,			// minute
-		24/*FIELD_SEPARATOR_COLON*/,
-		19/*FIELD_AM*/,
-		20/*FIELD_PM*/,
+		24/*FIELD_SEPARATOR_COLON*/ | 0x80,
+		19/*FIELD_AM*/ | 0x80,
+		20/*FIELD_PM*/ | 0x80,
 		47/*FIELD_2ND_HOUR*/,
 		41/*FIELD_SUNRISE_HOUR*/,
 		42/*FIELD_SUNRISE_MINUTE*/,
@@ -9356,19 +9387,19 @@ class myMenuItemElementAdd extends myMenuItem
 	]b;
 	
 	var separatorIds = [
-		21/*FIELD_SEPARATOR_SPACE*/,
-		22,
-		23,
-		24/*FIELD_SEPARATOR_COLON*/,
-		25,
-		26,
-		27,
-		28/*FIELD_SEPARATOR_PERCENT*/,
+		21/*FIELD_SEPARATOR_SPACE*/ | 0x80,			// space
+		22 | 0x80,									// forward slash
+		23 | 0x80,									// back slash
+		24/*FIELD_SEPARATOR_COLON*/ | 0x80,			// colon
+		25 | 0x80,									// minus
+		26 | 0x80,									// full stop
+		27 | 0x80,									// comma
+		28/*FIELD_SEPARATOR_PERCENT*/ | 0x80,		// percent
 	]b;
 	
 	var dateIds = [
-		3/*FIELD_DAY_NAME*/,		// day name
-		9/*FIELD_MONTH_NAME*/,		// month name
+		3/*FIELD_DAY_NAME*/ | 0x80,		// day name
+		9/*FIELD_MONTH_NAME*/ | 0x80,		// month name
 		4/*FIELD_DAY_OF_WEEK*/,			// day number of week
 		5/*FIELD_DAY_OF_MONTH*/,			// day number of month
 		6/*FIELD_DAY_OF_MONTH_XX*/,			// day number of month XX
@@ -9379,7 +9410,7 @@ class myMenuItemElementAdd extends myMenuItem
 		12/*FIELD_YEAR_XX*/,		// year XX
 		13/*FIELD_YEAR_XXXX*/,		// year XXXX
 		14/*FIELD_WEEK_ISO_XX*/,			// week number of year XX
-		15/*FIELD_WEEK_ISO_WXX*/,		// week number of year WXX
+		15/*FIELD_WEEK_ISO_W*/ | 0x80,		// W
 		16/*FIELD_YEAR_ISO_WEEK_XXXX*/,
 		17/*FIELD_WEEK_CALENDAR_XX*/,			// week number of year XX
 		18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/,
@@ -9392,7 +9423,7 @@ class myMenuItemElementAdd extends myMenuItem
 		34/*FIELD_FLOORSGOAL*/,
 		35/*FIELD_NOTIFICATIONSCOUNT*/,
 		36/*FIELD_BATTERYPERCENTAGE*/,
-		28/*FIELD_SEPARATOR_PERCENT*/,
+		28/*FIELD_SEPARATOR_PERCENT*/ | 0x80,
 		37/*FIELD_HEART_MIN*/,
 		38/*FIELD_HEART_MAX*/,
 		39/*FIELD_HEART_AVERAGE*/,
@@ -9403,11 +9434,11 @@ class myMenuItemElementAdd extends myMenuItem
 		51/*FIELD_INTENSITY_GOAL*/,
 		52/*FIELD_SMART_GOAL*/,
 		53/*FIELD_DISTANCE*/,
-		54/*FIELD_DISTANCE_UNITS*/,
+		54/*FIELD_DISTANCE_UNITS*/ | 0x80,
 		55/*FIELD_PRESSURE*/,
-		56/*FIELD_PRESSURE_UNITS*/,
+		56/*FIELD_PRESSURE_UNITS*/ | 0x80,
 		57/*FIELD_ALTITUDE*/,
-		58/*FIELD_ALTITUDE_UNITS*/,
+		58/*FIELD_ALTITUDE_UNITS*/ | 0x80,
 	]b;
 	
 	var idIndex;

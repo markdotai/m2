@@ -24,33 +24,42 @@
 	<font id="id_colon_m" filename="ColonMono240.fnt" antialias="true"></font>
 	<font id="id_colon_l" filename="ColonMono260.fnt" antialias="true"></font>
 
+	<font id="id_num_s_1" filename="TrivialNum12ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_s_2" filename="TrivialNum12Light.fnt" antialias="true"></font>
+	<font id="id_num_s_3" filename="TrivialNum12Regular.fnt" antialias="true"></font>
+	<font id="id_num_s_4" filename="TrivialNum12Heavy.fnt" antialias="true"></font>
+	
+	<font id="id_num_m_1" filename="TrivialNum15ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_m_2" filename="TrivialNum15Light.fnt" antialias="true"></font>
+	<font id="id_num_m_3" filename="TrivialNum15Regular.fnt" antialias="true"></font>
+	<font id="id_num_m_4" filename="TrivialNum15Heavy.fnt" antialias="true"></font>
+	
+	<font id="id_num_l_1" filename="TrivialNum18ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_l_2" filename="TrivialNum18Light.fnt" antialias="true"></font>
+	<font id="id_num_l_3" filename="TrivialNum18Regular.fnt" antialias="true"></font>
+	<font id="id_num_l_4" filename="TrivialNum18Heavy.fnt" antialias="true"></font>
+	
+	<font id="id_abc_s_1" filename="TrivialExtraLight20.fnt" antialias="true"></font>
+	<font id="id_abc_s_2" filename="TrivialLight20.fnt" antialias="true"></font>
+	<font id="id_abc_s_3" filename="TrivialRegular20.fnt" antialias="true"></font>
+	<font id="id_abc_s_4" filename="TrivialHeavy20.fnt" antialias="true"></font>
+
+	<font id="id_abc_m_1" filename="TrivialExtraLight25.fnt" antialias="true"></font>
+	<font id="id_abc_m_2" filename="TrivialLight25.fnt" antialias="true"></font>
+	<font id="id_abc_m_3" filename="TrivialRegular25.fnt" antialias="true"></font>
+	<font id="id_abc_m_4" filename="TrivialHeavy25.fnt" antialias="true"></font>
+
+	<font id="id_abc_l_1" filename="TrivialExtraLight31.fnt" antialias="true"></font>
+	<font id="id_abc_l_2" filename="TrivialLight31.fnt" antialias="true"></font>
+	<font id="id_abc_l_3" filename="TrivialRegular31.fnt" antialias="true"></font>
+	<font id="id_abc_l_4" filename="TrivialHeavy31.fnt" antialias="true"></font>
+
 	<font id="id_trivial_ultra_light_italic" filename="TrivialUltraLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_extra_light_italic" filename="TrivialExtraLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_light_italic" filename="TrivialLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_regular_italic" filename="TrivialRegularItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_bold_italic" filename="TrivialBoldItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_heavy_italic" filename="TrivialHeavyItalic70.fnt" antialias="true"></font>
-
-	<font id="id_trivial_ultra_light_tiny" filename="TrivialUltraLight20.fnt" antialias="true"></font>
-	<font id="id_trivial_extra_light_tiny" filename="TrivialExtraLight20.fnt" antialias="true"></font>
-	<font id="id_trivial_light_tiny" filename="TrivialLight20.fnt" antialias="true"></font>
-	<font id="id_trivial_regular_tiny" filename="TrivialRegular20.fnt" antialias="true"></font>
-	<font id="id_trivial_bold_tiny" filename="TrivialBold20.fnt" antialias="true"></font>
-	<font id="id_trivial_heavy_tiny" filename="TrivialHeavy20.fnt" antialias="true"></font>
-
-	<font id="id_trivial_ultra_light_small" filename="TrivialUltraLight25.fnt" antialias="true"></font>
-	<font id="id_trivial_extra_light_small" filename="TrivialExtraLight25.fnt" antialias="true"></font>
-	<font id="id_trivial_light_small" filename="TrivialLight25.fnt" antialias="true"></font>
-	<font id="id_trivial_regular_small" filename="TrivialRegular25.fnt" antialias="true"></font>
-	<font id="id_trivial_bold_small" filename="TrivialBold25.fnt" antialias="true"></font>
-	<font id="id_trivial_heavy_small" filename="TrivialHeavy25.fnt" antialias="true"></font>
-
-	<font id="id_trivial_ultra_light_medium" filename="TrivialUltraLight31.fnt" antialias="true"></font>
-	<font id="id_trivial_extra_light_medium" filename="TrivialExtraLight31.fnt" antialias="true"></font>
-	<font id="id_trivial_light_medium" filename="TrivialLight31.fnt" antialias="true"></font>
-	<font id="id_trivial_regular_medium" filename="TrivialRegular31.fnt" antialias="true"></font>
-	<font id="id_trivial_bold_medium" filename="TrivialBold31.fnt" antialias="true"></font>
-	<font id="id_trivial_heavy_medium" filename="TrivialHeavy31.fnt" antialias="true"></font>
 
 	<font id="id_icons" filename="icons.fnt" antialias="true"></font>
 
