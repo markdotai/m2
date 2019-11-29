@@ -316,15 +316,17 @@ class myView
 	//	FIELD_YEAR_CALENDAR_WEEK_XXXX = 18,
 	//	FIELD_AM = 19,
 	//	FIELD_PM = 20,
+	//	FIELD_A = 21,
+	//	FIELD_P = 22,
 	//
-	//	FIELD_SEPARATOR_SPACE = 21,
-	//	//!FIELD_SEPARATOR_SLASH_FORWARD = 22,
-	//	//!FIELD_SEPARATOR_SLASH_BACK = 23,
-	//	//!FIELD_SEPARATOR_COLON = 24,
-	//	//!FIELD_SEPARATOR_MINUS = 25,
-	//	//!FIELD_SEPARATOR_DOT = 26,
-	//	//!FIELD_SEPARATOR_COMMA = 27,
-	//	FIELD_SEPARATOR_PERCENT = 28,
+	//	FIELD_SEPARATOR_SPACE = 23,
+	//	//!FIELD_SEPARATOR_SLASH_FORWARD = 24,
+	//	//!FIELD_SEPARATOR_SLASH_BACK = 25,
+	//	//!FIELD_SEPARATOR_COLON = 26,
+	//	//!FIELD_SEPARATOR_MINUS = 27,
+	//	//!FIELD_SEPARATOR_DOT = 28,
+	//	//!FIELD_SEPARATOR_COMMA = 29,
+	//	FIELD_SEPARATOR_PERCENT = 30,
 	//
 	//	FIELD_STEPSCOUNT = 31,
 	//	FIELD_STEPSGOAL = 32,
@@ -4654,6 +4656,7 @@ class myView
 						case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
 					    {
 							eStr = "" + dateInfoMedium.day;
+//eStr = "" + second;
 							break;
 						}
 	
@@ -4730,17 +4733,29 @@ class myView
 							break;
 						}
 	
-					    case 21/*FIELD_SEPARATOR_SPACE*/:
-					    case 22:
-					    case 23:
-					    case 24/*FIELD_SEPARATOR_COLON*/:
+						case 21/*FIELD_A*/:
+					    {
+							eStr = "A";
+							break;
+						}
+	
+						case 22/*FIELD_P*/:
+					    {
+							eStr = "P";
+							break;
+						}
+	
+					    case 23/*FIELD_SEPARATOR_SPACE*/:
+					    case 24:
 					    case 25:
-					    case 26:
+					    case 26/*FIELD_SEPARATOR_COLON*/:
 					    case 27:
-					    case 28/*FIELD_SEPARATOR_PERCENT*/:
+					    case 28:
+					    case 29:
+					    case 30/*FIELD_SEPARATOR_PERCENT*/:
 					    {
 							var separatorString = " /\\:-.,%";
-		        			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
+		        			eStr = separatorString.substring(eDisplay-23/*FIELD_SEPARATOR_SPACE*/, eDisplay-23/*FIELD_SEPARATOR_SPACE*/+1);
 		        			break;
 					    }
 
@@ -6518,14 +6533,26 @@ class myEditorView extends myView
 	
 		for (var i=0; i<64; i++)
 		{
-	        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);
-	        
 	        var i2 = i * 2;
 	        var r = g[i2] * 14;
 	        var a = Math.toRadians(g[i2+1] * 10);
 	        var x = Math.round(r * Math.sin(a));
 	        var y = Math.round(r * Math.cos(a));
 	         
+	        if (i==highlightGrid)
+	        {
+        		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+	        
+		        for (var j=-1; j<=1; j+=2)
+		        {
+		        	for (var k=-1; k<=1; k+=2)
+		        	{
+    					dc.drawText(displayHalf + x + j, displayHalf - y + k, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+		        	}
+		        }
+	        }	       
+	         
+	        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);	        
     		dc.drawText(displayHalf + x, displayHalf - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
     		
     		// editorfont
@@ -6658,22 +6685,22 @@ class myEditorView extends myView
 		var sArray = [
 			"hour",
 			"minute",
-			"day (name)",
-			"day (# of week)",
-			"day (# of month)",
-			"day (## of month)",
-			"day (# of year)",
-			"day (### of year)",
-			"month (name)",
-			"month (#)",
-			"month (##)",
-			"year (##)",
-			"year (####)",
-			"week (ISO ##)",
-			"ISO W symbol",
-			"year (ISO week ####)",
-			"week (calendar)",
-			"year (calendar week ####)",
+			"day name",
+			"day # in week",
+			"day # in month",
+			"day ## in month",
+			"day # in year",
+			"day ### in year",
+			"month name",
+			"month #",
+			"month ##",
+			"year ##",
+			"year ####",
+			"week ISO ##",
+			"W ISO symbol",
+			"year ISO ####",
+			"week calendar",
+			"year calendar ####",
 			"AM",
 			"PM",
 	    	"<space>",
@@ -6688,32 +6715,32 @@ class myEditorView extends myView
 	    	"unknown",
 			"steps count",
 			"steps goal",
-			"floors count",
-			"floors goal",
-			"notifications count",
-			"battery percentage",
+			"floor count",
+			"floor goal",
+			"notifications",
+			"battery %",
 			"heart rate min",
 			"heart rate max",
-			"heart rate average",
+			"heart rate avg",
 			"heart rate",
 			"sunrise hour",
 			"sunrise minute",
 			"sunset hour",
 			"sunset minute",
-			"next sun event hour",
-			"next sun event minute",
-			"2nd time zone hour",
+			"next sun hour",
+			"next sun minute",
+			"2nd time hour",
 			"calories",
 			"active calories",
 			"intensity minutes",
 			"intensity goal",
-			"smart intensity goal",
+			"smart goal",
 			"distance",
-			"distance units (mi/km)",
+			"mi/km units",
 			"pressure",
-			"pressure units (mb)",
+			"mb units",
 			"altitude",
-			"altitude units (ft/m)",
+			"ft/m units",
 		];
 	
 		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
@@ -7049,7 +7076,7 @@ class myEditorView extends myView
 		    "phone not connected",
 		    "LTE connected",
 		    "LTE not connected",
-		    "battery high or medium",
+		    "battery high/medium",
 		    "battery high",
 		    "battery medium",
 		    "battery low",
@@ -7057,10 +7084,10 @@ class myEditorView extends myView
 		    "move bar alert not triggered",
 		    "AM",
 		    "PM",
-		    "2nd time zone AM",
-		    "2nd time zone PM",
-		    "next sun event is rise",
-		    "next sun event is set",
+		    "2nd time AM",
+		    "2nd time PM",
+		    "next sun = rise",
+		    "next sun = set",
 		];
 	
 		return safeStringFromArray(sArray, vis);
@@ -7502,7 +7529,7 @@ class myEditorView extends myView
 			"minutes",				// minutes
 			"hours",				// hours
 	   		"battery",				// battery percentage
-			"2nd time zone hours",	// 2nd time zone hours
+			"2nd time hours",		// 2nd time zone hours
 	   		"sun (now top)",		// sunrise & sunset now top
 	   		"sun (midnight top)",	// sunrise & sunset midnight top
 	   		"sun (noon top)",		// sunrise & sunset noon top
@@ -8252,7 +8279,7 @@ class myMenuItemReset extends myMenuItem
     
     function getString()
     {
-    	return "reset (delete all)";
+    	return "delete all fields";
     }
     
     // up=0 down=1 left=2 right=3
@@ -8312,7 +8339,7 @@ class myMenuItemHeader extends myMenuItem
 		"background color",
 		"battery high",
 		"battery low",
-		"2nd time zone offset",
+		"2nd time offset",
 		"move bar alert level",
 		"font system case",
 		"font unsupported",
@@ -9377,6 +9404,8 @@ class myMenuItemElementAdd extends myMenuItem
 		24/*FIELD_SEPARATOR_COLON*/ | 0x80,
 		19/*FIELD_AM*/ | 0x80,
 		20/*FIELD_PM*/ | 0x80,
+		21/*FIELD_A*/ | 0x80,
+		22/*FIELD_P*/ | 0x80,
 		47/*FIELD_2ND_HOUR*/,
 		41/*FIELD_SUNRISE_HOUR*/,
 		42/*FIELD_SUNRISE_MINUTE*/,
@@ -9387,14 +9416,14 @@ class myMenuItemElementAdd extends myMenuItem
 	]b;
 	
 	var separatorIds = [
-		21/*FIELD_SEPARATOR_SPACE*/ | 0x80,			// space
-		22 | 0x80,									// forward slash
-		23 | 0x80,									// back slash
-		24/*FIELD_SEPARATOR_COLON*/ | 0x80,			// colon
-		25 | 0x80,									// minus
-		26 | 0x80,									// full stop
-		27 | 0x80,									// comma
-		28/*FIELD_SEPARATOR_PERCENT*/ | 0x80,		// percent
+		23/*FIELD_SEPARATOR_SPACE*/ | 0x80,			// space
+		24 | 0x80,									// forward slash
+		25 | 0x80,									// back slash
+		26/*FIELD_SEPARATOR_COLON*/ | 0x80,			// colon
+		27 | 0x80,									// minus
+		28 | 0x80,									// full stop
+		29 | 0x80,									// comma
+		30/*FIELD_SEPARATOR_PERCENT*/ | 0x80,		// percent
 	]b;
 	
 	var dateIds = [
@@ -9478,9 +9507,9 @@ class myMenuItemElementAdd extends myMenuItem
 		"add icon",
 		"add move bar",
 		"add chart",
-		"add hour (large)",
-		"add minute (large)",
-		"add colon (large)",
+		"hour (large)",
+		"minute (large)",
+		"colon (large)",
 	];
 
 	var fState;
