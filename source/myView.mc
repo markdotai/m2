@@ -4046,33 +4046,39 @@ class myView
 			fonts.id_num_s_1,		// number font minus (extra light)
 			fonts.id_num_s_2,		// number font minus (light)
 			fonts.id_num_s_3,		// number font minus (regular)
-			fonts.id_num_s_4,		// number font minus (heavy)
+			fonts.id_num_s_4,		// number font minus (bold)
+			fonts.id_num_s_5,		// number font minus (heavy)
 
 			fonts.id_num_m_1,		// number font (extra light)
 			fonts.id_num_m_2,		// number font (light)
 			fonts.id_num_m_3,		// number font (regular)
-			fonts.id_num_m_4,		// number font (heavy)
+			fonts.id_num_m_4,		// number font (bold)
+			fonts.id_num_m_5,		// number font (heavy)
 
 			fonts.id_num_l_1,		// number font plus (extra light)
 			fonts.id_num_l_2,		// number font plus (light)
 			fonts.id_num_l_3,		// number font plus (regular)
-			fonts.id_num_l_4,		// number font plus (heavy)
+			fonts.id_num_l_4,		// number font plus (bold)
+			fonts.id_num_l_5,		// number font plus (heavy)
 
-		// 72
+		// 75
 			fonts.id_abc_s_1,		// alphabet font minus (extra light)
 			fonts.id_abc_s_2,		// alphabet font minus (light)
 			fonts.id_abc_s_3,		// alphabet font minus (regular)
-			fonts.id_abc_s_4,		// alphabet font minus (heavy)
+			fonts.id_abc_s_4,		// alphabet font minus (bold)
+			fonts.id_abc_s_5,		// alphabet font minus (heavy)
 
 			fonts.id_abc_m_1,		// alphabet font (extra light)
 			fonts.id_abc_m_2,		// alphabet font (light)
 			fonts.id_abc_m_3,		// alphabet font (regular)
-			fonts.id_abc_m_4,		// alphabet font (heavy)
+			fonts.id_abc_m_4,		// alphabet font (bold)
+			fonts.id_abc_m_5,		// alphabet font (heavy)
 
 			fonts.id_abc_l_1,		// alphabet font plus (extra light)
 			fonts.id_abc_l_2,		// alphabet font plus (light)
 			fonts.id_abc_l_3,		// alphabet font plus (regular)
-			fonts.id_abc_l_4,		// alphabet font plus (heavy)
+			fonts.id_abc_l_4,		// alphabet font plus (bold)
+			fonts.id_abc_l_5,		// alphabet font plus (heavy)
 		];
 		
 		if (fontIndex>=0)
@@ -4149,12 +4155,12 @@ class myView
 				case 5:		// string
 				{
 					var r = (gfxData[index+3] & 0xFF);
-				 	if (r<0 || r>16)	// 0-11 (s,m,l fonts), 12-16 (5 system fonts)
+				 	if (r<0 || r>19)	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 				 	{
-				 		r = (r&~0xFF) + 6/*m regular*/;
+				 		r = (r&~0xFF) + 7/*m regular*/;
 				 	}
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
-				 	var fontListIndex = ((r<12) ? (r + (useNumFont?60:72)) : (r-12+24));
+				 	var fontListIndex = ((r<15) ? (r + (useNumFont?60:75)) : (r-15+24));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex]);
 					gfxData[index+3] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -4656,7 +4662,7 @@ class myView
 						case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
 					    {
 							eStr = "" + dateInfoMedium.day;
-//eStr = "" + second;
+eStr = "" + second;
 							break;
 						}
 	
@@ -6703,6 +6709,8 @@ class myEditorView extends myView
 			"year calendar ####",
 			"AM",
 			"PM",
+			"A",
+			"P",
 	    	"<space>",
 	    	"/",
 	    	"\\",
@@ -6711,8 +6719,6 @@ class myEditorView extends myView
 	    	".",
 	    	",",
 	    	"%",
-	    	"unknown",
-	    	"unknown",
 			"steps count",
 			"steps goal",
 			"floor count",
@@ -7433,7 +7439,7 @@ class myEditorView extends myView
 //			temp = 28;
 //		}
 
-		gfxData[menuElementGfx+3] = (temp-val+17)%17;	// 0-11 (s,m,l fonts), 12-16 (system fonts)
+		gfxData[menuElementGfx+3] = (temp-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (system fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -7910,8 +7916,8 @@ class myMenuItemFieldAdd extends myMenuItem
 //	}
 
 	var globalString = [
+		"add new",
 		"add field",
-		"add horizontal",
 		"add freeform",
 		"add rectangle",
 		"add ring",
@@ -8279,7 +8285,7 @@ class myMenuItemReset extends myMenuItem
     
     function getString()
     {
-    	return "delete all fields";
+    	return "clear display";
     }
     
     // up=0 down=1 left=2 right=3
