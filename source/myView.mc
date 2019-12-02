@@ -4662,7 +4662,7 @@ class myView
 						case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
 					    {
 							eStr = "" + dateInfoMedium.day;
-eStr = "" + second;
+//eStr = "" + second;
 							break;
 						}
 	
@@ -9407,7 +9407,7 @@ class myMenuItemElementAdd extends myMenuItem
 	var timeIds = [
 		1/*FIELD_HOUR*/,			// hour
 		2/*FIELD_MINUTE*/,			// minute
-		24/*FIELD_SEPARATOR_COLON*/ | 0x80,
+		24/*FIELD_SEPARATOR_COLON*/,
 		19/*FIELD_AM*/ | 0x80,
 		20/*FIELD_PM*/ | 0x80,
 		21/*FIELD_A*/ | 0x80,
@@ -9422,14 +9422,14 @@ class myMenuItemElementAdd extends myMenuItem
 	]b;
 	
 	var separatorIds = [
-		23/*FIELD_SEPARATOR_SPACE*/ | 0x80,			// space
-		24 | 0x80,									// forward slash
-		25 | 0x80,									// back slash
-		26/*FIELD_SEPARATOR_COLON*/ | 0x80,			// colon
-		27 | 0x80,									// minus
-		28 | 0x80,									// full stop
-		29 | 0x80,									// comma
-		30/*FIELD_SEPARATOR_PERCENT*/ | 0x80,		// percent
+		23/*FIELD_SEPARATOR_SPACE*/,		// space
+		24,									// forward slash
+		25,									// back slash
+		26/*FIELD_SEPARATOR_COLON*/,		// colon
+		27,									// minus
+		28,									// full stop
+		29,									// comma
+		30/*FIELD_SEPARATOR_PERCENT*/,		// percent
 	]b;
 	
 	var dateIds = [
@@ -9458,7 +9458,7 @@ class myMenuItemElementAdd extends myMenuItem
 		34/*FIELD_FLOORSGOAL*/,
 		35/*FIELD_NOTIFICATIONSCOUNT*/,
 		36/*FIELD_BATTERYPERCENTAGE*/,
-		28/*FIELD_SEPARATOR_PERCENT*/ | 0x80,
+		28/*FIELD_SEPARATOR_PERCENT*/,
 		37/*FIELD_HEART_MIN*/,
 		38/*FIELD_HEART_MAX*/,
 		39/*FIELD_HEART_AVERAGE*/,
