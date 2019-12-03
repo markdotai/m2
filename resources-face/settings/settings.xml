@@ -52,10 +52,6 @@
         <settingConfig type="boolean" />
     </setting>
 
-    <setting propertyKey="@Properties.NC" title="@Strings.NonActiveCalorieOverrideTitle">
-        <settingConfig type="numeric" />
-    </setting>
-
     <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle">
         <settingConfig type="boolean" />
     </setting>

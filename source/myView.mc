@@ -215,7 +215,6 @@ class myView
 	var demoProfilesCurrentEnd = 0;
 
 	var propSunAltitudeAdjust = false;
-	var propNonActiveCalories = 0;
 
 	// if any of these numbers below change, then also need to modify:
 	//     	- FIELD_SHAPE_CIRCLE, as they are in the same order
@@ -1650,7 +1649,6 @@ class myView
 		demoProfilesLast = ((n[1]>(PROFILE_NUM_USER+PROFILE_NUM_PRESET)) ? (PROFILE_NUM_USER+PROFILE_NUM_PRESET) : n[1]) - 1;	// convert from user to code index
 
 		propSunAltitudeAdjust = propertiesGetBoolean("SA");
-		propNonActiveCalories = propertiesGetNumber("NC");
 	}
 	
     (:m2app)
@@ -4662,7 +4660,7 @@ class myView
 						case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
 					    {
 							eStr = "" + dateInfoMedium.day;
-//eStr = "" + second;
+eStr = "" + second;
 							break;
 						}
 	
@@ -4869,15 +4867,11 @@ class myView
 
 						case 49/*FIELD_ACTIVE_CALORIES*/:
 						{
-							var nonActiveCalories = propNonActiveCalories;
-							if (nonActiveCalories<=0)
-							{
-								var userProfile = UserProfile.getProfile();
-								var BMR = (10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161));
-								nonActiveCalories = (BMR*1.2).toNumber();
-							}
-							var calories = getNullCheckZero(activityMonitorInfo.calories) - (nonActiveCalories * timeNowInMinutesToday) / (24*60); 
-							eStr = "" + ((calories<0) ? "--" : calories);
+							var userProfile = UserProfile.getProfile();
+							//var nonActiveCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
+							var nonActiveCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
+							var activeCalories = getNullCheckZero(activityMonitorInfo.calories) - ((nonActiveCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber(); 
+							eStr = "" + ((activeCalories<0) ? "--" : activeCalories);
 							break;
 						}
 
@@ -5395,7 +5389,7 @@ class myView
 
 //System.println("ascent=" + graphics.getFontAscent(dynamicResource));
 					
-					gfxElementHighlight(dc, index, fieldX, timeY, gfxData[index+4]+gfxData[index+6], fieldYStart-timeY+2);
+					gfxElementHighlight(dc, index, fieldX, timeY, gfxData[index+4]+gfxData[index+6], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex)+2);
 
 					if (gfxData[index+4]>0)	// width 1
 					{
@@ -5443,7 +5437,7 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+6], fieldYStart-dateY+2);
+							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+6], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex)+2);
 
 					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 
@@ -5492,7 +5486,7 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+5], fieldYStart-dateY+2);
+							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+5], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex)+2);
 
 					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
@@ -5521,7 +5515,7 @@ class myView
 					var dateX = fieldX;
 					var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 
-					gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+10], fieldYStart-dateY+2);
+					gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+10], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex)+2);
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -7595,12 +7589,12 @@ class myEditorView extends myView
 	
 	function ringStartEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3] + val + 60)%60;
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3] - val + 60)%60;
 	}
 	
 	function ringEndEditing(val)
 	{
-		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4] + val + 60)%60;
+		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4] - val + 60)%60;
 	}
 	
 	function ringFilledColorEditing(val)
@@ -7616,7 +7610,7 @@ class myEditorView extends myView
 	function secondsFontEditing(val)
 	{
 		var temp = (gfxData[menuFieldGfx+1] & 0xFF);
-		temp = (temp+val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
+		temp = (temp-val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
 		
 		gfxData[menuFieldGfx+1] &= ~0x00FF; 
 		gfxData[menuFieldGfx+1] |= temp;
@@ -7646,7 +7640,7 @@ class myEditorView extends myView
 	
 	function secondsRefreshEditing(val)
 	{
-		var temp = (secondsGetRefresh() + val + 3)%3;
+		var temp = (secondsGetRefresh() - val + 3)%3;
 		
 		gfxData[menuFieldGfx+1] &= ~0xFF00; 
 		gfxData[menuFieldGfx+1] |= (temp<<8); 
@@ -9407,7 +9401,7 @@ class myMenuItemElementAdd extends myMenuItem
 	var timeIds = [
 		1/*FIELD_HOUR*/,			// hour
 		2/*FIELD_MINUTE*/,			// minute
-		24/*FIELD_SEPARATOR_COLON*/,
+		26/*FIELD_SEPARATOR_COLON*/,
 		19/*FIELD_AM*/ | 0x80,
 		20/*FIELD_PM*/ | 0x80,
 		21/*FIELD_A*/ | 0x80,
@@ -9458,7 +9452,7 @@ class myMenuItemElementAdd extends myMenuItem
 		34/*FIELD_FLOORSGOAL*/,
 		35/*FIELD_NOTIFICATIONSCOUNT*/,
 		36/*FIELD_BATTERYPERCENTAGE*/,
-		28/*FIELD_SEPARATOR_PERCENT*/,
+		30/*FIELD_SEPARATOR_PERCENT*/,
 		37/*FIELD_HEART_MIN*/,
 		38/*FIELD_HEART_MAX*/,
 		39/*FIELD_HEART_AVERAGE*/,

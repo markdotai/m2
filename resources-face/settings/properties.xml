@@ -15,7 +15,6 @@
     <property id="DR" type="string">25 99</property>		<!-- demo profiles range -->
 
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
-    <property id="NC" type="number">0</property>			<!-- non-active calorie override -->
 
     <property id="H" type="boolean">false</property>		<!-- honesty checkbox -->
 
