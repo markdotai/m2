@@ -25,4 +25,22 @@
 	<font id="id_colon_m" filename="ColonMono240.fnt" antialias="true"></font>
 	<font id="id_colon_l" filename="ColonMono260.fnt" antialias="true"></font>
 
+	<font id="id_num_s_1" filename="TrivialNum12ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_s_2" filename="TrivialNum12Light.fnt" antialias="true"></font>
+	<font id="id_num_s_3" filename="TrivialNum12Regular.fnt" antialias="true"></font>
+	<font id="id_num_s_4" filename="TrivialNum12Bold.fnt" antialias="true"></font>
+	<font id="id_num_s_5" filename="TrivialNum12Heavy.fnt" antialias="true"></font>
+	
+	<font id="id_num_m_1" filename="TrivialNum15ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_m_2" filename="TrivialNum15Light.fnt" antialias="true"></font>
+	<font id="id_num_m_3" filename="TrivialNum15Regular.fnt" antialias="true"></font>
+	<font id="id_num_m_4" filename="TrivialNum15Bold.fnt" antialias="true"></font>
+	<font id="id_num_m_5" filename="TrivialNum15Heavy.fnt" antialias="true"></font>
+	
+	<font id="id_num_l_1" filename="TrivialNum18ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_l_2" filename="TrivialNum18Light.fnt" antialias="true"></font>
+	<font id="id_num_l_3" filename="TrivialNum18Regular.fnt" antialias="true"></font>
+	<font id="id_num_l_4" filename="TrivialNum18Bold.fnt" antialias="true"></font>
+	<font id="id_num_l_5" filename="TrivialNum18Heavy.fnt" antialias="true"></font>
+
 </fonts>

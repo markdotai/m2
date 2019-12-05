@@ -6398,9 +6398,10 @@ class myEditorView extends myView
 		{
 			dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
 		
-			dc.setPenWidth(1);		  
+			dc.setPenWidth(2);		  
 			//dc.drawRectangle(x, y, w, h);
-			dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+			//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+			dc.drawRoundedRectangle(x-2, y-3, w+4, h+6, 3);
 			//dc.fillRectangle(x, y, w, h);
 		}
 	}
@@ -6411,9 +6412,10 @@ class myEditorView extends myView
 		{
 			dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
 
-			dc.setPenWidth(1);		  
+			dc.setPenWidth(2);		  
 			//dc.drawRectangle(x, y, w, h);
-			dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+			//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+			dc.drawRoundedRectangle(x-2, y-3, w+4, h+6, 3);
 			//dc.fillRectangle(x, y, w, h);
 		}
 	}
