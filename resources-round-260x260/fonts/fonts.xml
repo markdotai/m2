@@ -37,4 +37,10 @@
 	<font id="id_num_m_4" filename="TrivialNum16Bold.fnt" antialias="true"></font>
 	<font id="id_num_m_5" filename="TrivialNum16Heavy.fnt" antialias="true"></font>
 	
+	<font id="id_num_l_1" filename="TrivialNum19ExtraLight.fnt" antialias="true"></font>
+	<font id="id_num_l_2" filename="TrivialNum19Light.fnt" antialias="true"></font>
+	<font id="id_num_l_3" filename="TrivialNum19Regular.fnt" antialias="true"></font>
+	<font id="id_num_l_4" filename="TrivialNum19Bold.fnt" antialias="true"></font>
+	<font id="id_num_l_5" filename="TrivialNum19Heavy.fnt" antialias="true"></font>
+
 </fonts>
