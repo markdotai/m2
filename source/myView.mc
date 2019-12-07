@@ -2380,6 +2380,31 @@ class myView
 	    	}
 	    }
     
+//    	// test drawing one or 2 values to screen for speed
+//		var dynamicResource = getDynamicResource(2);
+//		if (dynamicResource!=null)
+//		{
+////			dc.setClip(50, 50, 30, 40);		
+////	    	dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+////	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
+////        	dc.drawText(50, 50, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
+//
+//			dc.setClip(50, 50, 30, 40);		
+//	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+//	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
+//        	dc.drawText(50, 50, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
+//
+////			dc.setClip(150, 50, 30, 40);		
+////	    	dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+////	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
+////        	dc.drawText(150, 50, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
+//
+////			dc.setClip(50, 200, 30, 40);		
+////	    	dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+////	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
+////        	dc.drawText(50, 200, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
+//		}    	
+    
 		if (propSecondIndicatorOn)
 		{ 
 	 		// it seems as though occasionally onPartialUpdate can skip a second
@@ -7787,7 +7812,7 @@ class myMenuItemExitApp extends myMenuItem
     
     function getString()
     {
-    	return "press back to exit";
+    	return "back to exit";
     }
     
     // up=0 down=1 left=2 right=3
