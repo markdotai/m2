@@ -1,24 +1,24 @@
 <fonts>
-	<font id="id_large_s_1" filename="TrivialUltraLight70.fnt" antialias="true"></font>
-	<font id="id_large_s_2" filename="TrivialExtraLight70.fnt" antialias="true"></font>
-	<font id="id_large_s_3" filename="TrivialLight70.fnt" antialias="true"></font>
-	<font id="id_large_s_4" filename="TrivialRegular70.fnt" antialias="true"></font>
-	<font id="id_large_s_5" filename="TrivialBold70.fnt" antialias="true"></font>
-	<font id="id_large_s_6" filename="TrivialHeavy70.fnt" antialias="true"></font>
+	<font id="id_large_s_1" filename="TrivialUltraLight70Mono218.fnt" antialias="true"></font>
+	<font id="id_large_s_2" filename="TrivialExtraLight70Mono218.fnt" antialias="true"></font>
+	<font id="id_large_s_3" filename="TrivialLight70Mono218.fnt" antialias="true"></font>
+	<font id="id_large_s_4" filename="TrivialRegular70Mono218.fnt" antialias="true"></font>
+	<font id="id_large_s_5" filename="TrivialBold70Mono218.fnt" antialias="true"></font>
+	<font id="id_large_s_6" filename="TrivialHeavy70Mono218.fnt" antialias="true"></font>
 
-	<font id="id_large_m_1" filename="TrivialUltraLight70.fnt" antialias="true"></font>
-	<font id="id_large_m_2" filename="TrivialExtraLight70.fnt" antialias="true"></font>
-	<font id="id_large_m_3" filename="TrivialLight70.fnt" antialias="true"></font>
-	<font id="id_large_m_4" filename="TrivialRegular70.fnt" antialias="true"></font>
-	<font id="id_large_m_5" filename="TrivialBold70.fnt" antialias="true"></font>
-	<font id="id_large_m_6" filename="TrivialHeavy70.fnt" antialias="true"></font>
+	<font id="id_large_m_1" filename="TrivialUltraLight70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_m_2" filename="TrivialExtraLight70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_m_3" filename="TrivialLight70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_m_4" filename="TrivialRegular70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_m_5" filename="TrivialBold70Mono240.fnt" antialias="true"></font>
+	<font id="id_large_m_6" filename="TrivialHeavy70Mono240.fnt" antialias="true"></font>
 
-	<font id="id_large_l_1" filename="TrivialUltraLight70.fnt" antialias="true"></font>
-	<font id="id_large_l_2" filename="TrivialExtraLight70.fnt" antialias="true"></font>
-	<font id="id_large_l_3" filename="TrivialLight70.fnt" antialias="true"></font>
-	<font id="id_large_l_4" filename="TrivialRegular70.fnt" antialias="true"></font>
-	<font id="id_large_l_5" filename="TrivialBold70.fnt" antialias="true"></font>
-	<font id="id_large_l_6" filename="TrivialHeavy70.fnt" antialias="true"></font>
+	<font id="id_large_l_1" filename="TrivialUltraLight70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_l_2" filename="TrivialExtraLight70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_l_3" filename="TrivialLight70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_l_4" filename="TrivialRegular70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_l_5" filename="TrivialBold70Mono260.fnt" antialias="true"></font>
+	<font id="id_large_l_6" filename="TrivialHeavy70Mono260.fnt" antialias="true"></font>
 
 	<font id="id_colon_s" filename="ColonMono218.fnt" antialias="true"></font>
 	<font id="id_colon_m" filename="ColonMono240.fnt" antialias="true"></font>
@@ -42,23 +42,23 @@
 	<font id="id_num_l_4" filename="TrivialNum18Bold.fnt" antialias="true"></font>
 	<font id="id_num_l_5" filename="TrivialNum18Heavy.fnt" antialias="true"></font>
 	
-	<font id="id_abc_s_1" filename="TrivialExtraLight20.fnt" antialias="true"></font>
-	<font id="id_abc_s_2" filename="TrivialLight20.fnt" antialias="true"></font>
-	<font id="id_abc_s_3" filename="TrivialRegular20.fnt" antialias="true"></font>
-	<font id="id_abc_s_4" filename="TrivialBold20.fnt" antialias="true"></font>
-	<font id="id_abc_s_5" filename="TrivialHeavy20.fnt" antialias="true"></font>
+	<font id="id_abc_s_1" filename="TrivialAbc12ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_s_2" filename="TrivialAbc12Light.fnt" antialias="true"></font>
+	<font id="id_abc_s_3" filename="TrivialAbc12Regular.fnt" antialias="true"></font>
+	<font id="id_abc_s_4" filename="TrivialAbc12Bold.fnt" antialias="true"></font>
+	<font id="id_abc_s_5" filename="TrivialAbc12Heavy.fnt" antialias="true"></font>
 
-	<font id="id_abc_m_1" filename="TrivialExtraLight25.fnt" antialias="true"></font>
-	<font id="id_abc_m_2" filename="TrivialLight25.fnt" antialias="true"></font>
-	<font id="id_abc_m_3" filename="TrivialRegular25.fnt" antialias="true"></font>
-	<font id="id_abc_m_4" filename="TrivialBold25.fnt" antialias="true"></font>
-	<font id="id_abc_m_5" filename="TrivialHeavy25.fnt" antialias="true"></font>
+	<font id="id_abc_m_1" filename="TrivialAbc15ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_m_2" filename="TrivialAbc15Light.fnt" antialias="true"></font>
+	<font id="id_abc_m_3" filename="TrivialAbc15Regular.fnt" antialias="true"></font>
+	<font id="id_abc_m_4" filename="TrivialAbc15Bold.fnt" antialias="true"></font>
+	<font id="id_abc_m_5" filename="TrivialAbc15Heavy.fnt" antialias="true"></font>
 
-	<font id="id_abc_l_1" filename="TrivialExtraLight31.fnt" antialias="true"></font>
-	<font id="id_abc_l_2" filename="TrivialLight31.fnt" antialias="true"></font>
-	<font id="id_abc_l_3" filename="TrivialRegular31.fnt" antialias="true"></font>
-	<font id="id_abc_l_4" filename="TrivialBold31.fnt" antialias="true"></font>
-	<font id="id_abc_l_5" filename="TrivialHeavy31.fnt" antialias="true"></font>
+	<font id="id_abc_l_1" filename="TrivialAbc18ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_l_2" filename="TrivialAbc18Light.fnt" antialias="true"></font>
+	<font id="id_abc_l_3" filename="TrivialAbc18Regular.fnt" antialias="true"></font>
+	<font id="id_abc_l_4" filename="TrivialAbc18Bold.fnt" antialias="true"></font>
+	<font id="id_abc_l_5" filename="TrivialAbc18Heavy.fnt" antialias="true"></font>
 
 	<font id="id_trivial_ultra_light_italic" filename="TrivialUltraLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_extra_light_italic" filename="TrivialExtraLightItalic70.fnt" antialias="true"></font>
