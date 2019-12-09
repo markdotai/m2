@@ -43,4 +43,6 @@
 	<font id="id_num_l_4" filename="TrivialNum16Bold.fnt" antialias="true"></font>
 	<font id="id_num_l_5" filename="TrivialNum16Heavy.fnt" antialias="true"></font>
 
+	<font id="id_abc_s_4" filename="TrivialAbc11Bold.fnt" antialias="true"></font>
+
 </fonts>

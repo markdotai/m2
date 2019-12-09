@@ -6401,7 +6401,7 @@ class myEditorView extends myView
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
-		//drawAbc(dc);
+		drawAbc(dc);
 
     	if (getColorGfxIndex>=0 && doDrawColorGrid)
 		{
@@ -6595,52 +6595,52 @@ class myEditorView extends myView
 		}
 	}
 
-//	function drawAbc(dc)
-//	{
-//   		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-//		var dynamicResource = getDynamicResource(0);
-//   		if (dynamicResource!=null)
-//   		{
-//			//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
-//			//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
-//
-//   			var yOffsets = [-118, -93, -68, -43, -18, 8, 42, 72];
-//   			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-//   			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-//
-//			for (var i=0; i<sArray.size(); i++)
-//			{
-//				var charArray = sArray[i].toCharArray();
-//				
-//				// calculate total width first
-//				var totalWidth = 0;
-//				for (var j=0; j<charArray.size(); j++)
-//				{
-//					var c = getMyCharDiacritic(charArray[j]);
-//        			totalWidth += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
-//				}
-//				
-//				// draw each character + any diacritic
-//				var xOffset = 0;
-//				for (var j=0; j<charArray.size(); j++)
-//				{
-//					var c = getMyCharDiacritic(charArray[j]);						
-//					dc.drawText(120 - totalWidth/2 + xOffset, 120 + yOffsets[i], dynamicResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-//	    			if (c[1]>700)
-//	    			{
-//						dc.drawText(120 - totalWidth/2 + xOffset, 120 + yOffsets[i], dynamicResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-//	    			}
-//					xOffset += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
-//				}
-//			}
-//		}
-//	}
+	function drawAbc(dc)
+	{
+   		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+		var dynamicResource = getDynamicResource(0);
+   		if (dynamicResource!=null)
+   		{
+			//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
+			//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
+
+   			var yOffsets = [-118, -93, -68, -43, -18, 8, 42, 72];
+   			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+   			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+
+			for (var i=0; i<sArray.size(); i++)
+			{
+				var charArray = sArray[i].toCharArray();
+				
+				// calculate total width first
+				var totalWidth = 0;
+				for (var j=0; j<charArray.size(); j++)
+				{
+					var c = getMyCharDiacritic(charArray[j]);
+        			totalWidth += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
+				}
+				
+				// draw each character + any diacritic
+				var xOffset = 0;
+				for (var j=0; j<charArray.size(); j++)
+				{
+					var c = getMyCharDiacritic(charArray[j]);						
+					dc.drawText(120 - totalWidth/2 + xOffset, 120 + yOffsets[i], dynamicResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	    			if (c[1]>700)
+	    			{
+						dc.drawText(120 - totalWidth/2 + xOffset, 120 + yOffsets[i], dynamicResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	    			}
+					xOffset += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
+				}
+			}
+		}
+	}
 	
 	function safeStringFromArray(arr, index)
 	{
