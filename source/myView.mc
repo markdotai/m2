@@ -6610,7 +6610,7 @@ class myEditorView extends myView
 			//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
 			//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
 
-   			var yOffsets = [-118, -93, -68, -43, -18, 8, 42, 72];
+   			var yOffsets = [-118, -93, -68, -43, -18, 12, 42, 72];
    			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
    			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
 
@@ -6626,17 +6626,19 @@ class myEditorView extends myView
         			totalWidth += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
 				}
 				
+				var y = displayHalf + ((yOffsets[i]*displayHalf)/120);
+				var x = displayHalf - totalWidth/2;
+				
 				// draw each character + any diacritic
-				var xOffset = 0;
 				for (var j=0; j<charArray.size(); j++)
 				{
 					var c = getMyCharDiacritic(charArray[j]);						
-					dc.drawText(120 - totalWidth/2 + xOffset, 120 + yOffsets[i], dynamicResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+					dc.drawText(x, y, dynamicResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 	    			if (c[1]>700)
 	    			{
-						dc.drawText(120 - totalWidth/2 + xOffset, 120 + yOffsets[i], dynamicResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+						dc.drawText(x, y, dynamicResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 	    			}
-					xOffset += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
+					x += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
 				}
 			}
 		}
