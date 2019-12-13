@@ -55,4 +55,10 @@
 	<font id="id_abc_m_4" filename="TrivialAbc14Bold.fnt" antialias="true"></font>
 	<font id="id_abc_m_5" filename="TrivialAbc14Heavy.fnt" antialias="true"></font>
 
+	<font id="id_abc_l_1" filename="TrivialAbc16ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_l_2" filename="TrivialAbc16Light.fnt" antialias="true"></font>
+	<font id="id_abc_l_3" filename="TrivialAbc16Regular.fnt" antialias="true"></font>
+	<font id="id_abc_l_4" filename="TrivialAbc16Bold.fnt" antialias="true"></font>
+	<font id="id_abc_l_5" filename="TrivialAbc16Heavy.fnt" antialias="true"></font>
+
 </fonts>

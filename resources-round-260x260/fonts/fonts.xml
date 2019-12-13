@@ -43,4 +43,22 @@
 	<font id="id_num_l_4" filename="TrivialNum19Bold.fnt" antialias="true"></font>
 	<font id="id_num_l_5" filename="TrivialNum19Heavy.fnt" antialias="true"></font>
 
+	<font id="id_abc_s_1" filename="TrivialAbc13ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_s_2" filename="TrivialAbc13Light.fnt" antialias="true"></font>
+	<font id="id_abc_s_3" filename="TrivialAbc13Regular.fnt" antialias="true"></font>
+	<font id="id_abc_s_4" filename="TrivialAbc13Bold.fnt" antialias="true"></font>
+	<font id="id_abc_s_5" filename="TrivialAbc13Heavy.fnt" antialias="true"></font>
+
+	<font id="id_abc_m_1" filename="TrivialAbc16ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_m_2" filename="TrivialAbc16Light.fnt" antialias="true"></font>
+	<font id="id_abc_m_3" filename="TrivialAbc16Regular.fnt" antialias="true"></font>
+	<font id="id_abc_m_4" filename="TrivialAbc16Bold.fnt" antialias="true"></font>
+	<font id="id_abc_m_5" filename="TrivialAbc16Heavy.fnt" antialias="true"></font>
+
+	<font id="id_abc_l_1" filename="TrivialAbc19ExtraLight.fnt" antialias="true"></font>
+	<font id="id_abc_l_2" filename="TrivialAbc19Light.fnt" antialias="true"></font>
+	<font id="id_abc_l_3" filename="TrivialAbc19Regular.fnt" antialias="true"></font>
+	<font id="id_abc_l_4" filename="TrivialAbc19Bold.fnt" antialias="true"></font>
+	<font id="id_abc_l_5" filename="TrivialAbc19Heavy.fnt" antialias="true"></font>
+
 </fonts>
