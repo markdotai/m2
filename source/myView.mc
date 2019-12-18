@@ -1242,6 +1242,9 @@ class myView
 					{
 						colorArray[i] = tempResource[4][i];
 
+						colorGridArray[i] = tempResource[8][i];
+						colorGridArray[i+64] = tempResource[8][i+64];
+
 						if (i<36)
 						{
 							bufferValues[i] = tempResource[6][i];
@@ -1249,6 +1252,8 @@ class myView
 							if (i<24)
 							{
 								outerValues[i] = tempResource[5][i];
+
+								gfxSizeArray[i] = tempResource[7][i];
 							}
 						}
 					}
@@ -3794,51 +3799,63 @@ class myView
 	{
 		return (gfxData[index] & 0xFF);
 	}
-	
+
+	// size and saveSize
+//	var gfxSizeArray = [
+//			10, 10,		// header
+//			6, 4,		// field
+//			7, 3,		// hour large
+//			7, 3,		// minute large
+//			7, 3,		// colon large
+//			7, 4,		// string
+//			6, 4,		// icon
+//			11, 9,		// movebar
+//			5, 4,		// chart
+//			6, 6,		// rectangle
+//			8, 7,		// ring
+//			7, 7,		// seconds
+//		]b;
+
+	var gfxSizeArray = new[24]b;
+
 	function gfxSize(id)
 	{
-		if (id<0 || id>11)
-		{
-			return 0;
-		}
+		return ((id<0 || id>11) ? 0 : gfxSizeArray[id*2]); 
 	
-		return [
-			10,		// header
-			6,		// field
-			7,		// hour large
-			7,		// minute large
-			7,		// colon large
-			7,		// string
-			6,		// icon
-			11,		// movebar
-			5,		// chart
-			6,		// rectangle
-			8,		// ring
-			7,		// seconds
-		][id];
+//		return [
+//			10,		// header
+//			6,		// field
+//			7,		// hour large
+//			7,		// minute large
+//			7,		// colon large
+//			7,		// string
+//			6,		// icon
+//			11,		// movebar
+//			5,		// chart
+//			6,		// rectangle
+//			8,		// ring
+//			7,		// seconds
+//		]b[id];
 	}
 
 	function gfxSizeSave(id)
 	{
-		if (id<0 || id>11)
-		{
-			return 0;
-		}
+		return ((id<0 || id>11) ? 0 : gfxSizeArray[id*2 + 1]);
 
-		return [
-			10,		// header
-			4,		// field
-			3,		// hour large
-			3,		// minute large
-			3,		// colon large
-			4,		// string
-			4,		// icon
-			9,		// movebar
-			4,		// chart
-			6,		// rectangle
-			7,		// ring
-			7,		// seconds
-		][id];
+//		return [
+//			10,		// header
+//			4,		// field
+//			3,		// hour large
+//			3,		// minute large
+//			3,		// colon large
+//			4,		// string
+//			4,		// icon
+//			9,		// movebar
+//			4,		// chart
+//			6,		// rectangle
+//			7,		// ring
+//			7,		// seconds
+//		][id];
 	}
 
 	function gfxInsert(index, id)
@@ -4685,7 +4702,6 @@ class myView
 						case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
 					    {
 							eStr = "" + dateInfoMedium.day;
-eStr = "" + second;
 							break;
 						}
 	
@@ -5778,6 +5794,8 @@ class myEditorView extends myView
 	{
 		editorFontResource = WatchUi.loadResource(Rez.Fonts.id_editor);
 
+		//globalStrings = WatchUi.loadResource(Rez.JsonData.id_globalStrings);
+
 		myView.onLayout(dc);
 		
 		timer = new Timer.Timer();
@@ -6401,7 +6419,7 @@ class myEditorView extends myView
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
-		drawAbc(dc);
+		//drawAbc(dc);
 
     	if (getColorGfxIndex>=0 && doDrawColorGrid)
 		{
@@ -6482,172 +6500,219 @@ class myEditorView extends myView
 		return (getColorGfxIndex != -1);
 	}
 
+	var colorGridArray = new[64*2]b;
+
 	function drawColorGrid(dc)
 	{
 		// distance from centre (0-7) + clockwise angle (0-36)
-		var g = [
-			7, 32,		// grayscale
-			7, 33,
-			7, 34,
-			7, 35,
-
-			1, 0,		// palest
-			1, 6,
-			1, 12,
-			1, 18,
-			1, 24,
-			1, 30,
-
-			2, 0,		// pale
-			2, 3,
-			2, 6,
-			2, 9,
-			2, 12,
-			2, 15,
-			2, 18,
-			2, 21,
-			2, 24,
-			2, 27,
-			2, 30,
-			2, 33,
-
-			3, 0,		// bright
-			3, 2,
-			3, 4,
-			3, 6,
-			3, 8,
-			3, 10,
-			3, 12,
-			3, 14,
-			3, 16,
-			3, 18,
-			3, 20,
-			3, 22,
-			3, 24,
-			3, 26,
-			3, 28,
-			3, 30,
-			3, 32,
-			3, 34,
-
-			4, 0,		// dim
-			4, 6,
-			4, 12,
-			4, 18,
-			4, 24,
-			4, 30,
-
-			5, 0,		// dark
-			5, 3,
-			5, 6,
-			5, 9,
-			5, 12,
-			5, 15,
-			5, 18,
-			5, 21,
-			5, 24,
-			5, 27,
-			5, 30,
-			5, 33,
-
-			6, 0,		// darkest
-			6, 6,
-			6, 12,
-			6, 18,
-			6, 24,
-			6, 30,
-		]b;
+//		var colorGridArray = [
+//			7, 32,		// grayscale
+//			7, 33,
+//			7, 34,
+//			7, 35,
+//
+//			1, 0,		// palest
+//			1, 6,
+//			1, 12,
+//			1, 18,
+//			1, 24,
+//			1, 30,
+//
+//			2, 0,		// pale
+//			2, 3,
+//			2, 6,
+//			2, 9,
+//			2, 12,
+//			2, 15,
+//			2, 18,
+//			2, 21,
+//			2, 24,
+//			2, 27,
+//			2, 30,
+//			2, 33,
+//
+//			3, 0,		// bright
+//			3, 2,
+//			3, 4,
+//			3, 6,
+//			3, 8,
+//			3, 10,
+//			3, 12,
+//			3, 14,
+//			3, 16,
+//			3, 18,
+//			3, 20,
+//			3, 22,
+//			3, 24,
+//			3, 26,
+//			3, 28,
+//			3, 30,
+//			3, 32,
+//			3, 34,
+//
+//			4, 0,		// dim
+//			4, 6,
+//			4, 12,
+//			4, 18,
+//			4, 24,
+//			4, 30,
+//
+//			5, 0,		// dark
+//			5, 3,
+//			5, 6,
+//			5, 9,
+//			5, 12,
+//			5, 15,
+//			5, 18,
+//			5, 21,
+//			5, 24,
+//			5, 27,
+//			5, 30,
+//			5, 33,
+//
+//			6, 0,		// darkest
+//			6, 6,
+//			6, 12,
+//			6, 18,
+//			6, 24,
+//			6, 30,
+//		]b;
 	
 		var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
 	
+		var rScale = (displaySize*14 + 120)/240;
+		var cScaleHighlight = (displaySize*7 + 120)/240;
+		var cScale = (displaySize*4 + 120)/240;
+
+		var hx = 0;
+		var hy = 0;
+		 
 		for (var i=0; i<64; i++)
 		{
 	        var i2 = i * 2;
-	        var r = g[i2] * 14;
-	        var a = Math.toRadians(g[i2+1] * 10);
+	        var r = colorGridArray[i2] * rScale;
+	        var a = Math.toRadians(colorGridArray[i2+1] * 10);
 	        var x = Math.round(r * Math.sin(a));
 	        var y = Math.round(r * Math.cos(a));
 	         
 	        if (i==highlightGrid)
 	        {
-        		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
-	        
-		        for (var j=-1; j<=1; j+=2)
-		        {
-		        	for (var k=-1; k<=1; k+=2)
-		        	{
-    					dc.drawText(displayHalf + x + j, displayHalf - y + k, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-		        	}
-		        }
-	        }	       
-	         
+	        	hx = x;
+	        	hy = y;
+	        }
+	         	        
 	        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);	        
-    		dc.drawText(displayHalf + x, displayHalf - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-    		
-    		// editorfont
-    		// A = small circle
-    		// B = circle
-    		// C = up triangle
-    		// D = down triangle
-    		// E = left triangle
-    		// F = right triangle
-    		// G = rotating arrow
-		}
+    		//dc.drawText(displayHalf + x, displayHalf - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   			dc.fillCircle(displayHalf + x, displayHalf - y, (i==highlightGrid)?cScaleHighlight:cScale);
+   		}
+
+        if (highlightGrid>=0)
+        {
+    		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+			dc.setPenWidth(3);		  
+			dc.drawCircle(displayHalf + hx, displayHalf - hy, cScaleHighlight+1);
+        }
+        
+// editorfont
+// A = 
+// B = 
+// C = up triangle
+// D = down triangle
+// E = left triangle
+// F = right triangle
+// G = rotating arrow
+//	        for (var j=-1; j<=1; j+=2)
+//	        {
+//	        	for (var k=-1; k<=1; k+=2)
+//	        	{
+//					dc.drawText(displayHalf + x + j, displayHalf - y + k, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+//	        	}
+//	        }
 	}
 
-	function drawAbc(dc)
-	{
-   		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-		var dynamicResource = getDynamicResource(0);
-   		if (dynamicResource!=null)
-   		{
-			//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
-			//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
-
-   			var yOffsets = [-118, -93, -68, -43, -18, 12, 42, 72];
-   			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-   			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-
-			for (var i=0; i<sArray.size(); i++)
-			{
-				var charArray = sArray[i].toCharArray();
-				
-				// calculate total width first
-				var totalWidth = 0;
-				for (var j=0; j<charArray.size(); j++)
-				{
-					var c = getMyCharDiacritic(charArray[j]);
-        			totalWidth += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
-				}
-				
-				var y = displayHalf + ((yOffsets[i]*displayHalf)/120);
-				var x = displayHalf - totalWidth/2;
-				
-				// draw each character + any diacritic
-				for (var j=0; j<charArray.size(); j++)
-				{
-					var c = getMyCharDiacritic(charArray[j]);						
-					dc.drawText(x, y, dynamicResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-	    			if (c[1]>700)
-	    			{
-						dc.drawText(x, y, dynamicResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-	    			}
-					x += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
-				}
-			}
-		}
-	}
+//	function drawAbc(dc)
+//	{
+//   		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+//		var dynamicResource = getDynamicResource(0);
+//   		if (dynamicResource!=null)
+//   		{
+//			//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
+//			//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
+//
+//   			var yOffsets = [-118, -93, -68, -43, -18, 12, 42, 72];
+//   			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+//   			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+//
+//			for (var i=0; i<sArray.size(); i++)
+//			{
+//				var charArray = sArray[i].toCharArray();
+//				
+//				// calculate total width first
+//				var totalWidth = 0;
+//				for (var j=0; j<charArray.size(); j++)
+//				{
+//					var c = getMyCharDiacritic(charArray[j]);
+//        			totalWidth += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
+//				}
+//				
+//				var y = displayHalf + ((yOffsets[i]*displayHalf)/120);
+//				var x = displayHalf - totalWidth/2;
+//				
+//				// draw each character + any diacritic
+//				for (var j=0; j<charArray.size(); j++)
+//				{
+//					var c = getMyCharDiacritic(charArray[j]);						
+//					dc.drawText(x, y, dynamicResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//	    			if (c[1]>700)
+//	    			{
+//						dc.drawText(x, y, dynamicResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+//	    			}
+//					x += dc.getTextWidthInPixels(c[0].toString(), dynamicResource);
+//				}
+//			}
+//		}
+//	}
 	
 	function safeStringFromArray(arr, index)
 	{
 		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
 	}
+
+	//var globalStrings;
+	
+//	var globalStrings = [
+//		"global settings",
+//		"field",
+//		"hour (large)",
+//		"minute (large)",
+//		"colon (large)",
+//		"string",
+//		"icon",
+//		"move bar",
+//		"heart rate chart",
+//		"rectangle",
+//		"ring",
+//		"seconds indicator",
+//	];
+
+//    <string id="g0">global settings</string>
+//    <string id="g1">field</string>
+//    <string id="g2">hour (large)</string>
+//    <string id="g3">minute (large)</string>
+//    <string id="g4">colon (large)</string>
+//    <string id="g5">string</string>
+//    <string id="g6">icon</string>
+//    <string id="g7">move bar</string>
+//    <string id="g8">heart rate chart</string>
+//    <string id="g9">rectangle</string>
+//    <string id="g10">ring</string>
+//    <string id="g11">seconds indicator</string>
 
 	function getGfxName(index)
 	{
@@ -6659,7 +6724,7 @@ class myEditorView extends myView
 		}
 		else
 		{
-			var sArray = [
+			var globalStrings = [
 				"global settings",
 				"field",
 				"hour (large)",
@@ -6674,7 +6739,22 @@ class myEditorView extends myView
 				"seconds indicator",
 			];
 		
-			return safeStringFromArray(sArray, id);
+//			var globalStrings = [
+//				"global settings" +
+//				"field" +
+//				"hour (large)" + 
+//				"minute (large)" + 
+//				"colon (large)" +
+//				"string" +
+//				"icon" +
+//				"move bar" +
+//				"heart rate chart" +
+//				"rectangle" +
+//				"ring" +
+//				"seconds indicator"
+//			];
+			
+			return safeStringFromArray(globalStrings, id);
 		}
 
 //		var eStr = null;
@@ -7789,9 +7869,12 @@ class myMenuItem extends Lang.Object
 			xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
 		}
 
+//dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+//dc.fillPolygon([[120,120],[200,200],[120,200]]);
+
 		// editorfont
-		// A = small circle
-		// B = circle
+		// A = 
+		// B = 
 		// C = up triangle
 		// D = down triangle
 		// E = left triangle
@@ -10545,40 +10628,43 @@ class myMenuItemSeconds extends myMenuItem
 	//color15
 	//color0
 
-	var globalStrings = [
-		"style",
-		"refresh",
-		"color",
-		"color (5s)",
-		"color (10s)",
-		"color (15s)",
-		"color (0s)",
-		"visibility",
-		"delete seconds",
-		
-		"editing ...",
-	];
+// 120 code 90 data for string array
+// 210 code for b array
 
-	var fStrings = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		8,
-		
-		9,
-		9,
-		9,
-		9,
-		9,
-		9,
-		9,
-		9,
-	]b;
+//	var globalStrings = [
+//		"style",
+//		"refresh",
+//		"color",
+//		"color (5s)",
+//		"color (10s)",
+//		"color (15s)",
+//		"color (0s)",
+//		"visibility",
+//		"delete seconds",
+//		
+//		"editing ...",
+//	];
+//
+//	var fStrings = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		7,
+//		8,
+//		
+//		9,
+//		9,
+//		9,
+//		9,
+//		9,
+//		9,
+//		9,
+//		9,
+//	]b;
 
 	var fState;
 
@@ -10623,10 +10709,28 @@ class myMenuItemSeconds extends myMenuItem
     	{
     		return editorView.fieldVisibilityString();
     	}
-    	else
-    	{
-    		return globalStrings[fStrings[fState]]; 
-    	}
+//    	else
+//    	{
+//    		return globalStrings[fStrings[fState]]; 
+//    	}
+ 		else if (fState<9)
+ 		{
+ 			return [
+				"style",
+				"refresh",
+				"color",
+				"color (5s)",
+				"color (10s)",
+				"color (15s)",
+				"color (0s)",
+				"visibility",
+				"delete seconds",
+			][fState];
+ 		}
+ 		else
+ 		{
+ 			return "editing ...";
+ 		}
     }
     
     // up=0 down=1 left=2 right=3

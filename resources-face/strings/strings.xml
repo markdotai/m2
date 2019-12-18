@@ -1,8 +1,6 @@
 <strings>
     <string id="AppName">M2 Face</string>
 
-    <string id="HonestyTitle">Honesty Box</string>
-
     <string id="ExportProfileTitle">Profile Text (for current display)</string>
 
     <string id="ProfileManagementTitle">Profile Management (save/load display to profile number)</string>
@@ -23,5 +21,7 @@
     <string id="DemoProfilesRangeTitle">Demo Profiles Start And End (e.g. 25-99 for preset profiles)</string>
 
 	<string id="SunAltitudeAdjustTitle">Sunrise/Sunset Altitude Adjustment</string>
+
+    <string id="HonestyTitle">Honesty Checkbox</string>
 
 </strings>
