@@ -1242,9 +1242,6 @@ class myView
 					{
 						colorArray[i] = tempResource[4][i];
 
-						colorGridArray[i] = tempResource[8][i];
-						colorGridArray[i+64] = tempResource[8][i+64];
-
 						if (i<36)
 						{
 							bufferValues[i] = tempResource[6][i];
@@ -5792,9 +5789,30 @@ class myEditorView extends myView
 
 	function onLayout(dc)
 	{
-		editorFontResource = WatchUi.loadResource(Rez.Fonts.id_editor);
-
 		//globalStrings = WatchUi.loadResource(Rez.JsonData.id_globalStrings);
+
+		// copy some data arrays to storage for cheap access later as needed
+		{
+			var tempResource = WatchUi.loadResource(Rez.JsonData.id_storageArrays);
+			for (var i=0; i<tempResource.size(); i+=2)
+			{
+				applicationStorage.setValue(tempResource[i], tempResource[i+1]);
+				
+			}
+			tempResource = null;
+		}
+
+		// load in data values which are stored as byte arrays (to save memory) 
+//		{
+//			var tempResource = WatchUi.loadResource(Rez.JsonData.id_editorBytes);
+//			for (var i=0; i<128; i++)
+//			{
+//				colorGridArray[i] = tempResource[8][i];
+//			}
+//			tempResource = null;
+//		}
+
+		editorFontResource = WatchUi.loadResource(Rez.Fonts.id_editor);
 
 		myView.onLayout(dc);
 		
@@ -6500,7 +6518,7 @@ class myEditorView extends myView
 		return (getColorGfxIndex != -1);
 	}
 
-	var colorGridArray = new[64*2]b;
+	//var colorGridArray = new[64*2]b;
 
 	function drawColorGrid(dc)
 	{
@@ -6577,6 +6595,8 @@ class myEditorView extends myView
 //			6, 24,
 //			6, 30,
 //		]b;
+	
+		var colorGridArray = applicationStorage.getValue("c");
 	
 		var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
 	
@@ -6724,37 +6744,24 @@ class myEditorView extends myView
 		}
 		else
 		{
-			var globalStrings = [
-				"global settings",
-				"field",
-				"hour (large)",
-				"minute (large)",
-				"colon (large)",
-				"string",
-				"icon",
-				"move bar",
-				"heart rate chart",
-				"rectangle",
-				"ring",
-				"seconds indicator",
-			];
-		
 //			var globalStrings = [
-//				"global settings" +
-//				"field" +
-//				"hour (large)" + 
-//				"minute (large)" + 
-//				"colon (large)" +
-//				"string" +
-//				"icon" +
-//				"move bar" +
-//				"heart rate chart" +
-//				"rectangle" +
-//				"ring" +
-//				"seconds indicator"
+//				"global settings",
+//				"field",
+//				"hour (large)",
+//				"minute (large)",
+//				"colon (large)",
+//				"string",
+//				"icon",
+//				"move bar",
+//				"heart rate chart",
+//				"rectangle",
+//				"ring",
+//				"seconds indicator",
 //			];
-			
-			return safeStringFromArray(globalStrings, id);
+//		
+//			return safeStringFromArray(globalStrings, id);
+
+			return applicationStorage.getValue("g")[id];
 		}
 
 //		var eStr = null;
@@ -6840,68 +6847,70 @@ class myEditorView extends myView
 
 	function getStringTypeName(eDisplay)
 	{
-		var sArray = [
-			"hour",
-			"minute",
-			"day name",
-			"day # in week",
-			"day # in month",
-			"day ## in month",
-			"day # in year",
-			"day ### in year",
-			"month name",
-			"month #",
-			"month ##",
-			"year ##",
-			"year ####",
-			"week ISO ##",
-			"W ISO symbol",
-			"year ISO ####",
-			"week calendar",
-			"year calendar ####",
-			"AM",
-			"PM",
-			"A",
-			"P",
-	    	"<space>",
-	    	"/",
-	    	"\\",
-	    	":",
-	    	"-",
-	    	".",
-	    	",",
-	    	"%",
-			"steps count",
-			"steps goal",
-			"floor count",
-			"floor goal",
-			"notifications",
-			"battery %",
-			"heart rate min",
-			"heart rate max",
-			"heart rate avg",
-			"heart rate",
-			"sunrise hour",
-			"sunrise minute",
-			"sunset hour",
-			"sunset minute",
-			"next sun hour",
-			"next sun minute",
-			"2nd time hour",
-			"calories",
-			"active calories",
-			"intensity minutes",
-			"intensity goal",
-			"smart goal",
-			"distance",
-			"mi/km units",
-			"pressure",
-			"mb units",
-			"altitude",
-			"ft/m units",
-		];
-	
-		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
+//		var sArray = [
+//			"hour",
+//			"minute",
+//			"day name",
+//			"day # in week",
+//			"day # in month",
+//			"day ## in month",
+//			"day # in year",
+//			"day ### in year",
+//			"month name",
+//			"month #",
+//			"month ##",
+//			"year ##",
+//			"year ####",
+//			"week ISO ##",
+//			"W ISO symbol",
+//			"year ISO ####",
+//			"week calendar",
+//			"year calendar ####",
+//			"AM",
+//			"PM",
+//			"A",
+//			"P",
+//	    	"<space>",
+//	    	"/",
+//	    	"\\",
+//	    	":",
+//	    	"-",
+//	    	".",
+//	    	",",
+//	    	"%",
+//			"steps count",
+//			"steps goal",
+//			"floor count",
+//			"floor goal",
+//			"notifications",
+//			"battery %",
+//			"heart rate min",
+//			"heart rate max",
+//			"heart rate avg",
+//			"heart rate",
+//			"sunrise hour",
+//			"sunrise minute",
+//			"sunset hour",
+//			"sunset minute",
+//			"next sun hour",
+//			"next sun minute",
+//			"2nd time hour",
+//			"calories",
+//			"active calories",
+//			"intensity minutes",
+//			"intensity goal",
+//			"smart goal",
+//			"distance",
+//			"mi/km units",
+//			"pressure",
+//			"mb units",
+//			"altitude",
+//			"ft/m units",
+//		];
+//	
+//		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
+
+		return applicationStorage.getValue("st")[(eDisplay&0x7F)-1];
 
 //		var eStr = null;
 //		
@@ -7220,35 +7229,37 @@ class myEditorView extends myView
 
 	function getVisibilityString(vis)
 	{
-		var sArray = [
-			"always on",
-		    "gesture active",
-		    "gesture not active",
-		    "do not disturb on",
-		    "do not disturb off",
-		    "alarm on",
-		    "alarm off",
-		    "notifications pending",
-		    "no notifications",
-		    "phone connected",
-		    "phone not connected",
-		    "LTE connected",
-		    "LTE not connected",
-		    "battery high/medium",
-		    "battery high",
-		    "battery medium",
-		    "battery low",
-		    "move bar alert triggered",
-		    "move bar alert not triggered",
-		    "AM",
-		    "PM",
-		    "2nd time AM",
-		    "2nd time PM",
-		    "next sun = rise",
-		    "next sun = set",
-		];
+//		var sArray = [
+//			"always on",
+//		    "gesture active",
+//		    "gesture not active",
+//		    "do not disturb on",
+//		    "do not disturb off",
+//		    "alarm on",
+//		    "alarm off",
+//		    "notifications pending",
+//		    "no notifications",
+//		    "phone connected",
+//		    "phone not connected",
+//		    "LTE connected",
+//		    "LTE not connected",
+//		    "battery high/medium",
+//		    "battery high",
+//		    "battery medium",
+//		    "battery low",
+//		    "move bar alert triggered",
+//		    "move bar alert not triggered",
+//		    "AM",
+//		    "PM",
+//		    "2nd time AM",
+//		    "2nd time PM",
+//		    "next sun = rise",
+//		    "next sun = set",
+//		];
+//	
+//		return safeStringFromArray(sArray, vis);
 	
-		return safeStringFromArray(sArray, vis);
+		return applicationStorage.getValue("v")[vis];
 	
 //		switch (vis)
 //		{
@@ -7326,22 +7337,6 @@ class myEditorView extends myView
 		return gfxData[menuFieldGfx+3];
 	}
 
-	function fieldAlignmentString()
-	{
-		if (fieldGetAlignment()==1)
-		{
-			return "left edge";
-		}
-		else if (fieldGetAlignment()==2)
-		{
-			return "right edge";
-		}
-		else
-		{
-			return "centre"; 
-		}
-	}
-	
 	function fieldAlignmentEditing(val)
 	{
 		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
@@ -7679,44 +7674,11 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]-val, 1, displaySize);
 	}
 
-	function ringTypeString()
+	function ringGetType()
 	{
-		var sArray = [
-	   		"plain color",			// plain color
-			"steps",				// steps
-			"minutes",				// minutes
-			"hours",				// hours
-	   		"battery",				// battery percentage
-			"2nd time hours",		// 2nd time zone hours
-	   		"sun (now top)",		// sunrise & sunset now top
-	   		"sun (midnight top)",	// sunrise & sunset midnight top
-	   		"sun (noon top)",		// sunrise & sunset noon top
-			"intensity",			// intensity
-			"smart intensity",		// smart intensity
-	   		"heart rate",			// heart rate
-		];
-	
-		return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
-	
-//		switch (gfxData[menuFieldGfx+1] & 0xFF)
-//		{
-//	   		case 0: return "plain color";		// plain color
-//			case 1: return "steps";				// steps
-//			case 2:	return "minutes";			// minutes
-//			case 3:	return "hours";				// hours
-//	   		case 4: return "battery";			// battery percentage
-//			case 5: return "2nd time zone hours";	// 2nd time zone hours
-//	   		case 6: return "sun (now top)";			// sunrise & sunset now top
-//	   		case 7: return "sun (midnight top)";	// sunrise & sunset midnight top
-//	   		case 8: return "sun (noon top)";		// sunrise & sunset noon top
-//			case 9: return "intensity";			// intensity
-//			case 10: return "smart intensity";	// smart intensity
-//	   		case 11: return "heart rate";		// heart rate
-//		}
-//		
-//    	return "unknown";
+		return (gfxData[menuFieldGfx+1] & 0xFF);
 	}
-	
+
 	function ringTypeEditing(val)
 	{
 		var eDisplay = ((gfxData[menuFieldGfx+1] & 0xFF) + val + 11)%11;
@@ -7724,9 +7686,9 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+1] |= (eDisplay & 0xFF); 
 	}
 	
-	function ringDirectionString()
+	function ringGetDirectionAnti()
 	{
-		return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
+		return ((gfxData[menuFieldGfx+1] & 0x100)!=0); 
 	}
 	
 	function ringDirectionEditing()
@@ -7778,22 +7740,6 @@ class myEditorView extends myView
 	function secondsGetRefresh()
 	{
 		return ((gfxData[menuFieldGfx+1]>>8) & 0xFF);
-	}
-	
-	function secondsRefreshString()
-	{
-		if (secondsGetRefresh()==1)
-		{
-			return "every minute";
-		}
-		else if (secondsGetRefresh()==2)
-		{
-			return "alernate minutes";
-		}
-		else
-		{
-	   		return "every second";
-		}
 	}
 	
 	function secondsRefreshEditing(val)
@@ -8070,14 +8016,14 @@ class myMenuItemFieldAdd extends myMenuItem
 //		s_addSeconds,
 //	}
 
-	var globalString = [
-		"add new",
-		"add field",
-		"add freeform",
-		"add rectangle",
-		"add ring",
-		"add seconds",
-	];
+//	var globalString = [
+//		"add new",
+//		"add field",
+//		"add freeform",
+//		"add rectangle",
+//		"add ring",
+//		"add seconds",
+//	];
 	
 	var fState;
 
@@ -8103,7 +8049,9 @@ class myMenuItemFieldAdd extends myMenuItem
 //    	
 //    	return "unknown";
     	
-    	return globalString[fState];
+    	//return globalString[fState];
+    	
+    	return applicationStorage.getValue("fa")[fState];
     }
 
     // up=0 down=1 left=2 right=3
@@ -8242,7 +8190,15 @@ class myMenuItemFieldAdd extends myMenuItem
     
     function onBack()
     {
-    	return new myMenuItemExitApp();
+		if (fState!=0/*s_top*/)
+		{
+			fState = 0/*s_top*/;
+			return null;
+		}
+		else
+		{
+    		return new myMenuItemExitApp();
+    	}
     }
 }
 
@@ -8332,7 +8288,8 @@ class myMenuItemSaveLoadProfile extends myMenuItem
     	}
 		else
 		{
-    		return ["save profile", "load profile", "load preset"][type];
+    		//return ["save profile", "load profile", "load preset"][type];
+    		return applicationStorage.getValue("sl")[type];
     	}
     }
     
@@ -8496,38 +8453,38 @@ class myMenuItemHeader extends myMenuItem
 //		f_menuHideEdit,
 //	}
 
-	var globalStrings = [
-		"background color",
-		"battery high",
-		"battery low",
-		"2nd time offset",
-		"move bar alert level",
-		"font system case",
-		"font unsupported",
-		"menu hide",
-		
-		"editing ...",
-	];
-
-	var fStrings = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		
-		8,
-		8,
-		8,
-		8,
-		8,
-		8,
-		8,
-		8,
-	]b;
+//	var globalStrings = [
+//		"background color",
+//		"battery high",
+//		"battery low",
+//		"2nd time offset",
+//		"move bar alert level",
+//		"font system case",
+//		"font unsupported",
+//		"menu hide",
+//		
+//		"editing ...",
+//	];
+//
+//	var fStrings = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		7,
+//		
+//		8,
+//		8,
+//		8,
+//		8,
+//		8,
+//		8,
+//		8,
+//		8,
+//	]b;
 
 	var fState;
 
@@ -8556,17 +8513,33 @@ class myMenuItemHeader extends myMenuItem
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
     	}
+//    	else if (fState==13/*f_fontSystemCaseEdit*/)
+//    	{
+//    		return ["any case", "upper case", "lower case"][editorView.propFieldFontSystemCase];
+//    	}
+//    	else if (fState==14/*f_fontUnsupportedEdit*/)
+//    	{
+//    		return ["extra tiny", "tiny", "small", "medium", "large"][editorView.propFieldFontUnsupported];
+//    	}
+//    	else
+//    	{
+//    		return globalStrings[fStrings[fState]];
+//    	}
     	else if (fState==13/*f_fontSystemCaseEdit*/)
     	{
-    		return ["any case", "upper case", "lower case"][editorView.propFieldFontSystemCase];
+    		return applicationStorage.getValue("h")[7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase];
     	}
     	else if (fState==14/*f_fontUnsupportedEdit*/)
     	{
-    		return ["extra tiny", "tiny", "small", "medium", "large"][editorView.propFieldFontUnsupported];
+    		return applicationStorage.getValue("h")[7/*f_menuhide*/ + 1 + 3 + editorView.propFieldFontUnsupported];
+    	}
+    	else if (fState<=7/*f_menuhide*/)
+    	{
+    		return applicationStorage.getValue("h")[fState];
     	}
     	else
     	{
-    		return globalStrings[fStrings[fState]];
+    		return "editing ...";
     	}
     }
     
@@ -8700,38 +8673,38 @@ class myMenuItemFieldEdit extends myMenuItem
 //		f_visEdit,
 //	}
 
-	var globalStrings = [
-		"edit elements",
-		"position",
-		"alignment",
-		"visibility",
-		"move earlier",
-		"move later",
-		"delete field",
-		"horizontal",
-		"vertical",
-		"centre horizontal",
-		"centre vertical",
-		"tap",
-		"editing ...",
-	];
-
-	var fStrings = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		8,
-		9,
-		10,
-		11,
-		12,
-		12,
-	]b;
+//	var globalStrings = [
+//		"edit elements",
+//		"position",
+//		"alignment",
+//		"visibility",
+//		"move earlier",
+//		"move later",
+//		"delete field",
+//		"horizontal",
+//		"vertical",
+//		"centre horizontal",
+//		"centre vertical",
+//		"tap",
+//		"editing ...",
+//	];
+//
+//	var fStrings = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		7,
+//		8,
+//		9,
+//		10,
+//		11,
+//		12,
+//		12,
+//	]b;
 
 	var fState;
 
@@ -8779,15 +8752,40 @@ class myMenuItemFieldEdit extends myMenuItem
     	
     	if (fState==14/*f_alignEdit*/)
     	{
-    		return editorView.fieldAlignmentString();
+    		//return editorView.fieldAlignmentString();
+//			function fieldAlignmentString()
+//			{
+//				if (fieldGetAlignment()==1)
+//				{
+//					return "left edge";
+//				}
+//				else if (fieldGetAlignment()==2)
+//				{
+//					return "right edge";
+//				}
+//				else
+//				{
+//					return "centre"; 
+//				}
+//			}
+			
+    		return applicationStorage.getValue("fe")[1][editorView.fieldGetAlignment()];
     	}
     	else if (fState==15/*f_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
+//    	else
+//    	{
+//    		return globalStrings[fStrings[fState]]; 
+//    	}
+    	else if (fState<=11/*f_tap*/)
+    	{
+    		return applicationStorage.getValue("fe")[0][fState];
+    	}
     	else
     	{
-    		return globalStrings[fStrings[fState]]; 
+    		return "editing ...";
     	}
     }
     
@@ -9177,105 +9175,105 @@ class myMenuItemElementEdit extends myMenuItem
 //		gfxData[index+2] = 3+1;	// color chart
 //		gfxData[index+3] = 3+1;	// color axes
 
-	var globalStrings = [
-		"color",
-		"font",
-		
-		"visibility",
-		"move earlier",
-		"move later",
-		"delete element",
-		
-		"editing ...",
-
-		"color 1",
-		"color 2",
-		"color 3",
-		"color 4",
-		"color 5",
-		"color off",
-		
-		"axes type",
-		"color bars",
-		"color axes",
-		
-		"type",
-	];
+//	var globalStrings = [
+//		"color",
+//		"font",
+//		
+//		"visibility",
+//		"move earlier",
+//		"move later",
+//		"delete element",
+//		
+//		"editing ...",
+//
+//		"color 1",
+//		"color 2",
+//		"color 3",
+//		"color 4",
+//		"color 5",
+//		"color off",
+//		
+//		"axes type",
+//		"color bars",
+//		"color axes",
+//		
+//		"type",
+//	];
+	
+//	var fStringsLarge = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		6,
+//	]b;
+//	
+//	var fStringsString = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		6,
+//	]b;
+//	
+//	var fStringsIcon = [
+//		16,
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		6,
+//		6,
+//	]b;
+//	
+//	var fStringsMoveBar = [
+//		1,
+//		7,
+//		8,
+//		9,
+//		10,
+//		11,
+//		12,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		6,
+//		6,
+//		6,
+//		6,
+//		6,
+//		6,
+//	]b;
+//	
+//	var fStringsChart = [
+//		13,
+//		14,
+//		15,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		6,
+//		6,
+//	]b;
 	
 	var fId;
 
-	var fStringsLarge = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		6,
-	]b;
-	
-	var fStringsString = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		6,
-	]b;
-	
-	var fStringsIcon = [
-		16,
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		6,
-		6,
-	]b;
-	
-	var fStringsMoveBar = [
-		1,
-		7,
-		8,
-		9,
-		10,
-		11,
-		12,
-		2,
-		3,
-		4,
-		5,
-		6,
-		6,
-		6,
-		6,
-		6,
-		6,
-		6,
-	]b;
-	
-	var fStringsChart = [
-		13,
-		14,
-		15,
-		2,
-		3,
-		4,
-		5,
-		6,
-		6,
-		6,
-	]b;
-	
 	var fState;
 
-	var fStrings;
+	var fStringsIndex;
 	var fNumCustom;
 
     function initialize(id)
@@ -9287,27 +9285,27 @@ class myMenuItemElementEdit extends myMenuItem
     	
     	if (fId>=2 && fId<=4)	// large
     	{
-    		fStrings = fStringsLarge;
+    		fStringsIndex = 0;
     		fNumCustom = 2;
     	}
     	else if (fId==5)	// string
     	{
-    		fStrings = fStringsString;
+    		fStringsIndex = 1;
     		fNumCustom = 2;
     	}
     	else if (fId==6)	// icon
     	{
-    		fStrings = fStringsIcon;
+    		fStringsIndex = 2;
     		fNumCustom = 3;
     	}
     	else if (fId==7)	// movebar
     	{
-    		fStrings = fStringsMoveBar;
+    		fStringsIndex = 3;
     		fNumCustom = 7;
     	}
     	else if (fId==8)	// chart
     	{
-    		fStrings = fStringsChart;
+    		fStringsIndex = 4;
     		fNumCustom = 3;
     	}
     }
@@ -9318,9 +9316,17 @@ class myMenuItemElementEdit extends myMenuItem
     	{
     		return editorView.elementVisibilityString();
     	}
+//    	else
+//    	{
+//    		return globalStrings[fStrings[fState]];
+//    	}
+    	else if (fState<fNumCustom+4)
+    	{
+    		return applicationStorage.getValue("ee")[fStringsIndex][fState];
+    	}
     	else
     	{
-    		return globalStrings[fStrings[fState]];
+    		return "editing ...";
     	}
     }
     
@@ -9559,80 +9565,81 @@ class myMenuItemElementEdit extends myMenuItem
 (:m2app)
 class myMenuItemElementAdd extends myMenuItem
 {
-	var timeIds = [
-		1/*FIELD_HOUR*/,			// hour
-		2/*FIELD_MINUTE*/,			// minute
-		26/*FIELD_SEPARATOR_COLON*/,
-		19/*FIELD_AM*/ | 0x80,
-		20/*FIELD_PM*/ | 0x80,
-		21/*FIELD_A*/ | 0x80,
-		22/*FIELD_P*/ | 0x80,
-		47/*FIELD_2ND_HOUR*/,
-		41/*FIELD_SUNRISE_HOUR*/,
-		42/*FIELD_SUNRISE_MINUTE*/,
-		43/*FIELD_SUNSET_HOUR*/,
-		44/*FIELD_SUNSET_MINUTE*/,
-		45/*FIELD_SUNEVENT_HOUR*/,
-		46/*FIELD_SUNEVENT_MINUTE*/,
-	]b;
-	
-	var separatorIds = [
-		23/*FIELD_SEPARATOR_SPACE*/,		// space
-		24,									// forward slash
-		25,									// back slash
-		26/*FIELD_SEPARATOR_COLON*/,		// colon
-		27,									// minus
-		28,									// full stop
-		29,									// comma
-		30/*FIELD_SEPARATOR_PERCENT*/,		// percent
-	]b;
-	
-	var dateIds = [
-		3/*FIELD_DAY_NAME*/ | 0x80,		// day name
-		9/*FIELD_MONTH_NAME*/ | 0x80,		// month name
-		4/*FIELD_DAY_OF_WEEK*/,			// day number of week
-		5/*FIELD_DAY_OF_MONTH*/,			// day number of month
-		6/*FIELD_DAY_OF_MONTH_XX*/,			// day number of month XX
-		7/*FIELD_DAY_OF_YEAR*/,				// day number of year
-		8/*FIELD_DAY_OF_YEAR_XXX*/,			// day number of year XXX
-		10/*FIELD_MONTH_OF_YEAR*/,		// month number of year
-		11/*FIELD_MONTH_OF_YEAR_XX*/,			// month number of year XX
-		12/*FIELD_YEAR_XX*/,		// year XX
-		13/*FIELD_YEAR_XXXX*/,		// year XXXX
-		14/*FIELD_WEEK_ISO_XX*/,			// week number of year XX
-		15/*FIELD_WEEK_ISO_W*/ | 0x80,		// W
-		16/*FIELD_YEAR_ISO_WEEK_XXXX*/,
-		17/*FIELD_WEEK_CALENDAR_XX*/,			// week number of year XX
-		18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/,
-	]b;
-	
-	var valueIds = [
-		31/*FIELD_STEPSCOUNT*/,
-		32/*FIELD_STEPSGOAL*/,
-		33/*FIELD_FLOORSCOUNT*/,
-		34/*FIELD_FLOORSGOAL*/,
-		35/*FIELD_NOTIFICATIONSCOUNT*/,
-		36/*FIELD_BATTERYPERCENTAGE*/,
-		30/*FIELD_SEPARATOR_PERCENT*/,
-		37/*FIELD_HEART_MIN*/,
-		38/*FIELD_HEART_MAX*/,
-		39/*FIELD_HEART_AVERAGE*/,
-		40/*FIELD_HEART_LATEST*/,
-		48/*FIELD_CALORIES*/,
-		49/*FIELD_ACTIVE_CALORIES*/,
-		50/*FIELD_INTENSITY*/,
-		51/*FIELD_INTENSITY_GOAL*/,
-		52/*FIELD_SMART_GOAL*/,
-		53/*FIELD_DISTANCE*/,
-		54/*FIELD_DISTANCE_UNITS*/ | 0x80,
-		55/*FIELD_PRESSURE*/,
-		56/*FIELD_PRESSURE_UNITS*/ | 0x80,
-		57/*FIELD_ALTITUDE*/,
-		58/*FIELD_ALTITUDE_UNITS*/ | 0x80,
-	]b;
+//	var timeIds = [
+//		1/*FIELD_HOUR*/,			// hour
+//		2/*FIELD_MINUTE*/,			// minute
+//		26/*FIELD_SEPARATOR_COLON*/,
+//		19/*FIELD_AM*/ | 0x80,
+//		20/*FIELD_PM*/ | 0x80,
+//		21/*FIELD_A*/ | 0x80,
+//		22/*FIELD_P*/ | 0x80,
+//		47/*FIELD_2ND_HOUR*/,
+//		41/*FIELD_SUNRISE_HOUR*/,
+//		42/*FIELD_SUNRISE_MINUTE*/,
+//		43/*FIELD_SUNSET_HOUR*/,
+//		44/*FIELD_SUNSET_MINUTE*/,
+//		45/*FIELD_SUNEVENT_HOUR*/,
+//		46/*FIELD_SUNEVENT_MINUTE*/,
+//	]b;
+//	
+//	var separatorIds = [
+//		23/*FIELD_SEPARATOR_SPACE*/,		// space
+//		24,									// forward slash
+//		25,									// back slash
+//		26/*FIELD_SEPARATOR_COLON*/,		// colon
+//		27,									// minus
+//		28,									// full stop
+//		29,									// comma
+//		30/*FIELD_SEPARATOR_PERCENT*/,		// percent
+//	]b;
+//	
+//	var dateIds = [
+//		3/*FIELD_DAY_NAME*/ | 0x80,		// day name
+//		9/*FIELD_MONTH_NAME*/ | 0x80,		// month name
+//		4/*FIELD_DAY_OF_WEEK*/,			// day number of week
+//		5/*FIELD_DAY_OF_MONTH*/,			// day number of month
+//		6/*FIELD_DAY_OF_MONTH_XX*/,			// day number of month XX
+//		7/*FIELD_DAY_OF_YEAR*/,				// day number of year
+//		8/*FIELD_DAY_OF_YEAR_XXX*/,			// day number of year XXX
+//		10/*FIELD_MONTH_OF_YEAR*/,		// month number of year
+//		11/*FIELD_MONTH_OF_YEAR_XX*/,			// month number of year XX
+//		12/*FIELD_YEAR_XX*/,		// year XX
+//		13/*FIELD_YEAR_XXXX*/,		// year XXXX
+//		14/*FIELD_WEEK_ISO_XX*/,			// week number of year XX
+//		15/*FIELD_WEEK_ISO_W*/ | 0x80,		// W
+//		16/*FIELD_YEAR_ISO_WEEK_XXXX*/,
+//		17/*FIELD_WEEK_CALENDAR_XX*/,			// week number of year XX
+//		18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/,
+//	]b;
+//	
+//	var valueIds = [
+//		31/*FIELD_STEPSCOUNT*/,
+//		32/*FIELD_STEPSGOAL*/,
+//		33/*FIELD_FLOORSCOUNT*/,
+//		34/*FIELD_FLOORSGOAL*/,
+//		35/*FIELD_NOTIFICATIONSCOUNT*/,
+//		36/*FIELD_BATTERYPERCENTAGE*/,
+//		30/*FIELD_SEPARATOR_PERCENT*/,
+//		37/*FIELD_HEART_MIN*/,
+//		38/*FIELD_HEART_MAX*/,
+//		39/*FIELD_HEART_AVERAGE*/,
+//		40/*FIELD_HEART_LATEST*/,
+//		48/*FIELD_CALORIES*/,
+//		49/*FIELD_ACTIVE_CALORIES*/,
+//		50/*FIELD_INTENSITY*/,
+//		51/*FIELD_INTENSITY_GOAL*/,
+//		52/*FIELD_SMART_GOAL*/,
+//		53/*FIELD_DISTANCE*/,
+//		54/*FIELD_DISTANCE_UNITS*/ | 0x80,
+//		55/*FIELD_PRESSURE*/,
+//		56/*FIELD_PRESSURE_UNITS*/ | 0x80,
+//		57/*FIELD_ALTITUDE*/,
+//		58/*FIELD_ALTITUDE_UNITS*/ | 0x80,
+//	]b;
 	
 	var idIndex;
 	var idArray;
+	var idArrayValue;
 	
 //	enum
 //	{
@@ -9658,20 +9665,20 @@ class myMenuItemElementAdd extends myMenuItem
 //		s_iconEdit,
 //	}
 
-	var globalStrings = [
-		"add element",
-		"add time (large)",
-		"add time",
-		"add separator",
-		"add date",
-		"add value",
-		"add icon",
-		"add move bar",
-		"add chart",
-		"hour (large)",
-		"minute (large)",
-		"colon (large)",
-	];
+//	var globalStrings = [
+//		"add element",
+//		"add time (large)",
+//		"add time",
+//		"add separator",
+//		"add date",
+//		"add value",
+//		"add icon",
+//		"add move bar",
+//		"add chart",
+//		"hour (large)",
+//		"minute (large)",
+//		"colon (large)",
+//	];
 
 	var fState;
 
@@ -9681,28 +9688,38 @@ class myMenuItemElementAdd extends myMenuItem
 
     	fState = 0;
 		idIndex = 0;
-		idArray = dateIds;
+		idArray = 0;
+		idArrayValue = 0;
+    }
+    
+    function calcIdArrayValue(val)
+    {
+    	var tempArray = applicationStorage.getValue("i")[idArray];
+    	
+		idIndex = (idIndex+val+tempArray.size())%tempArray.size();
+		return tempArray[idIndex];
     }
     
     function getString()
     {
+//    	if (fState<=11/*s_colonLarge*/)
+//    	{
+//			return globalStrings[fState];
+//		}
     	if (fState<=11/*s_colonLarge*/)
     	{
-			return globalStrings[fState];
+ 			return applicationStorage.getValue("e")[fState];
 		}
 		else if (fState<=15/*s_valueEdit*/)
 		{
-			if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
-			{
-				return editorView.getStringTypeName(idArray[idIndex]);
-			}
+			return editorView.getStringTypeName(idArrayValue);
     	}
 		else if (fState==16/*s_iconEdit*/)
 		{
 			return "editing...";
     	}
 
-    	return "unknown";
+    	return null;
     }
     
     // up=0 down=1 left=2 right=3
@@ -9729,11 +9746,8 @@ class myMenuItemElementAdd extends myMenuItem
     		fState = (fState+val+3-9)%3 + 9;
     	}
 		else if (fState<=15/*s_valueEdit*/)
-		{			
-			if (idArray!=null)
-			{
-				idIndex = (idIndex+val+idArray.size())%idArray.size();
-			}
+		{
+			idArrayValue = calcIdArrayValue(val);
     	}
 		else if (fState==16/*s_iconEdit*/)
 		{
@@ -9829,8 +9843,9 @@ class myMenuItemElementAdd extends myMenuItem
 		}
 		else if (fState<=5/*s_value*/)
 		{
-			idArray = [timeIds, separatorIds, dateIds, valueIds][fState-2];
+			idArray = fState-2;
 			idIndex = 0;
+			idArrayValue = calcIdArrayValue(0);
 			fState += 10;
 		}
 		else if (fState==6/*s_icon*/)
@@ -9852,10 +9867,7 @@ class myMenuItemElementAdd extends myMenuItem
 		}
 		else if (fState<=15/*s_valueEdit*/)
 		{
-			if (idArray!=null && idIndex>=0 && idIndex<idArray.size())
-			{
-				index = editorView.gfxAddString(afterIndex, idArray[idIndex]);
-			}
+			index = editorView.gfxAddString(afterIndex, idArrayValue);
     	}
 		else if (fState<=16/*s_iconEdit*/)
 		{
@@ -9930,71 +9942,72 @@ class myMenuItemRectangle extends myMenuItem
 {
 //	enum
 //	{
-//		r_color,
-//		r_position,
-//		r_w,
-//		r_h,
-//		r_vis,
-//		r_earlier,
-//		r_later,
-//		r_delete,
+//		r_color,		0
+//		r_position,		1
+//		r_w,			2
+//		r_h,			3
+//		r_vis,			4
+//		r_earlier,		5
+//		r_later,		6
+//		r_delete,		7
 //
-//		r_x,
-//		r_y,
-//		r_xCentre,
-//		r_yCentre,
-//		r_tap,
+//		r_x,			8
+//		r_y,			9
+//		r_xCentre,		10
+//		r_yCentre,		11
+//		r_tap,			12
 //
-//		r_colorEdit,
-//		r_xEdit,
-//		r_yEdit,
-//		r_wEdit,
-//		r_hEdit,
-//		r_visEdit,
+//		r_colorEdit,	100
+//		r_wEdit,		102
+//		r_hEdit,		103
+//		r_visEdit,		104
+//
+//		r_xEdit,		108
+//		r_yEdit,		109
 //	}
 
-	var globalStrings = [
-		"color",
-		"position",
-		"width",
-		"height",
-		"visibility",
-		"move earlier",
-		"move later",
-		"delete rectangle",
+//	var globalStrings = [
+//		"color",
+//		"position",
+//		"width",
+//		"height",
+//		"visibility",
+//		"move earlier",
+//		"move later",
+//		"delete rectangle",
+//
+//		"horizontal",
+//		"vertical",
+//		"centre horizontal",
+//		"centre vertical",
+//		"tap",
+//
+//		"editing ...",
+//	];
 
-		"horizontal",
-		"vertical",
-		"centre horizontal",
-		"centre vertical",
-		"tap",
-
-		"editing ...",
-	];
-
-	var fStrings = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-
-		8,
-		9,
-		10,
-		11,
-		12,
-		
-		13,
-		13,
-		13,
-		13,
-		13,
-		13,
-	]b;
+//	var fStrings = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		7,
+//
+//		8,
+//		9,
+//		10,
+//		11,
+//		12,
+//		
+//		13,
+//		13,
+//		13,
+//		13,
+//		13,
+//		13,
+//	]b;
 	
 	var fState;
 
@@ -10034,14 +10047,22 @@ class myMenuItemRectangle extends myMenuItem
 //    	
 //    	return "unknown";
 
-    	if (fState==18/*r_visEdit*/)
+    	if (fState==104/*r_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
-    	else
-    	{
-    		return globalStrings[fStrings[fState]]; 
-    	}
+//    	else
+//    	{
+//    		return globalStrings[fStrings[fState]]; 
+//    	}
+		else if (fState<=12/*r_tap*/)
+		{
+ 			return applicationStorage.getValue("t")[fState];
+ 		}
+ 		else
+ 		{
+ 			return "editing ...";
+ 		}
     }
     
     // up=0 down=1 left=2 right=3
@@ -10056,33 +10077,33 @@ class myMenuItemRectangle extends myMenuItem
     	{
     		fState = (fState+val+8)%8;
     	}
-    	else if (fState<=12/*r_tap*/)
+    	else if (fState>=8/*r_x*/ && fState<=12/*r_tap*/)
     	{
     		fState = (fState+val+5-8)%5 + 8;
     	}
-    	else if (fState==13/*r_colorEdit*/)
+    	else if (fState==100/*r_colorEdit*/)
     	{
     		editorView.rectangleColorEditing(val);
     	}
-    	else if (fState==14/*r_xEdit*/)
-    	{
-    		editorView.rectanglePositionXEditing(val);
-    	}
-    	else if (fState==15/*r_yEdit*/)
-    	{
-    		editorView.rectanglePositionYEditing(val);
-    	}
-    	else if (fState==16/*r_wEdit*/)
+    	else if (fState==102/*r_wEdit*/)
     	{
     		editorView.rectangleWidthEditing(val);
     	}
-    	else if (fState==17/*r_hEdit*/)
+    	else if (fState==103/*r_hEdit*/)
     	{
     		editorView.rectangleHeightEditing(val);
     	}
-    	else if (fState==18/*r_visEdit*/)
+    	else if (fState==104/*r_visEdit*/)
     	{
     		editorView.fieldVisibilityEditing(val);
+    	}
+    	else if (fState==108/*r_xEdit*/)
+    	{
+    		editorView.rectanglePositionXEditing(val);
+    	}
+    	else if (fState==109/*r_yEdit*/)
+    	{
+    		editorView.rectanglePositionYEditing(val);
     	}
 
     	return null;
@@ -10179,7 +10200,11 @@ class myMenuItemRectangle extends myMenuItem
 //			case r_visEdit: break;
 //    	}
     	
-    	if (fState==5/*r_earlier*/)
+    	if (fState==1/*r_position*/)
+    	{
+    		fState = 8/*r_x*/;
+    	}
+    	else if (fState==5/*r_earlier*/)
     	{
     		editorView.fieldEarlier();
     	}
@@ -10200,11 +10225,14 @@ class myMenuItemRectangle extends myMenuItem
     	{
     		editorView.rectanglePositionCentreY();
     	}
-    	else
+    	else if (fState==12/*r_tap*/)
     	{
-    		fState = [13, 8, 16, 17, 18, 5, 6, 7, 14, 15, 10, 11, 12, 13, 14, 15, 16, 17, 18]b[fState];
+    	}
+    	else if (fState<100)
+    	{
+   			fState += 100;
 
-    		if (fState==13/*r_colorEdit*/)
+    		if (fState==100/*r_colorEdit*/)
 	    	{
 	    		editorView.startColorEditing(editorView.menuFieldGfx+1);
 	    	}
@@ -10247,14 +10275,15 @@ class myMenuItemRectangle extends myMenuItem
     	{
     		return new myMenuItemFieldSelect();
     	}
-    	else if (fState<=18/*r_visEdit*/)
+    	else if (fState>=100)
     	{
-    		//if (fState==13/*r_colorEdit*/)
-	    	//{
-	    		editorView.endColorEditing();
-	    	//}
+    		editorView.endColorEditing();
 
-    		fState = [1, 1, 1, 1, 1, 0, 8, 9, 2, 3, 4]b[fState-8];
+    		fState -= 100;
+    	}
+    	else if (fState>=8/*r_x*/)
+    	{
+    		fState = 1/*r_position*/;
     	}
 
     	return null;
@@ -10288,44 +10317,44 @@ class myMenuItemRing extends myMenuItem
 //		r_visEdit,
 //	}
 
-	var globalStrings = [
-		"data",
-		"style",
-		"start",
-		"end",
-		"direction",
-		"color filled",
-		"color unfilled",
-		"visibility",
-		"move earlier",
-		"move later",
-		"delete ring",
-
-		"editing ...",	
-	];
-
-	var fStrings = [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		8,
-		9,
-		10,
-		
-		11,
-		11,
-		11,
-		11,
-		11,
-		11,
-		11,
-		11,
-	]b;
+//	var globalStrings = [
+//		"data",
+//		"style",
+//		"start",
+//		"end",
+//		"direction",
+//		"color filled",
+//		"color unfilled",
+//		"visibility",
+//		"move earlier",
+//		"move later",
+//		"delete ring",
+//
+//		"editing ...",	
+//	];
+//
+//	var fStrings = [
+//		0,
+//		1,
+//		2,
+//		3,
+//		4,
+//		5,
+//		6,
+//		7,
+//		8,
+//		9,
+//		10,
+//		
+//		11,
+//		11,
+//		11,
+//		11,
+//		11,
+//		11,
+//		11,
+//		11,
+//	]b;
 	
 	var fState;
 
@@ -10366,20 +10395,69 @@ class myMenuItemRing extends myMenuItem
     	
     	if (fState==11/*r_typeEdit*/)
     	{
-    		return editorView.ringTypeString();
+    		//return editorView.ringTypeString();
+//			function ringTypeString()
+//			{
+//				var sArray = [
+//			   		"plain color",			// plain color
+//					"steps",				// steps
+//					"minutes",				// minutes
+//					"hours",				// hours
+//			   		"battery",				// battery percentage
+//					"2nd time hours",		// 2nd time zone hours
+//			   		"sun (now top)",		// sunrise & sunset now top
+//			   		"sun (midnight top)",	// sunrise & sunset midnight top
+//			   		"sun (noon top)",		// sunrise & sunset noon top
+//					"intensity",			// intensity
+//					"smart intensity",		// smart intensity
+//			   		"heart rate",			// heart rate
+//				];
+//			
+//				return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
+//			}
+	
+ 			return applicationStorage.getValue("r")[2][editorView.ringGetType()];    		
     	}
     	else if (fState==15/*r_directionEdit*/)
     	{
-    		return editorView.ringDirectionString();
+    		//return editorView.ringDirectionString();
+//			function ringDirectionString()
+//			{
+//				return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
+//			}
+	   		
+ 			return applicationStorage.getValue("r")[1][editorView.ringGetDirectionAnti() ? 0 : 1];
     	}
     	else if (fState==18/*r_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
-    	else
-    	{
-    		return globalStrings[fStrings[fState]]; 
-    	}
+//    	else
+//    	{
+//    		return globalStrings[fStrings[fState]]; 
+//    	}
+		else if (fState<=10/*r_delete*/)
+		{
+ 			return applicationStorage.getValue("r")[0][fState];
+//
+//			return [
+//				"data",
+//				"style",
+//				"start",
+//				"end",
+//				"direction",
+//				"color filled",
+//				"color unfilled",
+//				"visibility",
+//				"move earlier",
+//				"move later",
+//				"delete ring",
+//			][fState];
+		}
+		else
+		{
+			return "editing ...";
+		}
     }
     
     // up=0 down=1 left=2 right=3
@@ -10703,7 +10781,25 @@ class myMenuItemSeconds extends myMenuItem
     	
     	if (fState==10/*s_refreshEdit*/)
     	{
-    		return editorView.secondsRefreshString();
+    		//return editorView.secondsRefreshString();
+
+//			function secondsRefreshString()
+//			{
+//				if (secondsGetRefresh()==1)
+//				{
+//					return "every minute";
+//				}
+//				else if (secondsGetRefresh()==2)
+//				{
+//					return "alernate minutes";
+//				}
+//				else
+//				{
+//			   		return "every second";
+//				}
+//			}
+
+			return applicationStorage.getValue("s")[1][editorView.secondsGetRefresh()];
     	}
     	else if (fState==16/*s_visEdit*/)
     	{
@@ -10713,19 +10809,21 @@ class myMenuItemSeconds extends myMenuItem
 //    	{
 //    		return globalStrings[fStrings[fState]]; 
 //    	}
- 		else if (fState<9)
+ 		else if (fState<=8/*s_delete*/)
  		{
- 			return [
-				"style",
-				"refresh",
-				"color",
-				"color (5s)",
-				"color (10s)",
-				"color (15s)",
-				"color (0s)",
-				"visibility",
-				"delete seconds",
-			][fState];
+ 			return applicationStorage.getValue("s")[0][fState];
+ 		
+// 			return [
+//				"style",
+//				"refresh",
+//				"color",
+//				"color (5s)",
+//				"color (10s)",
+//				"color (15s)",
+//				"color (0s)",
+//				"visibility",
+//				"delete seconds",
+//			][fState];
  		}
  		else
  		{

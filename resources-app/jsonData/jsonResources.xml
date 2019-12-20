@@ -1,0 +1,523 @@
+<jsonDataResources>
+
+	<jsonData id="id_storageArrays">
+		[
+			<!-- gfx name -->
+			"g",
+			[
+				"global settings",
+				"field",
+				"hour (large)",
+				"minute (large)",
+				"colon (large)",
+				"string",
+				"icon",
+				"move bar",
+				"heart rate chart",
+				"rectangle",
+				"ring",
+				"seconds indicator"
+			],
+		
+			<!-- string type -->
+			"st",
+			[
+				"hour",
+				"minute",
+				"day name",
+				"day # in week",
+				"day # in month",
+				"day ## in month",
+				"day # in year",
+				"day ### in year",
+				"month name",
+				"month #",
+				"month ##",
+				"year ##",
+				"year ####",
+				"week ISO ##",
+				"W ISO symbol",
+				"year ISO ####",
+				"week calendar",
+				"year calendar ####",
+				"AM",
+				"PM",
+				"A",
+				"P",
+		    	"space",
+		    	"/",
+		    	"\\",
+		    	":",
+		    	"-",
+		    	".",
+		    	",",
+		    	"%",
+				"steps count",
+				"steps goal",
+				"floor count",
+				"floor goal",
+				"notifications",
+				"battery %",
+				"heart rate min",
+				"heart rate max",
+				"heart rate avg",
+				"heart rate",
+				"sunrise hour",
+				"sunrise minute",
+				"sunset hour",
+				"sunset minute",
+				"next sun hour",
+				"next sun minute",
+				"2nd time hour",
+				"calories",
+				"active calories",
+				"intensity minutes",
+				"intensity goal",
+				"smart goal",
+				"distance",
+				"mi/km units",
+				"pressure",
+				"mb units",
+				"altitude",
+				"ft/m units"
+			],
+		
+			<!-- visibility -->
+			"v",
+			[
+				"always on",
+			    "gesture active",
+			    "gesture not active",
+			    "do not disturb on",
+			    "do not disturb off",
+			    "alarm on",
+			    "alarm off",
+			    "notifications pending",
+			    "no notifications",
+			    "phone connected",
+			    "phone not connected",
+			    "LTE connected",
+			    "LTE not connected",
+			    "battery high/medium",
+			    "battery high",
+			    "battery medium",
+			    "battery low",
+			    "move bar alert triggered",
+			    "move bar alert not triggered",
+			    "AM",
+			    "PM",
+			    "2nd time AM",
+			    "2nd time PM",
+			    "next sun = rise",
+			    "next sun = set"
+			],
+		
+			<!-- field add -->
+			"fa",
+			[
+				"add new",
+				"add field",
+				"add freeform",
+				"add rectangle",
+				"add ring",
+				"add seconds"
+			],
+		
+			<!-- save load profile -->
+			"sl",
+    		[
+    			"save profile",
+    			"load profile",
+    			"load preset"
+    		],
+		
+			<!-- header -->
+			"h",
+			[
+				"background color",
+				"battery high",
+				"battery low",
+				"2nd time offset",
+				"move bar alert level",
+				"font system case",
+				"font unsupported",
+				"menu hide",
+				
+				"any case",
+				"upper case",
+				"lower case",
+				
+				"extra tiny",
+				"tiny",
+				"small",
+				"medium",
+				"large"
+			],
+					
+			<!-- field edit -->
+			"fe",
+			[
+				[
+					"edit elements",
+					"position",
+					"alignment",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete field",
+					"horizontal",
+					"vertical",
+					"centre horizontal",
+					"centre vertical",
+					"tap"
+				],
+				
+				[
+					"centre", 
+					"left edge",
+					"right edge"
+				]
+			],
+		
+			<!-- edit element -->
+			"ee",
+			[
+				<!-- large -->
+				[
+					"color",
+					"font",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete element"
+				],
+			
+				<!-- string -->
+				[
+					"color",
+					"font",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete element"
+				],
+			
+				<!-- icon -->
+				[
+					"type",
+					"color",
+					"font",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete element"
+				],
+			
+				<!-- movebar -->
+				[
+					"font",
+					"color 1",
+					"color 2",
+					"color 3",
+					"color 4",
+					"color 5",
+					"color off",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete element"
+				],
+			
+				<!-- chart -->
+				"e4",
+				[
+					"axes type",
+					"color bars",
+					"color axes",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete element"
+				]
+			],
+					
+			<!-- add element sub arrays -->
+			"i",
+			[
+				<!-- timeIds -->
+				[
+					1,		<!-- FIELD_HOUR -->
+					2,		<!-- FIELD_MINUTE -->
+					26,		<!-- FIELD_SEPARATOR_COLON -->
+					147,	<!-- FIELD_AM --> <!-- 19|0x80 -->
+					148,	<!-- FIELD_PM --> <!-- 20|0x80 -->
+					149,	<!-- FIELD_A --> <!-- 21|0x80 -->
+					150,	<!-- FIELD_P --> <!-- 22|0x80 -->
+					47,		<!-- FIELD_2ND_HOUR -->
+					41,		<!-- FIELD_SUNRISE_HOUR -->
+					42,		<!-- FIELD_SUNRISE_MINUTE -->
+					43,		<!-- FIELD_SUNSET_HOUR -->
+					44,		<!-- FIELD_SUNSET_MINUTE -->
+					45,		<!-- FIELD_SUNEVENT_HOUR -->
+					46		<!-- FIELD_SUNEVENT_MINUTE -->
+				],
+	
+				<!-- separatorIds -->
+				[
+					23,		<!-- FIELD_SEPARATOR_SPACE -->
+					24, 	<!-- forward slash -->
+					25, 	<!-- back slash -->
+					26,		<!-- FIELD_SEPARATOR_COLON -->
+					27, 	<!-- minus -->
+					28, 	<!-- full stop -->
+					29, 	<!-- comma -->
+					30		<!-- FIELD_SEPARATOR_PERCENT -->
+				],
+	
+				<!-- dateIds -->
+				[
+					131,	<!-- FIELD_DAY_NAME --> <!-- 3|0x80 -->
+					137,	<!-- FIELD_MONTH_NAME --> <!-- 9|0x80 -->
+					4,		<!-- FIELD_DAY_OF_WEEK -->
+					5,		<!-- FIELD_DAY_OF_MONTH -->
+					6,		<!-- FIELD_DAY_OF_MONTH_XX -->
+					7,		<!-- FIELD_DAY_OF_YEAR -->
+					8,		<!-- FIELD_DAY_OF_YEAR_XXX -->
+					10,		<!-- FIELD_MONTH_OF_YEAR -->
+					11,		<!-- FIELD_MONTH_OF_YEAR_XX -->
+					12,		<!-- FIELD_YEAR_XX -->
+					13,		<!-- FIELD_YEAR_XXXX -->
+					14,		<!-- FIELD_WEEK_ISO_XX -->
+					143,	<!-- FIELD_WEEK_ISO_W --> <!-- 15|0x80 -->
+					16,		<!-- FIELD_YEAR_ISO_WEEK_XXXX -->
+					17,		<!-- FIELD_WEEK_CALENDAR_XX -->
+					18		<!-- FIELD_YEAR_CALENDAR_WEEK_XXXX -->
+				],
+	
+				<!-- valueIds -->
+				[
+					31,		<!-- FIELD_STEPSCOUNT -->
+					32,		<!-- FIELD_STEPSGOAL -->
+					33,		<!-- FIELD_FLOORSCOUNT -->
+					34,		<!-- FIELD_FLOORSGOAL -->
+					35,		<!-- FIELD_NOTIFICATIONSCOUNT -->
+					36,		<!-- FIELD_BATTERYPERCENTAGE -->
+					30,		<!-- FIELD_SEPARATOR_PERCENT -->
+					37,		<!-- FIELD_HEART_MIN -->
+					38,		<!-- FIELD_HEART_MAX -->
+					39,		<!-- FIELD_HEART_AVERAGE -->
+					40,		<!-- FIELD_HEART_LATEST -->
+					48,		<!-- FIELD_CALORIES -->
+					49,		<!-- FIELD_ACTIVE_CALORIES -->
+					50,		<!-- FIELD_INTENSITY -->
+					51,		<!-- FIELD_INTENSITY_GOAL -->
+					52,		<!-- FIELD_SMART_GOAL -->
+					53,		<!-- FIELD_DISTANCE -->
+					182,	<!-- FIELD_DISTANCE_UNITS --> <!-- 54|0x80 -->
+					55,		<!-- FIELD_PRESSURE -->
+					184,	<!-- FIELD_PRESSURE_UNITS --> <!-- 56|0x80 -->
+					57,		<!-- FIELD_ALTITUDE -->
+					186		<!-- FIELD_ALTITUDE_UNITS --> <!-- 58|0x80 -->
+				]
+			],
+
+			<!-- add element -->
+			"e",
+			[
+				"add element",
+				"add time (large)",
+				"add time",
+				"add separator",
+				"add date",
+				"add value",
+				"add icon",
+				"add move bar",
+				"add chart",
+				"hour (large)",
+				"minute (large)",
+				"colon (large)"
+			],
+		
+			<!-- rectangle -->
+			"t", 
+			[
+				"color",
+				"position",
+				"width",
+				"height",
+				"visibility",
+				"move earlier",
+				"move later",
+				"delete rectangle",
+				"horizontal",
+				"vertical",
+				"centre horizontal",
+				"centre vertical",
+				"tap"
+			],
+			
+			<!-- ring -->			
+			"r",
+			[
+				[
+					"data",
+					"style",
+					"start",
+					"end",
+					"direction",
+					"color filled",
+					"color unfilled",
+					"visibility",
+					"move earlier",
+					"move later",
+					"delete ring"
+				],
+
+				[
+					"anticlockwise",
+					"clockwise"
+				],
+				
+				[
+			   		"plain color",
+					"steps",
+					"minutes",
+					"hours",
+			   		"battery",
+					"2nd time hours",
+			   		"sun (now top)",
+			   		"sun (midnight top)",
+			   		"sun (noon top)",
+					"intensity",
+					"smart intensity",
+			   		"heart rate"
+				]
+			],
+
+			<!-- seconds indicator -->
+			"s",
+			[
+				[
+					"style",
+					"refresh",
+					"color",
+					"color (5s)",
+					"color (10s)",
+					"color (15s)",
+					"color (0s)",
+					"visibility",
+					"delete seconds"
+				],
+					
+				[
+		   			"every second",
+					"every minute",
+					"alernate minutes"
+				]
+			],
+
+			<!-- colorGridArray -->
+			"c",
+			[
+			  7, 32,		<!-- grayscale -->
+			  7, 33,
+			  7, 34,
+			  7, 35,
+
+			  1, 0,		<!-- palest -->
+			  1, 6,
+			  1, 12,
+			  1, 18,
+			  1, 24,
+			  1, 30,
+
+			  2, 0,		<!-- pale -->
+			  2, 3,
+			  2, 6,
+			  2, 9,
+			  2, 12,
+			  2, 15,
+			  2, 18,
+			  2, 21,
+			  2, 24,
+			  2, 27,
+			  2, 30,
+			  2, 33,
+
+			  3, 0,		<!-- bright -->
+			  3, 2,
+			  3, 4,
+			  3, 6,
+			  3, 8,
+			  3, 10,
+			  3, 12,
+			  3, 14,
+			  3, 16,
+			  3, 18,
+			  3, 20,
+			  3, 22,
+			  3, 24,
+			  3, 26,
+			  3, 28,
+			  3, 30,
+			  3, 32,
+			  3, 34,
+
+			  4, 0,		<!-- dim -->
+			  4, 6,
+			  4, 12,
+			  4, 18,
+			  4, 24,
+			  4, 30,
+
+			  5, 0,		<!-- dark -->
+			  5, 3,
+			  5, 6,
+			  5, 9,
+			  5, 12,
+			  5, 15,
+			  5, 18,
+			  5, 21,
+			  5, 24,
+			  5, 27,
+			  5, 30,
+			  5, 33,
+
+			  6, 0,		<!-- darkest -->
+			  6, 6,
+			  6, 12,
+			  6, 18,
+			  6, 24,
+			  6, 30
+			]
+		]
+	</jsonData>
+
+<!--
+	<jsonData id="id_editorBytes">
+		[
+		],	    
+	</jsonData>
+
+			[0,1,false,3,1,3,3,0,1,0,0,3,-1,-1,-1,-1,false,12,3,0,15,3,0,1,14,3,0,1,17,3,0,1,16,3,0,1,0,1,0,1,0,18,19,0,3,50,0,4,25,19,19,false,false,false,0,0,19,63,0,"Basic"],
+			[1,1,3,3,41,3,5,3,0,3,0,3,64,0,0,0,2,0,3,0,3,0,3,0,3,0,3,-64,0,0,0,3,0,3,0,3,0,3,0,3,0,3,0,0,0,0,4,0,3,0,3,0,3,0,3,0,3,0,0,0,0,5,0,3,0,3,0,3,0,3,0,3,0,0,0,0,6,0,3,0,3,0,3,0,3,0,3,0,0,0],
+			 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789 12345678901234567890123456789012345678901234567890
+
+    <jsonData id="arrayResource">
+        [10, 20]
+    </jsonData>
+
+    <jsonData id="dictionaryResource">
+        {"valueKey" : 5, "arrayKey" : [4, 10, 6]}
+    </jsonData>
+
+    <jsonData id="mixedArrayResource">
+       	[[1, 2, 3, 4], {"keyFive" : 6, "key7" : [8, 9]}]
+   	</jsonData>
+
+   	<jsonData id="singleValue">
+        3.14
+   	</jsonData>
+-->
+
+</jsonDataResources>
