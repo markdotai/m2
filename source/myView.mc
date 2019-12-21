@@ -571,8 +571,6 @@ class myView
 	//const OUTER_SIZE_HALF = 8;
 	//const OUTER_CENTRE_OFFSET = 117;
 
-	var outerXY = new[120]b;
-	
 	//const BUFFER_SIZE = 62;
 	var bufferBitmap = null;
 	var bufferIndex = -1;	// ensures buffer will get updated first time
@@ -1272,12 +1270,6 @@ class myView
 				}
 			}
 			
-			// outer ring positions
-			for (var i=0; i<120; i++)
-			{
-				outerXY[i] = tempResource[6][i];
-			}
-			
 			tempResource = null;
 		}
 
@@ -1356,27 +1348,6 @@ class myView
 			//storage.setValue("secondsY", secondsY);
 	    }
 		*/
-		
-		/*
-		// calculate outer ring positions & character string
-		{
-			//var outerX = new[120];
-			//var outerY = new[120];
-
-			for (var i=0; i<60; i++)
-			{
-		        var r = Math.toRadians((i*6) + 3.0);	// to centre of arc
-	        	// top left of char
-		    	var x = Math.floor(SCREEN_CENTRE_X - OUTER_SIZE_HALF + 0.5 + OUTER_CENTRE_OFFSET * Math.sin(r));
-		    	var y = Math.floor(SCREEN_CENTRE_Y - OUTER_SIZE_HALF + 0.5 - OUTER_CENTRE_OFFSET * Math.cos(r)) - 1;
-		    	outerXY[i*2] = x.toNumber() + OUTER_SIZE_HALF;	// make sure in range 0 to 255
-		    	outerXY[i*2+1] = y.toNumber() + OUTER_SIZE_HALF;	// make sure in range 0 to 255
-			}
-
-			applicationStorage.setValue("outerXY", outerXY);
-			//storage.setValue("outerY", outerY);
-	    }
-	    */
 		
 		/*
 		// debug code for calculating font character positions of second indicator
@@ -3894,6 +3865,16 @@ class myView
 		return index;
 	}
 
+	function getOuterX(r, index)
+	{
+		return (r[index] & 0xFFFF);
+	}
+	
+	function getOuterY(r, index)
+	{
+		return ((r[index]>>16) & 0xFFFF);
+	}
+	
 	// seconds, ring, hour, minute, icon, field
 	const MAX_DYNAMIC_RESOURCES = 16;
 	
@@ -4244,8 +4225,29 @@ class myView
 				{
 					var r = 0;
 					var resourceIndex = addDynamicResource(ringFontList[r]);
-					
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
+					
+					gfxData[index+8] = addDynamicResource(Rez.JsonData.id_outerArray);
+
+//					// calculate outer ring positions
+//					{
+//						var outerArray = new[60];
+//			
+//						for (var i=0; i<60; i++)
+//						{
+//					        var r = Math.toRadians((i*6) + 3.0);	// to centre of arc
+//				        	// top left of char
+//					    	var x = Math.floor(displayHalf - 8/*OUTER_SIZE_HALF*/ + 0.5 + 117/*OUTER_CENTRE_OFFSET*/ * Math.sin(r));
+//					    	var y = Math.floor(displayHalf - 8/*OUTER_SIZE_HALF*/ + 0.5 - 117/*OUTER_CENTRE_OFFSET*/ * Math.cos(r)) - 1;
+//					    	
+//							var xCentre = getMax(x.toNumber() + 8/*OUTER_SIZE_HALF*/, 0);
+//					    	var yCentre = getMax(y.toNumber() + 8/*OUTER_SIZE_HALF*/, 0);
+//					    	
+//					    	outerArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
+//						}
+//						
+//						System.println(outerArray);
+//				    }
 
 					break;
 				}
@@ -5639,7 +5641,8 @@ class myView
 
 					var resourceIndex = ((gfxData[index+2/*ring_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
-					if (dynamicResource==null)
+					var arrayResource = getDynamicResource(gfxData[index+8]);					
+					if (dynamicResource==null || arrayResource==null)
 					{
 						break;
 					}
@@ -5666,20 +5669,20 @@ class myView
 					var jRange = 59;	// all segments
 					if (toBuffer)
 					{
-						if (bufferXMin > getMax(outerXY[59*2], outerXY[30*2]))
+						if (bufferXMin > getMax(getOuterX(arrayResource, 59), getOuterX(arrayResource, 30)))
 						{
 							// right half only
 							//jStart = 0;
 							jRange = 29;
 						}
-						else if (bufferXMax < getMin(outerXY[0*2], outerXY[29*2]))
+						else if (bufferXMax < getMin(getOuterX(arrayResource, 0), getOuterX(arrayResource, 29)))
 						{
 							// left half only
 							jStart = 30;
 							jRange = 29;
 						}
 						
-						if (bufferYMin > getMax(outerXY[14*2+1], outerXY[45*2+1]))
+						if (bufferYMin > getMax(getOuterY(arrayResource, 14), getOuterY(arrayResource, 45)))
 						{
 							// bottom half only
 							if (jRange==59)
@@ -5693,7 +5696,7 @@ class myView
 								jRange = 14;	// 15->29 or 30->44 
 							}
 						}
-						else if (bufferYMax < getMin(outerXY[44*2+1], outerXY[15*2+1]))
+						else if (bufferYMax < getMin(getOuterY(arrayResource, 44), getOuterY(arrayResource, 15)))
 						{
 							// top half only
 							if (jRange==59)
@@ -5770,30 +5773,27 @@ class myView
 					// draw the correct segments
 					for (var j=loopStart; j<=loopEnd; j++)
 					{
-						var index = (j+60)%60;	// handle segments <0 and >=60 and convert them into 0 to 59
+						var index = j%60;
 						
+						var outerX = getOuterX(arrayResource, index);
+						var outerY = getOuterY(arrayResource, index);
+
+						// don't draw if not inside buffer
+						if (toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY))
+						{
+							continue; 
+						}
+							
 						// don't draw segments outside the range
 						var testOffset = (index-testStart+60)%60;
 						if (testOffset>testRange)
 						{
 							continue;
 						}
-						
+								
 						var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
-		
-						// draw the segment (if a color is set)
-						if (indexCol != COLOR_NOTSET)
+						if (indexCol != COLOR_NOTSET)	// don't draw the segment if no color is set
 						{
-							var index2 = index*2;
-							var outerX = outerXY[index2];
-							var outerY = outerXY[index2+1];
-
-							// don't draw if not inside buffer
-							if (toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY))
-							{
-								continue; 
-							}
-							
 							if (curCol!=indexCol)
 							{
 								curCol = indexCol;
@@ -6091,6 +6091,7 @@ class myEditorView extends myView
 			gfxData[index+5] = 3+1;	// color filled
 			gfxData[index+6] = 0+1;	// color unfilled
 			// start fill, end fill & no fill flag
+			// outer xy array
 
 			reloadDynamicResources = true;
 		}
