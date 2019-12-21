@@ -5792,15 +5792,14 @@ class myEditorView extends myView
 		//globalStrings = WatchUi.loadResource(Rez.JsonData.id_globalStrings);
 
 		// copy some data arrays to storage for cheap access later as needed
-		{
-			var tempResource = WatchUi.loadResource(Rez.JsonData.id_storageArrays);
-			for (var i=0; i<tempResource.size(); i+=2)
-			{
-				applicationStorage.setValue(tempResource[i], tempResource[i+1]);
-				
-			}
-			tempResource = null;
-		}
+//		{
+//			var tempResource = WatchUi.loadResource(Rez.JsonData.id_storageArrays);
+//			for (var i=0; i<tempResource.size(); i+=2)
+//			{
+//				applicationStorage.setValue(tempResource[i], tempResource[i+1]);		
+//			}
+//			tempResource = null;
+//		}
 
 		// load in data values which are stored as byte arrays (to save memory) 
 //		{
@@ -6545,7 +6544,8 @@ class myEditorView extends myView
 //			6, 30,
 //		]b;
 	
-		var colorGridArray = applicationStorage.getValue("c");
+		//var colorGridArray = applicationStorage.getValue("c");
+		var colorGridArray = WatchUi.loadResource(Rez.JsonData.id_colorGridArray);
 		if (colorGridArray!=null)
 		{
 			var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
@@ -6655,9 +6655,29 @@ class myEditorView extends myView
 //		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
 //	}
 
-	function safeStringFromStorage(key, index1, index2)
+//	function safeStringFromStorage(key, index1, index2)
+//	{
+//		var tempArray = applicationStorage.getValue(key);
+//		if (tempArray!=null)
+//		{
+//			if (index1>=0 && index1<tempArray.size())
+//			{
+//				tempArray = tempArray[index1];
+//			}
+//			
+//			if (index2>=0 && index2<tempArray.size())
+//			{
+//				return tempArray[index2];
+//			}
+//		}
+//		
+//		return "unknown";
+//	}
+
+
+	function safeStringFromJsonData(r, index1, index2)
 	{
-		var tempArray = applicationStorage.getValue(key);
+		var tempArray = WatchUi.loadResource(r);
 		if (tempArray!=null)
 		{
 			if (index1>=0 && index1<tempArray.size())
@@ -6731,7 +6751,9 @@ class myEditorView extends myView
 //		
 //			return safeStringFromArray(globalStrings, id);
 
-			return safeStringFromStorage("g", -1, id);
+//			return safeStringFromStorage("g", -1, id);
+
+			return safeStringFromJsonData(Rez.JsonData.id_gfxNameStrings, -1, id);
 		}
 
 //		var eStr = null;
@@ -6880,7 +6902,7 @@ class myEditorView extends myView
 //	
 //		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
 
-		return safeStringFromStorage("st", -1, (eDisplay&0x7F)-1);
+		return safeStringFromJsonData(Rez.JsonData.id_stringTypeStrings, -1, (eDisplay&0x7F)-1);
 
 //		var eStr = null;
 //		
@@ -7229,7 +7251,7 @@ class myEditorView extends myView
 //	
 //		return safeStringFromArray(sArray, vis);
 	
-		return safeStringFromStorage("v", -1, vis);
+		return safeStringFromJsonData(Rez.JsonData.id_visibilityStrings, -1, vis);
 	
 //		switch (vis)
 //		{
@@ -8021,7 +8043,7 @@ class myMenuItemFieldAdd extends myMenuItem
     	
     	//return globalString[fState];
     	
-    	return editorView.safeStringFromStorage("fa", -1, fState);
+    	return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldAddStrings, -1, fState);
     }
 
     // up=0 down=1 left=2 right=3
@@ -8259,7 +8281,7 @@ class myMenuItemSaveLoadProfile extends myMenuItem
 		else
 		{
     		//return ["save profile", "load profile", "load preset"][type];
-    		return editorView.safeStringFromStorage("sl", -1, type);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_saveLoadStrings, -1, type);
     	}
     }
     
@@ -8497,15 +8519,15 @@ class myMenuItemHeader extends myMenuItem
 //    	}
     	else if (fState==13/*f_fontSystemCaseEdit*/)
     	{
-    		return editorView.safeStringFromStorage("h", -1, 7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase);
     	}
     	else if (fState==14/*f_fontUnsupportedEdit*/)
     	{
-    		return editorView.safeStringFromStorage("h", -1, 7/*f_menuhide*/ + 1 + 3 + editorView.propFieldFontUnsupported);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 7/*f_menuhide*/ + 1 + 3 + editorView.propFieldFontUnsupported);
     	}
     	else if (fState<=7/*f_menuhide*/)
     	{
-    		return editorView.safeStringFromStorage("h", -1, fState);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
     	}
     	else
     	{
@@ -8739,7 +8761,7 @@ class myMenuItemFieldEdit extends myMenuItem
 //				}
 //			}
 			
-    		return editorView.safeStringFromStorage("fe", 1, editorView.fieldGetAlignment());
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, editorView.fieldGetAlignment());
     	}
     	else if (fState==15/*f_visEdit*/)
     	{
@@ -8751,7 +8773,7 @@ class myMenuItemFieldEdit extends myMenuItem
 //    	}
     	else if (fState<=11/*f_tap*/)
     	{
-    		return editorView.safeStringFromStorage("fe", 0, fState);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
     	}
     	else
     	{
@@ -9292,7 +9314,7 @@ class myMenuItemElementEdit extends myMenuItem
 //    	}
     	else if (fState<fNumCustom+4)
     	{
-    		return editorView.safeStringFromStorage("ee", fStringsIndex, fState);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, fStringsIndex, fState);
     	}
     	else
     	{
@@ -9664,7 +9686,8 @@ class myMenuItemElementAdd extends myMenuItem
     
     function adjustIdIndexCalcIdArray(val)
     {
-    	var tempArray = applicationStorage.getValue("i");
+    	//var tempArray = applicationStorage.getValue("i");
+		var tempArray = WatchUi.loadResource(Rez.JsonData.id_addStringArrays);
     	if (tempArray!=null)
     	{
     		if (idArray>=0 && idArray<tempArray.size())
@@ -9686,7 +9709,7 @@ class myMenuItemElementAdd extends myMenuItem
 //		}
     	if (fState<=11/*s_colonLarge*/)
     	{
- 			return editorView.safeStringFromStorage("e", -1, fState);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_addElementStrings, -1, fState);
 		}
 		else if (fState<=15/*s_valueEdit*/)
 		{
@@ -10035,7 +10058,7 @@ class myMenuItemRectangle extends myMenuItem
 //    	}
 		else if (fState<=12/*r_tap*/)
 		{
- 			return editorView.safeStringFromStorage("t", -1, fState);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, -1, fState);
  		}
  		else
  		{
@@ -10394,7 +10417,7 @@ class myMenuItemRing extends myMenuItem
 //				return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
 //			}
 	
- 			return editorView.safeStringFromStorage("r", 2, editorView.ringGetType());    		
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, editorView.ringGetType());    		
     	}
     	else if (fState==15/*r_directionEdit*/)
     	{
@@ -10404,7 +10427,7 @@ class myMenuItemRing extends myMenuItem
 //				return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
 //			}
 	   		
- 			return editorView.safeStringFromStorage("r", 1, editorView.ringGetDirectionAnti() ? 0 : 1);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, editorView.ringGetDirectionAnti() ? 0 : 1);
     	}
     	else if (fState==18/*r_visEdit*/)
     	{
@@ -10416,7 +10439,7 @@ class myMenuItemRing extends myMenuItem
 //    	}
 		else if (fState<=10/*r_delete*/)
 		{
- 			return editorView.safeStringFromStorage("r", 0, fState);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 0, fState);
 //
 //			return [
 //				"data",
@@ -10777,7 +10800,7 @@ class myMenuItemSeconds extends myMenuItem
 //				}
 //			}
 
-			return editorView.safeStringFromStorage("s", 1, editorView.secondsGetRefresh());
+			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, editorView.secondsGetRefresh());
     	}
     	else if (fState==16/*s_visEdit*/)
     	{
@@ -10789,7 +10812,7 @@ class myMenuItemSeconds extends myMenuItem
 //    	}
  		else if (fState<=8/*s_delete*/)
  		{
- 			return editorView.safeStringFromStorage("s", 0, fState);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 0, fState);
  		
 // 			return [
 //				"style",
