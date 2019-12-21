@@ -6597,42 +6597,44 @@ class myEditorView extends myView
 //		]b;
 	
 		var colorGridArray = applicationStorage.getValue("c");
-	
-		var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
-	
-		var rScale = (displaySize*14 + 120)/240;
-		var cScaleHighlight = (displaySize*7 + 120)/240;
-		var cScale = (displaySize*4 + 120)/240;
-
-		var hx = 0;
-		var hy = 0;
-		 
-		for (var i=0; i<64; i++)
+		if (colorGridArray!=null)
 		{
-	        var i2 = i * 2;
-	        var r = colorGridArray[i2] * rScale;
-	        var a = Math.toRadians(colorGridArray[i2+1] * 10);
-	        var x = Math.round(r * Math.sin(a));
-	        var y = Math.round(r * Math.cos(a));
-	         
-	        if (i==highlightGrid)
+			var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
+		
+			var rScale = (displaySize*14 + 120)/240;
+			var cScaleHighlight = (displaySize*7 + 120)/240;
+			var cScale = (displaySize*4 + 120)/240;
+	
+			var hx = 0;
+			var hy = 0;
+			 
+			for (var i=0; i<64; i++)
+			{
+		        var i2 = i * 2;
+		        var r = colorGridArray[i2] * rScale;
+		        var a = Math.toRadians(colorGridArray[i2+1] * 10);
+		        var x = Math.round(r * Math.sin(a));
+		        var y = Math.round(r * Math.cos(a));
+		         
+		        if (i==highlightGrid)
+		        {
+		        	hx = x;
+		        	hy = y;
+		        }
+		         	        
+		        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);	        
+	    		//dc.drawText(displayHalf + x, displayHalf - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+	   			dc.fillCircle(displayHalf + x, displayHalf - y, (i==highlightGrid)?cScaleHighlight:cScale);
+	   		}
+	
+	        if (highlightGrid>=0)
 	        {
-	        	hx = x;
-	        	hy = y;
+	    		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+				dc.setPenWidth(3);		  
+				dc.drawCircle(displayHalf + hx, displayHalf - hy, cScaleHighlight+1);
 	        }
-	         	        
-	        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);	        
-    		//dc.drawText(displayHalf + x, displayHalf - y, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-   			dc.fillCircle(displayHalf + x, displayHalf - y, (i==highlightGrid)?cScaleHighlight:cScale);
-   		}
-
-        if (highlightGrid>=0)
-        {
-    		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
-			dc.setPenWidth(3);		  
-			dc.drawCircle(displayHalf + hx, displayHalf - hy, cScaleHighlight+1);
-        }
-        
+		}
+		        
 // editorfont
 // A = 
 // B = 
@@ -6699,9 +6701,28 @@ class myEditorView extends myView
 //		}
 //	}
 	
-	function safeStringFromArray(arr, index)
+//	function safeStringFromArray(arr, index)
+//	{
+//		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
+//	}
+
+	function safeStringFromStorage(key, index1, index2)
 	{
-		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
+		var tempArray = applicationStorage.getValue(key);
+		if (tempArray!=null)
+		{
+			if (index1>=0 && index1<tempArray.size())
+			{
+				tempArray = tempArray[index1];
+			}
+			
+			if (index2>=0 && index2<tempArray.size())
+			{
+				return tempArray[index2];
+			}
+		}
+		
+		return "unknown";
 	}
 
 	//var globalStrings;
@@ -6761,7 +6782,7 @@ class myEditorView extends myView
 //		
 //			return safeStringFromArray(globalStrings, id);
 
-			return applicationStorage.getValue("g")[id];
+			return safeStringFromStorage("g", -1, id);
 		}
 
 //		var eStr = null;
@@ -6910,7 +6931,7 @@ class myEditorView extends myView
 //	
 //		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
 
-		return applicationStorage.getValue("st")[(eDisplay&0x7F)-1];
+		return safeStringFromStorage("st", -1, (eDisplay&0x7F)-1);
 
 //		var eStr = null;
 //		
@@ -7259,7 +7280,7 @@ class myEditorView extends myView
 //	
 //		return safeStringFromArray(sArray, vis);
 	
-		return applicationStorage.getValue("v")[vis];
+		return safeStringFromStorage("v", -1, vis);
 	
 //		switch (vis)
 //		{
@@ -8051,7 +8072,7 @@ class myMenuItemFieldAdd extends myMenuItem
     	
     	//return globalString[fState];
     	
-    	return applicationStorage.getValue("fa")[fState];
+    	return editorView.safeStringFromStorage("fa", -1, fState);
     }
 
     // up=0 down=1 left=2 right=3
@@ -8289,7 +8310,7 @@ class myMenuItemSaveLoadProfile extends myMenuItem
 		else
 		{
     		//return ["save profile", "load profile", "load preset"][type];
-    		return applicationStorage.getValue("sl")[type];
+    		return editorView.safeStringFromStorage("sl", -1, type);
     	}
     }
     
@@ -8527,15 +8548,15 @@ class myMenuItemHeader extends myMenuItem
 //    	}
     	else if (fState==13/*f_fontSystemCaseEdit*/)
     	{
-    		return applicationStorage.getValue("h")[7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase];
+    		return editorView.safeStringFromStorage("h", -1, 7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase);
     	}
     	else if (fState==14/*f_fontUnsupportedEdit*/)
     	{
-    		return applicationStorage.getValue("h")[7/*f_menuhide*/ + 1 + 3 + editorView.propFieldFontUnsupported];
+    		return editorView.safeStringFromStorage("h", -1, 7/*f_menuhide*/ + 1 + 3 + editorView.propFieldFontUnsupported);
     	}
     	else if (fState<=7/*f_menuhide*/)
     	{
-    		return applicationStorage.getValue("h")[fState];
+    		return editorView.safeStringFromStorage("h", -1, fState);
     	}
     	else
     	{
@@ -8769,7 +8790,7 @@ class myMenuItemFieldEdit extends myMenuItem
 //				}
 //			}
 			
-    		return applicationStorage.getValue("fe")[1][editorView.fieldGetAlignment()];
+    		return editorView.safeStringFromStorage("fe", 1, editorView.fieldGetAlignment());
     	}
     	else if (fState==15/*f_visEdit*/)
     	{
@@ -8781,7 +8802,7 @@ class myMenuItemFieldEdit extends myMenuItem
 //    	}
     	else if (fState<=11/*f_tap*/)
     	{
-    		return applicationStorage.getValue("fe")[0][fState];
+    		return editorView.safeStringFromStorage("fe", 0, fState);
     	}
     	else
     	{
@@ -9322,7 +9343,7 @@ class myMenuItemElementEdit extends myMenuItem
 //    	}
     	else if (fState<fNumCustom+4)
     	{
-    		return applicationStorage.getValue("ee")[fStringsIndex][fState];
+    		return editorView.safeStringFromStorage("ee", fStringsIndex, fState);
     	}
     	else
     	{
@@ -9692,12 +9713,20 @@ class myMenuItemElementAdd extends myMenuItem
 		idArrayValue = 0;
     }
     
-    function calcIdArrayValue(val)
+    function adjustIdIndexCalcIdArray(val)
     {
-    	var tempArray = applicationStorage.getValue("i")[idArray];
-    	
-		idIndex = (idIndex+val+tempArray.size())%tempArray.size();
-		return tempArray[idIndex];
+    	var tempArray = applicationStorage.getValue("i");
+    	if (tempArray!=null)
+    	{
+    		if (idArray>=0 && idArray<tempArray.size())
+    		{
+		    	tempArray = tempArray[idArray];
+		    	idIndex = (idIndex+val+tempArray.size())%tempArray.size();	// remember new idIndex
+				return tempArray[idIndex];
+			}		
+		}
+		
+		return 0;
     }
     
     function getString()
@@ -9708,7 +9737,7 @@ class myMenuItemElementAdd extends myMenuItem
 //		}
     	if (fState<=11/*s_colonLarge*/)
     	{
- 			return applicationStorage.getValue("e")[fState];
+ 			return editorView.safeStringFromStorage("e", -1, fState);
 		}
 		else if (fState<=15/*s_valueEdit*/)
 		{
@@ -9747,7 +9776,7 @@ class myMenuItemElementAdd extends myMenuItem
     	}
 		else if (fState<=15/*s_valueEdit*/)
 		{
-			idArrayValue = calcIdArrayValue(val);
+			idArrayValue = adjustIdIndexCalcIdArray(val);
     	}
 		else if (fState==16/*s_iconEdit*/)
 		{
@@ -9845,7 +9874,7 @@ class myMenuItemElementAdd extends myMenuItem
 		{
 			idArray = fState-2;
 			idIndex = 0;
-			idArrayValue = calcIdArrayValue(0);
+			idArrayValue = adjustIdIndexCalcIdArray(0);
 			fState += 10;
 		}
 		else if (fState==6/*s_icon*/)
@@ -10057,7 +10086,7 @@ class myMenuItemRectangle extends myMenuItem
 //    	}
 		else if (fState<=12/*r_tap*/)
 		{
- 			return applicationStorage.getValue("t")[fState];
+ 			return editorView.safeStringFromStorage("t", -1, fState);
  		}
  		else
  		{
@@ -10416,7 +10445,7 @@ class myMenuItemRing extends myMenuItem
 //				return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
 //			}
 	
- 			return applicationStorage.getValue("r")[2][editorView.ringGetType()];    		
+ 			return editorView.safeStringFromStorage("r", 2, editorView.ringGetType());    		
     	}
     	else if (fState==15/*r_directionEdit*/)
     	{
@@ -10426,7 +10455,7 @@ class myMenuItemRing extends myMenuItem
 //				return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
 //			}
 	   		
- 			return applicationStorage.getValue("r")[1][editorView.ringGetDirectionAnti() ? 0 : 1];
+ 			return editorView.safeStringFromStorage("r", 1, editorView.ringGetDirectionAnti() ? 0 : 1);
     	}
     	else if (fState==18/*r_visEdit*/)
     	{
@@ -10438,7 +10467,7 @@ class myMenuItemRing extends myMenuItem
 //    	}
 		else if (fState<=10/*r_delete*/)
 		{
- 			return applicationStorage.getValue("r")[0][fState];
+ 			return editorView.safeStringFromStorage("r", 0, fState);
 //
 //			return [
 //				"data",
@@ -10799,7 +10828,7 @@ class myMenuItemSeconds extends myMenuItem
 //				}
 //			}
 
-			return applicationStorage.getValue("s")[1][editorView.secondsGetRefresh()];
+			return editorView.safeStringFromStorage("s", 1, editorView.secondsGetRefresh());
     	}
     	else if (fState==16/*s_visEdit*/)
     	{
@@ -10811,7 +10840,7 @@ class myMenuItemSeconds extends myMenuItem
 //    	}
  		else if (fState<=8/*s_delete*/)
  		{
- 			return applicationStorage.getValue("s")[0][fState];
+ 			return editorView.safeStringFromStorage("s", 0, fState);
  		
 // 			return [
 //				"style",

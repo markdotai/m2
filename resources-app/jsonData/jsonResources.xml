@@ -7,14 +7,14 @@
 			[
 				"global settings",
 				"field",
-				"hour (large)",
-				"minute (large)",
-				"colon (large)",
+				"hour (big)",
+				"minute (big)",
+				"colon (big)",
 				"string",
 				"icon",
-				"move bar",
-				"heart rate chart",
-				"rectangle",
+				"movebar",
+				"HR chart",
+				"rect",
 				"ring",
 				"seconds indicator"
 			],
@@ -36,7 +36,7 @@
 				"year ##",
 				"year ####",
 				"week ISO ##",
-				"W ISO symbol",
+				"W",
 				"year ISO ####",
 				"week calendar",
 				"year calendar ####",
@@ -58,10 +58,10 @@
 				"floor goal",
 				"notifications",
 				"battery %",
-				"heart rate min",
-				"heart rate max",
-				"heart rate avg",
-				"heart rate",
+				"HR min (1m)",
+				"HR max (1m)",
+				"HR avg (1m)",
+				"HR",
 				"sunrise hour",
 				"sunrise minute",
 				"sunset hour",
@@ -102,8 +102,8 @@
 			    "battery high",
 			    "battery medium",
 			    "battery low",
-			    "move bar alert triggered",
-			    "move bar alert not triggered",
+			    "movebar alert triggered",
+			    "movebar alert not triggered",
 			    "AM",
 			    "PM",
 			    "2nd time AM",
@@ -118,7 +118,7 @@
 				"add new",
 				"add field",
 				"add freeform",
-				"add rectangle",
+				"add rect",
 				"add ring",
 				"add seconds"
 			],
@@ -138,7 +138,7 @@
 				"battery high",
 				"battery low",
 				"2nd time offset",
-				"move bar alert level",
+				"movebar alert level",
 				"font system case",
 				"font unsupported",
 				"menu hide",
@@ -165,10 +165,10 @@
 					"move earlier",
 					"move later",
 					"delete field",
-					"horizontal",
-					"vertical",
-					"centre horizontal",
-					"centre vertical",
+					"x",
+					"y",
+					"centre x",
+					"centre y",
 					"tap"
 				],
 				
@@ -303,10 +303,10 @@
 					35,		<!-- FIELD_NOTIFICATIONSCOUNT -->
 					36,		<!-- FIELD_BATTERYPERCENTAGE -->
 					30,		<!-- FIELD_SEPARATOR_PERCENT -->
+					40,		<!-- FIELD_HEART_LATEST -->
+					39,		<!-- FIELD_HEART_AVERAGE -->
 					37,		<!-- FIELD_HEART_MIN -->
 					38,		<!-- FIELD_HEART_MAX -->
-					39,		<!-- FIELD_HEART_AVERAGE -->
-					40,		<!-- FIELD_HEART_LATEST -->
 					48,		<!-- FIELD_CALORIES -->
 					49,		<!-- FIELD_ACTIVE_CALORIES -->
 					50,		<!-- FIELD_INTENSITY -->
@@ -325,17 +325,17 @@
 			"e",
 			[
 				"add element",
-				"add time (large)",
+				"add time (big)",
 				"add time",
 				"add separator",
 				"add date",
 				"add value",
 				"add icon",
-				"add move bar",
+				"add movebar",
 				"add chart",
-				"hour (large)",
-				"minute (large)",
-				"colon (large)"
+				"hour (big)",
+				"minute (big)",
+				"colon (big)"
 			],
 		
 			<!-- rectangle -->
@@ -348,11 +348,11 @@
 				"visibility",
 				"move earlier",
 				"move later",
-				"delete rectangle",
-				"horizontal",
-				"vertical",
-				"centre horizontal",
-				"centre vertical",
+				"delete rect",
+				"x",
+				"y",
+				"centre x",
+				"centre y",
 				"tap"
 			],
 			
