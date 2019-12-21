@@ -584,7 +584,7 @@ class myView
 //    var bufferSeconds;
 //    var bufferPosX;
 //    var bufferPosY;
-    var bufferValues = new[36]b;
+    //var bufferValues = new[36]b;
 
 	//var characterString;
 
@@ -1263,11 +1263,6 @@ class myView
 			{
 				secondsX[i] = tempResource[3][i];
 				secondsY[i] = tempResource[4][i];
-				
-				if (i<36)
-				{
-					bufferValues[i] = tempResource[5][i];
-				}
 			}
 			
 			tempResource = null;
@@ -2230,54 +2225,99 @@ class myView
 //		}
 	}
 
+//    (:m2face)
+//	function drawBuffer2(secondsIndex, dc)
+//	{
+//						  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
+//	    //var bufferSeconds = [   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ];
+//	    
+//	    var doUpdate = (bufferIndex < 0);	// if no buffer yet
+//	    
+//	    if (!doUpdate)
+//	    {
+//			// see if need to redraw the offscreen buffer (if clearIndex is outside it)
+//			var bufferSecondsStart = bufferValues[bufferIndex];						// current start of range in offscreen buffer
+//	    	var bufferNext = (bufferIndex + 1)%12;
+//		    var bufferSecondsNextMinusOne = (bufferValues[bufferNext] + 59)%60;		// current end of range in offscreen buffer - do it this way to handle when end is 0
+//
+//			doUpdate = (secondsIndex<bufferSecondsStart || secondsIndex>bufferSecondsNextMinusOne);		// outside current range
+//		}
+//
+//	    if (doUpdate)
+//	    {
+//			// find buffer which contains the indicator for specified second
+//			var useIndex = -1;
+//			for (var i=12-1; i>=0; i--)
+//			{
+//				if (secondsIndex>=bufferValues[i])
+//				{
+//					useIndex = i;
+//					break;
+//				}
+//			}
+//			
+//			if (useIndex>=0)
+//			{
+//								  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
+//			    //var bufferPosX =    [ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ];
+//			    //var bufferPosY =    [ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ];		// 160 bytes of code to initialize
+//
+//				bufferIndex = useIndex;		// set the buffer we are using
+//				bufferX = bufferValues[useIndex + 12] - 40;
+//				bufferY = bufferValues[useIndex + 24] - 40;
+//				
+//				drawBackgroundToDc(null);
+//	
+//				// test draw the offscreen buffer to see what is in it
+//		    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
+//				//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+//		    	//dc.clearClip();
+//			}
+//		}
+//	}
+
     (:m2face)
 	function drawBuffer(secondsIndex, dc)
 	{
-						  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
-	    //var bufferSeconds = [   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ];
-	    
+		var xMin = secondsX[secondsIndex] - 8/*SECONDS_SIZE_HALF*/;
+		var xMax = secondsX[secondsIndex] + 8/*SECONDS_SIZE_HALF*/;
+		var yMin = secondsY[secondsIndex] - 8/*SECONDS_SIZE_HALF*/;
+		var yMax = secondsY[secondsIndex] + 8/*SECONDS_SIZE_HALF*/;
+
 	    var doUpdate = (bufferIndex < 0);	// if no buffer yet
 	    
 	    if (!doUpdate)
 	    {
 			// see if need to redraw the offscreen buffer (if clearIndex is outside it)
-			var bufferSecondsStart = bufferValues[bufferIndex];						// current start of range in offscreen buffer
-	    	var bufferNext = (bufferIndex + 1)%12;
-		    var bufferSecondsNextMinusOne = (bufferValues[bufferNext] + 59)%60;		// current end of range in offscreen buffer - do it this way to handle when end is 0
-
-			doUpdate = (secondsIndex<bufferSecondsStart || secondsIndex>bufferSecondsNextMinusOne);		// outside current range
+			doUpdate = ((xMin<bufferX) || (xMax>bufferX+62/*BUFFER_SIZE*/) || (yMin<bufferY) || (yMax>bufferY+62/*BUFFER_SIZE*/));
 		}
 
 	    if (doUpdate)
 	    {
-			// find buffer which contains the indicator for specified second
-			var useIndex = -1;
-			for (var i=12-1; i>=0; i--)
+			// calculate best new buffer position (including this second and following ones)
+			bufferX = xMin;
+			bufferY = yMin;
+			
+			var nextIndex = (secondsIndex+1)%60;
+
+			if (secondsX[nextIndex] < secondsX[secondsIndex])
 			{
-				if (secondsIndex>=bufferValues[i])
-				{
-					useIndex = i;
-					break;
-				}
+				bufferX = xMax - 62/*BUFFER_SIZE*/;
 			}
 			
-			if (useIndex>=0)
+			if (secondsY[nextIndex] < secondsY[secondsIndex])
 			{
-								  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
-			    //var bufferPosX =    [ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ];
-			    //var bufferPosY =    [ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ];		// 160 bytes of code to initialize
-
-				bufferIndex = useIndex;		// set the buffer we are using
-				bufferX = bufferValues[useIndex + 12] - 40;
-				bufferY = bufferValues[useIndex + 24] - 40;
-				
-				drawBackgroundToDc(null);
-	
-				// test draw the offscreen buffer to see what is in it
-		    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
-				//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
-		    	//dc.clearClip();
+				bufferY = yMax - 62/*BUFFER_SIZE*/;
 			}
+
+			bufferIndex++;		// set the buffer we are using
+				
+			drawBackgroundToDc(null);
+	
+			// test draw the offscreen buffer to see what is in it
+	    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
+			//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+	    	//dc.clearClip();
 		}
 	}
 
