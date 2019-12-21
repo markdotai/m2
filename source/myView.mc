@@ -83,6 +83,8 @@ class myView
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 	var propSecondMoveInABit;
     var propSecondRefreshStyle;
+	var propSecondColorIndexArray;
+	
 	//enum
 	//{
 	//	REFRESH_EVERY_SECOND = 0,
@@ -563,14 +565,6 @@ class myView
 	//	"\u0040\u0041\u0042\u0043\u0044\u0045\u0046\u0047\u0048\u0049\u004a\u004b\u004c\u004d\u004e\u004f" +		// 59
 	//	"\u0050";																									// 60
 	
-	var secondsColorIndexArray = new[60]b;
-	
-	//const BUFFER_SIZE = 62;
-	var bufferBitmap = null;
-	var bufferIndex = -1;	// ensures buffer will get updated first time
-	var bufferX;
-	var bufferY;
-	
 	//const SCREEN_CENTRE_X = 120;
 	//const SCREEN_CENTRE_Y = 120;
 	//const OUTER_FIRST_CHAR_ID = 12;
@@ -579,6 +573,21 @@ class myView
 
 	var outerXY = new[120]b;
 	
+	//const BUFFER_SIZE = 62;
+	var bufferBitmap = null;
+	var bufferIndex = -1;	// ensures buffer will get updated first time
+	var bufferX = 0;
+	var bufferY = 0;
+	
+//	<!-- seconds buffer values (bufferSeconds, bufferPosX, bufferPosY) -->
+//	[   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ],
+//	[ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ],
+//	[ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ]
+//    var bufferSeconds;
+//    var bufferPosX;
+//    var bufferPosY;
+    var bufferValues = new[36]b;
+
 	//var characterString;
 
 	//var circleFont;
@@ -589,6 +598,16 @@ class myView
 	function getMinMax(v, min, max)
 	{
 		return (v<min) ? min : ((v>max) ? max : v);
+	}
+
+	function getMin(a, b)
+	{
+		return (a<b) ? a : b;
+	}
+
+	function getMax(a, b)
+	{
+		return (a>b) ? a : b;
 	}
 
 	function getNullCheckZero(v)
@@ -1226,35 +1245,37 @@ class myView
 		{
 			var tempResource = watchUi.loadResource(Rez.JsonData.id_dataBytes);
 			
-			// second indicator & outer ring positions
-			for (var i=0; i<120; i++)
+			for (var i=0; i<78; i++)
 			{
-				secondsX[i] = tempResource[0][i];
-				secondsY[i] = tempResource[1][i];
-				outerXY[i] = tempResource[2][i];
+				myChars[i] = tempResource[0][i];	// table for characters with diacritics
 
-				// table for characters with diacritics
-				if (i<78)
+				if (i<64)
 				{
-					myChars[i] = tempResource[3][i];
+					colorArray[i] = tempResource[1][i];
 
-					if (i<64)
+					if (i<24)
 					{
-						colorArray[i] = tempResource[4][i];
-
-						if (i<36)
-						{
-							bufferValues[i] = tempResource[6][i];
-
-							if (i<24)
-							{
-								outerValues[i] = tempResource[5][i];
-
-								gfxSizeArray[i] = tempResource[7][i];
-							}
-						}
+						gfxSizeArray[i] = tempResource[2][i];
 					}
 				}
+			}
+			
+			// second indicator positions
+			for (var i=0; i<120; i++)
+			{
+				secondsX[i] = tempResource[3][i];
+				secondsY[i] = tempResource[4][i];
+				
+				if (i<36)
+				{
+					bufferValues[i] = tempResource[5][i];
+				}
+			}
+			
+			// outer ring positions
+			for (var i=0; i<120; i++)
+			{
+				outerXY[i] = tempResource[6][i];
 			}
 			
 			tempResource = null;
@@ -2102,15 +2123,6 @@ class myView
 		}
     }
 
-//	<!-- outer ring values (outerBigXY, outerOffscreenStart, outerOffscreenEnd) -->
-//	[118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3],
-//	[  -2,   7,  19,  28,  37,  49,  58,  67,  79,  88,  97, 109 ],
-//	[   9,  22,  30,  39,  52,  59,  69,  82,  89,  99, 112, 120 ],
-//	var outerBigXY;
-//	var outerOffscreenStart;
-//	var outerOffscreenEnd;
-	var outerValues = new[24]b;
-
 	var doDrawGfx = true;
 
 	function drawBackgroundToDc(useDc)
@@ -2246,15 +2258,6 @@ class myView
 //			}
 //		}
 	}
-
-//	<!-- seconds buffer values (bufferSeconds, bufferPosX, bufferPosY) -->
-//	[   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ],
-//	[ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ],
-//	[ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ]
-//    var bufferSeconds;
-//    var bufferPosX;
-//    var bufferPosY;
-    var bufferValues = new[36]b;
 
     (:m2face)
 	function drawBuffer(secondsIndex, dc)
@@ -2502,30 +2505,27 @@ class myView
 
     function drawSecond(dc, startIndex, endIndex)
     {
-		if (propSecondResourceIndex<dynResNum)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+		var dynamicResource = getDynamicResource(propSecondResourceIndex);
+		if (dynamicResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
-			var dynamicResource = getDynamicResource(propSecondResourceIndex);
-			if (dynamicResource!=null)
-			{
-		    	var curCol = COLOR_NOTSET;
-		   		var xyIndex = startIndex + (propSecondMoveInABit ? 60 : 0);
-		    	for (var index=startIndex; index<=endIndex; index++, xyIndex++)
-		    	{
-					var col = getColor64(secondsColorIndexArray[index]);
-			
-			        if (curCol != col)
-			        {
-			        	curCol = col;
-			       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
-			       	}
-			       	//dc.setColor(col, graphics.COLOR_GREEN);
-			       	//dc.setColor(getColor64(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
-			       	
-			       	//var s = characterString.substring(index+9, index+10);
-					//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
-					//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
-		        	dc.drawText(-8/*SECONDS_SIZE_HALF*/ + secondsX[xyIndex], -8/*SECONDS_SIZE_HALF*/ + secondsY[xyIndex], dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-				}
+	    	var curCol = COLOR_NOTSET;
+	   		var xyIndex = startIndex + (propSecondMoveInABit ? 60 : 0);
+	    	for (var index=startIndex; index<=endIndex; index++, xyIndex++)
+	    	{
+				var col = getColor64(propSecondColorIndexArray[index]);
+		
+		        if (curCol != col)
+		        {
+		        	curCol = col;
+		       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
+		       	}
+		       	//dc.setColor(col, graphics.COLOR_GREEN);
+		       	//dc.setColor(getColor64(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
+		       	
+		       	//var s = characterString.substring(index+9, index+10);
+				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
+				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
+	        	dc.drawText(-8/*SECONDS_SIZE_HALF*/ + secondsX[xyIndex], -8/*SECONDS_SIZE_HALF*/ + secondsY[xyIndex], dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 			}
 		}
     }
@@ -3930,6 +3930,8 @@ class myView
 		}
 		
 		dynResNum = 0;
+
+		propSecondColorIndexArray = null;
     }
 
     function loadDynamicResources()
@@ -4276,6 +4278,11 @@ class myView
 	
 	function buildSecondsColorArray(index)
 	{
+		if (propSecondColorIndexArray==null)
+		{
+			propSecondColorIndexArray = new[60]b;
+		}
+
 		// calculate the seconds color array
     	var secondColorIndex = gfxData[index+2]-1;		// second color
     	var secondColorIndex5 = gfxData[index+3]-1;
@@ -4313,7 +4320,7 @@ class myView
 	        	col = secondColorIndex;		// second color
 	        }
 	        
-	        secondsColorIndexArray[i] = col;
+	        propSecondColorIndexArray[i] = col;
 	    }
 
 		//this test code now works out exactly the same size as the original above!
@@ -4332,7 +4339,7 @@ class myView
 		//{
 		//	colArray[1] = 4+i;
 		//	var testArray = [secondColorDemo2, i==0 && colArray[2]!=-1, (i%15)==0 && colArray[3]!=-1, (i%10)==0 && colArray[4]!=-1, (i%10)==5 && colArray[5]!=-1];
-		//	secondsColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
+		//	propSecondColorIndexArray[i] = colArray[testArray.indexOf(true)+1];
 		//}		
 	}
 	
@@ -5630,11 +5637,6 @@ class myView
 						break;
 					}
 
-					// positions of the outerBig segments (from fnt file)
-					// y are all adjusted -1 as usual
-					//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
-					//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
-		
 					var resourceIndex = ((gfxData[index+2/*ring_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
@@ -5642,29 +5644,6 @@ class myView
 						break;
 					}
 
-					var jStart;
-					var jEnd;
-			
-					if (!toBuffer)		// main display
-					{
-						jStart = 0;
-						jEnd = 59;		// all segments
-					}
-					else				// offscreen buffer
-					{
-						// these arrays contain outer ring segment numbers (0-119) for the offscreen buffer positions
-											  		// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
-						//var outerOffscreenStart = 	[  -2,   7,  19,  28,  37,  49,  58,  67,  79,  88,  97, 109 ];
-						//var outerOffscreenEnd = 	[   9,  22,  30,  39,  52,  59,  69,  82,  89,  99, 112, 120 ];
-					
-		    			jStart = outerValues[bufferIndex] - 10;
-		    			jEnd = outerValues[bufferIndex + 12];
-					}
-			
-					//jStart = 0;	// test draw all
-					//jEnd = 119;
-		
-					// intersect the jStart to jEnd range with the drawing range
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
 
@@ -5677,9 +5656,69 @@ class myView
 					}
 					
 					var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
-					var jRange = jEnd - jStart;
+
+					var bufferXMin = bufferX - 8/*OUTER_SIZE_HALF*/;
+					var bufferXMax = bufferX + 62/*BUFFER_SIZE*/ + 8/*OUTER_SIZE_HALF*/;
+					var bufferYMin = bufferY - 8/*OUTER_SIZE_HALF*/;
+					var bufferYMax = bufferY + 62/*BUFFER_SIZE*/ + 8/*OUTER_SIZE_HALF*/;
+
+					var jStart = 0;
+					var jRange = 59;	// all segments
+					if (toBuffer)
+					{
+						if (bufferXMin > getMax(outerXY[59*2], outerXY[30*2]))
+						{
+							// right half only
+							//jStart = 0;
+							jRange = 29;
+						}
+						else if (bufferXMax < getMin(outerXY[0*2], outerXY[29*2]))
+						{
+							// left half only
+							jStart = 30;
+							jRange = 29;
+						}
+						
+						if (bufferYMin > getMax(outerXY[14*2+1], outerXY[45*2+1]))
+						{
+							// bottom half only
+							if (jRange==59)
+							{
+								jStart = 15;
+								jRange = 29;
+							}
+							else
+							{
+								jStart = ((jStart==0) ? 15 : 30);
+								jRange = 14;	// 15->29 or 30->44 
+							}
+						}
+						else if (bufferYMax < getMin(outerXY[44*2+1], outerXY[15*2+1]))
+						{
+							// top half only
+							if (jRange==59)
+							{
+								jStart = 45;
+								jRange = 29;
+							}
+							else
+							{
+								jStart = ((jStart==0) ? 0 : 45);
+								jRange = 14;	// 0->14 or 45->59 
+							}
+						}
+						
+//	//const BUFFER_SIZE = 62;
+//	var bufferBitmap = null;
+//	var bufferIndex = -1;	// ensures buffer will get updated first time
+//	var bufferX;
+//	var bufferY;
+//outerXY[index2], yOffset + outerXY[index2+1]
+
+					}
 					
 //System.println("drawStart=" + drawStart + " drawEnd=" + drawEnd);
+//System.println("jStart=" + jStart + " jRange=" + jRange);
 
 					var loopStart;
 					var loopEnd;
@@ -5702,8 +5741,6 @@ class myView
 						testRange = drawRange; 
 					}
 					
-//System.println("jStart=" + jStart + " jEnd=" + jEnd);
-
 					var colFilled = getColor64(gfxData[index+5]-1);
 					var colUnfilled = getColor64(gfxData[index+6]-1);
 					var fillStart = (gfxData[index+7]&0xFF);
@@ -5747,6 +5784,16 @@ class myView
 						// draw the segment (if a color is set)
 						if (indexCol != COLOR_NOTSET)
 						{
+							var index2 = index*2;
+							var outerX = outerXY[index2];
+							var outerY = outerXY[index2+1];
+
+							// don't draw if not inside buffer
+							if (toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY))
+							{
+								continue; 
+							}
+							
 							if (curCol!=indexCol)
 							{
 								curCol = indexCol;
@@ -5756,8 +5803,7 @@ class myView
 							//var s = characterString.substring(index, index+1);
 							//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
 							//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
-							var index2 = index*2;
-				        	dc.drawText(xOffset + outerXY[index2], yOffset + outerXY[index2+1], dynamicResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+				        	dc.drawText(xOffset + outerX, yOffset + outerY, dynamicResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 				        }
 					}
 
