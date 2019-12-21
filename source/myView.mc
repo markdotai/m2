@@ -4176,7 +4176,7 @@ class myView
 				case 3:		// minute large
 				case 4:		// colon large
 				{
-					var r = (gfxData[index+2] & 0xFF);
+					var r = (gfxData[index+1/*large_font*/] & 0xFF);
 				 	if (r<0 || r>21)	// 0-17 (s,m,l fonts), 18-21 (4 system number fonts)
 				 	{
 				 		r = 9/*m regular*/;
@@ -4184,14 +4184,14 @@ class myView
 				 	//								colon								hour/minute
 				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 57) : (r-18+29)) : ((r<18) ? (r+39) : (r-18+29));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex]);			
-					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
+					gfxData[index+1/*large_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
 
 				case 5:		// string
 				{
-					var r = (gfxData[index+3] & 0xFF);
+					var r = (gfxData[index+2/*string_font*/] & 0xFF);
 				 	if (r<0 || r>19)	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 				 	{
 				 		r = (r&~0xFF) + 7/*m regular*/;
@@ -4199,7 +4199,7 @@ class myView
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
 				 	var fontListIndex = ((r<15) ? (r + (useNumFont?60:75)) : (r-15+24));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex]);
-					gfxData[index+3] = r | ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4209,7 +4209,7 @@ class myView
 					var r = 0;
 					var resourceIndex = addDynamicResource(iconFontList[r]);
 					
-					gfxData[index+3] = r | ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4219,7 +4219,7 @@ class myView
 					var r = 0;
 					var resourceIndex = addDynamicResource(iconFontList[r]);
 					
-					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4243,7 +4243,7 @@ class myView
 					var r = 0;
 					var resourceIndex = addDynamicResource(ringFontList[r]);
 					
-					gfxData[index+2] = r | ((resourceIndex & 0xFF) << 16);
+					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
 				}
@@ -4507,7 +4507,7 @@ class myView
 						break;
 					}
 					
-					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
+					var resourceIndex = ((gfxData[index+1/*large_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
@@ -4518,7 +4518,7 @@ class myView
 					
 //					var narrowKern = false;
 //
-//					var fontTypeKern = (gfxData[index+2] & 0xFF);
+//					var fontTypeKern = (gfxData[index+1] & 0xFF);
 //					if (fontTypeKern>=6)
 //					{
 //						if (fontTypeKern>=33 && fontTypeKern<=38)	// large italic
@@ -4546,7 +4546,7 @@ class myView
 					}
 					else //if (id==4)
 					{
-						var r = (gfxData[index+2] & 0xFF);
+						var r = (gfxData[index+1/*large_font*/] & 0xFF);
 					 	if (r<18)	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
 					 	{
 							charArray = [((r%6) + 48).toChar()];
@@ -4620,7 +4620,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
+					var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
 
 					var eStr = null;
 					var eDisplay = (gfxData[index+1] & 0x7F);
@@ -4998,8 +4998,8 @@ class myView
 						if (useUnsupportedFont)
 						{
 							resourceIndex = gfxAddDynamicResources(24/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
-							gfxData[index+3] &= ~0x00FF0000;
-							gfxData[index+3] |= ((resourceIndex & 0xFF) << 16);
+							gfxData[index+2/*string_font*/] &= ~0x00FF0000;
+							gfxData[index+2/*string_font*/] |= ((resourceIndex & 0xFF) << 16);
 						}
 
 						var dynamicResource = getDynamicResource(resourceIndex);
@@ -5018,14 +5018,14 @@ class myView
 								gfxCharArrayLen = eLen + (eLen-sLen);
 								eStr = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));	// string without diacritics
 	
-								gfxData[index+3] |= 0x80000000;		// diacritics flag
+								gfxData[index+2/*string_font*/] |= 0x80000000;		// diacritics flag
 							}
 							else
 							{
 								eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
 								gfxCharArrayLen = eLen;
 	
-								gfxData[index+3] &= ~0x80000000;		// diacritics flag
+								gfxData[index+2/*string_font*/] &= ~0x80000000;		// diacritics flag
 							}
 		
 							gfxData[index+4] = sLen;	// string start
@@ -5067,7 +5067,7 @@ class myView
 						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
 						var c = (eDisplay + 65/*ICONS_FIRST_CHAR_ID*/).toChar();
 
-						var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
+						var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
 						var dynamicResource = getDynamicResource(resourceIndex);
 						if (dynamicResource==null)
 						{
@@ -5094,7 +5094,7 @@ class myView
 					gfxData[index+9] = activityMonitorMoveBarLevel;	// level
 					gfxData[index+10] = 0;	// width
 
-					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
+					var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
@@ -5411,7 +5411,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
+					var resourceIndex = ((gfxData[index+1/*large_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
@@ -5434,7 +5434,7 @@ class myView
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
-				       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
+				       		dc.setColor(getColor64(gfxData[index+2/*large_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 //	dc.setColor(getColor64(gfxData[index+1]-1), graphics.COLOR_BLUE);
 			        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+3].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
@@ -5444,7 +5444,7 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)		// check digit x overlaps buffer
 					{
-			       		dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
+			       		dc.setColor(getColor64(gfxData[index+2/*large_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 		        		dc.drawText(fieldX, timeY, dynamicResource, gfxData[index+5].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 					}
 
@@ -5466,7 +5466,7 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
 						{ 
-							var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
+							var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
 							var dynamicResource = getDynamicResource(resourceIndex);							
 							if (dynamicResource==null)
 							{
@@ -5477,12 +5477,12 @@ class myView
 						
 							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+6], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex)+2);
 
-					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64(gfxData[index+3/*string_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
 			        		dc.drawText(fieldX, dateY, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);
 
-							if ((gfxData[index+3]&0x80000000)!=0)		// diacritics flag
+							if ((gfxData[index+2/*string_font*/]&0x80000000)!=0)		// diacritics flag
 							{
 								var num = eLen - sLen;
 								for (var i=0; i<num; i++)
@@ -5515,7 +5515,7 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)	// check element x overlaps buffer
 						{ 
-							var resourceIndex = ((gfxData[index+3] >> 16) & 0xFF);
+							var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
 							var dynamicResource = getDynamicResource(resourceIndex);
 							if (dynamicResource==null)
 							{
@@ -5526,7 +5526,7 @@ class myView
 						
 							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+5], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex)+2);
 
-					        dc.setColor(getColor64(gfxData[index+2]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64(gfxData[index+3/*icon_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 						}
 
@@ -5543,7 +5543,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
+					var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
@@ -5635,7 +5635,7 @@ class myView
 					//var outerBigXY = [118, -2-1, 200, 34-1, 200, 118-1, 118, 200-1, 34, 200-1, -2, 118-1, -2, 34-1, 34, -2-1];
 					//var outerBigXY = [118, -3, 200, 33, 200, 117, 118, 199, 34, 199, -2, 117, -2, 33, 34, -3];
 		
-					var resourceIndex = ((gfxData[index+2] >> 16) & 0xFF);
+					var resourceIndex = ((gfxData[index+2/*ring_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
@@ -5941,8 +5941,8 @@ class myEditorView extends myView
 		index = gfxInsert(index, 2+largeType);
 		if (index>=0)
 		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
+			gfxData[index+1/*large_font*/] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
+			gfxData[index+2/*large_color*/] = 3+1;	// color
 			// string 0
 			// width 0
 			// string 1
@@ -5953,65 +5953,14 @@ class myEditorView extends myView
 		return index;
 	}
 
-//	function gfxAddHourLarge(index)
-//	{
-//		index = gfxInsert(index, 2);
-//		if (index>=0)
-//		{
-//			gfxData[index+1] = 3+1;	// color
-//			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
-//			// string 0
-//			// width 0
-//			// string 1
-//			// width 1
-//
-//			reloadDynamicResources = true;
-//		}
-//		return index;
-//	}
-//
-//	function gfxAddMinuteLarge(index)
-//	{
-//		index = gfxInsert(index, 3);
-//		if (index>=0)
-//		{
-//			gfxData[index+1] = 3+1;	// color
-//			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
-//			// string 0
-//			// width 0
-//			// string 1
-//			// width 1
-//
-//			reloadDynamicResources = true;
-//		}
-//		return index;
-//	}
-//
-//	function gfxAddColonLarge(index)	// colon large
-//	{
-//		index = gfxInsert(index, 4);
-//		if (index>=0)
-//		{
-//			gfxData[index+1] = 3+1;	// color
-//			gfxData[index+2] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex
-//			// string 0 dummy
-//			// width 0 dummy
-//			// string 1
-//			// width 1
-//
-//			reloadDynamicResources = true;
-//		}
-//		return index;
-//	}
-
 	function gfxAddString(index, dataType)
 	{
 		index = gfxInsert(index, 5);
 		if (index>=0)
 		{
 			gfxData[index+1] = dataType;		// type
-			gfxData[index+2] = 3+1;	// color
-			gfxData[index+3] = 6/*m_regular*/;	// font & diacritics
+			gfxData[index+2/*string_font*/] = 6/*m_regular*/;	// font & diacritics
+			gfxData[index+3/*string_color*/] = 3+1;	// color
 			// string start
 			// string end
 			// width
@@ -6027,8 +5976,8 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = iconType;	// type
-			gfxData[index+2] = 3+1;	// color
-			gfxData[index+3] = 0;	// font
+			gfxData[index+2/*icon_font*/] = 0;	// font
+			gfxData[index+3/*icon_color*/] = 3+1;	// color
 			// char
 			// width
 
@@ -6043,7 +5992,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;	// type
-			gfxData[index+2] = 0;	// font
+			gfxData[index+2/*movebar_font*/] = 0;	// font
 			gfxData[index+3] = 3+1;	// color 1
 			gfxData[index+4] = 3+1;	// color 2
 			gfxData[index+5] = 3+1;	// color 3
@@ -6091,7 +6040,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;	// type & direction
-			gfxData[index+2] = 0;	// font
+			gfxData[index+2/*ring_font*/] = 0;	// font
 			gfxData[index+3] = 0;	// start
 			gfxData[index+4] = 59;	// end
 			gfxData[index+5] = 3+1;	// color filled
@@ -7563,12 +7512,12 @@ class myEditorView extends myView
 
 	function largeColorEditing(val)
 	{
-		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+2/*large_color*/] = (gfxData[menuElementGfx+2/*large_color*/]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function largeFontEditing(val)
 	{	
-		var temp = (gfxData[menuElementGfx+2] & 0xFF);
+		var temp = (gfxData[menuElementGfx+1/*large_font*/] & 0xFF);
 
 //		// 39-56, 33-38, 29-32
 //		var f = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
@@ -7581,20 +7530,20 @@ class myEditorView extends myView
 //		{
 //			i = 0;
 //		}
-//		gfxData[menuElementGfx+2] = f[i];
+//		gfxData[menuElementGfx+1] = f[i];
 		
-		gfxData[menuElementGfx+2] = ((temp-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
+		gfxData[menuElementGfx+1/*large_font*/] = ((temp-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
 		reloadDynamicResources = true;
 	}
 
 	function stringColorEditing(val)
 	{
-		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function stringFontEditing(val)
 	{
-		var temp = (gfxData[menuElementGfx+3] & 0xFF);
+		var temp = (gfxData[menuElementGfx+2/*string_font*/] & 0xFF);
 
 //		// 6 to 28
 //		temp = temp - val;
@@ -7607,7 +7556,7 @@ class myEditorView extends myView
 //			temp = 28;
 //		}
 
-		gfxData[menuElementGfx+3] = (temp-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (system fonts)
+		gfxData[menuElementGfx+2/*string_font*/] = (temp-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (system fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -7621,18 +7570,18 @@ class myEditorView extends myView
 
 	function iconColorEditing(val)
 	{
-		gfxData[menuElementGfx+2] = (gfxData[menuElementGfx+2]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3/*icon_color*/] = (gfxData[menuElementGfx+3/*icon_color*/]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
 	function iconFontEditing(val)
 	{
-		gfxData[menuElementGfx+3] = 0;
+		gfxData[menuElementGfx+2/*icon_font*/] = 0;
 		reloadDynamicResources = true;
 	}
 
 	function moveBarFontEditing(val)
 	{
-		gfxData[menuElementGfx+2] = 0;
+		gfxData[menuElementGfx+2/*movebar_font*/] = 0;
 		reloadDynamicResources = true;
 	}
 
@@ -7724,7 +7673,7 @@ class myEditorView extends myView
 	
 	function ringFontEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = 0;
+		gfxData[menuFieldGfx+2/*ring_font*/] = 0;
 		reloadDynamicResources = true;
 	}
 	
@@ -9157,29 +9106,29 @@ class myMenuItemElementEdit extends myMenuItem
 //	enum
 //	{
 //		//f_type,
-//		f_color,
 //		f_font,
+//		f_color,
 //		f_earlier,
 //		f_later,
 //		f_delete,
 //
-//		f_colorEdit,
 //		f_fontEdit,
+//		f_colorEdit,
 //	}
 
 // large hour, minute, colon
-//		gfxData[index+1] = 3+1;	// color
-//		gfxData[index+2] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+//		gfxData[index+1] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
+//		gfxData[index+2] = 3+1;	// color
 
 // string
 //		gfxData[index+1] = dataType;		// type
-//		gfxData[index+2] = 3+1;	// color
-//		gfxData[index+3] = 15/*APPFONT_REGULAR_SMALL*/;	// font & diacritics
+//		gfxData[index+2] = 15/*APPFONT_REGULAR_SMALL*/;	// font & diacritics
+//		gfxData[index+3] = 3+1;	// color
 
 // icon
 //		gfxData[index+1] = 0;	// type
-//		gfxData[index+2] = 3+1;	// color
-//		gfxData[index+3] = 0;	// font
+//		gfxData[index+2] = 0;	// font
+//		gfxData[index+3] = 3+1;	// color
 
 // move bar
 //		gfxData[index+1] = 0;	// type
@@ -9197,8 +9146,8 @@ class myMenuItemElementEdit extends myMenuItem
 //		gfxData[index+3] = 3+1;	// color axes
 
 //	var globalStrings = [
-//		"color",
 //		"font",
+//		"color",
 //		
 //		"visibility",
 //		"move earlier",
@@ -9257,7 +9206,7 @@ class myMenuItemElementEdit extends myMenuItem
 //	]b;
 //	
 //	var fStringsMoveBar = [
-//		1,
+//		0,
 //		7,
 //		8,
 //		9,
@@ -9386,22 +9335,22 @@ class myMenuItemElementEdit extends myMenuItem
     		{
 		    	if (fState==numTop)
 		    	{
-		    		editorView.largeColorEditing(val);
+	    			editorView.largeFontEditing(val);
 		    	}
 		    	else if (fState==numTop+1)
 		    	{
-	    			editorView.largeFontEditing(val);
+		    		editorView.largeColorEditing(val);
 		    	}
 		    }
     		else if (fId==5)	// string
     		{
 		    	if (fState==numTop)
 		    	{
-		    		editorView.stringColorEditing(val);
+	    			editorView.stringFontEditing(val);
 		    	}
 		    	else if (fState==numTop+1)
 		    	{
-	    			editorView.stringFontEditing(val);
+		    		editorView.stringColorEditing(val);
 		    	}
 		    }
     		else if (fId==6)	// icon
@@ -9412,11 +9361,11 @@ class myMenuItemElementEdit extends myMenuItem
 		    	}
 		    	else if (fState==numTop+1)
 		    	{
-		    		editorView.iconColorEditing(val);
+	    			editorView.iconFontEditing(val);
 		    	}
 		    	else if (fState==numTop+2)
 		    	{
-	    			editorView.iconFontEditing(val);
+		    		editorView.iconColorEditing(val);
 		    	}
 		    }
     		else if (fId==7)	// movebar
@@ -9470,23 +9419,23 @@ class myMenuItemElementEdit extends myMenuItem
 
     		if (fId>=2 && fId<=4)	// large
     		{
-		    	if (fState==numTop)
+		    	if (fState==numTop+1)
 		    	{
-		    		editorView.startColorEditing(editorView.menuElementGfx+1);
+		    		editorView.startColorEditing(editorView.menuElementGfx+2/*large_color*/);
 		    	}
 		    }
     		else if (fId==5)	// string
     		{
-		    	if (fState==numTop)
+		    	if (fState==numTop+1)
 		    	{
-		    		editorView.startColorEditing(editorView.menuElementGfx+2);
+		    		editorView.startColorEditing(editorView.menuElementGfx+3/*string_color*/);
 		    	}
 		    }
     		else if (fId==6)	// icon
     		{
-		    	if (fState==numTop+1)
+		    	if (fState==numTop+2)
 		    	{
-		    		editorView.startColorEditing(editorView.menuElementGfx+2);
+		    		editorView.startColorEditing(editorView.menuElementGfx+3/*icon_color*/);
 		    	}
 		    }
     		else if (fId==7)	// movebar

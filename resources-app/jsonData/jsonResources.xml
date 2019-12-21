@@ -158,7 +158,7 @@
 			"fe",
 			[
 				[
-					"edit elements",
+					"elements",
 					"position",
 					"alignment",
 					"visibility",
@@ -184,8 +184,8 @@
 			[
 				<!-- large -->
 				[
-					"color",
 					"font",
+					"color",
 					"visibility",
 					"move earlier",
 					"move later",
@@ -194,8 +194,8 @@
 			
 				<!-- string -->
 				[
-					"color",
 					"font",
+					"color",
 					"visibility",
 					"move earlier",
 					"move later",
@@ -205,8 +205,8 @@
 				<!-- icon -->
 				[
 					"type",
-					"color",
 					"font",
+					"color",
 					"visibility",
 					"move earlier",
 					"move later",
