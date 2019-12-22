@@ -2279,44 +2279,89 @@ class myView
     (:m2face)
 	function drawBuffer(secondsIndex, dc)
 	{
-		var xMin = secondsX[secondsIndex] - 8/*SECONDS_SIZE_HALF*/;
-		var xMax = secondsX[secondsIndex] + 8/*SECONDS_SIZE_HALF*/;
-		var yMin = secondsY[secondsIndex] - 8/*SECONDS_SIZE_HALF*/;
-		var yMax = secondsY[secondsIndex] + 8/*SECONDS_SIZE_HALF*/;
-
 	    var doUpdate = (bufferIndex < 0);	// if no buffer yet
 	    
+		var xCur = secondsX[secondsIndex];
+		var yCur = secondsY[secondsIndex];
+
 	    if (!doUpdate)
 	    {
 			// see if need to redraw the offscreen buffer (if clearIndex is outside it)
-			doUpdate = ((xMin<bufferX) || (xMax>bufferX+62/*BUFFER_SIZE*/) || (yMin<bufferY) || (yMax>bufferY+62/*BUFFER_SIZE*/));
+			doUpdate = ((xCur<bufferX+8/*SECONDS_SIZE_HALF*/) || (xCur>bufferX+62/*BUFFER_SIZE*/-8/*SECONDS_SIZE_HALF*/) || 
+						(yCur<bufferY+8/*SECONDS_SIZE_HALF*/) || (yCur>bufferY+62/*BUFFER_SIZE*/-8/*SECONDS_SIZE_HALF*/));
 		}
 
 	    if (doUpdate)
 	    {
-			// calculate best new buffer position (including this second and following ones)
-			bufferX = xMin;
-			bufferY = yMin;
-			
-			var nextIndex = (secondsIndex+1)%60;
+			var xMin = xCur;
+			var xMax = xCur;
+			var yMin = yCur;
+			var yMax = yCur;
 
-			if (secondsX[nextIndex] < secondsX[secondsIndex])
-			{
-				bufferX = xMax - 62/*BUFFER_SIZE*/;
-			}
-			
-			if (secondsY[nextIndex] < secondsY[secondsIndex])
-			{
-				bufferY = yMax - 62/*BUFFER_SIZE*/;
-			}
+			var r = 62/*BUFFER_SIZE*/-8/*SECONDS_SIZE_HALF*/-8/*SECONDS_SIZE_HALF*/;
 
+	    	for (var i=secondsIndex+1; i<60; i++)
+	    	{
+	    		var x = secondsX[i];
+	    		var y = secondsY[i];
+	    		
+	    		// stop at second which can't fit inside buffer
+	    		if ((x-xMin)>r || (xMax-x)>r || (y-yMin)>r || (yMax-y)>r)
+	    		{
+	    			break;
+	    		}
+	    		 
+	    		// remember new max limits
+	    		if (x<xMin)
+	    		{
+	    			xMin = x;
+	    		}
+	    		else if (x>xMax)
+	    		{
+	    			xMax = x;
+	    		}
+	    		
+	    		if (y<yMin)
+	    		{
+	    			yMin = y;
+	    		}
+	    		else if (y>yMax)
+	    		{
+	    			yMax = y;
+	    		}
+	    	}
+	    
+			if (xMin>displayHalf && xMax>displayHalf)
+			{
+				bufferX = xMin-8/*SECONDS_SIZE_HALF*/;
+			}
+			else
+			{
+				bufferX = xMax+8/*SECONDS_SIZE_HALF*/-62/*BUFFER_SIZE*/;
+			}
+	    
+			if (yMin>displayHalf && yMax>displayHalf)
+			{
+				bufferY = yMin-8/*SECONDS_SIZE_HALF*/;
+			}
+			else
+			{
+				bufferY = yMax+8/*SECONDS_SIZE_HALF*/-62/*BUFFER_SIZE*/;
+			}
+	    
 			bufferIndex++;		// set the buffer we are using
 				
-			drawBackgroundToDc(null);
+			drawBackgroundToDc(null);	// and draw the background into the buffer
 	
 			// test draw the offscreen buffer to see what is in it
 	    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
 			//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+	    	//dc.clearClip();
+
+			// draw a rect showing position of buffer
+	    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
+		    //dc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferIndex*4)%12));
+	        //dc.clear();
 	    	//dc.clearClip();
 		}
 	}
