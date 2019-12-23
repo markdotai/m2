@@ -81,9 +81,10 @@ class myView
 
     var propSecondIndicatorOn = false;
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
-    var propSecondRefreshStyle;
+    var propSecondRefreshStyle = 0;
 	var propSecondColorIndexArray;
 	var propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
+	var propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
 	
 	//enum
 	//{
@@ -93,6 +94,19 @@ class myView
 	//}
 	//var propSecondIndicatorStyle;
     		    
+	//const OUTER_FIRST_CHAR_ID = 12;
+	//const OUTER_SIZE_HALF = 8;
+	//const OUTER_CENTRE_OFFSET = 117;
+
+	//const SECONDS_FIRST_CHAR_ID = 21;
+	//const SECONDS_SIZE_HALF = 8;
+	//!const SECONDS_CENTRE_OFFSET = SCREEN_CENTRE_X - SECONDS_SIZE_HALF;
+
+	//const BUFFER_SIZE = 62;
+	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
+	var bufferX = 0;
+	var bufferY = 0;
+	
 //    const PROFILE_NUM_PROPERTIES = 38;
     //const PROFILE_PROPERTY_COLON = 36;
     //const PROFILE_PROPERTY_2ND_TIME_ZONE_OFFSET = 37;
@@ -534,10 +548,6 @@ class myView
 //		return index;
 //	}
 
-	//const SECONDS_FIRST_CHAR_ID = 21;
-	//const SECONDS_SIZE_HALF = 8;
-	//!const SECONDS_CENTRE_OFFSET = SCREEN_CENTRE_X - SECONDS_SIZE_HALF;
-
 	//enum
 	//{
 	//	SECONDFONT_TRI = 0,
@@ -567,15 +577,6 @@ class myView
 	
 	//const SCREEN_CENTRE_X = 120;
 	//const SCREEN_CENTRE_Y = 120;
-	//const OUTER_FIRST_CHAR_ID = 12;
-	//const OUTER_SIZE_HALF = 8;
-	//const OUTER_CENTRE_OFFSET = 117;
-
-	//const BUFFER_SIZE = 62;
-	var bufferBitmap = null;
-	var bufferIndex = -1;	// ensures buffer will get updated first time
-	var bufferX = 0;
-	var bufferY = 0;
 	
 //	<!-- seconds buffer values (bufferSeconds, bufferPosX, bufferPosY) -->
 //	[   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ],
@@ -1230,11 +1231,6 @@ class myView
 //		}
 
 //System.println("Timer json1=" + (System.getTimer()-timeStamp) + "ms");
-
-        // If this device supports BufferedBitmap, allocate the buffer for what's behind the seconds indicator 
-        //if (Toybox.Graphics has :BufferedBitmap)
-		// This full color buffer is needed because anti-aliased fonts cannot be drawn into a buffer with a reduced color palette
-        bufferBitmap = new Graphics.BufferedBitmap({:width=>62/*BUFFER_SIZE*/, :height=>62/*BUFFER_SIZE*/});
 		
 		// load in character string (for seconds & outer ring)
 		//characterString = WatchUi.loadResource(Rez.JsonData.id_characterString);
@@ -1780,7 +1776,7 @@ class myView
         drawBackgroundToDc(dc);
 
         lastPartialUpdateSec = second;
-		bufferIndex = -1;		// clear any background buffer being known
+		bufferPositionCounter = -1;		// clear any background buffer being known
 
 		// draw the seconds indicator to the screen
 		if (propSecondIndicatorOn && doDrawGfx)
@@ -1819,10 +1815,11 @@ class myView
 		var toBuffer = (useDc==null);
 		if (toBuffer)	// offscreen buffer
 		{
-			//if (bufferBitmap==null)
-			//{
-			//	return;
-			//}
+			var bufferBitmap = getDynamicResource(propSecondBufferIndex);
+			if (bufferBitmap==null)
+			{
+				return;
+			}
 		
 			useDc = bufferBitmap.getDc();
 			dcX = bufferX;
@@ -1843,7 +1840,7 @@ class myView
 		// test draw background of offscreen buffer in a different color
 		//if (toBuffer)
 		//{
-	    //	useDc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferIndex*4)%12));
+	    //	useDc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferPositionCounter*4)%12));
 		//}
         useDc.clear();
 		
@@ -1949,13 +1946,13 @@ class myView
 //						  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
 //	    //var bufferSeconds = [   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ];
 //	    
-//	    var doUpdate = (bufferIndex < 0);	// if no buffer yet
+//	    var doUpdate = (bufferPositionCounter < 0);	// if no buffer yet
 //	    
 //	    if (!doUpdate)
 //	    {
 //			// see if need to redraw the offscreen buffer (if clearIndex is outside it)
-//			var bufferSecondsStart = bufferValues[bufferIndex];						// current start of range in offscreen buffer
-//	    	var bufferNext = (bufferIndex + 1)%12;
+//			var bufferSecondsStart = bufferValues[bufferPositionCounter];						// current start of range in offscreen buffer
+//	    	var bufferNext = (bufferPositionCounter + 1)%12;
 //		    var bufferSecondsNextMinusOne = (bufferValues[bufferNext] + 59)%60;		// current end of range in offscreen buffer - do it this way to handle when end is 0
 //
 //			doUpdate = (secondsIndex<bufferSecondsStart || secondsIndex>bufferSecondsNextMinusOne);		// outside current range
@@ -1980,7 +1977,7 @@ class myView
 //			    //var bufferPosX =    [ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ];
 //			    //var bufferPosY =    [ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ];		// 160 bytes of code to initialize
 //
-//				bufferIndex = useIndex;		// set the buffer we are using
+//				bufferPositionCounter = useIndex;		// set the buffer we are using
 //				bufferX = bufferValues[useIndex + 12] - 40;
 //				bufferY = bufferValues[useIndex + 24] - 40;
 //				
@@ -2000,7 +1997,7 @@ class myView
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
-		    var doUpdate = (bufferIndex < 0);	// if no buffer yet
+		    var doUpdate = (bufferPositionCounter < 0);	// if no buffer yet
 		    
 			var xCur = getSecondsX(dynamicPositions, secondsIndex);
 			var yCur = getSecondsY(dynamicPositions, secondsIndex);
@@ -2070,7 +2067,7 @@ class myView
 					bufferY = yMax+8/*SECONDS_SIZE_HALF*/-62/*BUFFER_SIZE*/;
 				}
 		    
-				bufferIndex++;		// set the buffer we are using
+				bufferPositionCounter++;		// set the buffer we are using
 					
 				drawBackgroundToDc(null);	// and draw the background into the buffer
 		
@@ -2081,7 +2078,7 @@ class myView
 	
 				// draw a rect showing position of buffer
 		    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
-			    //dc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferIndex*4)%12));
+			    //dc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferPositionCounter*4)%12));
 		        //dc.clear();
 		    	//dc.clearClip();
 			}
@@ -2232,25 +2229,29 @@ class myView
 
 	        if (clearIndex>=0)
 	        {
-				drawBuffer(clearIndex, dc);
-
-				// copy from the offscreen buffer over the second indicator
-    			setSecondClip(dc, clearIndex);
-	    		
-	    		//dc.setColor(-1/*COLOR_TRANSPARENT*/, Graphics.COLOR_GREEN);	// check the buffer is clearing the whole of clip region
-        		//dc.clear();
-				
-				//if (bufferBitmap==null)
-				//{
-	    		//	dc.setColor(-1/*COLOR_TRANSPARENT*/, propBackgroundColor);
-	        	//	dc.clear();
-				//}
-				//else
-				//{
-					dc.drawBitmap(bufferX, bufferY, bufferBitmap);
-				//}
-	       	}
-
+				var bufferBitmap = getDynamicResource(propSecondBufferIndex);
+		        if (bufferBitmap!=null)
+		        {
+					drawBuffer(clearIndex, dc);
+	
+					// copy from the offscreen buffer over the second indicator
+	    			setSecondClip(dc, clearIndex);
+		    		
+		    		//dc.setColor(-1/*COLOR_TRANSPARENT*/, Graphics.COLOR_GREEN);	// check the buffer is clearing the whole of clip region
+	        		//dc.clear();
+					
+					//if (bufferBitmap==null)
+					//{
+		    		//	dc.setColor(-1/*COLOR_TRANSPARENT*/, propBackgroundColor);
+		        	//	dc.clear();
+					//}
+					//else
+					//{
+						dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+					//}
+		       	}
+			}
+			
 			if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minuteIndex%2)==1)
 			{
 				// redraw the indicator following the one we just cleared
@@ -2294,7 +2295,7 @@ class myView
 	    	for (var index=startIndex; index<=endIndex; index++)
 	    	{
 	    		// show second clip region
-	    		//if (bufferIndex>=0)
+	    		//if (bufferPositionCounter>=0)
 	    		//{
 			    // 	dc.setColor(-1/*COLOR_TRANSPARENT*/, Graphics.COLOR_RED);
 			    // 	dc.clear();
@@ -3686,6 +3687,7 @@ class myView
 
 	// seconds, ring, hour, minute, icon, field
 	const MAX_DYNAMIC_RESOURCES = 16;
+	const BUFFER_RESOURCE = 0x8FFFFFFF;
 	
 	var dynResNum = 0;
 	var dynResList = new[MAX_DYNAMIC_RESOURCES];
@@ -3721,6 +3723,10 @@ class myView
 		
 		dynResNum = 0;
 
+    	propSecondIndicatorOn = false;
+		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
+		propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
+		propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
 		propSecondColorIndexArray = null;
     }
 
@@ -3729,7 +3735,17 @@ class myView
 		for (var i=0; i<dynResNum; i++)
 		{
 			var r = dynResList[i];
-			dynResResource[i] = (isDynamicResourceSystemFont(i) ? r : WatchUi.loadResource(r));
+			if (r==BUFFER_RESOURCE)
+			{
+		        // If this device supports BufferedBitmap, allocate the buffer for what's behind the seconds indicator 
+		        //if (Toybox.Graphics has :BufferedBitmap)
+				// This full color buffer is needed because anti-aliased fonts cannot be drawn into a buffer with a reduced color palette
+				dynResResource[i] = new Graphics.BufferedBitmap({:width=>62/*BUFFER_SIZE*/, :height=>62/*BUFFER_SIZE*/});
+			}
+			else
+			{
+				dynResResource[i] = (isDynamicResourceSystemFont(i) ? r : WatchUi.loadResource(r));
+			}
 		}
     }
     
@@ -3919,9 +3935,6 @@ class myView
 			fonts.id_icons,
 		];
 
-    	propSecondIndicatorOn = false;
-		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
-
 		var origSize = 240;
     	
 		for (var index=0; index<gfxNum; )
@@ -4039,8 +4052,6 @@ class myView
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
 				 	
-				 	var r2 = (gfxData[index+1] & 0xFF00);	// refresh style
-				 	
 					var secondFontList = [
 						fonts.id_seconds_tri,			// SECONDFONT_TRI
 						fonts.id_seconds_v,				// SECONDFONT_V
@@ -4057,10 +4068,14 @@ class myView
 						fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
 					];
 			
-					var resourceIndex = addDynamicResource(secondFontList[r]);
-					gfxData[index+1] = r | r2 | ((resourceIndex & 0xFF) << 16);
+					propSecondResourceIndex = addDynamicResource(secondFontList[r]);
+					propSecondPositionsIndex = addDynamicResource((r<=6) ? Rez.JsonData.id_secondArray240 : Rez.JsonData.id_secondInArray240);					
+			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
 					
-					gfxData[index+7] = addDynamicResource((r<=6) ? Rez.JsonData.id_secondArray240 : Rez.JsonData.id_secondInArray240);
+			    	if (propSecondRefreshStyle!=1/*REFRESH_EVERY_MINUTE*/)
+			    	{
+						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE);
+					}
 					
 					//printSecondArray(false);
 					//printSecondArray(true);
@@ -4548,7 +4563,6 @@ class myView
 		fieldActiveLTEStatus = null;
 		
     	propSecondIndicatorOn = false;
-		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 
 		var indexCurField = -1;
 		var fieldVisible = false;
@@ -5436,9 +5450,6 @@ class myView
 				case 11:	// seconds
 				{
 			    	propSecondIndicatorOn = isVisible;
-			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);
-					propSecondResourceIndex = ((gfxData[index+1] >> 16) & 0xFF);
-					propSecondPositionsIndex = gfxData[index+7];
 					break;
 				}
 			}
@@ -5826,7 +5837,7 @@ class myView
 						
 //	//const BUFFER_SIZE = 62;
 //	var bufferBitmap = null;
-//	var bufferIndex = -1;	// ensures buffer will get updated first time
+//	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
 //	var bufferX;
 //	var bufferY;
 //outerXY[index2], yOffset + outerXY[index2+1]
@@ -6228,7 +6239,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;			// font
-			gfxData[index+1] |= (0 << 8);	// refresh style
+			//gfxData[index+1] |= (0 << 8);	// refresh style
 			gfxData[index+2] = 3+1; // color
 			gfxData[index+3] = COLOR_NOTSET+1; // color5
 			gfxData[index+4] = COLOR_NOTSET+1; // color10
@@ -7916,8 +7927,9 @@ class myEditorView extends myView
 	{
 		var temp = (secondsGetRefresh() - val + 3)%3;
 		
-		gfxData[menuFieldGfx+1] &= ~0xFF00; 
+		gfxData[menuFieldGfx+1] &= ~0xFF00;
 		gfxData[menuFieldGfx+1] |= (temp<<8); 
+		reloadDynamicResources = true;
 	}
 	
 	function secondsColorEditing(n, val)
