@@ -14,7 +14,7 @@
 			"HR chart",
 			"rect",
 			"ring",
-			"seconds tick"
+			"seconds\nindicator"
 		]
 	</jsonData>
 		
@@ -26,7 +26,7 @@
 			"day name",
 			"day # in week",
 			"day # in month",
-			"day ## in month",
+			"day ## in\nmonth",
 			"day # in year",
 			"day ### in year",
 			"month name",
@@ -34,11 +34,11 @@
 			"month ##",
 			"year ##",
 			"year ####",
-			"week ISO ##",
+			"week ## (ISO)",
 			"W",
-			"year ISO ####",
-			"week calendar",
-			"year calendar ####",
+			"year ####\n(ISO)",
+			"week #\n(calendar)",
+			"year ####\n(calendar)",
 			"AM",
 			"PM",
 			"A",
@@ -65,20 +65,20 @@
 			"sunrise minute",
 			"sunset hour",
 			"sunset minute",
-			"next sun hour",
-			"next sun minute",
+			"next sun event\nhour",
+			"next sun event\nminute",
 			"2nd time hour",
 			"calories",
 			"active calories",
-			"intensity minutes",
+			"intensity\nminutes",
 			"intensity goal",
 			"smart goal",
 			"distance",
-			"mi/km units",
+			"mi/km (units)",
 			"pressure",
-			"mb units",
+			"mb (units)",
 			"altitude",
-			"ft/m units"
+			"ft/m (units)"
 		]
 	</jsonData>
 		
@@ -87,29 +87,29 @@
 		[
 			"always on",
 		    "gesture active",
-		    "gesture not active",
-		    "do not disturb on",
-		    "do not disturb off",
+		    "gesture not\nactive",
+		    "DND on",
+		    "DND off",
 		    "alarm on",
 		    "alarm off",
-		    "notifications pending",
-		    "no notifications",
-		    "phone connected",
-		    "phone not connected",
+		    "notifications\npending",
+		    "no\nnotifications",
+		    "phone\nconnected",
+		    "phone not\nconnected",
 		    "LTE connected",
-		    "LTE not connected",
-		    "battery high/medium",
+		    "LTE not\nconnected",
+		    "battery\nhigh/medium",
 		    "battery high",
-		    "battery medium",
+		    "battery\nmedium",
 		    "battery low",
-		    "movebar alert triggered",
-		    "movebar alert not triggered",
+		    "movebar alert\ntriggered",
+		    "movebar alert\nnot triggered",
 		    "AM",
 		    "PM",
 		    "2nd time AM",
 		    "2nd time PM",
-		    "next sun = rise",
-		    "next sun = set"
+		    "next sun event\n= rise",
+		    "next sun event\n= set"
 		]
 	</jsonData>
 		
@@ -137,13 +137,13 @@
 	<!-- header -->
 	<jsonData id="id_headerStrings">
 		[
-			"background color",
+			"background\ncolor",
 			"battery high",
 			"battery low",
 			"2nd time offset",
-			"movebar alert level",
-			"font system case",
-			"font unsupported",
+			"movebar alert\nlevel",
+			"font system\ncase",
+			"font\nunsupported",
 			"menu hide",
 			
 			"any case",
@@ -400,11 +400,11 @@
 				"hours",
 		   		"battery",
 				"2nd time hours",
-		   		"sun (now top)",
-		   		"sun (midnight top)",
-		   		"sun (noon top)",
-				"intensity",
-				"smart intensity",
+		   		"sun (now\n= start)",
+		   		"sun (midnight\n= start)",
+		   		"sun (noon\n= start)",
+				"intensity\nminutes",
+				"smart intensity\nminutes",
 		   		"heart rate"
 			]
 		]
@@ -428,12 +428,84 @@
 			[
 	   			"every second",
 				"every minute",
-				"alernate minutes"
+				"alernate\nminutes"
 			]
 		]
 	</jsonData>
 
+	<!-- color names -->
+	<jsonData id="id_colorStrings">
+		[
+			"unset",
+			"black",
+			"dark gray",
+			"light gray",
+			"white",
+			"canary",
+			"mint",
+			"pale blue",
+			"lavender",
+			"rose",
+			"lilac",
+			"lemon",
+			"green yellow",
+			"screamin green",
+			"aquamarine",
+			"baby blue",
+			"maya blue",
+			"neon blue",
+			"pale violet",
+			"flamingo",
+			"brilliant rose",
+			"tomato",
+			"pale orange",
+			"yellow",
+			"lime",
+			"bright green",
+			"green",
+			"spring green",
+			"bright aqua",
+			"cyan",
+			"azure",
+			"denim blue",
+			"blue",
+			"electric indigo",
+			"violet",
+			"magenta",
+			"pink",
+			"torch red",
+			"red",
+			"strong orange",
+			"orange",
+			"olive green",
+			"fruit salad",
+			"tradewind blue",
+			"rich blue",
+			"tapestry purple",
+			"blossom red",
+			"citrus",
+			"limeade",
+			"dark green",
+			"green haze",
+			"persian green",
+			"cobalt",
+			"dark blue",
+			"purple",
+			"dark magenta",
+			"lipstick",
+			"dark red",
+			"tawny orange",
+			"verdun green",
+			"darkest green",
+			"sherpa blue",
+			"navy blue",
+			"tyrian purple",
+			"maroon"
+		]
+	</jsonData>
+
 	<!-- colorGridArray -->
+	<!-- distance from centre (0-7) + clockwise angle (0-36) -->
 	<jsonData id="id_colorGridArray">
 		[
 			7, 32,		<!-- grayscale -->

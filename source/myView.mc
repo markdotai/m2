@@ -6499,7 +6499,7 @@ class myEditorView extends myView
 
     function onSelect()		// tap right top
     {
-		switchColorEditing();	// do this before menu handles select so that we don't change when first start editing a color
+		switchColorEditingMode();	// do this before menu handles select so that we don't change when first start editing a color
 
     	var newMenuItem = menuItem.onSelect();
     	if (newMenuItem!=null)
@@ -6622,9 +6622,10 @@ class myEditorView extends myView
 		}
 	}
 
-	var doDrawFace = true;
-	var doDrawColorGrid = true;
 	var getColorGfxIndex = -1;
+	
+	// menu+gfx, menu+grid+gfx, grid+gfx, grid, gfx
+	var colorEditingMode = 1;
 
     function onUpdate(dc)
     {
@@ -6634,17 +6635,18 @@ class myEditorView extends myView
 			copyGfxToPropertyString();
     	}
     
-    	doDrawGfx = (doDrawFace || !(getColorGfxIndex>=0 && doDrawColorGrid));
+    	doDrawGfx = (!isColorEditing() || (colorEditingMode!=3));
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
 		//drawAbc(dc);
 
-    	if (getColorGfxIndex>=0 && doDrawColorGrid)
+    	if (isColorEditing() && (colorEditingMode>=1 && colorEditingMode<=3))
 		{
     		drawColorGrid(dc);
     	}
-    	else
+    	
+    	if (!isColorEditing() || (colorEditingMode<=1))
 		{
 	    	menuItem.draw(dc);    	// then draw any menus on top
 		}
@@ -6695,23 +6697,11 @@ class myEditorView extends myView
 		getColorGfxIndex = gfxIndex;
 	}
 
-	function switchColorEditing()
+	function switchColorEditingMode()
 	{
-		if (getColorGfxIndex>=0)
+		if (isColorEditing())
 		{
-			if (doDrawFace && doDrawColorGrid)
-			{
-				doDrawFace = false;
-			}
-			else if (!doDrawFace)
-			{
-				doDrawFace = true;
-				doDrawColorGrid = false;
-			}
-			else
-			{
-				doDrawColorGrid = true;
-			}
+			colorEditingMode = (colorEditingMode+1)%5;
 		}
 	}
 
@@ -6725,85 +6715,9 @@ class myEditorView extends myView
 		return (getColorGfxIndex != -1);
 	}
 
-	//var colorGridArray = new[64*2]b;
-
 	function drawColorGrid(dc)
 	{
 		// distance from centre (0-7) + clockwise angle (0-36)
-//		var colorGridArray = [
-//			7, 32,		// grayscale
-//			7, 33,
-//			7, 34,
-//			7, 35,
-//
-//			1, 0,		// palest
-//			1, 6,
-//			1, 12,
-//			1, 18,
-//			1, 24,
-//			1, 30,
-//
-//			2, 0,		// pale
-//			2, 3,
-//			2, 6,
-//			2, 9,
-//			2, 12,
-//			2, 15,
-//			2, 18,
-//			2, 21,
-//			2, 24,
-//			2, 27,
-//			2, 30,
-//			2, 33,
-//
-//			3, 0,		// bright
-//			3, 2,
-//			3, 4,
-//			3, 6,
-//			3, 8,
-//			3, 10,
-//			3, 12,
-//			3, 14,
-//			3, 16,
-//			3, 18,
-//			3, 20,
-//			3, 22,
-//			3, 24,
-//			3, 26,
-//			3, 28,
-//			3, 30,
-//			3, 32,
-//			3, 34,
-//
-//			4, 0,		// dim
-//			4, 6,
-//			4, 12,
-//			4, 18,
-//			4, 24,
-//			4, 30,
-//
-//			5, 0,		// dark
-//			5, 3,
-//			5, 6,
-//			5, 9,
-//			5, 12,
-//			5, 15,
-//			5, 18,
-//			5, 21,
-//			5, 24,
-//			5, 27,
-//			5, 30,
-//			5, 33,
-//
-//			6, 0,		// darkest
-//			6, 6,
-//			6, 12,
-//			6, 18,
-//			6, 24,
-//			6, 30,
-//		]b;
-	
-		//var colorGridArray = applicationStorage.getValue("c");
 		var colorGridArray = WatchUi.loadResource(Rez.JsonData.id_colorGridArray);
 		if (colorGridArray!=null)
 		{
@@ -6842,22 +6756,13 @@ class myEditorView extends myView
 				dc.drawCircle(displayHalf + hx, displayHalf - hy, cScaleHighlight+1);
 	        }
 		}
-		        
-// editorfont
-// A = 
-// B = 
-// C = up triangle
-// D = down triangle
-// E = left triangle
-// F = right triangle
-// G = rotating arrow
-//	        for (var j=-1; j<=1; j+=2)
-//	        {
-//	        	for (var k=-1; k<=1; k+=2)
-//	        	{
-//					dc.drawText(displayHalf + x + j, displayHalf - y + k - 1, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-//	        	}
-//	        }
+	}
+
+	function geColorName()
+	{
+		var colorNum = ((getColorGfxIndex>=0) ? gfxData[getColorGfxIndex] : 0);
+
+		return safeStringFromJsonData(Rez.JsonData.id_colorStrings, -1, colorNum);
 	}
 
 //	function drawAbc(dc)
@@ -7932,7 +7837,7 @@ class myEditorView extends myView
 
 	function ringTypeEditing(val)
 	{
-		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 11)%11;
+		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 12)%12;
 		gfxData[menuFieldGfx+1] &= ~0x3F; 
 		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
 	}
@@ -8057,19 +7962,28 @@ class myMenuItem extends Lang.Object
     
     function draw(dc)
     {
-    	var x = (editorView.displaySize*30)/240;
+    	var x = (editorView.displaySize*25)/240;
     	var y = (editorView.displaySize*50)/240 - 1;	// need to draw 1 pixel higher than expected ...
-    	var xEnd = x + 30;
+    	//var xEnd = x + 30;
     
     	var eStr = getString();
+    	
+    	if (editorView.isColorEditing())
+    	{
+    		eStr = editorView.geColorName();
+    	}
+    	
 		if (eStr != null)
 		{
-			var xText = x + 35;
+			var xText = x + 42;
 			var yText = y - Graphics.getFontAscent(Graphics.FONT_SYSTEM_TINY);
+		
+			// following only works on 3.1.0 +
+			//eStr = Graphics.fitTextToArea(eStr, Graphics.FONT_SYSTEM_TINY, editorView.displaySize - xText - x*1.5, editorView.displaySize, true);
 		
 			drawText(dc, eStr, xText, yText, Graphics.FONT_SYSTEM_TINY);
 			
-			xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
+			//xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
 		}
 
 //dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
@@ -8084,24 +7998,25 @@ class myMenuItem extends Lang.Object
 		// F = right triangle
 		// G = rotating arrow
 
-    	if (hasDirection(2))
+    	if (hasDirection(2))	// left
     	{
 			drawText(dc, "E", x, y-15, editorView.editorFontResource);
 		}
 
-    	if (hasDirection(0))
+    	if (hasDirection(0))	// up
     	{
-			drawText(dc, "C", x+15, y-30, editorView.editorFontResource);
+			drawText(dc, "C", x+13, y-20, editorView.editorFontResource);
 		}
 
-    	if (hasDirection(1))
+    	if (hasDirection(1))	// down
     	{
-			drawText(dc, "D", x+15, y-0, editorView.editorFontResource);
+			drawText(dc, "D", x+13, y-10, editorView.editorFontResource);
 		}
 
-    	if (hasDirection(3))
+    	if (hasDirection(3))	// right
     	{
-			drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
+			//drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
+			drawText(dc, "F", x+26, y-15, editorView.editorFontResource);
 		}
     }
         
