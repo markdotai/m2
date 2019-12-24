@@ -82,6 +82,7 @@ class myView
     var propSecondIndicatorOn = false;
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
     var propSecondRefreshStyle = 0;
+    var propSecondAligned = true;
 	var propSecondColorIndexArray;
 	var propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
 	var propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
@@ -94,7 +95,7 @@ class myView
 	//}
 	//var propSecondIndicatorStyle;
     		    
-	//const OUTER_FIRST_CHAR_ID = 12;
+	//const OUTER_FIRST_CHAR_ID = 21;
 	//const OUTER_SIZE_HALF = 8;
 	//const OUTER_CENTRE_OFFSET = 117;
 
@@ -1783,22 +1784,26 @@ class myView
 		{
         	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
         	{
-    			drawSecond(dc, second, second);
+        		var s = (propSecondAligned ? second : (second+59)%60); 
+   				drawSecond(dc, s, s);
     		}
-    		else if ((propSecondRefreshStyle==1/*REFRESH_EVERY_MINUTE*/) ||
-    			(propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==0))
+    		else if ((propSecondRefreshStyle==1/*REFRESH_EVERY_MINUTE*/) || (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==0))
     		{
     			// draw all the seconds up to this point in the minute
-   				drawSecond(dc, 0, second);
+				drawSecond(dc, 0, propSecondAligned ? second : (second-1));
     		}
     		else if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==1)
 			{
-				// always draw indicator at 0 in this mode
-				// (it covers up frame slowdown when drawing all the rest of the seconds coming next ...)
-   				drawSecond(dc, 0, 0);
+				if (propSecondAligned)
+				{
+					// always draw indicator at 0 in this mode
+					// (it covers up frame slowdown when drawing all the rest of the seconds coming next ...)
+   					drawSecond(dc, 0, 0);
+
+   				}
 
     			// draw all the seconds after this point in the minute
-   				drawSecond(dc, second+1, 59);
+   				drawSecond(dc, propSecondAligned ? (second+1) : second, 59);
     		}
 		}
     }
@@ -1999,8 +2004,8 @@ class myView
 		{
 		    var doUpdate = (bufferPositionCounter < 0);	// if no buffer yet
 		    
-			var xCur = getSecondsX(dynamicPositions, secondsIndex);
-			var yCur = getSecondsY(dynamicPositions, secondsIndex);
+			var xCur = getOuterX(dynamicPositions, secondsIndex);
+			var yCur = getOuterY(dynamicPositions, secondsIndex);
 	
 		    if (!doUpdate)
 		    {
@@ -2020,8 +2025,8 @@ class myView
 	
 		    	for (var i=secondsIndex+1; i<60; i++)
 		    	{
-		    		var x = getSecondsX(dynamicPositions, i);
-		    		var y = getSecondsY(dynamicPositions, i);
+		    		var x = getOuterX(dynamicPositions, i);
+		    		var y = getOuterY(dynamicPositions, i);
 		    		
 		    		// stop at second which can't fit inside buffer
 		    		if ((x-xMin)>r || (xMax-x)>r || (y-yMin)>r || (yMax-y)>r)
@@ -2216,11 +2221,11 @@ class myView
 	    	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
 	    	{
 	        	// Clear the previous second indicator we drew and restore the background
-	    		clearIndex = lastPartialUpdateSec;
+        		clearIndex = (propSecondAligned ? lastPartialUpdateSec : (lastPartialUpdateSec+59)%60); 
 	    	}
 	    	else if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minuteIndex%2)==1)
 	    	{
-	        	clearIndex = secondsIndex;
+	        	clearIndex = (propSecondAligned ? secondsIndex : (secondsIndex-1));
 			}
 			else
 			{
@@ -2254,23 +2259,27 @@ class myView
 			
 			if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minuteIndex%2)==1)
 			{
-				// redraw the indicator following the one we just cleared
-				// as some of it might have been erased
-				// - but need to keep using the clip region we used for the erase above
-				var nextIndex = (clearIndex+1)%60; 
-				drawSecond(dc, nextIndex, nextIndex);
-	
-				// in this mode we also always draw the indicator at 0
-				// - so check if that needs redrawing too after erasing the indicator at 1
-				if (clearIndex==1)
-				{
-					drawSecond(dc, 0, 0);
+		        if (clearIndex>=0)
+		        {
+					// redraw the indicator following the one we just cleared
+					// as some of it might have been erased
+					// - but need to keep using the clip region we used for the erase above
+					var nextIndex = (clearIndex+1)%60; 
+					drawSecond(dc, nextIndex, nextIndex);
+		
+					// in this mode we also always draw the indicator at 0
+					// - so check if that needs redrawing too after erasing the indicator at 1
+					if (propSecondAligned && clearIndex==1)
+					{
+						drawSecond(dc, 0, 0);
+					}
 				}
 			}
 			else
 			{
-    			setSecondClip(dc, secondsIndex);
-				drawSecond(dc, secondsIndex, secondsIndex);
+        		var s = (propSecondAligned ? secondsIndex : (secondsIndex+59)%60); 
+    			setSecondClip(dc, s);
+   				drawSecond(dc, s, s);
 			}
 		}
     }
@@ -2281,7 +2290,7 @@ class myView
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
-   			dc.setClip(getSecondsX(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, getSecondsY(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, 8/*SECONDS_SIZE_HALF*/*2, 8/*SECONDS_SIZE_HALF*/*2);
+   			dc.setClip(getOuterX(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, getOuterY(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, 8/*SECONDS_SIZE_HALF*/*2, 8/*SECONDS_SIZE_HALF*/*2);
    		}
     }
 
@@ -2315,7 +2324,7 @@ class myView
 				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
 				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
 				// need to draw 1 pixel higher than expected ...
-	        	dc.drawText(getSecondsX(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, getSecondsY(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/ - 1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	        	dc.drawText(getOuterX(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, getOuterY(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/ - 1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 			}
 		}
     }
@@ -3808,6 +3817,7 @@ class myView
 	function gfxAddDynamicResources(fontIndex)
 	{	
     	var fonts = Rez.Fonts;
+    	var jsonData = Rez.JsonData;
 		var graphics = Graphics;
 
 		var fontList = [
@@ -3935,6 +3945,47 @@ class myView
 			fonts.id_icons,
 		];
 
+		var outerFontList = [
+			fonts.id_seconds_tri,			// SECONDFONT_TRI
+			jsonData.id_secondArray240,
+			
+			fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
+			jsonData.id_secondInArray240,
+			
+			fonts.id_seconds_v,				// SECONDFONT_V
+			jsonData.id_secondArray240,
+			
+			fonts.id_seconds_v_in,			// SECONDFONT_V_IN
+			jsonData.id_secondInArray240,
+			
+			fonts.id_seconds_line,			// SECONDFONT_LINE
+			jsonData.id_secondArray240,
+			
+			fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
+			jsonData.id_secondInArray240,
+			
+			fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
+			jsonData.id_secondArray240,
+			
+			fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
+			jsonData.id_secondInArray240,
+			
+			fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
+			jsonData.id_secondArray240,
+			
+			fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
+			jsonData.id_secondInArray240,
+			
+			fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
+			jsonData.id_secondArray240,
+			
+			fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
+			jsonData.id_secondInArray240,
+			
+			fonts.id_outer,
+			jsonData.id_outerArray240,
+		];
+
 		var origSize = 240;
     	
 		for (var index=0; index<gfxNum; )
@@ -4025,16 +4076,17 @@ class myView
 				
 				case 10:	// ring
 				{
-					var r = 0;
+					var r = (gfxData[index+2/*ring_font*/] & 0x00FF);	// font
+				 	if (r<0 || r>=13/*SECONDFONT_UNUSED*/)
+				 	{
+				 		r = 12/*SECONDFONT_OUTER*/;
+				 	}
 
-					var ringFontList = [
-						fonts.id_outer,
-					];
-		
-					var resourceIndex = addDynamicResource(ringFontList[r]);
+					var r2 = r*2;
+					var resourceIndex = addDynamicResource(outerFontList[r2]);
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 					
-					gfxData[index+8] = addDynamicResource(Rez.JsonData.id_outerArray240);
+					gfxData[index+8] = addDynamicResource(outerFontList[r2+1]);
 
 					//printRingArray();
 					//printRingFont();
@@ -4047,31 +4099,16 @@ class myView
 					buildSecondsColorArray(index);
 					
 					var r = (gfxData[index+1] & 0x00FF);	// font
-				 	if (r<0 || r>=12/*SECONDFONT_UNUSED*/)
+				 	if (r<0 || r>=13/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
 				 	
-					var secondFontList = [
-						fonts.id_seconds_tri,			// SECONDFONT_TRI
-						fonts.id_seconds_v,				// SECONDFONT_V
-						fonts.id_seconds_line,			// SECONDFONT_LINE
-						fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
-						fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
-						fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
-						
-						fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
-						fonts.id_seconds_v_in,			// SECONDFONT_V_IN
-						fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
-						fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
-						fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
-						fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
-					];
-			
-					propSecondResourceIndex = addDynamicResource(secondFontList[r]);
-					propSecondPositionsIndex = addDynamicResource((r<=6) ? Rez.JsonData.id_secondArray240 : Rez.JsonData.id_secondInArray240);					
-			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
+					var r2 = r*2;
+					propSecondResourceIndex = addDynamicResource(outerFontList[r2]);
+					propSecondPositionsIndex = addDynamicResource(outerFontList[r2+1]);
 					
+			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
 			    	if (propSecondRefreshStyle!=1/*REFRESH_EVERY_MINUTE*/)
 			    	{
 						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE);
@@ -4100,6 +4137,11 @@ class myView
 	function getOuterY(r, index)
 	{
 		return ((r[index]>>16) & 0xFFFF);
+	}
+	
+	function outerAlignedToSeconds(r)
+	{
+		return r[60];
 	}
 	
 //	function calculateRingPositions()
@@ -4145,7 +4187,7 @@ class myView
 //		// debug code for calculating font character positions
 //        for (var i = 0; i < 60; i++)
 //        {
-//    		var id = 12/*OUTER_FIRST_CHAR_ID*/ + i;
+//    		var id = 21/*OUTER_FIRST_CHAR_ID*/ + i;
 //			var page = (i % 2);		// even or odd pages
 //			var x = posXY[0][i].toNumber() - 8/*OUTER_SIZE_HALF*/;	// top left
 //        	var y = posXY[1][i].toNumber() - 8/*OUTER_SIZE_HALF*/;	// top left
@@ -4218,16 +4260,6 @@ class myView
 //		*/
 //	}
 
-	function getSecondsX(r, index)
-	{
-		return (r[index] & 0xFFFF);
-	}
-	
-	function getSecondsY(r, index)
-	{
-		return ((r[index]>>16) & 0xFFFF);
-	}
-	
 //	function calculateSecondPositions(moveIn)
 //	{
 //		var posXY = new[2];
@@ -5295,6 +5327,14 @@ class myView
 						break;
 					}
 
+					var arrayResource = getDynamicResource(gfxData[index+8]);					
+					if (arrayResource==null)
+					{
+						break;
+					}
+
+					var alignedAdjust = (outerAlignedToSeconds(arrayResource) ? 0 : 1);
+
 					var eDisplay = (gfxData[index+1] & 0xFF);
 					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
 
@@ -5310,7 +5350,7 @@ class myView
 					{
 						drawRange = (drawEnd - drawStart + 60)%60 + 1;	// 1-60
 					}
-								
+					
 					// calculate fill amounts from 0 to drawRange
 					var noFill = false;
 					var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
@@ -5334,8 +5374,9 @@ class myView
 								val = activityMonitorActiveMinutesWeekTotal;
 								goal = activeMinutesWeekSmartGoal;
 							}
-											
-							fillEnd = ((goal>0) ? ((drawRange * val) / goal - 1) : -1);
+							
+							fillEnd = ((goal>0) ? ((drawRange * val) / goal - alignedAdjust) : -1);
+							
 							if (fillEnd>=drawRange)
 							{
 								if (drawRange<60)
@@ -5358,7 +5399,7 @@ class myView
 
 						case 2:		// minutes
 						{
-				    		fillEnd = (minute * drawRange)/60 - 1;
+			    			fillEnd = (minute * drawRange)/60 - alignedAdjust;
 							break;
 						}
 						
@@ -5369,18 +5410,18 @@ class myView
 					        if (deviceSettings.is24Hour)
 					        {
 				        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
-				        		fillEnd = ((useHour*60 + minute) * drawRange) / (24*60) - 1;
+				        		fillEnd = ((useHour*60 + minute) * drawRange) / (24*60) - alignedAdjust;
 					        }
 					        else        	// 12 hours
 					        {
-				        		fillEnd = (((useHour%12)*60 + minute) * drawRange) / (12*60) - 1;
+				        		fillEnd = (((useHour%12)*60 + minute) * drawRange) / (12*60) - alignedAdjust;
 					        }
 							break;
 				   		}
 				   		
 				   		case 4:		// battery percentage
 				   		{
-							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - 1;
+							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - alignedAdjust;
 							break;
 				   		}
 				   		
@@ -5409,7 +5450,7 @@ class myView
 				   		case 11:	// heart rate
 				   		{
 							calculateHeartRate(minute, second);
-							fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - 1;
+							fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - alignedAdjust;
 							break;
 				   		}
 				   		
@@ -5424,6 +5465,10 @@ class myView
 					{
 						noFill = true;
 						fillEnd = 0;
+					}
+					else if (fillEnd > drawRange-1)
+					{
+						fillEnd = drawRange-1;
 					}
 
 					// apply fill offsets from start point
@@ -5450,6 +5495,9 @@ class myView
 				case 11:	// seconds
 				{
 			    	propSecondIndicatorOn = isVisible;
+
+					var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
+					propSecondAligned = (dynamicPositions==null || outerAlignedToSeconds(dynamicPositions));
 					break;
 				}
 			}
@@ -5931,8 +5979,8 @@ class myView
 			       				
 							//var s = characterString.substring(index, index+1);
 							//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
-							//var s = (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
-				        	dc.drawText(xOffset + outerX, yOffset + outerY, dynamicResource, (index + 12/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+							//var s = (index + 21/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
+				        	dc.drawText(xOffset + outerX, yOffset + outerY, dynamicResource, (index + 21/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 				        }
 					}
 
@@ -7728,7 +7776,7 @@ class myEditorView extends myView
 
 	function largeFontEditing(val)
 	{	
-		var temp = (gfxData[menuElementGfx+1/*large_font*/] & 0xFF);
+		var temp = (gfxData[menuElementGfx+1/*large_font*/]&0xFF);
 
 //		// 39-56, 33-38, 29-32
 //		var f = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
@@ -7754,7 +7802,7 @@ class myEditorView extends myView
 
 	function stringFontEditing(val)
 	{
-		var temp = (gfxData[menuElementGfx+2/*string_font*/] & 0xFF);
+		var temp = (gfxData[menuElementGfx+2/*string_font*/]&0xFF);
 
 //		// 6 to 28
 //		temp = temp - val;
@@ -7857,19 +7905,19 @@ class myEditorView extends myView
 
 	function ringGetType()
 	{
-		return (gfxData[menuFieldGfx+1] & 0xFF);
+		return (gfxData[menuFieldGfx+1]&0xFF);
 	}
 
 	function ringTypeEditing(val)
 	{
-		var eDisplay = ((gfxData[menuFieldGfx+1] & 0xFF) + val + 11)%11;
+		var eDisplay = ((gfxData[menuFieldGfx+1]&0xFF) + val + 11)%11;
 		gfxData[menuFieldGfx+1] &= ~0xFF; 
 		gfxData[menuFieldGfx+1] |= (eDisplay & 0xFF); 
 	}
 	
 	function ringGetDirectionAnti()
 	{
-		return ((gfxData[menuFieldGfx+1] & 0x100)!=0); 
+		return ((gfxData[menuFieldGfx+1]&0x100)!=0); 
 	}
 	
 	function ringDirectionEditing()
@@ -7884,18 +7932,18 @@ class myEditorView extends myView
 	
 	function ringFontEditing(val)
 	{
-		gfxData[menuFieldGfx+2/*ring_font*/] = 0;
+		gfxData[menuFieldGfx+2/*ring_font*/] = ((gfxData[menuFieldGfx+2/*ring_font*/]&0xFF) - val + 13/*SECONDFONT_UNUSED*/)%13/*SECONDFONT_UNUSED*/; 
 		reloadDynamicResources = true;
 	}
 	
 	function ringStartEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3] - val + 60)%60;
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+60)%60;
 	}
 	
 	function ringEndEditing(val)
 	{
-		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4] - val + 60)%60;
+		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+60)%60;
 	}
 	
 	function ringFilledColorEditing(val)
@@ -7910,8 +7958,8 @@ class myEditorView extends myView
 	
 	function secondsFontEditing(val)
 	{
-		var temp = (gfxData[menuFieldGfx+1] & 0xFF);
-		temp = (temp-val+12/*SECONDFONT_UNUSED*/)%12/*SECONDFONT_UNUSED*/;
+		var temp = (gfxData[menuFieldGfx+1]&0xFF);
+		temp = (temp-val+13/*SECONDFONT_UNUSED*/)%13/*SECONDFONT_UNUSED*/;
 		
 		gfxData[menuFieldGfx+1] &= ~0x00FF; 
 		gfxData[menuFieldGfx+1] |= temp;
