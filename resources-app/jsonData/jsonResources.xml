@@ -373,7 +373,9 @@
 				"start",
 				"end",
 				"direction",
+				"limit",
 				"color filled",
+				"color value",
 				"color unfilled",
 				"visibility",
 				"move earlier",
@@ -382,8 +384,13 @@
 			],
 
 			[
-				"anticlockwise",
-				"clockwise"
+				"clockwise",
+				"anticlockwise"
+			],
+			
+			[
+				"no limit",
+				"100%"
 			],
 			
 			[

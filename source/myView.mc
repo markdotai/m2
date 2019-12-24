@@ -4086,7 +4086,7 @@ class myView
 					var resourceIndex = addDynamicResource(outerFontList[r2]);
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 					
-					gfxData[index+8] = addDynamicResource(outerFontList[r2+1]);
+					gfxData[index+9] = addDynamicResource(outerFontList[r2+1]);
 
 					//printRingArray();
 					//printRingFont();
@@ -5327,7 +5327,7 @@ class myView
 						break;
 					}
 
-					var arrayResource = getDynamicResource(gfxData[index+8]);					
+					var arrayResource = getDynamicResource(gfxData[index+9]);					
 					if (arrayResource==null)
 					{
 						break;
@@ -5335,8 +5335,9 @@ class myView
 
 					var alignedAdjust = (outerAlignedToSeconds(arrayResource) ? 0 : 1);
 
-					var eDisplay = (gfxData[index+1] & 0xFF);
+					var eDisplay = (gfxData[index+1] & 0x3F);
 					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
+					var eLimit100 = ((gfxData[index+1] & 0x80) != 0);
 
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
@@ -5379,7 +5380,7 @@ class myView
 							
 							if (fillEnd>=drawRange)
 							{
-								if (drawRange<60)
+								if (drawRange<60 || eLimit100)
 								{
 									fillEnd = drawRange;
 								}
@@ -5487,7 +5488,7 @@ class myView
 						fillEnd = (drawStart + fillEnd) % 60;
 					}
 
-					gfxData[index+7] = (fillStart & 0xFF) | ((fillEnd & 0xFF) << 8) | (noFill ? 0x10000 : 0);	// start fill, end fill and no fill flag
+					gfxData[index+8] = (fillStart & 0xFF) | ((fillEnd & 0xFF) << 8) | (noFill ? 0x10000 : 0);	// start fill, end fill and no fill flag
 
 					break;
 				}
@@ -5813,7 +5814,7 @@ class myView
 
 					var resourceIndex = ((gfxData[index+2/*ring_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
-					var arrayResource = getDynamicResource(gfxData[index+8]);					
+					var arrayResource = getDynamicResource(gfxData[index+9]);					
 					if (dynamicResource==null || arrayResource==null)
 					{
 						break;
@@ -5822,12 +5823,41 @@ class myView
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
 
+					var colFilled = getColor64(gfxData[index+5]-1);
+					var colValue = getColor64(gfxData[index+6]-1);
+					if (colValue==COLOR_NOTSET)
+					{
+						colValue = colFilled;
+					}
+					var colUnfilled = getColor64(gfxData[index+7]-1);
+					var fillStart = (gfxData[index+8]&0xFF);
+					var fillEnd = ((gfxData[index+8]>>8)&0xFF);
+					var noFill = ((gfxData[index+8]&0x10000)!=0);
+					var fillValue = fillEnd;
+
+					if (noFill)
+					{
+						colFilled = colUnfilled;
+						colValue = colUnfilled;
+					}
+		
 					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
 					if (eDirAnti)	// swap start & end for clockwise drawing
 					{
 						var temp = drawStart;
 						drawStart = drawEnd;
-						drawEnd = temp;					
+						drawEnd = temp;
+						
+						// this makes it look odd when then adjust start or end - so removed it
+						// if full circle
+						//if (outerAlignedToSeconds(arrayResource) && drawStart==((drawEnd+1)%60))
+						//{
+						//	// shift clockwise one
+						//	fillStart = ((fillStart+1)%60);
+						//	fillEnd = ((fillEnd+1)%60);
+						//}
+
+						fillValue = fillStart;
 					}
 					
 					var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
@@ -5916,28 +5946,6 @@ class myView
 						testRange = drawRange; 
 					}
 					
-					var colFilled = getColor64(gfxData[index+5]-1);
-					var colUnfilled = getColor64(gfxData[index+6]-1);
-					var fillStart = (gfxData[index+7]&0xFF);
-					var fillEnd = ((gfxData[index+7]>>8)&0xFF);
-					var noFill = ((gfxData[index+7]&0x10000)!=0);
-
-					if (fillEnd<fillStart)	// swap them around so our test for filled/unfilled later is cheaper
-					{
-						var m = colFilled;
-						colFilled = colUnfilled;
-						colUnfilled = m;
-						
-						var n = fillStart; 
-						fillStart = (fillEnd+1)%60;	// + 1
-						fillEnd = (n+59)%60;		// - 1
-					}
-
-					if (noFill)
-					{
-						colFilled = colUnfilled;
-					}
-		
 					var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
 					var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/ - 1;		// need to draw 1 pixel higher than expected ...
 					var curCol = COLOR_NOTSET;
@@ -5963,7 +5971,20 @@ class myView
 							continue;
 						}
 								
-						var indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
+						var indexCol;
+						if (index==fillValue)
+						{
+							indexCol = colValue;
+						}
+						else if (fillStart<=fillEnd)
+						{
+							indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
+						}
+						else
+						{
+							indexCol = ((index>=fillStart || index<=fillEnd) ? colFilled : colUnfilled); 
+						}
+
 						if (indexCol != COLOR_NOTSET)	// don't draw the segment if no color is set
 						{
 							if (curCol!=indexCol)
@@ -6272,7 +6293,8 @@ class myEditorView extends myView
 			gfxData[index+3] = 0;	// start
 			gfxData[index+4] = 59;	// end
 			gfxData[index+5] = 3+1;	// color filled
-			gfxData[index+6] = 0+1;	// color unfilled
+			gfxData[index+6] = 0;	// color value
+			gfxData[index+7] = 0+1;	// color unfilled
 			// start fill, end fill & no fill flag
 			// xy array resource index
 
@@ -7905,14 +7927,14 @@ class myEditorView extends myView
 
 	function ringGetType()
 	{
-		return (gfxData[menuFieldGfx+1]&0xFF);
+		return (gfxData[menuFieldGfx+1]&0x3F);
 	}
 
 	function ringTypeEditing(val)
 	{
-		var eDisplay = ((gfxData[menuFieldGfx+1]&0xFF) + val + 11)%11;
-		gfxData[menuFieldGfx+1] &= ~0xFF; 
-		gfxData[menuFieldGfx+1] |= (eDisplay & 0xFF); 
+		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 11)%11;
+		gfxData[menuFieldGfx+1] &= ~0x3F; 
+		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
 	}
 	
 	function ringGetDirectionAnti()
@@ -7928,6 +7950,16 @@ class myEditorView extends myView
 		var temp = gfxData[menuFieldGfx+3];
 		gfxData[menuFieldGfx+3] = gfxData[menuFieldGfx+4];
 		gfxData[menuFieldGfx+4] = temp;
+	}
+	
+	function ringGetLimit100()
+	{
+		return ((gfxData[menuFieldGfx+1]&0x80)!=0); 
+	}
+	
+	function ringLimitEditing()
+	{
+		gfxData[menuFieldGfx+1] ^= 0x80;
 	}
 	
 	function ringFontEditing(val)
@@ -7946,14 +7978,9 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+60)%60;
 	}
 	
-	function ringFilledColorEditing(val)
+	function ringColorEditing(n, val)
 	{
-		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
-	}
-	
-	function ringUnfilledColorEditing(val)
-	{
-		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
+		gfxData[menuFieldGfx+5+n] = (gfxData[menuFieldGfx+5+n]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 	
 	function secondsFontEditing(val)
@@ -10539,7 +10566,9 @@ class myMenuItemRing extends myMenuItem
 //		r_start,
 //		r_end,
 //		r_direction,
+//		r_limit,
 //		r_colorFilled,
+//		r_colorValue,
 //		r_colorUnfilled,
 //		r_vis,
 //		r_earlier,
@@ -10551,7 +10580,9 @@ class myMenuItemRing extends myMenuItem
 //		r_startEdit,
 //		r_endEdit,
 //		r_directionEdit,
+//		r_limitEdit,
 //		r_colorFilledEdit,
+//		r_colorValueEdit,
 //		r_colorUnfilledEdit,
 //		r_visEdit,
 //	}
@@ -10632,7 +10663,7 @@ class myMenuItemRing extends myMenuItem
 //    	
 //    	return "unknown";
     	
-    	if (fState==11/*r_typeEdit*/)
+    	if (fState==13/*r_typeEdit*/)
     	{
     		//return editorView.ringTypeString();
 //			function ringTypeString()
@@ -10655,9 +10686,9 @@ class myMenuItemRing extends myMenuItem
 //				return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
 //			}
 	
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, editorView.ringGetType());    		
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 3, editorView.ringGetType());    		
     	}
-    	else if (fState==15/*r_directionEdit*/)
+    	else if (fState==17/*r_directionEdit*/)
     	{
     		//return editorView.ringDirectionString();
 //			function ringDirectionString()
@@ -10665,9 +10696,13 @@ class myMenuItemRing extends myMenuItem
 //				return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
 //			}
 	   		
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, editorView.ringGetDirectionAnti() ? 0 : 1);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, editorView.ringGetDirectionAnti() ? 1 : 0);
     	}
-    	else if (fState==18/*r_visEdit*/)
+    	else if (fState==18/*r_limitEdit*/)
+    	{
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, editorView.ringGetLimit100() ? 1 : 0);
+    	}
+    	else if (fState==22/*r_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
@@ -10675,7 +10710,7 @@ class myMenuItemRing extends myMenuItem
 //    	{
 //    		return globalStrings[fStrings[fState]]; 
 //    	}
-		else if (fState<=10/*r_delete*/)
+		else if (fState<=12/*r_delete*/)
 		{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 0, fState);
 //
@@ -10702,44 +10737,52 @@ class myMenuItemRing extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<11/*r_typeEdit*/);
+    	return (d!=3 || fState<13/*r_typeEdit*/);
     }
 
     function onEditing(val)
     {
-       	if (fState<=10/*r_delete*/)
+       	if (fState<=12/*r_delete*/)
     	{
-    		fState = (fState+val+11)%11;
+    		fState = (fState+val+13)%13;
     	}
-       	else if (fState==11/*r_typeEdit*/)
+       	else if (fState==13/*r_typeEdit*/)
     	{
     		editorView.ringTypeEditing(val);
     	}
-       	else if (fState==12/*r_fontEdit*/)
+       	else if (fState==14/*r_fontEdit*/)
     	{
     		editorView.ringFontEditing(val);
     	}
-       	else if (fState==13/*r_startEdit*/)
+       	else if (fState==15/*r_startEdit*/)
     	{
     		editorView.ringStartEditing(val);
     	}
-       	else if (fState==14/*r_endEdit*/)
+       	else if (fState==16/*r_endEdit*/)
     	{
     		editorView.ringEndEditing(val);
     	}
-       	else if (fState==15/*r_directionEdit*/)
+       	else if (fState==17/*r_directionEdit*/)
     	{
     		editorView.ringDirectionEditing();
     	}
-       	else if (fState==16/*r_colorFilledEdit*/)
+       	else if (fState==18/*r_limitEdit*/)
     	{
-    		editorView.ringFilledColorEditing(val);
+    		editorView.ringLimitEditing();
     	}
-       	else if (fState==17/*r_colorUnfilledEdit*/)
+       	else if (fState==19/*r_colorFilledEdit*/)
     	{
-    		editorView.ringUnfilledColorEditing(val);
+    		editorView.ringColorEditing(0, val);
     	}
-       	else if (fState==18/*r_visEdit*/)
+       	else if (fState==20/*r_colorValueEdit*/)
+    	{
+    		editorView.ringColorEditing(1, val);
+    	}
+       	else if (fState==21/*r_colorUnfilledEdit*/)
+    	{
+    		editorView.ringColorEditing(2, val);
+    	}
+       	else if (fState==22/*r_visEdit*/)
     	{
     		editorView.fieldVisibilityEditing(val);
     	}
@@ -10836,28 +10879,24 @@ class myMenuItemRing extends myMenuItem
 //			case r_visEdit: break;
 //    	}
     	
-    	if (fState<=7/*r_vis*/)
+    	if (fState<=9/*r_vis*/)
     	{
-    		fState += 11;
+    		fState += 13;
 
-	       	if (fState==16/*r_colorFilledEdit*/)
+	       	if (fState>=19/*r_colorFilledEdit*/ && fState<=21/*r_colorUnfilledEdit*/)
 	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+5);
-	    	}
-	       	else if (fState==17/*r_colorUnfilledEdit*/)
-	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+6);
+	    		editorView.startColorEditing(editorView.menuFieldGfx+fState-19/*r_colorFilledEdit*/+5);
 	    	}
     	}
-    	else if (fState==8/*r_earlier*/)
+    	else if (fState==10/*r_earlier*/)
     	{
     		editorView.fieldEarlier();
     	}
-    	else if (fState==9/*r_later*/)
+    	else if (fState==11/*r_later*/)
     	{
     		editorView.fieldLater();
     	}
-    	else if (fState==10/*r_delete*/)
+    	else if (fState==12/*r_delete*/)
     	{
     		editorView.fieldDelete();
     		return new myMenuItemFieldSelect();
@@ -10893,7 +10932,7 @@ class myMenuItemRing extends myMenuItem
 //			case r_visEdit: fState = r_vis; break;
 //    	}
     	
-    	if (fState<=10/*r_delete*/)
+    	if (fState<=12/*r_delete*/)
     	{
     		return new myMenuItemFieldSelect();
     	}
@@ -10904,7 +10943,7 @@ class myMenuItemRing extends myMenuItem
 	    		editorView.endColorEditing();
 	    	//}
 
-    		fState -= 11;
+    		fState -= 13;
     	}
 
    		return null;
