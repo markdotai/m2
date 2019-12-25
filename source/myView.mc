@@ -6039,18 +6039,6 @@ class myEditorView extends myView
 
 	function onLayout(dc)
 	{
-		//globalStrings = WatchUi.loadResource(Rez.JsonData.id_globalStrings);
-
-		// copy some data arrays to storage for cheap access later as needed
-//		{
-//			var tempResource = WatchUi.loadResource(Rez.JsonData.id_storageArrays);
-//			for (var i=0; i<tempResource.size(); i+=2)
-//			{
-//				applicationStorage.setValue(tempResource[i], tempResource[i+1]);		
-//			}
-//			tempResource = null;
-//		}
-
 		// load in data values which are stored as byte arrays (to save memory) 
 //		{
 //			var tempResource = WatchUi.loadResource(Rez.JsonData.id_editorBytes);
@@ -6208,7 +6196,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = dataType;		// type
-			gfxData[index+2/*string_font*/] = 6/*m_regular*/;	// font & diacritics
+			gfxData[index+2/*string_font*/] = 7/*m_regular*/;	// 0-14 (s,m,l fonts), 15-19 (system fonts) + diacritics
 			gfxData[index+3/*string_color*/] = 3+1;	// color
 			// string start
 			// string end
@@ -6767,9 +6755,9 @@ class myEditorView extends myView
 
 //	function drawAbc(dc)
 //	{
-//   		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+//		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
 //		var dynamicResource = getDynamicResource(0);
-//   		if (dynamicResource!=null)
+//		if (dynamicResource!=null)
 //   		{
 //			//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
 //			//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
@@ -6780,9 +6768,9 @@ class myEditorView extends myView
 //			//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
 //			//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
 //
-//   			var yOffsets = [-118, -93, -68, -43, -18, 12, 42, 72];
-//   			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-//   			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+//			var yOffsets = [-118, -93, -68, -43, -18, 12, 42, 72];
+//			//var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
+//			var sArray = [" ", " ", "ABCD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
 //
 //			for (var i=0; i<sArray.size(); i++)
 //			{
@@ -6838,7 +6826,6 @@ class myEditorView extends myView
 //		return "unknown";
 //	}
 
-
 	function safeStringFromJsonData(r, index1, index2)
 	{
 		var tempArray = WatchUi.loadResource(r);
@@ -6858,36 +6845,6 @@ class myEditorView extends myView
 		return "unknown";
 	}
 
-	//var globalStrings;
-	
-//	var globalStrings = [
-//		"global settings",
-//		"field",
-//		"hour (large)",
-//		"minute (large)",
-//		"colon (large)",
-//		"string",
-//		"icon",
-//		"move bar",
-//		"heart rate chart",
-//		"rectangle",
-//		"ring",
-//		"seconds indicator",
-//	];
-
-//    <string id="g0">global settings</string>
-//    <string id="g1">field</string>
-//    <string id="g2">hour (large)</string>
-//    <string id="g3">minute (large)</string>
-//    <string id="g4">colon (large)</string>
-//    <string id="g5">string</string>
-//    <string id="g6">icon</string>
-//    <string id="g7">move bar</string>
-//    <string id="g8">heart rate chart</string>
-//    <string id="g9">rectangle</string>
-//    <string id="g10">ring</string>
-//    <string id="g11">seconds indicator</string>
-
 	function getGfxName(index)
 	{
 		var id = getGfxId(index);
@@ -6898,555 +6855,18 @@ class myEditorView extends myView
 		}
 		else
 		{
-//			var globalStrings = [
-//				"global settings",
-//				"field",
-//				"hour (large)",
-//				"minute (large)",
-//				"colon (large)",
-//				"string",
-//				"icon",
-//				"move bar",
-//				"heart rate chart",
-//				"rectangle",
-//				"ring",
-//				"seconds indicator",
-//			];
-//		
-//			return safeStringFromArray(globalStrings, id);
-
-//			return safeStringFromStorage("g", -1, id);
-
 			return safeStringFromJsonData(Rez.JsonData.id_gfxNameStrings, -1, id);
 		}
-
-//		var eStr = null;
-//	
-//		switch(getGfxId(index))
-//		{
-//			case 0:		// header
-//			{
-//				eStr = "global settings";
-//				break;
-//			}
-//
-//			case 1:		// field
-//			{
-//				eStr = "field";
-//				break;
-//			}
-//
-//			case 2:		// hour large
-//			{
-//				eStr = "hour (large)";
-//				break;
-//			}
-//
-//			case 3:		// minute large
-//			{
-//				eStr = "minute (large)";
-//				break;
-//			}
-//
-//			case 4:		// colon large
-//			{
-//				eStr = "colon (large)";
-//				break;
-//			}
-//
-//			case 5:		// string
-//			{
-//				var eDisplay = gfxData[index+1];
-//				eStr = getStringTypeName(eDisplay);
-//				break;
-//			}
-//			
-//			case 6:		// icon
-//			{
-//				eStr = "icon";
-//				break;
-//			}
-//			
-//			case 7:		// movebar
-//			{
-//				eStr = "move bar";
-//				break;
-//			}
-//			
-//			case 8:		// chart
-//			{
-//				eStr = "heart rate chart";
-//				break;
-//			}
-//			
-//			case 9:		// rectangle
-//			{
-//				eStr = "rectangle";
-//				break;
-//			}
-//			
-//			case 10:	// ring
-//			{
-//				eStr = "ring";
-//				break;
-//			}
-//			
-//			case 11:	// seconds
-//			{
-//				eStr = "seconds indicator";
-//				break;
-//			}
-//		}
-//		
-//		return eStr;
 	}
 
 	function getStringTypeName(eDisplay)
 	{
-//		var sArray = [
-//			"hour",
-//			"minute",
-//			"day name",
-//			"day # in week",
-//			"day # in month",
-//			"day ## in month",
-//			"day # in year",
-//			"day ### in year",
-//			"month name",
-//			"month #",
-//			"month ##",
-//			"year ##",
-//			"year ####",
-//			"week ISO ##",
-//			"W ISO symbol",
-//			"year ISO ####",
-//			"week calendar",
-//			"year calendar ####",
-//			"AM",
-//			"PM",
-//			"A",
-//			"P",
-//	    	"<space>",
-//	    	"/",
-//	    	"\\",
-//	    	":",
-//	    	"-",
-//	    	".",
-//	    	",",
-//	    	"%",
-//			"steps count",
-//			"steps goal",
-//			"floor count",
-//			"floor goal",
-//			"notifications",
-//			"battery %",
-//			"heart rate min",
-//			"heart rate max",
-//			"heart rate avg",
-//			"heart rate",
-//			"sunrise hour",
-//			"sunrise minute",
-//			"sunset hour",
-//			"sunset minute",
-//			"next sun hour",
-//			"next sun minute",
-//			"2nd time hour",
-//			"calories",
-//			"active calories",
-//			"intensity minutes",
-//			"intensity goal",
-//			"smart goal",
-//			"distance",
-//			"mi/km units",
-//			"pressure",
-//			"mb units",
-//			"altitude",
-//			"ft/m units",
-//		];
-//	
-//		return safeStringFromArray(sArray, (eDisplay&0x7F)-1);
-
 		return safeStringFromJsonData(Rez.JsonData.id_stringTypeStrings, -1, (eDisplay&0x7F)-1);
-
-//		var eStr = null;
-//		
-//		switch(eDisplay)	// type of string
-//		{
-//			case 1/*FIELD_HOUR*/:			// hour
-//		    {
-//				eStr = "hour";
-//				break;
-//			}
-//
-//			case 2/*FIELD_MINUTE*/:			// minute
-//		    {
-//				eStr = "minute";
-//				break;
-//			}
-//
-//			case 3/*FIELD_DAY_NAME*/:		// day name
-//		    {
-//				eStr = "day (name)";
-//				break;
-//			}
-//			
-//			case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
-//		    {
-//				eStr = "day (number of week)";	// 1-7
-//				break;
-//			}
-//
-//			case 5/*FIELD_DAY_OF_MONTH*/:			// day number of month
-//		    {
-//				eStr = "day (number of month)";
-//				break;
-//			}
-//
-//			case 6/*FIELD_DAY_OF_MONTH_XX*/:			// day number of month XX
-//		    {
-//				eStr = "day (of month XX)";
-//				break;
-//			}
-//
-//			case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
-//		    {
-//				eStr = "day (number of year)";
-//				break;
-//			}
-//
-//			case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
-//		    {
-//				eStr = "day (of year XXX)";
-//				break;
-//			}
-//
-//			case 9/*FIELD_MONTH_NAME*/:		// month name
-//		    {
-//				eStr = "month (name)";
-//				break;
-//			}
-//
-//			case 10/*FIELD_MONTH_OF_YEAR*/:		// month number of year
-//		    {
-//				eStr = "month (number)";
-//				break;
-//			}
-//
-//			case 11/*FIELD_MONTH_OF_YEAR_XX*/:			// month number of year XX
-//		    {
-//				eStr = "month (number XX)";
-//				break;
-//			}
-//
-//			case 12/*FIELD_YEAR_XX*/:		// year XX
-//			{
-//				eStr = "year (XX)";
-//				break;
-//			}
-//
-//			case 13/*FIELD_YEAR_XXXX*/:		// year XXXX
-//		    {
-//				eStr = "year (XXXX)";
-//				break;
-//			}
-//
-//			case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
-//		    {
-//				eStr = "week (ISO XX)";
-//				break;
-//			}
-//
-//			case 15/*FIELD_WEEK_ISO_WXX*/:		// week number of year WXX
-//		    {
-//				eStr = "week (ISO WXX)";
-//				break;
-//			}
-//
-//			case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
-//		    {
-//				eStr = "year (ISO week XXXX)";
-//				break;
-//			}
-//
-//			case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
-//		    {
-//				eStr = "week (calendar)";
-//				break;
-//			}
-//
-//			case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
-//			{
-//				eStr = "year (calendar week XXXX)";
-//				break;
-//			}
-//
-//			case 19/*FIELD_AM*/:
-//		    {
-//				eStr = "AM";
-//				break;
-//			}
-//
-//			case 20/*FIELD_PM*/:
-//		    {
-//				eStr = "PM";
-//				break;
-//			}
-//
-//		    case 21/*FIELD_SEPARATOR_SPACE*/:
-//		    {
-//		    	eStr = "<space>";
-//		    	break;
-//		    }
-//		    
-//		    case 22:
-//		    case 23:
-//		    case 24/*FIELD_SEPARATOR_COLON*/:
-//		    case 25:
-//		    case 26:
-//		    case 27:
-//		    case 28/*FIELD_SEPARATOR_PERCENT*/:
-//		    {
-//				var separatorString = " /\\:-.,%";
-//    			eStr = separatorString.substring(eDisplay-21/*FIELD_SEPARATOR_SPACE*/, eDisplay-21/*FIELD_SEPARATOR_SPACE*/+1);
-//    			break;
-//		    }
-//
-//			case 31/*FIELD_STEPSCOUNT*/:
-//			{
-//				eStr = "steps count";
-//				break;
-//			}
-//
-//			case 32/*FIELD_STEPSGOAL*/:
-//			{
-//				eStr = "steps goal";
-//				break;
-//			}
-//
-//			case 33/*FIELD_FLOORSCOUNT*/:
-//			{
-//				eStr = "floors count";
-//				break;
-//			}
-//
-//			case 34/*FIELD_FLOORSGOAL*/:
-//			{
-//				eStr = "floors goal";
-//				break;
-//			}
-//
-//			case 35/*FIELD_NOTIFICATIONSCOUNT*/:
-//			{
-//				eStr = "notifications count";
-//				break;
-//			}
-//			
-//			case 36/*FIELD_BATTERYPERCENTAGE*/:
-//			{
-//				eStr = "battery percentage";
-//				break;
-//			}
-//			
-//			case 37/*FIELD_HEART_MIN*/:
-//			{
-//				eStr = "heart rate min";
-//				break;
-//			}
-//
-//			case 38/*FIELD_HEART_MAX*/:
-//			{
-//				eStr = "heart rate max";
-//				break;
-//			}
-//
-//			case 39/*FIELD_HEART_AVERAGE*/:
-//			{
-//				eStr = "heart rate average";
-//				break;
-//			}
-//
-//			case 40/*FIELD_HEART_LATEST*/:
-//			{
-//				eStr = "heart rate";
-//				break;
-//			}
-//
-//			case 41/*FIELD_SUNRISE_HOUR*/:
-//			{
-//				eStr = "sunrise hour";
-//				break;
-//			}
-//
-//			case 42/*FIELD_SUNRISE_MINUTE*/:
-//			{
-//				eStr = "sunrise minute";
-//				break;
-//			}
-//
-//			case 43/*FIELD_SUNSET_HOUR*/:
-//			{
-//				eStr = "sunset hour";
-//				break;
-//			}
-//
-//			case 44/*FIELD_SUNSET_MINUTE*/:
-//			{
-//				eStr = "sunset minute";
-//				break;
-//			}
-//
-//			case 45/*FIELD_SUNEVENT_HOUR*/:
-//			{
-//				eStr = "next sun event hour";
-//				break;
-//			}
-//
-//			case 46/*FIELD_SUNEVENT_MINUTE*/:
-//			{
-//				eStr = "next sun event minute";
-//				break;
-//			}
-//
-//			case 47/*FIELD_2ND_HOUR*/:
-//			{
-//				eStr = "2nd time zone hour";
-//				break;
-//			}
-//
-//			case 48/*FIELD_CALORIES*/:
-//			{
-//				eStr = "calories";
-//				break;
-//			}
-//
-//			case 49/*FIELD_ACTIVE_CALORIES*/:
-//			{
-//				eStr = "active calories";
-//				break;
-//			}
-//
-//			case 50/*FIELD_INTENSITY*/:
-//			{
-//				eStr = "intensity minutes";
-//				break;
-//			}
-//
-//			case 51/*FIELD_INTENSITY_GOAL*/:
-//			{
-//				eStr = "intensity goal";
-//				break;
-//			}
-//
-//			case 52/*FIELD_SMART_GOAL*/:
-//			{
-//				eStr = "smart intensity goal";
-//				break;
-//			}
-//
-//			case 53/*FIELD_DISTANCE*/:
-//			{
-//				eStr = "distance";
-//				break;
-//			}
-//
-//			case 54/*FIELD_DISTANCE_UNITS*/:
-//			{
-//				eStr = "distance units (mi/km)";
-//				break;
-//			}
-//
-//			case 55/*FIELD_PRESSURE*/:
-//			{
-//				eStr = "pressure";
-//				break;
-//			}
-//
-//			case 56/*FIELD_PRESSURE_UNITS*/:
-//			{
-//				eStr = "pressure units (mb)";
-//				break;
-//			}
-//
-//			case 57/*FIELD_ALTITUDE*/:
-//			{
-//				eStr = "altitude";
-//				break;
-//			}
-//
-//			case 58/*FIELD_ALTITUDE_UNITS*/:
-//			{
-//				eStr = "altitude units (ft/m)";
-//				break;
-//			}
-//		}
-//
-//		return eStr;
 	}
 
 	function getVisibilityString(vis)
 	{
-//		var sArray = [
-//			"always on",
-//		    "gesture active",
-//		    "gesture not active",
-//		    "do not disturb on",
-//		    "do not disturb off",
-//		    "alarm on",
-//		    "alarm off",
-//		    "notifications pending",
-//		    "no notifications",
-//		    "phone connected",
-//		    "phone not connected",
-//		    "LTE connected",
-//		    "LTE not connected",
-//		    "battery high/medium",
-//		    "battery high",
-//		    "battery medium",
-//		    "battery low",
-//		    "move bar alert triggered",
-//		    "move bar alert not triggered",
-//		    "AM",
-//		    "PM",
-//		    "2nd time AM",
-//		    "2nd time PM",
-//		    "next sun = rise",
-//		    "next sun = set",
-//		];
-//	
-//		return safeStringFromArray(sArray, vis);
-	
 		return safeStringFromJsonData(Rez.JsonData.id_visibilityStrings, -1, vis);
-	
-//		switch (vis)
-//		{
-//			case 0/*STATUS_ALWAYSON*/: return "always on";
-//		    case 1/*STATUS_GLANCE_ON*/: return "gesture active";
-//		    case 2/*STATUS_GLANCE_OFF*/: return "gesture not active";
-//		    case 3/*STATUS_DONOTDISTURB_ON*/: return "do not disturb on";
-//		    case 4/*STATUS_DONOTDISTURB_OFF*/: return "do not disturb off";
-//		    case 5/*STATUS_ALARM_ON*/: return "alarm on";
-//		    case 6/*STATUS_ALARM_OFF*/: return "alarm off";
-//		    case 7/*STATUS_NOTIFICATIONS_PENDING*/: return "notifications pending";
-//		    case 8/*STATUS_NOTIFICATIONS_NONE*/: return "no notifications";
-//		    case 9/*STATUS_PHONE_CONNECTED*/: return "phone connected";
-//		    case 10/*STATUS_PHONE_NOT*/: return "phone not connected";
-//		    case 11/*STATUS_LTE_CONNECTED*/: return "LTE connected";
-//		    case 12/*STATUS_LTE_NOT*/: return "LTE not connected";
-//		    case 13/*STATUS_BATTERY_HIGHORMEDIUM*/: return "battery high or medium";
-//		    case 14/*STATUS_BATTERY_HIGH*/: return "battery high";
-//		    case 15/*STATUS_BATTERY_MEDIUM*/: return "battery medium";
-//		    case 16/*STATUS_BATTERY_LOW*/: return "battery low";
-//		    case 17/*STATUS_MOVEBARALERT_TRIGGERED*/: return "move bar alert triggered";
-//		    case 18/*STATUS_MOVEBARALERT_NOT*/: return "move bar alert not triggered";
-//		    case 19/*STATUS_AM*/: return "AM";
-//		    case 20/*STATUS_PM*/: return "PM";
-//		    case 21/*STATUS_2ND_AM*/: return "2nd time zone AM";
-//		    case 22/*STATUS_2ND_PM*/: return "2nd time zone PM";
-//		    case 23/*STATUS_SUNEVENT_RISE*/: return "next sun event is rise";
-//		    case 24/*STATUS_SUNEVENT_SET*/: return "next sun event is set";
-//		}
-//		
-//    	return "unknown";
 	}
 	
 	function fieldVisibilityString()
@@ -7701,24 +7121,14 @@ class myEditorView extends myView
 		gfxData[menuElementGfx+2/*large_color*/] = (gfxData[menuElementGfx+2/*large_color*/]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
+	function largeGetFont()
+	{
+		return (gfxData[menuElementGfx+1/*large_font*/]&0xFF);
+	}
+		
 	function largeFontEditing(val)
 	{	
-		var temp = (gfxData[menuElementGfx+1/*large_font*/]&0xFF);
-
-//		// 39-56, 33-38, 29-32
-//		var f = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 33, 34, 35, 36, 37, 38, 29, 30, 31, 32]b;
-//		var i = f.indexOf(temp) - val;		
-//		if (i<0)
-//		{
-//			i = f.size()-1;
-//		}
-//		else if (i>=f.size())
-//		{
-//			i = 0;
-//		}
-//		gfxData[menuElementGfx+1] = f[i];
-		
-		gfxData[menuElementGfx+1/*large_font*/] = ((temp-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
+		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -7727,22 +7137,14 @@ class myEditorView extends myView
 		gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
+	function stringGetFont()
+	{
+		return (gfxData[menuElementGfx+2/*string_font*/]&0xFF);
+	}
+		
 	function stringFontEditing(val)
 	{
-		var temp = (gfxData[menuElementGfx+2/*string_font*/]&0xFF);
-
-//		// 6 to 28
-//		temp = temp - val;
-//		if (temp>28)
-//		{
-//			temp = 6;
-//		}
-//		else if (temp<6)
-//		{
-//			temp = 28;
-//		}
-
-		gfxData[menuElementGfx+2/*string_font*/] = (temp-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (system fonts)
+		gfxData[menuElementGfx+2/*string_font*/] = (stringGetFont()-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (system fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -8157,14 +7559,6 @@ class myMenuItemFieldSelect extends myMenuItem
 		{
 			return new myMenuItemSeconds();
 		}
-
-//		case 2:		// hour large
-//		case 3:		// minute large
-//		case 4:		// colon large
-//		case 5:		// string
-//		case 6:		// icon
-//		case 7:		// movebar
-//		case 8:		// chart
 			
 		return null;
     }
@@ -8188,15 +7582,6 @@ class myMenuItemFieldAdd extends myMenuItem
 //		s_addSeconds,
 //	}
 
-//	var globalString = [
-//		"add new",
-//		"add field",
-//		"add freeform",
-//		"add rectangle",
-//		"add ring",
-//		"add seconds",
-//	];
-	
 	var fState;
 
     function initialize()
@@ -8208,21 +7593,6 @@ class myMenuItemFieldAdd extends myMenuItem
     
     function getString()
     {
-//    	switch (fState)
-//    	{
-//			case s_top: return "add field";
-//			
-//			case s_addHorizontal: return "add horizontal";
-//			case s_addFree:	return "add freeform";
-//			case s_addRectangle: return "add rectangle";
-//			case s_addRing: return "add ring";
-//			case s_addSeconds: return "add seconds";
-//    	}
-//    	
-//    	return "unknown";
-    	
-    	//return globalString[fState];
-    	
     	return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldAddStrings, -1, fState);
     }
 
@@ -8266,53 +7636,16 @@ class myMenuItemFieldAdd extends myMenuItem
     
     function onNext()
     {
-//    	switch (fState)
-//    	{
-//			case s_top: return new myMenuItemQuickAdd();
-//			
-//			case s_addHorizontal: fState = s_addFree; break;
-//			case s_addFree: fState = s_addRectangle; break;
-//			case s_addRectangle: fState = s_addRing; break;
-//			case s_addRing: fState = s_addSeconds; break;
-//			case s_addSeconds: fState = s_addHorizontal; break;
-//    	}
-//
-//		return null;
-
 		return onEditing(1);
     }
     
     function onPrevious()
     {
-//    	switch (fState)
-//    	{
-//			case s_top: return new myMenuItemFieldSelect();
-//			
-//			case s_addHorizontal: fState = s_addSeconds; break;
-//			case s_addFree: fState = s_addHorizontal; break;
-//			case s_addRectangle: fState = s_addFree; break;
-//			case s_addRing: fState = s_addRectangle; break;
-//			case s_addSeconds: fState = s_addRing; break;
-//    	}
-//
-//		return null;
-
 		return onEditing(-1);
     }
     
     function onSelect()
     {   	
-//    	switch (fState)
-//    	{
-//			case s_top: fState = s_addHorizontal; return null;
-//			
-//			case s_addHorizontal: index = editorView.gfxAddField(editorView.gfxNum); break;
-//			case s_addFree: index = editorView.gfxAddField(editorView.gfxNum); break;
-//			case s_addRectangle: index = editorView.gfxAddRectangle(editorView.gfxNum); break;
-//			case s_addRing: index = editorView.gfxAddRing(editorView.gfxNum); break;
-//			case s_addSeconds: index = editorView.gfxAddSeconds(editorView.gfxNum); break;
-//    	}
-
 		if (fState==0/*s_top*/)
 		{
 			fState = 1/*s_addHorizontal*/;
@@ -8625,39 +7958,6 @@ class myMenuItemHeader extends myMenuItem
 //		f_menuHideEdit,
 //	}
 
-//	var globalStrings = [
-//		"background color",
-//		"battery high",
-//		"battery low",
-//		"2nd time offset",
-//		"move bar alert level",
-//		"font system case",
-//		"font unsupported",
-//		"menu hide",
-//		
-//		"editing ...",
-//	];
-//
-//	var fStrings = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		7,
-//		
-//		8,
-//		8,
-//		8,
-//		8,
-//		8,
-//		8,
-//		8,
-//		8,
-//	]b;
-
 	var fState;
 
     function initialize()
@@ -8685,18 +7985,6 @@ class myMenuItemHeader extends myMenuItem
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
     	}
-//    	else if (fState==13/*f_fontSystemCaseEdit*/)
-//    	{
-//    		return ["any case", "upper case", "lower case"][editorView.propFieldFontSystemCase];
-//    	}
-//    	else if (fState==14/*f_fontUnsupportedEdit*/)
-//    	{
-//    		return ["extra tiny", "tiny", "small", "medium", "large"][editorView.propFieldFontUnsupported];
-//    	}
-//    	else
-//    	{
-//    		return globalStrings[fStrings[fState]];
-//    	}
     	else if (fState==13/*f_fontSystemCaseEdit*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase);
@@ -8709,10 +7997,12 @@ class myMenuItemHeader extends myMenuItem
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
     	}
-    	else
-    	{
-    		return "editing ...";
-    	}
+    	//else
+    	//{
+    	//	return "editing...";
+    	//}
+
+   		return null;
     }
     
     function draw(dc)
@@ -8845,39 +8135,6 @@ class myMenuItemFieldEdit extends myMenuItem
 //		f_visEdit,
 //	}
 
-//	var globalStrings = [
-//		"edit elements",
-//		"position",
-//		"alignment",
-//		"visibility",
-//		"move earlier",
-//		"move later",
-//		"delete field",
-//		"horizontal",
-//		"vertical",
-//		"centre horizontal",
-//		"centre vertical",
-//		"tap",
-//		"editing ...",
-//	];
-//
-//	var fStrings = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		7,
-//		8,
-//		9,
-//		10,
-//		11,
-//		12,
-//		12,
-//	]b;
-
 	var fState;
 
     function initialize()
@@ -8891,73 +8148,21 @@ class myMenuItemFieldEdit extends myMenuItem
     
     function getString()
     {
-//    	switch (fState)
-//    	{
-//			case f_elements: return "edit elements";
-//			case f_position: return "position";
-//			case f_align: return "alignment";
-//			case f_vis: return "visibility";
-//			case f_earlier: return "move earlier";
-//			case f_later: return "move later";
-//			case f_delete: return "delete field";
-//
-//			case f_x: return "horizontal";
-//			case f_y: return "vertical";
-//			case f_xCentre: return "centre horizontal";
-//			case f_yCentre: return "centre vertical";
-//			case f_tap: return "tap";
-//
-//			case f_xEdit: return "editing ...";
-//			case f_yEdit: return "editing ...";			
-//			case f_alignEdit:
-//		    	switch (editorView.fieldGetAlignment())
-//		    	{
-//		    		case 0: return "centre"; 
-//		    		case 1: return "left edge";
-//		    		case 2: return "right edge";
-//		    	}
-//				break;
-//			case f_visEdit: return editorView.fieldVisibilityString();
-//    	}
-//    	
-//    	return "unknown";
-    	
     	if (fState==14/*f_alignEdit*/)
     	{
-    		//return editorView.fieldAlignmentString();
-//			function fieldAlignmentString()
-//			{
-//				if (fieldGetAlignment()==1)
-//				{
-//					return "left edge";
-//				}
-//				else if (fieldGetAlignment()==2)
-//				{
-//					return "right edge";
-//				}
-//				else
-//				{
-//					return "centre"; 
-//				}
-//			}
-			
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, editorView.fieldGetAlignment());
     	}
     	else if (fState==15/*f_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
-//    	else
-//    	{
-//    		return globalStrings[fStrings[fState]]; 
-//    	}
     	else if (fState<=11/*f_tap*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
     	}
     	else
     	{
-    		return "editing ...";
+    		return "editing...";	// for x & y position
     	}
     }
     
@@ -8999,99 +8204,16 @@ class myMenuItemFieldEdit extends myMenuItem
     
     function onNext()
     {
-//    	switch (fState)
-//    	{
-//			case f_elements: fState = f_position; break;
-//			case f_position: fState = f_align; break;
-//			case f_align: fState = f_vis; break;
-//			case f_vis: fState = f_earlier; break;
-//			case f_earlier: fState = f_later; break;
-//			case f_later: fState = f_delete; break;
-//			case f_delete: fState = f_elements; break;
-//
-//			case f_x: fState = f_y; break;
-//			case f_y: fState = f_xCentre; break;
-//			case f_xCentre: fState = f_yCentre; break;
-//			case f_yCentre: fState = f_tap; break;
-//			case f_tap: fState = f_x; break;
-//
-//			case f_xEdit: editorView.fieldPositionXEditing(1); break;
-//			case f_yEdit: editorView.fieldPositionYEditing(1); break;
-//			case f_alignEdit: editorView.fieldAlignmentEditing(1); break;
-//			case f_visEdit: editorView.fieldVisibilityEditing(1); break;
-//    	}
-//
-//   		return null;
-   		
    		return onEditing(1);
     }
     
     function onPrevious()
     {
-//    	switch (fState)
-//    	{
-//			case f_elements: fState = f_delete; break;
-//			case f_position: fState = f_elements; break;
-//			case f_align: fState = f_position; break;
-//			case f_vis: fState = f_align; break;
-//			case f_earlier: fState = f_vis; break;
-//			case f_later: fState = f_earlier; break;
-//			case f_delete: fState = f_later; break;
-//
-//			case f_x: fState = f_tap; break;
-//			case f_y: fState = f_x; break;
-//			case f_xCentre: fState = f_y; break;
-//			case f_yCentre: fState = f_xCentre; break;
-//			case f_tap: fState = f_yCentre; break;
-//
-//			case f_xEdit: editorView.fieldPositionXEditing(-1); break;
-//			case f_yEdit: editorView.fieldPositionYEditing(-1); break;
-//			case f_alignEdit: editorView.fieldAlignmentEditing(-1); break;
-//			case f_visEdit: editorView.fieldVisibilityEditing(-1); break;
-//    	}
-//
-//   		return null;
-   		
    		return onEditing(-1);
     }
     
     function onSelect()
     {
-//    	switch (fState)
-//    	{
-//			case f_elements:
-//			{
-//				var nextIndex = editorView.nextGfx(editorView.menuFieldGfx);
-//				if (nextIndex>=0 && nextIndex<editorView.afterGfxField(editorView.menuFieldGfx))
-//				{
-//					editorView.menuElementGfx = nextIndex;
-//					return new myMenuItemElementSelect();
-//				}
-//				else
-//				{
-//					return new myMenuItemElementAdd();
-//				}
-//			}
-//				
-//			case f_position: fState = f_x; break;
-//			case f_align: fState = f_alignEdit; break;
-//			case f_vis: fState = f_visEdit; break;
-//			case f_earlier: editorView.fieldEarlier(); break;
-//			case f_later: editorView.fieldLater(); break;
-//			case f_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-//
-//			case f_x: fState = f_xEdit; break;
-//			case f_y: fState = f_yEdit; break;
-//			case f_xCentre: editorView.fieldPositionCentreX(); break;
-//			case f_yCentre: editorView.fieldPositionCentreY(); break;
-//			case f_tap: break;
-//
-//			case f_xEdit: break;
-//			case f_yEdit: break;
-//			case f_alignEdit: break;
-//			case f_visEdit: break;
-//    	}
-
 		if (fState==0/*f_elements*/)
 		{
 			var nextIndex = editorView.nextGfx(editorView.menuFieldGfx);
@@ -9152,31 +8274,6 @@ class myMenuItemFieldEdit extends myMenuItem
     
     function onBack()
     {
-//    	switch (fState)
-//    	{
-//			case f_elements:
-//			case f_position:
-//			case f_align:
-//			case f_vis:
-//			case f_earlier:
-//			case f_later:
-//			case f_delete:
-//				return new myMenuItemFieldSelect();
-//
-//			case f_x:
-//			case f_y:
-//			case f_xCentre:
-//			case f_yCentre:
-//			case f_tap:
-//				fState = f_position;
-//				break;
-//
-//			case f_xEdit: fState = f_x; break;
-//			case f_yEdit: fState = f_y; break;
-//			case f_alignEdit: fState = f_align; break;
-//			case f_visEdit: fState = f_vis; break;
-//    	}
-
 		if (fState<=6/*f_delete*/)
 		{
 			return new myMenuItemFieldSelect();
@@ -9275,24 +8372,6 @@ class myMenuItemElementSelect extends myMenuItem
 				return new myMenuItemElementEdit(id);
 		}
 
-//		switch(id)
-//		{
-//			case 0:		// header
-//				break;
-//
-//			case 1:		// field
-//				break;
-//			
-//			case 9:		// rectangle
-//				break;
-//			
-//			case 10:	// ring
-//				break;
-//			
-//			case 11:	// seconds
-//				break;
-//		}
-
 		return null;
     }
     
@@ -9307,9 +8386,10 @@ class myMenuItemElementEdit extends myMenuItem
 {
 //	enum
 //	{
-//		//f_type,
 //		f_font,
 //		f_color,
+
+//		f_visibility,
 //		f_earlier,
 //		f_later,
 //		f_delete,
@@ -9347,100 +8427,6 @@ class myMenuItemElementEdit extends myMenuItem
 //		gfxData[index+2] = 3+1;	// color chart
 //		gfxData[index+3] = 3+1;	// color axes
 
-//	var globalStrings = [
-//		"font",
-//		"color",
-//		
-//		"visibility",
-//		"move earlier",
-//		"move later",
-//		"delete element",
-//		
-//		"editing ...",
-//
-//		"color 1",
-//		"color 2",
-//		"color 3",
-//		"color 4",
-//		"color 5",
-//		"color off",
-//		
-//		"axes type",
-//		"color bars",
-//		"color axes",
-//		
-//		"type",
-//	];
-	
-//	var fStringsLarge = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		6,
-//	]b;
-//	
-//	var fStringsString = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		6,
-//	]b;
-//	
-//	var fStringsIcon = [
-//		16,
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		6,
-//		6,
-//	]b;
-//	
-//	var fStringsMoveBar = [
-//		0,
-//		7,
-//		8,
-//		9,
-//		10,
-//		11,
-//		12,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		6,
-//		6,
-//		6,
-//		6,
-//		6,
-//		6,
-//	]b;
-//	
-//	var fStringsChart = [
-//		13,
-//		14,
-//		15,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		6,
-//		6,
-//	]b;
-	
 	var fId;
 
 	var fState;
@@ -9484,21 +8470,27 @@ class myMenuItemElementEdit extends myMenuItem
     
     function getString()
     {
-    	if (fState==fNumCustom+4+fNumCustom)
+		var numTop = fNumCustom+4;
+
+    	if (fState==numTop+fNumCustom)
     	{
     		return editorView.elementVisibilityString();
     	}
-//    	else
-//    	{
-//    		return globalStrings[fStrings[fState]];
-//    	}
-    	else if (fState<fNumCustom+4)
+    	else if (fState<numTop)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, fStringsIndex, fState);
     	}
+		else if (fId>=2 && fId<=4 && fState==numTop)	// large
+		{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 5, editorView.largeGetFont());
+	    }
+		else if (fId==5 && fState==numTop)	// string
+		{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 6, editorView.stringGetFont());
+	    }
     	else
     	{
-    		return "editing ...";
+    		return "editing...";
     	}
     }
     
@@ -9510,17 +8502,6 @@ class myMenuItemElementEdit extends myMenuItem
 
     function onEditing(val)
     {
-//    	if (fState<5)
-//    	{
-//    		fState = (fState+1)%5;
-//    	}
-//    	else
-//    	{
-//    		var f = [editorView.method(:stringColorEditing), editorView.method(:stringFontEditing)];
-//    		
-//    		f[fState-5].invoke(1);
-//    	}
-
 		var numTop = fNumCustom+4;
 
     	if (fState<numTop)
@@ -9676,29 +8657,6 @@ class myMenuItemElementEdit extends myMenuItem
 			}
     	}
     
-//    	switch (fState)
-//    	{
-//			case f_color: fState = f_colorEdit; break;
-//			case f_font: fState = f_fontEdit; break;
-//			
-//			case f_earlier: editorView.elementEarlier(); break;
-//			case f_later: editorView.elementLater(); break;
-//
-//			case f_delete:
-//				editorView.elementDelete();
-//				if (editorView.menuElementGfx<editorView.afterGfxField(editorView.menuFieldGfx))
-//				{
-//					return new myMenuItemElementSelect();
-//				}
-//				else
-//				{
-//					return new myMenuItemElementAdd();
-//				}
-//
-//			case f_colorEdit: break;
-//			case f_fontEdit: break;
-//    	}
-
     	return null;
     }
     
@@ -9716,19 +8674,6 @@ class myMenuItemElementEdit extends myMenuItem
 
 			fState -= numTop;
     	}
-    
-//    	switch (fState)
-//    	{
-//			case f_color:
-//			case f_font:
-//			case f_earlier:
-//			case f_later:
-//			case f_delete:
-//				return new myMenuItemElementSelect();
-//
-//			case f_colorEdit: fState = f_color; break;
-//			case f_fontEdit: fState = f_font; break;
-//    	}
 
    		return null;
     }
@@ -9837,21 +8782,6 @@ class myMenuItemElementAdd extends myMenuItem
 //		s_iconEdit,
 //	}
 
-//	var globalStrings = [
-//		"add element",
-//		"add time (large)",
-//		"add time",
-//		"add separator",
-//		"add date",
-//		"add value",
-//		"add icon",
-//		"add move bar",
-//		"add chart",
-//		"hour (large)",
-//		"minute (large)",
-//		"colon (large)",
-//	];
-
 	var fState;
 
     function initialize()
@@ -9883,10 +8813,6 @@ class myMenuItemElementAdd extends myMenuItem
     
     function getString()
     {
-//    	if (fState<=11/*s_colonLarge*/)
-//    	{
-//			return globalStrings[fState];
-//		}
     	if (fState<=11/*s_colonLarge*/)
     	{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_addElementStrings, -1, fState);
@@ -9940,71 +8866,11 @@ class myMenuItemElementAdd extends myMenuItem
     
     function onNext()
     {
-//    	switch (fState)
-//    	{
-//			case s_top: break;
-//			
-//			case s_timeLarge: fState = s_time; break;
-//			case s_time: fState = s_separator; break;
-//			case s_separator: fState = s_date; break;
-//			case s_date: fState = s_value; break;
-//			case s_value: fState = s_icon; break;
-//			case s_icon: fState = s_moveBar; break;
-//			case s_moveBar: fState = s_chart; break;
-//			case s_chart: fState = s_timeLarge; break;
-//
-//			case s_hourLarge: fState = s_minuteLarge; break;
-//			case s_minuteLarge: fState = s_colonLarge; break;
-//			case s_colonLarge: fState = s_hourLarge; break;
-//
-//			case s_timeEdit:
-//			case s_separatorEdit:
-//			case s_dateEdit:
-//			case s_valueEdit:
-//				if (idArray!=null)
-//				{
-//					idIndex = (idIndex+1)%idArray.size();
-//				}
-//				break;
-//    	}
-//
-//		return null;
-
 		return onEditing(1);
     }
     
     function onPrevious()
     {
-//    	switch (fState)
-//    	{
-//			case s_top: return new myMenuItemElementSelect();
-//			
-//			case s_timeLarge: fState = s_chart; break;
-//			case s_time: fState = s_timeLarge; break;
-//			case s_separator: fState = s_time; break;
-//			case s_date: fState = s_separator; break;
-//			case s_value: fState = s_date; break;
-//			case s_icon: fState = s_value; break;
-//			case s_moveBar: fState = s_icon; break;
-//			case s_chart: fState = s_moveBar; break;
-//
-//			case s_hourLarge: fState = s_colonLarge; break;
-//			case s_minuteLarge: fState = s_hourLarge; break;
-//			case s_colonLarge: fState = s_minuteLarge; break;
-//
-//			case s_timeEdit:
-//			case s_separatorEdit:
-//			case s_dateEdit:
-//			case s_valueEdit:
-//				if (idArray!=null)
-//				{
-//					idIndex = (idIndex-1+idArray.size())%idArray.size();
-//				}
-//				break;
-//    	}
-//
-//		return null;
-
 		return onEditing(-1);
     }
     
@@ -10066,33 +8932,6 @@ class myMenuItemElementAdd extends myMenuItem
     
     function onBack()
     {
-//    	switch (fState)
-//    	{
-//			case s_top: return new myMenuItemFieldEdit();
-//			
-//			case s_timeLarge:
-//			case s_time:
-//			case s_separator:
-//			case s_date:
-//			case s_value:
-//			case s_icon:
-//			case s_moveBar:
-//			case s_chart:
-//				fState = s_top;
-//				break;
-//
-//			case s_hourLarge:
-//			case s_minuteLarge:
-//			case s_colonLarge:
-//				fState = s_timeLarge;
-//				break;
-//
-//			case s_timeEdit: fState = s_time; break;
-//			case s_separatorEdit: fState = s_separator; break;
-//			case s_dateEdit: fState = s_date; break;
-//			case s_valueEdit: fState = s_value; break;
-//    	}
-
 		if (fState==0/*s_top*/)
 		{
 			return new myMenuItemFieldEdit();
@@ -10147,49 +8986,6 @@ class myMenuItemRectangle extends myMenuItem
 //		r_yEdit,		109
 //	}
 
-//	var globalStrings = [
-//		"color",
-//		"position",
-//		"width",
-//		"height",
-//		"visibility",
-//		"move earlier",
-//		"move later",
-//		"delete rectangle",
-//
-//		"horizontal",
-//		"vertical",
-//		"centre horizontal",
-//		"centre vertical",
-//		"tap",
-//
-//		"editing ...",
-//	];
-
-//	var fStrings = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		7,
-//
-//		8,
-//		9,
-//		10,
-//		11,
-//		12,
-//		
-//		13,
-//		13,
-//		13,
-//		13,
-//		13,
-//		13,
-//	]b;
-	
 	var fState;
 
     function initialize()
@@ -10201,48 +8997,17 @@ class myMenuItemRectangle extends myMenuItem
     
     function getString()
     {
-//    	switch (fState)
-//    	{
-//			case r_color: return "color";
-//			case r_position: return "position";
-//			case r_w: return "width";
-//			case r_h: return "height";
-//			case r_vis: return "visibility";
-//			case r_earlier: return "move earlier";
-//			case r_later: return "move later";
-//			case r_delete: return "delete rectangle";
-//
-//			case r_x: return "horizontal";
-//			case r_y: return "vertical";
-//			case r_xCentre: return "centre horizontal";
-//			case r_yCentre: return "centre vertical";
-//			case r_tap: return "tap";
-//
-//			case r_colorEdit: return "editing ...";
-//			case r_xEdit: return "editing ...";
-//			case r_yEdit: return "editing ...";
-//			case r_wEdit: return "editing ...";
-//			case r_hEdit: return "editing ...";
-//			case r_visEdit: return editorView.fieldVisibilityString();
-//    	}
-//    	
-//    	return "unknown";
-
     	if (fState==104/*r_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
-//    	else
-//    	{
-//    		return globalStrings[fStrings[fState]]; 
-//    	}
 		else if (fState<=12/*r_tap*/)
 		{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, -1, fState);
  		}
  		else
  		{
- 			return "editing ...";
+ 			return "editing...";	// for x, y, w, h
  		}
     }
     
@@ -10292,95 +9057,16 @@ class myMenuItemRectangle extends myMenuItem
     
     function onNext()
     {
-//    	switch (fState)
-//    	{
-//			case r_color: fState = r_position; break;
-//			case r_position: fState = r_w; break;
-//			case r_w: fState = r_h; break;
-//			case r_h: fState = r_vis; break;
-//			case r_vis: fState = r_earlier; break;
-//			case r_earlier: fState = r_later; break;
-//			case r_later: fState = r_delete; break;
-//			case r_delete: fState = r_color; break;
-//
-//			case r_x: fState = r_y; break;
-//			case r_y: fState = r_xCentre; break;
-//			case r_xCentre: fState = r_yCentre; break;
-//			case r_yCentre: fState = r_tap; break;
-//			case r_tap: fState = r_x; break;
-//
-//			case r_colorEdit: editorView.rectangleColorEditing(1); break;
-//			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
-//			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
-//			case r_wEdit: editorView.rectangleWidthEditing(1); break;
-//			case r_hEdit: editorView.rectangleHeightEditing(1); break;
-//			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
-//    	}
-//    	
-//    	return null;
-    	
     	return onEditing(1);
     }
     
     function onPrevious()
     {
-//    	switch (fState)
-//    	{
-//			case r_color: fState = r_delete; break;
-//			case r_position: fState = r_color; break;
-//			case r_w: fState = r_position; break;
-//			case r_h: fState = r_w; break;
-//			case r_vis: fState = r_h; break;
-//			case r_earlier: fState = r_vis; break;
-//			case r_later: fState = r_earlier; break;
-//			case r_delete: fState = r_later; break;
-//
-//			case r_x: fState = r_tap; break;
-//			case r_y: fState = r_x; break;
-//			case r_xCentre: fState = r_y; break;
-//			case r_yCentre: fState = r_xCentre; break;
-//			case r_tap: fState = r_yCentre; break;
-//
-//			case r_colorEdit: editorView.rectangleColorEditing(1); break;
-//			case r_xEdit: editorView.rectanglePositionXEditing(1); break;
-//			case r_yEdit: editorView.rectanglePositionYEditing(1); break;
-//			case r_wEdit: editorView.rectangleWidthEditing(1); break;
-//			case r_hEdit: editorView.rectangleHeightEditing(1); break;
-//			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
-//    	}
-//    	
-//    	return null;
-    	
     	return onEditing(-1);
     }
     
     function onSelect()
     {
-//    	switch (fState)
-//    	{
-//			case r_color: fState = r_colorEdit; break;
-//			case r_position: fState = r_x; break;
-//			case r_w: fState = r_wEdit; break;
-//			case r_h: fState = r_hEdit; break;
-//			case r_vis: fState = r_visEdit; break;
-//			case r_earlier: editorView.fieldEarlier(); break;
-//			case r_later: editorView.fieldLater(); break;
-//			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-//
-//			case r_x: fState = r_xEdit; break;
-//			case r_y: fState = r_yEdit; break;
-//			case r_xCentre: editorView.rectanglePositionCentreX(); break;
-//			case r_yCentre: editorView.rectanglePositionCentreY(); break;
-//			case r_tap: break;
-//
-//			case r_colorEdit: break;
-//			case r_xEdit: break;
-//			case r_yEdit: break;
-//			case r_wEdit: break;
-//			case r_hEdit: break;
-//			case r_visEdit: break;
-//    	}
-    	
     	if (fState==1/*r_position*/)
     	{
     		fState = 8/*r_x*/;
@@ -10424,34 +9110,6 @@ class myMenuItemRectangle extends myMenuItem
     
     function onBack()
     {
-//    	switch (fState)
-//    	{
-//			case r_color:
-//			case r_position:
-//			case r_w:
-//			case r_h:
-//			case r_vis:
-//			case r_earlier:
-//			case r_later:
-//			case r_delete:
-//				return new myMenuItemFieldSelect();
-//				
-//			case r_x:
-//			case r_y:
-//			case r_xCentre:
-//			case r_yCentre:
-//			case r_tap: 
-//				fState = r_position;
-//				break;
-//
-//			case r_colorEdit: fState = r_color; break;
-//			case r_xEdit: fState = r_x; break;
-//			case r_yEdit: fState = r_y; break;
-//			case r_wEdit: fState = r_w; break;
-//			case r_hEdit: fState = r_h; break;
-//			case r_visEdit: fState = r_vis; break;
-//    	}
-    	
     	if (fState<=7/*r_delete*/)
     	{
     		return new myMenuItemFieldSelect();
@@ -10502,45 +9160,6 @@ class myMenuItemRing extends myMenuItem
 //		r_visEdit,
 //	}
 
-//	var globalStrings = [
-//		"data",
-//		"style",
-//		"start",
-//		"end",
-//		"direction",
-//		"color filled",
-//		"color unfilled",
-//		"visibility",
-//		"move earlier",
-//		"move later",
-//		"delete ring",
-//
-//		"editing ...",	
-//	];
-//
-//	var fStrings = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		7,
-//		8,
-//		9,
-//		10,
-//		
-//		11,
-//		11,
-//		11,
-//		11,
-//		11,
-//		11,
-//		11,
-//		11,
-//	]b;
-	
 	var fState;
 
     function initialize()
@@ -10552,65 +9171,12 @@ class myMenuItemRing extends myMenuItem
     
     function getString()
     {
-//    	switch (fState)
-//    	{
-//			case r_type: return "data";
-//			case r_font: return "style";
-//			case r_start: return "start";
-//			case r_end: return "end";
-//			case r_direction: return "direction";
-//			case r_colorFilled: return "color filled";
-//			case r_colorUnfilled: return "color unfilled";
-//			case r_vis: return "visibility";
-//			case r_earlier: return "move earlier";
-//			case r_later: return "move later";
-//			case r_delete: return "delete ring";
-//
-//			case r_typeEdit: return editorView.ringTypeString();
-//			case r_fontEdit: return "editing ...";
-//			case r_startEdit: return "editing ...";
-//			case r_endEdit: return "editing ...";
-//			case r_directionEdit: return editorView.ringDirectionString();
-//			case r_colorFilledEdit: return "editing ...";
-//			case r_colorUnfilledEdit: return "editing ...";
-//			case r_visEdit: return editorView.fieldVisibilityString();
-//    	}
-//    	
-//    	return "unknown";
-    	
     	if (fState==13/*r_typeEdit*/)
     	{
-    		//return editorView.ringTypeString();
-//			function ringTypeString()
-//			{
-//				var sArray = [
-//			   		"plain color",			// plain color
-//					"steps",				// steps
-//					"minutes",				// minutes
-//					"hours",				// hours
-//			   		"battery",				// battery percentage
-//					"2nd time hours",		// 2nd time zone hours
-//			   		"sun (now top)",		// sunrise & sunset now top
-//			   		"sun (midnight top)",	// sunrise & sunset midnight top
-//			   		"sun (noon top)",		// sunrise & sunset noon top
-//					"intensity",			// intensity
-//					"smart intensity",		// smart intensity
-//			   		"heart rate",			// heart rate
-//				];
-//			
-//				return safeStringFromArray(sArray, gfxData[menuFieldGfx+1] & 0xFF);
-//			}
-	
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 3, editorView.ringGetType());    		
     	}
     	else if (fState==17/*r_directionEdit*/)
     	{
-    		//return editorView.ringDirectionString();
-//			function ringDirectionString()
-//			{
-//				return ((gfxData[menuFieldGfx+1] & 0x100)!=0) ? "anticlockwise" : "clockwise"; 
-//			}
-	   		
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, editorView.ringGetDirectionAnti() ? 1 : 0);
     	}
     	else if (fState==18/*r_limitEdit*/)
@@ -10621,31 +9187,13 @@ class myMenuItemRing extends myMenuItem
     	{
     		return editorView.fieldVisibilityString();
     	}
-//    	else
-//    	{
-//    		return globalStrings[fStrings[fState]]; 
-//    	}
 		else if (fState<=12/*r_delete*/)
 		{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 0, fState);
-//
-//			return [
-//				"data",
-//				"style",
-//				"start",
-//				"end",
-//				"direction",
-//				"color filled",
-//				"color unfilled",
-//				"visibility",
-//				"move earlier",
-//				"move later",
-//				"delete ring",
-//			][fState];
 		}
 		else
 		{
-			return "editing ...";
+			return "editing...";	// for font, start, end
 		}
     }
     
@@ -10707,93 +9255,16 @@ class myMenuItemRing extends myMenuItem
     
     function onNext()
     {
-//    	switch (fState)
-//    	{
-//			case r_type: fState = r_font; break;
-//			case r_font: fState = r_start; break;
-//			case r_start: fState = r_end; break;
-//			case r_end: fState = r_direction; break;
-//			case r_direction: fState = r_colorFilled; break;
-//			case r_colorFilled: fState = r_colorUnfilled; break;
-//			case r_colorUnfilled: fState = r_vis; break;
-//			case r_vis: fState = r_earlier; break;
-//			case r_earlier: fState = r_later; break;
-//			case r_later: fState = r_delete; break;
-//			case r_delete: fState = r_type; break;
-//
-//			case r_typeEdit: editorView.ringTypeEditing(1); break;
-//			case r_fontEdit: editorView.ringFontEditing(1); break;
-//			case r_startEdit: editorView.ringStartEditing(1); break;
-//			case r_endEdit: editorView.ringEndEditing(1); break;
-//			case r_directionEdit: editorView.ringDirectionEditing(); break;
-//			case r_colorFilledEdit: editorView.ringFilledColorEditing(1); break;
-//			case r_colorUnfilledEdit: editorView.ringUnfilledColorEditing(1); break;
-//			case r_visEdit: editorView.fieldVisibilityEditing(1); break;
-//    	}
-//
-//   		return null;
-
 		return onEditing(1);
     }
     
     function onPrevious()
     {
-//    	switch (fState)
-//    	{
-//			case r_type: fState = r_delete; break;
-//			case r_font: fState = r_type; break;
-//			case r_start: fState = r_font; break;
-//			case r_end: fState = r_start; break;
-//			case r_direction: fState = r_end; break;
-//			case r_colorFilled: fState = r_direction; break;
-//			case r_colorUnfilled: fState = r_colorFilled; break;
-//			case r_vis: fState = r_colorUnfilled; break;
-//			case r_earlier: fState = r_vis; break;
-//			case r_later: fState = r_earlier; break;
-//			case r_delete: fState = r_later; break;
-//
-//			case r_typeEdit: editorView.ringTypeEditing(-1); break;
-//			case r_fontEdit: editorView.ringFontEditing(-1); break;
-//			case r_startEdit: editorView.ringStartEditing(-1); break;
-//			case r_endEdit: editorView.ringEndEditing(-1); break;
-//			case r_directionEdit: editorView.ringDirectionEditing(); break;
-//			case r_colorFilledEdit: editorView.ringFilledColorEditing(-1); break;
-//			case r_colorUnfilledEdit: editorView.ringUnfilledColorEditing(-1); break;
-//			case r_visEdit: editorView.fieldVisibilityEditing(-1); break;
-//    	}
-//
-//   		return null;
-
 		return onEditing(-1);
     }
     
     function onSelect()
     {
-//    	switch (fState)
-//    	{
-//			case r_type: fState = r_typeEdit; break;
-//			case r_font: fState = r_fontEdit; break;
-//			case r_start: fState = r_startEdit; break;
-//			case r_end: fState = r_endEdit; break;
-//			case r_direction: fState = r_directionEdit; break;
-//			case r_colorFilled: fState = r_colorFilledEdit; break;
-//			case r_colorUnfilled: fState = r_colorUnfilledEdit; break;
-//			case r_vis: fState = r_visEdit; break;
-//			
-//			case r_earlier: editorView.fieldEarlier(); break;
-//			case r_later: editorView.fieldLater(); break;
-//			case r_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-//
-//			case r_typeEdit: break;
-//			case r_fontEdit: break;
-//			case r_startEdit: break;
-//			case r_endEdit: break;
-//			case r_directionEdit: break;
-//			case r_colorFilledEdit: break;
-//			case r_colorUnfilledEdit: break;
-//			case r_visEdit: break;
-//    	}
-    	
     	if (fState<=9/*r_vis*/)
     	{
     		fState += 13;
@@ -10822,31 +9293,6 @@ class myMenuItemRing extends myMenuItem
     
     function onBack()
     {
-//    	switch (fState)
-//    	{
-//			case r_type:
-//			case r_font:
-//			case r_start:
-//			case r_end:
-//			case r_direction:
-//			case r_colorFilled:
-//			case r_colorUnfilled:
-//			case r_vis:
-//			case r_earlier:
-//			case r_later:
-//			case r_delete:
-//				return new myMenuItemFieldSelect();
-//
-//			case r_typeEdit: fState = r_type; break;
-//			case r_fontEdit: fState = r_font; break;
-//			case r_startEdit: fState = r_start; break;
-//			case r_endEdit: fState = r_end; break;
-//			case r_directionEdit: fState = r_direction; break;
-//			case r_colorFilledEdit: fState = r_colorFilled; break;
-//			case r_colorUnfilledEdit: fState = r_colorUnfilled; break;
-//			case r_visEdit: fState = r_vis; break;
-//    	}
-    	
     	if (fState<=12/*r_delete*/)
     	{
     		return new myMenuItemFieldSelect();
@@ -10890,53 +9336,6 @@ class myMenuItemSeconds extends myMenuItem
 //		s_visEdit,
 //	}
 
-	//visibility
-	//font
-	//refresh style
-	//color
-	//color5
-	//color10
-	//color15
-	//color0
-
-// 120 code 90 data for string array
-// 210 code for b array
-
-//	var globalStrings = [
-//		"style",
-//		"refresh",
-//		"color",
-//		"color (5s)",
-//		"color (10s)",
-//		"color (15s)",
-//		"color (0s)",
-//		"visibility",
-//		"delete seconds",
-//		
-//		"editing ...",
-//	];
-//
-//	var fStrings = [
-//		0,
-//		1,
-//		2,
-//		3,
-//		4,
-//		5,
-//		6,
-//		7,
-//		8,
-//		
-//		9,
-//		9,
-//		9,
-//		9,
-//		9,
-//		9,
-//		9,
-//		9,
-//	]b;
-
 	var fState;
 
     function initialize()
@@ -10948,79 +9347,21 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-//    	switch (fState)
-//    	{
-//			case s_font: return "style";
-//			case s_refresh: return "refresh";
-//			case s_color: return "color";
-//			case s_color5: return "color (5s)";
-//			case s_color10: return "color (10s)";
-//			case s_color15: return "color (15s)";
-//			case s_color0: return "color (0s)";
-//			case s_vis: return "visibility";
-//			case s_delete: return "delete seconds";
-//
-//			case s_fontEdit: return "editing ...";
-//			case s_refreshEdit: return editorView.secondsRefreshString();
-//			case s_colorEdit: return "editing ...";
-//			case s_color5Edit: return "editing ...";
-//			case s_color10Edit: return "editing ...";
-//			case s_color15Edit: return "editing ...";
-//			case s_color0Edit: return "editing ...";
-//			case s_visEdit: return editorView.fieldVisibilityString();
-//    	}
-//    	
-//    	return "unknown";
-    	
     	if (fState==10/*s_refreshEdit*/)
     	{
-    		//return editorView.secondsRefreshString();
-
-//			function secondsRefreshString()
-//			{
-//				if (secondsGetRefresh()==1)
-//				{
-//					return "every minute";
-//				}
-//				else if (secondsGetRefresh()==2)
-//				{
-//					return "alernate minutes";
-//				}
-//				else
-//				{
-//			   		return "every second";
-//				}
-//			}
-
 			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, editorView.secondsGetRefresh());
     	}
     	else if (fState==16/*s_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
-//    	else
-//    	{
-//    		return globalStrings[fStrings[fState]]; 
-//    	}
  		else if (fState<=8/*s_delete*/)
  		{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 0, fState);
- 		
-// 			return [
-//				"style",
-//				"refresh",
-//				"color",
-//				"color (5s)",
-//				"color (10s)",
-//				"color (15s)",
-//				"color (0s)",
-//				"visibility",
-//				"delete seconds",
-//			][fState];
  		}
  		else
  		{
- 			return "editing ...";
+ 			return "editing...";	// for font
  		}
     }
     
@@ -11058,83 +9399,16 @@ class myMenuItemSeconds extends myMenuItem
     
     function onNext()
     {
-//    	switch (fState)
-//    	{
-//			case s_font: fState = s_refresh; break;
-//			case s_refresh: fState = s_color; break;
-//			case s_color: fState = s_color5; break;
-//			case s_color5: fState = s_color10; break;
-//			case s_color10: fState = s_color15; break;
-//			case s_color15: fState = s_color0; break;
-//			case s_color0: fState = s_vis; break;
-//			case s_vis: fState = s_delete; break;
-//			case s_delete: fState = s_font; break;
-//
-//			case s_fontEdit: editorView.secondsFontEditing(1); break;
-//			case s_refreshEdit: editorView.secondsRefreshEditing(1); break;
-//			case s_colorEdit: editorView.secondsColorEditing(0, 1); break;
-//			case s_color5Edit: editorView.secondsColorEditing(1, 1); break;
-//			case s_color10Edit: editorView.secondsColorEditing(2, 1); break;
-//			case s_color15Edit: editorView.secondsColorEditing(3, 1); break;
-//			case s_color0Edit: editorView.secondsColorEditing(4, 1); break;
-//			case s_visEdit: editorView.fieldVisibilityEditing(1); break;
-//    	}
-    	
    		return onEditing(1);
     }
     
     function onPrevious()
     {
-//    	switch (fState)
-//    	{
-//			case s_font: fState = s_delete; break;
-//			case s_refresh: fState = s_font; break;
-//			case s_color: fState = s_refresh; break;
-//			case s_color5: fState = s_color; break;
-//			case s_color10: fState = s_color5; break;
-//			case s_color15: fState = s_color10; break;
-//			case s_color0: fState = s_color15; break;
-//			case s_vis: fState = s_color0; break;
-//			case s_delete: fState = s_vis; break;
-//
-//			case s_fontEdit: editorView.secondsFontEditing(-1); break;
-//			case s_refreshEdit: editorView.secondsRefreshEditing(-1); break;
-//			case s_colorEdit: editorView.secondsColorEditing(0, -1); break;
-//			case s_color5Edit: editorView.secondsColorEditing(1, -1); break;
-//			case s_color10Edit: editorView.secondsColorEditing(2, -1); break;
-//			case s_color15Edit: editorView.secondsColorEditing(3, -1); break;
-//			case s_color0Edit: editorView.secondsColorEditing(4, -1); break;
-//			case s_visEdit: editorView.fieldVisibilityEditing(-1); break;
-//    	}
-    	
    		return onEditing(-1);
     }
     
     function onSelect()
     {
-//    	switch (fState)
-//    	{
-//			case s_font: fState = s_fontEdit; break;
-//			case s_refresh: fState = s_refreshEdit; break;
-//			case s_color: fState = s_colorEdit; break;
-//			case s_color5: fState = s_color5Edit; break;
-//			case s_color10: fState = s_color10Edit; break;
-//			case s_color15: fState = s_color15Edit; break;
-//			case s_color0: fState = s_color0Edit; break;
-//			case s_vis: fState = s_visEdit; break;
-
-//			case s_delete: editorView.fieldDelete(); return new myMenuItemFieldSelect();
-//
-//			case s_fontEdit: break;
-//			case s_refreshEdit: break;
-//			case s_colorEdit: break;
-//			case s_color5Edit: break;
-//			case s_color10Edit: break;
-//			case s_color15Edit: break;
-//			case s_color0Edit: break;
-//			case s_visEdit: break;
-//    	}
-    	
     	if (fState<=7/*s_vis*/)
     	{
     		fState += 9;
@@ -11155,29 +9429,6 @@ class myMenuItemSeconds extends myMenuItem
     
     function onBack()
     {
-//    	switch (fState)
-//    	{
-//			case s_font:
-//			case s_refresh:
-//			case s_color:
-//			case s_color5:
-//			case s_color10:
-//			case s_color15:
-//			case s_color0:
-//			case s_vis:
-//			case s_delete:
-//				return new myMenuItemFieldSelect();
-//
-//			case s_fontEdit: fState = s_font; break;
-//			case s_refreshEdit: fState = s_refresh; break;
-//			case s_colorEdit: fState = s_color; break;
-//			case s_color5Edit: fState = s_color5; break;
-//			case s_color10Edit: fState = s_color10; break;
-//			case s_color15Edit: fState = s_color15; break;
-//			case s_color0Edit: fState = s_color0; break;
-//			case s_visEdit: fState = s_vis; break;
-//    	}
-    	
     	if (fState<=8/*s_delete*/)
     	{
     		return new myMenuItemFieldSelect();
