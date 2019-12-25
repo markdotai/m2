@@ -4,6 +4,10 @@
         <settingConfig type="alphaNumeric" maxLength="255" />
     </setting>
 
+    <setting propertyKey="@Properties.EP2" title="@Strings.ExportProfileTitle2">
+        <settingConfig type="alphaNumeric" maxLength="255" />
+    </setting>
+
     <setting propertyKey="@Properties.PM" title="@Strings.ProfileManagementTitle">
         <settingConfig type="list">
             <listEntry value="0">@Strings.ProfileCurrent</listEntry>

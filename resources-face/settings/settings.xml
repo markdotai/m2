@@ -1,7 +1,11 @@
 <settings>
 
     <setting propertyKey="@Properties.EP" title="@Strings.ExportProfileTitle">
-        <settingConfig type="alphaNumeric" maxLength="1024" />
+        <settingConfig type="alphaNumeric" maxLength="255" />
+    </setting>
+
+    <setting propertyKey="@Properties.EP2" title="@Strings.ExportProfileTitle2">
+        <settingConfig type="alphaNumeric" maxLength="255" />
     </setting>
 
     <setting propertyKey="@Properties.PM" title="@Strings.ProfileManagementTitle">

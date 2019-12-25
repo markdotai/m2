@@ -51,9 +51,6 @@ class myView
 
 	var settingsHaveChanged = false;
 	
-	//var updateLastSec;		// just needed for bug in CIQ
-	//var updateLastMin;		// just needed for bug in CIQ
-
 	var lastPartialUpdateSec;
 
 	var glanceActive = false;
@@ -93,7 +90,6 @@ class myView
 	//	REFRESH_EVERY_MINUTE = 1,
 	//	REFRESH_ALTERNATE_MINUTES = 2
 	//}
-	//var propSecondIndicatorStyle;
     		    
 	//const OUTER_FIRST_CHAR_ID = 21;
 	//const OUTER_SIZE_HALF = 8;
@@ -108,48 +104,6 @@ class myView
 	var bufferX = 0;
 	var bufferY = 0;
 	
-//    const PROFILE_NUM_PROPERTIES = 38;
-    //const PROFILE_PROPERTY_COLON = 36;
-    //const PROFILE_PROPERTY_2ND_TIME_ZONE_OFFSET = 37;
-    // 0 = profile name
-    // 1 = background color
-    // 2 = time on
-    // 3 = add leading zero (time military)
-    // 4 = time hour font
-    // 5 = time hour color
-    // 6 = time minute font
-    // 7 = time minute color
-    // 8 = time italic
-    // 9 = time y offset
-    // 10 = second indicator on
-    // 11 = second indicator style
-    // 12 = second refresh style
-    // 13 = second color
-    // 14 = second color 5
-    // 15 = second color 10
-    // 16 = second color 15
-    // 17 = second color 0
-    // 18 = second color demo
-    // 19 = second move in a bit
-    // 20 = outer on
-    // 21 = outer mode
-    // 22 = outer color filled
-    // 23 = outer color unfilled
-    // 24 = field font
-    // 25 = field custom weight
-    // 26 = field system case
-    // 27 = field names font for unsupported languages
-    // 28 = field move bar off color
-    // 29 = field move bar alert trigger level
-    // 30 = field battery high percentage
-    // 31 = field battery low percentage
-    // 32 = demo font styles
-    // 33 = demo second styles
-    // 34 = demo display
-    // 35 = glance profile
-    // 36 = time colon separator
-    // 37 = 2nd time zone offset
-    
 //	function getBooleanFromArray(pArray, p)
 //	{
 //		var v = false;
@@ -233,6 +187,23 @@ class myView
 
 	var propSunAltitudeAdjust = false;
 
+	//enum
+	//{
+	//	SECONDFONT_TRI = 0,
+	//	//!SECONDFONT_V = 1,
+	//	//!SECONDFONT_LINE = 2,
+	//	//!SECONDFONT_LINETHIN = 3,
+	//	//!SECONDFONT_CIRCULAR = 4,
+	//	//!SECONDFONT_CIRCULARTHIN = 5,
+	//	SECONDFONT_TRI_IN = 6,
+	//	//!SECONDFONT_V_IN = 7,
+	//	//!SECONDFONT_LINE_IN = 8,
+	//	//!SECONDFONT_LINETHIN_IN = 9,
+	//	//!SECONDFONT_CIRCULAR_IN = 10,
+	//	//!SECONDFONT_CIRCULARTHIN_IN = 11,
+	//	SECONDFONT_UNUSED = 12
+	//}
+
 	// if any of these numbers below change, then also need to modify:
 	//     	- FIELD_SHAPE_CIRCLE, as they are in the same order
 	//		- the demo display drawing mode 
@@ -277,107 +248,6 @@ class myView
 	// ' = 96 = moon
 	// a = 97 = mountain
 	
-	//enum
-	//{
-	//	STATUS_ALWAYSON = 0,
-	//	STATUS_GLANCE_ON = 1,
-	//	STATUS_GLANCE_OFF = 2,
-	//	STATUS_DONOTDISTURB_ON = 3,
-	//	STATUS_DONOTDISTURB_OFF = 4,
-	//	STATUS_ALARM_ON = 5,
-	//	STATUS_ALARM_OFF = 6,
-	//	STATUS_NOTIFICATIONS_PENDING = 7,
-	//	STATUS_NOTIFICATIONS_NONE = 8,
-	//	STATUS_PHONE_CONNECTED = 9,
-	//	STATUS_PHONE_NOT = 10,
-	//	STATUS_LTE_CONNECTED = 11,
-	//	STATUS_LTE_NOT = 12,
-	//	STATUS_BATTERY_HIGHORMEDIUM = 13,
-	//	STATUS_BATTERY_HIGH = 14,
-	//	STATUS_BATTERY_MEDIUM = 15,
-	//	STATUS_BATTERY_LOW = 16,
-	//	STATUS_MOVEBARALERT_TRIGGERED = 17,
-	//	STATUS_MOVEBARALERT_NOT = 18,
-	//	STATUS_AM = 19,
-	//	STATUS_PM = 20,
-	//	STATUS_2ND_AM = 21,
-	//	STATUS_2ND_PM = 22,
-	//	STATUS_SUNEVENT_RISE = 23,
-	//	STATUS_SUNEVENT_SET = 24,
-	//
-	//	STATUS_NUM = 25
-	//}
-	
-	//enum
-	//{
-    //	FIELD_EMPTY = 0,
-	//
-    //	FIELD_HOUR = 1,
-    //	FIELD_MINUTE = 2,
-    //	FIELD_DAY_NAME = 3,
-	//	FIELD_DAY_OF_WEEK = 4,
-	//	FIELD_DAY_OF_MONTH = 5,
-	//	FIELD_DAY_OF_MONTH_XX = 6,
-	//	FIELD_DAY_OF_YEAR = 7,
-	//	FIELD_DAY_OF_YEAR_XXX = 8,
-	//	FIELD_MONTH_NAME = 9,
-	//	FIELD_MONTH_OF_YEAR = 10,
-	//	FIELD_MONTH_OF_YEAR_XX = 11,
-	//	FIELD_YEAR_XX = 12,
-	//	FIELD_YEAR_XXXX = 13,
-	//	FIELD_WEEK_ISO_XX = 14,
-	//	FIELD_WEEK_ISO_WXX = 15,
-	//	FIELD_YEAR_ISO_WEEK_XXXX = 16,
-	//	FIELD_WEEK_CALENDAR_XX = 17,
-	//	FIELD_YEAR_CALENDAR_WEEK_XXXX = 18,
-	//	FIELD_AM = 19,
-	//	FIELD_PM = 20,
-	//	FIELD_A = 21,
-	//	FIELD_P = 22,
-	//
-	//	FIELD_SEPARATOR_SPACE = 23,
-	//	//!FIELD_SEPARATOR_SLASH_FORWARD = 24,
-	//	//!FIELD_SEPARATOR_SLASH_BACK = 25,
-	//	//!FIELD_SEPARATOR_COLON = 26,
-	//	//!FIELD_SEPARATOR_MINUS = 27,
-	//	//!FIELD_SEPARATOR_DOT = 28,
-	//	//!FIELD_SEPARATOR_COMMA = 29,
-	//	FIELD_SEPARATOR_PERCENT = 30,
-	//
-	//	FIELD_STEPSCOUNT = 31,
-	//	FIELD_STEPSGOAL = 32,
-	//	FIELD_FLOORSCOUNT = 33,
-	//	FIELD_FLOORSGOAL = 34,
-	//	FIELD_NOTIFICATIONSCOUNT = 35,
-	//	FIELD_BATTERYPERCENTAGE = 36,
-	//
-	//	FIELD_HEART_MIN = 37
-	//	FIELD_HEART_MAX = 38
-	//	FIELD_HEART_AVERAGE = 39
-	//	FIELD_HEART_LATEST = 40
-	//	FIELD_SUNRISE_HOUR = 41,
-	//	FIELD_SUNRISE_MINUTE = 42,
-	//	FIELD_SUNSET_HOUR = 43,
-	//	FIELD_SUNSET_MINUTE = 44,
-	//	FIELD_SUNEVENT_HOUR = 45,
-	//	FIELD_SUNEVENT_MINUTE = 46,
-	//	FIELD_2ND_HOUR = 47,
-	//	FIELD_CALORIES = 48,
-	//	FIELD_ACTIVE_CALORIES = 49,
-	//	FIELD_INTENSITY = 50,
-	//	FIELD_INTENSITY_GOAL = 51,
-	//	FIELD_SMART_GOAL = 52,
-	//	FIELD_DISTANCE = 53,
-	//	FIELD_DISTANCE_UNITS = 54,
-	//	FIELD_PRESSURE = 55,
-	//	FIELD_PRESSURE_UNITS = 56,
-	//	FIELD_ALTITUDE = 57,
-	//	FIELD_ALTITUDE_UNITS = 58,
-	//
-//	//	FIELD_HEART_BARS = 80
-//	//	FIELD_HEART_AXES = 81
-//	//	FIELD_MOVEBAR = 37,
-//	//
 //	//	FIELD_SHAPE_CIRCLE = 41,
 //	//	//!FIELD_SHAPE_CIRCLE_SOLID = 42,
 //	//	//!FIELD_SHAPE_ROUNDED = 43,
@@ -411,10 +281,38 @@ class myView
 //	//	//!FIELD_SHAPE_SUN = 71,
 //	//	//!FIELD_SHAPE_MOON = 72,
 //	//	//!FIELD_SHAPE_MOUNTAIN = 73,
+
+	//enum
+	//{
+	//	STATUS_ALWAYSON = 0,
+	//	STATUS_GLANCE_ON = 1,
+	//	STATUS_GLANCE_OFF = 2,
+	//	STATUS_DONOTDISTURB_ON = 3,
+	//	STATUS_DONOTDISTURB_OFF = 4,
+	//	STATUS_ALARM_ON = 5,
+	//	STATUS_ALARM_OFF = 6,
+	//	STATUS_NOTIFICATIONS_PENDING = 7,
+	//	STATUS_NOTIFICATIONS_NONE = 8,
+	//	STATUS_PHONE_CONNECTED = 9,
+	//	STATUS_PHONE_NOT = 10,
+	//	STATUS_LTE_CONNECTED = 11,
+	//	STATUS_LTE_NOT = 12,
+	//	STATUS_BATTERY_HIGHORMEDIUM = 13,
+	//	STATUS_BATTERY_HIGH = 14,
+	//	STATUS_BATTERY_MEDIUM = 15,
+	//	STATUS_BATTERY_LOW = 16,
+	//	STATUS_MOVEBARALERT_TRIGGERED = 17,
+	//	STATUS_MOVEBARALERT_NOT = 18,
+	//	STATUS_AM = 19,
+	//	STATUS_PM = 20,
+	//	STATUS_2ND_AM = 21,
+	//	STATUS_2ND_PM = 22,
+	//	STATUS_SUNEVENT_RISE = 23,
+	//	STATUS_SUNEVENT_SET = 24,
 	//
-	//	//!FIELD_UNUSED
+	//	STATUS_NUM = 25
 	//}
-	
+		
 	var colorArray = new[64]b;
 
 	const COLOR_NOTSET = -1;	// just used in the code to indicate no color set
@@ -549,47 +447,6 @@ class myView
 //		return index;
 //	}
 
-	//enum
-	//{
-	//	SECONDFONT_TRI = 0,
-	//	//!SECONDFONT_V = 1,
-	//	//!SECONDFONT_LINE = 2,
-	//	//!SECONDFONT_LINETHIN = 3,
-	//	//!SECONDFONT_CIRCULAR = 4,
-	//	//!SECONDFONT_CIRCULARTHIN = 5,
-	//	SECONDFONT_TRI_IN = 6,
-	//	//!SECONDFONT_V_IN = 7,
-	//	//!SECONDFONT_LINE_IN = 8,
-	//	//!SECONDFONT_LINETHIN_IN = 9,
-	//	//!SECONDFONT_CIRCULAR_IN = 10,
-	//	//!SECONDFONT_CIRCULARTHIN_IN = 11,
-	//	SECONDFONT_UNUSED = 12
-	//}
-
-	//var secondsX = [120, 132, 143, 155, 166, 176, 186, 195, 203, 211, 217, 222, 227, 230, 231, 232, 231, 230, 227, 222, 217, 211, 203, 195, 186, 176, 166, 155, 143, 132, 120, 108, 97, 85, 74, 64, 54, 45, 37, 29, 23, 18, 13, 10, 9, 8, 9, 10, 13, 18, 23, 29, 37, 45, 54, 64, 74, 85, 97, 108, 120, 131, 142, 153, 164, 174, 183, 192, 200, 207, 214, 219, 223, 226, 227, 228, 227, 226, 223, 219, 214, 207, 200, 192, 183, 174, 164, 153, 142, 131, 120, 109, 98, 87, 76, 66, 57, 48, 40, 33, 26, 21, 17, 14, 13, 12, 13, 14, 17, 21, 26, 33, 40, 48, 57, 66, 76, 87, 98, 109]b;
-	//var secondsY = [7, 8, 9, 12, 17, 22, 28, 36, 44, 53, 63, 73, 84, 96, 107, 119, 131, 142, 154, 165, 175, 185, 194, 202, 210, 216, 221, 226, 229, 230, 231, 230, 229, 226, 221, 216, 210, 202, 194, 185, 175, 165, 154, 142, 131, 119, 107, 96, 84, 73, 63, 53, 44, 36, 28, 22, 17, 12, 9, 8, 11, 12, 13, 16, 20, 25, 32, 39, 47, 56, 65, 75, 86, 97, 108, 119, 130, 141, 152, 163, 173, 182, 191, 199, 206, 213, 218, 222, 225, 226, 227, 226, 225, 222, 218, 213, 206, 199, 191, 182, 173, 163, 152, 141, 130, 119, 108, 97, 86, 75, 65, 56, 47, 39, 32, 25, 20, 16, 13, 12]b;
-	//var secondsX = new[60*2]b;
-	//var secondsY = new[60*2]b;
-	//!const secondsString = "\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f" +					// 11
-	//	"\u0020\u0021\u0022\u0023\u0024\u0025\u0026\u0027\u0028\u0029\u002a\u002b\u002c\u002d\u002e\u002f" +		// 27
-	//	"\u0030\u0031\u0032\u0033\u0034\u0035\u0036\u0037\u0038\u0039\u003a\u003b\u003c\u003d\u003e\u003f" +		// 43
-	//	"\u0040\u0041\u0042\u0043\u0044\u0045\u0046\u0047\u0048\u0049\u004a\u004b\u004c\u004d\u004e\u004f" +		// 59
-	//	"\u0050";																									// 60
-	
-	//const SCREEN_CENTRE_X = 120;
-	//const SCREEN_CENTRE_Y = 120;
-	
-//	<!-- seconds buffer values (bufferSeconds, bufferPosX, bufferPosY) -->
-//	[   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ],
-//	[ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ],
-//	[ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ]
-//    var bufferSeconds;
-//    var bufferPosX;
-//    var bufferPosY;
-    //var bufferValues = new[36]b;
-
-	//var characterString;
-
 	//var circleFont;
 	//var ringFont;
 
@@ -614,50 +471,6 @@ class myView
 	{
 		return ((v != null) ? v : 0);
 	}
-
-	//enum
-	//{
-	//	//!APPFONT_ULTRA_LIGHT = 0,
-	//	//!APPFONT_EXTRA_LIGHT = 1,
-	//	//!APPFONT_LIGHT = 2,
-	//	APPFONT_REGULAR = 3,
-	//	//!APPFONT_BOLD = 4,
-	//	APPFONT_HEAVY = 5,			// our custom number fonts are assumed to be at the top of this enum
-	//	
-	//	APPFONT_ULTRA_LIGHT_TINY = 6,
-	//	//!APPFONT_EXTRA_LIGHT_TINY = 7,
-	//	//!APPFONT_LIGHT_TINY = 8,
-	//	//!APPFONT_REGULAR_TINY = 9,
-	//	//!APPFONT_BOLD_TINY = 10,
-	//	//!APPFONT_HEAVY_TINY = 11,
-	//	
-	//	//!APPFONT_ULTRA_LIGHT_SMALL = 12,
-	//	//!APPFONT_EXTRA_LIGHT_SMALL = 13,
-	//	//!APPFONT_LIGHT_SMALL = 14,
-	//	APPFONT_REGULAR_SMALL = 15,
-	//	//!APPFONT_BOLD_SMALL = 16,
-	//	//!APPFONT_HEAVY_SMALL = 17,
-	//	
-	//	//!APPFONT_ULTRA_LIGHT_MEDIUM = 18,
-	//	//!APPFONT_EXTRA_LIGHT_MEDIUM = 19,
-	//	//!APPFONT_LIGHT_MEDIUM = 20,
-	//	//!APPFONT_REGULAR_MEDIUM = 21,
-	//	//!APPFONT_BOLD_MEDIUM = 22,
-	//	//!APPFONT_HEAVY_MEDIUM = 23,
-	//
-	//	APPFONT_SYSTEM_XTINY = 24,
-	//	APPFONT_SYSTEM_TINY = 25,
-	//	//!APPFONT_SYSTEM_SMALL = 26,
-	//	//!APPFONT_SYSTEM_MEDIUM = 27,
-	//	APPFONT_SYSTEM_LARGE = 28,
-	//
-	//	//!APPFONT_SYSTEM_NUMBER_NORMAL = 29,	// FONT_SYSTEM_NUMBER_MILD 
-	//	//!APPFONT_SYSTEM_NUMBER_MEDIUM = 30,	// FONT_SYSTEM_NUMBER_MEDIUM 
-	//	//!APPFONT_SYSTEM_NUMBER_LARGE = 31,		// FONT_SYSTEM_NUMBER_HOT 
-	//	//!APPFONT_SYSTEM_NUMBER_HUGE = 32,		// FONT_SYSTEM_NUMBER_THAI_HOT 
-	//
-	//	APPFONT_NUMBER_OF_FONTS = 33
-	//}
 
 	// custom time font ascii characters:
 	// 48-57 = 0-9
@@ -1546,63 +1359,6 @@ class myView
 		}
 	}
 		
-//	// forceChange is set to true when either the settings have been changed by the user or a new profile has loaded
-//	// - in these situations if any of the demo settings flags are set then we need to set the relevant properties straight away
-//	function checkDemoSettings(index, forceChange)
-//	{
-//		var changed = false;
-//        
-//        if (propDemoFontStylesOn /*|| forceDemoFontStyles*/)		// demo font styles on
-//        {
-//	        if ((index%3)==0 || forceChange)
-//	        { 
-//	        	var index3 = index/3;
-//	        
-//				propTimeHourFont = ((index3/6)%6);		// time hour font
-//				propTimeMinuteFont = (index3%6);			// time minute font
-//				propTimeItalic = (((index3/36)%2)==1); // && (propTimeHourFont<=5/*APPFONT_HEAVY*/) && (propTimeMinuteFont<=5/*APPFONT_HEAVY*/));		// italic
-//		
-//		    	propFieldFont = (6/*APPFONT_ULTRA_LIGHT_TINY*/ + (6*(index3%3)) + ((index3/3)%6));		// field font & weight
-//		
-//		    	changed = true;
-//		    }
-//		}
-//			    
-//        if (propDemoSecondStylesOn)		// demo second styles on
-//        {
-//	        if ((index%3)==0 || forceChange)
-//	        { 
-//		    	propSecondIndicatorStyle = ((index/3)%6/*SECONDFONT_TRI_IN*/) + (propSecondMoveInABit ? 6/*SECONDFONT_TRI_IN*/ : 0);		// second indicator style - cycles every 18
-//		
-//		    	changed = true;
-//		    }
-//
-//			// 0, 1, 2, 3 -> 2/*REFRESH_ALTERNATE_MINUTES*/
-//			// 4, 5, 6, 7 -> 0/*REFRESH_EVERY_SECOND*/
-//			// 8, 9, 10 -> 1/*REFRESH_EVERY_MINUTE*/
-//        	// prime number to be out of sync with indicator style
-//			propSecondRefreshStyle = (((index%11)/4 + 2)%3);		// second refresh style
-//
-////        	var srs = index%11;		// prime number to be out of sync with indicator style
-////        	if (srs<3)		// 0, 1, 2
-////        	{
-////        		srs = 1/*REFRESH_EVERY_MINUTE*/;
-////        	}
-////        	else if (srs<7)	// 3, 4, 5, 6
-////        	{
-////        		srs = 2/*REFRESH_ALTERNATE_MINUTES*/;
-////        	}
-////        	else			// 7, 8, 9, 10
-////        	{
-////        		srs = 0/*REFRESH_EVERY_SECOND*/;
-////        	}
-////	    	properties.setValue("12", srs);		// second refresh style
-//	    	//changed = true;	don't need to set changed for this
-//		}
-//			    
-//	    return changed;
-//	}
-	
     function formatHourForDisplayString(h, is24Hour, addLeadingZero)
     {
         // 12 or 24 hour, and check for adding a leading zero
@@ -1626,11 +1382,11 @@ class myView
     	return (visibilityStatus[eVisible]!=null && visibilityStatus[eVisible]);
     }
     
-//    function printMem(s)
-//    {
-//    	var stats = System.getSystemStats();
+//	function printMem(s)
+//	{
+//		var stats = System.getSystemStats();
 //		System.println("free=" + stats.freeMemory + " " + s);
-//    }
+//	}
     
     // Update the view
     function onUpdate(dc)
@@ -1656,18 +1412,6 @@ class myView
 
         //View.onUpdate(dc);        // Call the parent onUpdate function to redraw the layout
 
-        //if (minute == updateLastMin && second == updateLastSec)
-        //{
-        //	//System.println("multiple onUpdate");
-        //	return;
-        //}
-		//
-		//if ((onOrGlanceActive&ITEM_ONGLANCE)==0)		// if not during glance
-		//{        
-	    //    updateLastSec = second;
-	    //    updateLastMin = minute;
-	    //}
-	    
 		//System.println("update rest sec=" + second);
 
 		if (settingsHaveChanged || firstUpdateSinceInitialize)
@@ -1812,8 +1556,6 @@ class myView
 
 	function drawBackgroundToDc(useDc)
 	{ 
-//		var graphics = Graphics;
-	
 		var dcX;
 		var dcY;
 
@@ -1836,9 +1578,6 @@ class myView
 			dcY = 0;
 		}
 
-//		var dcWidth = useDc.getWidth();
-//		var dcHeight = useDc.getHeight();
-
     	// reset to the background color
 		useDc.clearClip();
 	    useDc.setColor(-1/*COLOR_TRANSPARENT*/, propBackgroundColor);
@@ -1853,148 +1592,7 @@ class myView
 		{
 			gfxDrawBackground(useDc, dcX, dcY, toBuffer);
 		}
-
-//		if (propDemoDisplayOn)
-//		{
-////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
-////	   		if (fontTimeHourResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
-////	   		{
-////				useDc.drawText(120 - dcX, 120 - 105 - dcY, fontTimeHourResource, "012", graphics.TEXT_JUSTIFY_CENTER);
-////				useDc.drawText(120 - dcX, 120 - 35 - dcY, fontTimeHourResource, "3456", graphics.TEXT_JUSTIFY_CENTER);
-////				useDc.drawText(120 - dcX, 120 + 35 - dcY, fontTimeHourResource, "789:", graphics.TEXT_JUSTIFY_CENTER);
-////			}
-//
-////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
-////	   		if (fontFieldResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
-////	   		{
-////				//useDc.drawText(120 - dcX, 120 - 120 - dcY, fontFieldResource, " I:I1%", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 - 95 - dcY, fontFieldResource, "2345678", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 - 70 - dcY, fontFieldResource, "9-0\\/A.B,CD", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 - 45 - dcY, fontFieldResource, "EFGHIJKLMNO", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 - 20 - dcY, fontFieldResource, "PQRSTUVWXYZ", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 + 10 - dcY, fontFieldResource, "ÁÚÄÅÇÉÌÍÓÖØ", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 + 40 - dcY, fontFieldResource, "ÛÜÝĄČĚĽŁŃ", graphics.TEXT_JUSTIFY_CENTER);
-////				//useDc.drawText(120 - dcX, 120 + 70 - dcY, fontFieldResource, "ŐŘŚŠŹŽ​", graphics.TEXT_JUSTIFY_CENTER);
-////
-////	   			var yOffsets = [-120, -95, -70, -45, -20, 10, 40, 70];
-////	   			var sArray = [" I:I1%", "2345678", "9-0\\/A.B,CD", "EFGHIJKLMNO", "PQRSTUVWXYZ", "ÁÚÄÅÇÉÌÍÓÖØ", "ÛÜÝĄČĚĽŁŃ", "ŐŘŚŠŹŽ​"];
-////
-////				for (var i=0; i<sArray.size(); i++)
-////				{
-////					var charArray = sArray[i].toCharArray();
-////					
-////					// calculate total width first
-////					var totalWidth = 0;
-////					for (var j=0; j<charArray.size(); j++)
-////					{
-////						var c = getMyCharDiacritic(charArray[j]);
-////	        			totalWidth += useDc.getTextWidthInPixels(c[0].toString(), fontFieldResource);
-////					}
-////					
-////					// draw each character + any diacritic
-////					var xOffset = 0;
-////					for (var j=0; j<charArray.size(); j++)
-////					{
-////						var c = getMyCharDiacritic(charArray[j]);						
-////						useDc.drawText(120 - dcX - totalWidth/2 + xOffset, 120 - dcY + yOffsets[i], fontFieldResource, c[0].toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-////		    			if (c[1]>700)
-////		    			{
-////							useDc.drawText(120 - dcX - totalWidth/2 + xOffset, 120 - dcY + yOffsets[i], fontFieldResource, c[1].toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-////		    			}
-////						xOffset += useDc.getTextWidthInPixels(c[0].toString(), fontFieldResource);
-////					}
-////				}
-////			}
-// 
-// 			// draw demo grid of all colors
-//			for (var i=-3; i<3; i++)
-//			{
-//				var y = 130 + i * 20 - dcY;
-//				if (y<=dcHeight && (y+20)>=0)
-//				{
-//					for (var j=-5; j<5; j++)
-//					{
-//						var x = 120 + j * 20 - dcX;
-//						if (x<=dcWidth && (x+20)>=0)
-//						{
-//				   			useDc.setColor(getColor64(4 + (i+3) + (j+5)*6), -1/*COLOR_TRANSPARENT*/);
-//							useDc.drawText(x, y, iconsFontResource, "F", 2/*TEXT_JUSTIFY_LEFT*/);	// solid squares
-//						}
-//					}
-//				}
-//			}
-//
-//			// draw demo grid of all shapes & icons
-//	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
-//
-//			var x = 120 - dcX;
-//			var y;
-//			
-//			var iconStrings = ["ACEGKI", "BDFHLJ", "NMPOYWRS", "QTVX", "[Z\\]^_`aU"];		// 60 code bytes to initialise
-//			//var iconOffsets = [180, 200, 40, 20];		// 60 code bytes to initialise
-//				
-//			for (var i=0; i<5; i++)
-//			{
-//				//y = iconOffsets[i] - dcY;
-//				y = (((0xBEl | (0xD2l<<8) | (0x1El<<16) | (0x0Al<<24) | (0x32l<<32))>>(i*8))&0xFF) - dcY;
-//				if (y<=dcHeight && (y+20)>=0)
-//				{
-//					useDc.drawText(x, y, iconsFontResource, iconStrings[i], 1/*TEXT_JUSTIFY_CENTER*/);
-//				}
-//			}
-//		}
 	}
-
-//    (:m2face)
-//	function drawBuffer2(secondsIndex, dc)
-//	{
-//						  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
-//	    //var bufferSeconds = [   0,   5,  11,  15,  20,  26,  30,  35,  41,  45,  50,  56 ];
-//	    
-//	    var doUpdate = (bufferPositionCounter < 0);	// if no buffer yet
-//	    
-//	    if (!doUpdate)
-//	    {
-//			// see if need to redraw the offscreen buffer (if clearIndex is outside it)
-//			var bufferSecondsStart = bufferValues[bufferPositionCounter];						// current start of range in offscreen buffer
-//	    	var bufferNext = (bufferPositionCounter + 1)%12;
-//		    var bufferSecondsNextMinusOne = (bufferValues[bufferNext] + 59)%60;		// current end of range in offscreen buffer - do it this way to handle when end is 0
-//
-//			doUpdate = (secondsIndex<bufferSecondsStart || secondsIndex>bufferSecondsNextMinusOne);		// outside current range
-//		}
-//
-//	    if (doUpdate)
-//	    {
-//			// find buffer which contains the indicator for specified second
-//			var useIndex = -1;
-//			for (var i=12-1; i>=0; i--)
-//			{
-//				if (secondsIndex>=bufferValues[i])
-//				{
-//					useIndex = i;
-//					break;
-//				}
-//			}
-//			
-//			if (useIndex>=0)
-//			{
-//								  	// t2   tr   r1   r2   br   b1   b2   bl   l1   l2   tl   t1
-//			    //var bufferPosX =    [ 112, 166, 211, 211, 166, 120,  66,  12, -33, -33,  12,  59 ];
-//			    //var bufferPosY =    [ -33,  12,  59, 111, 165, 210, 210, 165, 120,  65,  12, -33 ];		// 160 bytes of code to initialize
-//
-//				bufferPositionCounter = useIndex;		// set the buffer we are using
-//				bufferX = bufferValues[useIndex + 12] - 40;
-//				bufferY = bufferValues[useIndex + 24] - 40;
-//				
-//				drawBackgroundToDc(null);
-//	
-//				// test draw the offscreen buffer to see what is in it
-//		    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
-//				//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
-//		    	//dc.clearClip();
-//			}
-//		}
-//	}
 
     (:m2face)
 	function drawBuffer(secondsIndex, dc)
@@ -2165,31 +1763,6 @@ class myView
 	    	}
 	    }
     
-//    	// test drawing one or 2 values to screen for speed
-//		var dynamicResource = getDynamicResource(2);
-//		if (dynamicResource!=null)
-//		{
-////			dc.setClip(50, 50, 30, 40);		
-////	    	dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-////	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
-////        	dc.drawText(50, 50, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
-//
-//			dc.setClip(50, 50, 30, 40);		
-//	    	dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-//	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
-//        	dc.drawText(50, 50, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
-//
-////			dc.setClip(150, 50, 30, 40);		
-////	    	dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-////	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
-////        	dc.drawText(150, 50, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
-//
-////			dc.setClip(50, 200, 30, 40);		
-////	    	dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-////	    	//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_RED);
-////        	dc.drawText(50, 200, dynamicResource, "8", 2/*TEXT_JUSTIFY_LEFT*/);
-//		}    	
-    
 		if (propSecondIndicatorOn)
 		{ 
 	 		// it seems as though occasionally onPartialUpdate can skip a second
@@ -2216,14 +1789,16 @@ class myView
     function doPartialUpdateSec(dc, secondsIndex, minuteIndex)
     {
     	if (secondsIndex!=lastPartialUpdateSec)		// check whether everything is up to date already (from doUpdate)
-    	{		
+    	{
+    		var refreshAlternateClearing = (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minuteIndex%2)==1);
+    	
  			var clearIndex;
 	    	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
 	    	{
 	        	// Clear the previous second indicator we drew and restore the background
         		clearIndex = (propSecondAligned ? lastPartialUpdateSec : (lastPartialUpdateSec+59)%60); 
 	    	}
-	    	else if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minuteIndex%2)==1)
+	    	else if (refreshAlternateClearing)
 	    	{
 	        	clearIndex = (propSecondAligned ? secondsIndex : (secondsIndex-1));
 			}
@@ -2254,28 +1829,27 @@ class myView
 					//{
 						dc.drawBitmap(bufferX, bufferY, bufferBitmap);
 					//}
+
+					if (refreshAlternateClearing)
+					{
+						// redraw the indicator following the one we just cleared
+						// as some of it might have been erased
+						// - but need to keep using the clip region we used for the erase above
+						var nextIndex = (clearIndex+1)%60; 
+						drawSecond(dc, nextIndex, nextIndex);
+			
+						// in this mode we also always draw the indicator at 0
+						// - so check if that needs redrawing too after erasing the indicator at 1
+						if (propSecondAligned && clearIndex==1)
+						{
+							drawSecond(dc, 0, 0);
+						}
+					}
 		       	}
 			}
 			
-			if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minuteIndex%2)==1)
-			{
-		        if (clearIndex>=0)
-		        {
-					// redraw the indicator following the one we just cleared
-					// as some of it might have been erased
-					// - but need to keep using the clip region we used for the erase above
-					var nextIndex = (clearIndex+1)%60; 
-					drawSecond(dc, nextIndex, nextIndex);
-		
-					// in this mode we also always draw the indicator at 0
-					// - so check if that needs redrawing too after erasing the indicator at 1
-					if (propSecondAligned && clearIndex==1)
-					{
-						drawSecond(dc, 0, 0);
-					}
-				}
-			}
-			else
+			// now draw the correct second
+			if (!refreshAlternateClearing)
 			{
         		var s = (propSecondAligned ? secondsIndex : (secondsIndex+59)%60); 
     			setSecondClip(dc, s);
@@ -3368,10 +2942,22 @@ class myView
 	// 11 = seconds
 
 	var gfxNum = 0;
-	var gfxData = new[512];
+	var gfxData = new[500];
 
-	var gfxCharArray = new[256];
+	(:m2app)
+	function getUsedGfxData()
+	{
+		return gfxNum/500.0;
+	}
+
+	var gfxCharArray = new[200];
 	var gfxCharArrayLen = 0;
+
+	(:m2app)
+	function getUsedCharArray()
+	{
+		return gfxCharArrayLen/200.0;
+	}
 
 	function valEncodeChar(v)
 	{
@@ -3597,62 +3183,16 @@ class myView
 		return (gfxData[index] & 0xFF);
 	}
 
-	// size and saveSize
-//	var gfxSizeArray = [
-//			10, 10,		// header
-//			6, 4,		// field
-//			7, 3,		// hour large
-//			7, 3,		// minute large
-//			7, 3,		// colon large
-//			7, 4,		// string
-//			6, 4,		// icon
-//			11, 9,		// movebar
-//			5, 4,		// chart
-//			6, 6,		// rectangle
-//			8, 7,		// ring
-//			7, 7,		// seconds
-//		]b;
-
 	var gfxSizeArray = new[24]b;
 
 	function gfxSize(id)
 	{
 		return ((id<0 || id>11) ? 0 : gfxSizeArray[id*2]); 
-	
-//		return [
-//			10,		// header
-//			6,		// field
-//			7,		// hour large
-//			7,		// minute large
-//			7,		// colon large
-//			7,		// string
-//			6,		// icon
-//			11,		// movebar
-//			5,		// chart
-//			6,		// rectangle
-//			8,		// ring
-//			7,		// seconds
-//		]b[id];
 	}
 
 	function gfxSizeSave(id)
 	{
 		return ((id<0 || id>11) ? 0 : gfxSizeArray[id*2 + 1]);
-
-//		return [
-//			10,		// header
-//			4,		// field
-//			3,		// hour large
-//			3,		// minute large
-//			3,		// colon large
-//			4,		// string
-//			4,		// icon
-//			9,		// movebar
-//			4,		// chart
-//			6,		// rectangle
-//			7,		// ring
-//			7,		// seconds
-//		][id];
 	}
 
 	function gfxInsert(index, id)
@@ -3695,23 +3235,33 @@ class myView
 	}
 
 	// seconds, ring, hour, minute, icon, field
-	const MAX_DYNAMIC_RESOURCES = 16;
+	const MAX_DYNAMIC_RESOURCES = 40;
 	const BUFFER_RESOURCE = 0x8FFFFFFF;
 	
 	var dynResNum = 0;
 	var dynResList = new[MAX_DYNAMIC_RESOURCES];
 	var dynResResource = new[MAX_DYNAMIC_RESOURCES];
 
+	(:m2app)
+	function getUsedDynamicResourceNum()
+	{
+		return dynResNum/MAX_DYNAMIC_RESOURCES.toFloat();
+	}
+
+	(:m2app)
+	function getUsedResourceMemory()
+	{
+		return 0;
+	}
+
 	function addDynamicResource(r)
 	{
-		for (var i=0; i<dynResNum; i++)
+		var i = dynResList.indexOf(r);
+		if (i>=0)
 		{
-			if (r==dynResList[i])
-			{
-				return i;
-			}
+			return i;
 		}
-		
+	
 		if (dynResNum < MAX_DYNAMIC_RESOURCES)
 		{
 			dynResList[dynResNum] = r;
@@ -3727,6 +3277,7 @@ class myView
     {
 		for (var i=0; i<dynResNum; i++)
 		{
+			dynResList[i] = null;
 			dynResResource[i] = null;
 		}
 		
@@ -6281,8 +5832,8 @@ class myEditorView extends myView
 			gfxData[index+3] = 0;	// start
 			gfxData[index+4] = 59;	// end
 			gfxData[index+5] = 3+1;	// color filled
-			gfxData[index+6] = 0;	// color value
-			gfxData[index+7] = 0+1;	// color unfilled
+			gfxData[index+6] = COLOR_NOTSET+1;	// color value
+			gfxData[index+7] = COLOR_NOTSET+1;	// color unfilled
 			// start fill, end fill & no fill flag
 			// xy array resource index
 
@@ -6310,41 +5861,6 @@ class myEditorView extends myView
 		return index;
 	}
 
-//	function gfxDemo()
-//	{
-//		propAddLeadingZero = false;
-//
-//		gfxCharArrayLen = 0;
-//
-//		gfxNum = 0;
-//		
-//		gfxAddHeader(gfxNum);	// header	
-//
-//		gfxAddField(gfxNum);	// field	
-//		gfxAddHourLarge(gfxNum);	// large hour 
-//		gfxAddColonLarge(gfxNum);	// large colon
-//		gfxAddMinuteLarge(gfxNum);	// large minute
-//
-//		gfxAddField(gfxNum);	// field
-//		gfxAddString(gfxNum, 3/*FIELD_DAY_NAME*/);	// string
-//		//gfxAddIcon(gfxNum, 0);	// icon
-//		gfxAddMoveBar(gfxNum);	// movebar
-//		//gfxAddChart(gfxNum);	// chart
-//
-//		gfxAddField(gfxNum);	// field
-//		gfxAddRing(gfxNum);		// ring
-//
-//		gfxAddRectangle(gfxNum);	// rectangle
-//
-//		gfxAddSeconds(gfxNum);	// seconds
-//
-//		//gfxToCharArray();
-//		//System.println("array=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
-//		//gfxFromCharArray();
-//		//gfxToCharArray();
-//		//System.println("arra2=" + StringUtil.charArrayToString(gfxCharArray.slice(0, gfxCharArrayLen)));
-//	}
-	
 	function gfxDelete(index)
 	{
 		var id = getGfxId(index);
@@ -6600,6 +6116,13 @@ class myEditorView extends myView
     	return false;
     }    
 
+	var lastProfileStringLength = 0;
+	
+	function getUsedProfileStringLength()
+	{
+		return lastProfileStringLength/510.0; 
+	}
+	
 	function copyGfxToPropertyString()
 	{
 		var charArray = gfxToCharArray();
@@ -6607,6 +6130,12 @@ class myEditorView extends myView
 		if (s!=null)
 		{
 			applicationProperties.setValue("EP", s);
+
+			lastProfileStringLength = s.length();
+		}
+		else
+		{
+			lastProfileStringLength = 0;
 		}
 	}
 
@@ -6627,6 +6156,12 @@ class myEditorView extends myView
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
+    	if (true)
+    	{
+    		// make sure "EP" is up to date at the end of every frame!
+    		copyGfxToPropertyString();
+		}
+
 		//drawAbc(dc);
 
     	if (isColorEditing() && (colorEditingMode>=1 && colorEditingMode<=3))
@@ -6636,15 +6171,50 @@ class myEditorView extends myView
     	
     	if (!isColorEditing() || (colorEditingMode<=1))
 		{
-	    	menuItem.draw(dc);    	// then draw any menus on top
-		}
-		
-    	if (true)
-    	{
-    		// make sure "EP" is up to date at the end of every frame!
-    		copyGfxToPropertyString();
+	    	var x = (displaySize*25)/240;
+	    	var y = (displaySize*50)/240;
+	
+	    	menuItem.draw(dc, x, y);    	// then draw any menus on top
+	    	
+	    	drawMemory(dc, x, y);	// draw a memory indicator
 		}
     }
+
+	function drawMemory(dc, x, y)
+	{
+		var usedProfileStringLength = getUsedProfileStringLength();
+		var usedGfxData = getUsedGfxData();
+		var usedCharArray = getUsedCharArray();
+		var usedDynamicResourceNum = getUsedDynamicResourceNum();
+		var usedResourceMemory = getUsedResourceMemory();
+
+		var w = displaySize*0.4;
+		var h = 4;
+
+		//x = x + 42;
+		x = displayHalf - w/2;
+		
+		y = y - displaySize/9;
+
+		drawMemoryBar(dc, x, y-(h-1)*4, w, h, usedProfileStringLength);
+		drawMemoryBar(dc, x, y-(h-1)*3, w, h, usedGfxData);
+		drawMemoryBar(dc, x, y-(h-1)*2, w, h, usedCharArray);
+		drawMemoryBar(dc, x, y-(h-1), w, h, usedDynamicResourceNum);
+		drawMemoryBar(dc, x, y, w, h, usedResourceMemory);
+	}
+
+	function drawMemoryBar(dc, x, y, w, h, frac)
+	{
+		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+		dc.setPenWidth(1);		  
+		dc.drawRectangle(x, y, w, h);
+
+		var w2 = (w-2)*frac;
+		dc.fillRectangle(x+1, y+1, w2, h-2);
+
+		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+		dc.fillRectangle(x+1+w2, y+1, w-2-w2, h-2);
+	}
 
 	function gfxFieldHighlight(dc, index, x, y, w, h)
 	{
@@ -6753,6 +6323,14 @@ class myEditorView extends myView
 		return safeStringFromJsonData(Rez.JsonData.id_colorStrings, -1, colorNum);
 	}
 
+////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
+////	   		if (fontTimeHourResource!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
+////	   		{
+////				useDc.drawText(120 - dcX, 120 - 105 - dcY, fontTimeHourResource, "012", graphics.TEXT_JUSTIFY_CENTER);
+////				useDc.drawText(120 - dcX, 120 - 35 - dcY, fontTimeHourResource, "3456", graphics.TEXT_JUSTIFY_CENTER);
+////				useDc.drawText(120 - dcX, 120 + 35 - dcY, fontTimeHourResource, "789:", graphics.TEXT_JUSTIFY_CENTER);
+////			}
+
 //	function drawAbc(dc)
 //	{
 //		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
@@ -6802,6 +6380,25 @@ class myEditorView extends myView
 //		}
 //	}
 	
+//			// draw demo grid of all shapes & icons
+//	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
+//
+//			var x = 120 - dcX;
+//			var y;
+//			
+//			var iconStrings = ["ACEGKI", "BDFHLJ", "NMPOYWRS", "QTVX", "[Z\\]^_`aU"];		// 60 code bytes to initialise
+//			//var iconOffsets = [180, 200, 40, 20];		// 60 code bytes to initialise
+//				
+//			for (var i=0; i<5; i++)
+//			{
+//				//y = iconOffsets[i] - dcY;
+//				y = (((0xBEl | (0xD2l<<8) | (0x1El<<16) | (0x0Al<<24) | (0x32l<<32))>>(i*8))&0xFF) - dcY;
+//				if (y<=dcHeight && (y+20)>=0)
+//				{
+//					useDc.drawText(x, y, iconsFontResource, iconStrings[i], 1/*TEXT_JUSTIFY_CENTER*/);
+//				}
+//			}
+
 //	function safeStringFromArray(arr, index)
 //	{
 //		return ((index>=0 && index<arr.size()) ? arr[index] : "unknown");
@@ -7362,12 +6959,12 @@ class myMenuItem extends Lang.Object
 		dc.drawText(x, y, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
 	}
     
-    function draw(dc)
+    function draw(dc, x, y)
     {
-    	var x = (editorView.displaySize*25)/240;
-    	var y = (editorView.displaySize*50)/240 - 1;	// need to draw 1 pixel higher than expected ...
     	//var xEnd = x + 30;
-    
+   
+ 		y = y-1;	// all drawText calls need to draw 1 pixel higher than expected ...
+  
     	var eStr = getString();
     	
     	if (editorView.isColorEditing())
@@ -8005,11 +7602,11 @@ class myMenuItemHeader extends myMenuItem
    		return null;
     }
     
-    function draw(dc)
+    function draw(dc, x, y)
     {
     	if (fState!=15/*f_menuHideEdit*/)
     	{
-    		myMenuItem.draw(dc);
+    		myMenuItem.draw(dc, x, y);
     	}
     }
 

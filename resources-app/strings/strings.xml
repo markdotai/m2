@@ -2,6 +2,7 @@
     <string id="AppName">M2 App</string>
 
     <string id="ExportProfileTitle">Profile Text (for current display)</string>
+    <string id="ExportProfileTitle2">(2nd half of profile text)</string>
 
     <string id="ProfileManagementTitle">Profile Management (save/load display to profile number)</string>
     <string id="ProfileNumberTitle">Profile Number (to save/load 1-24) (or presets 25+)</string>
