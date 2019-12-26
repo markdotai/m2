@@ -2971,7 +2971,7 @@ class myView
 		return gfxNum.toFloat()/MAX_GFX_DATA;
 	}
 
-	const MAX_GFX_CHARS = 200;
+	const MAX_GFX_CHARS = 150;
 
 	var gfxCharArray = new[MAX_GFX_CHARS];
 	var gfxCharArrayLen = 0;
@@ -3289,7 +3289,7 @@ class myView
 	}
 
 	// seconds, ring, hour, minute, icon, field
-	const MAX_DYNAMIC_RESOURCES = 40;
+	const MAX_DYNAMIC_RESOURCES = 30;
 	const BUFFER_RESOURCE = 0x8FFFFFFF;
 	
 	var dynResNum = 0;
@@ -3302,13 +3302,16 @@ class myView
 		return dynResNum.toFloat()/MAX_DYNAMIC_RESOURCES;
 	}
 
+	const MAX_DYNAMIC_MEM = 500;
+	var dynResMem50 = 0;
+
 	(:m2app)
 	function getUsedResourceMemory()
 	{
-		return 0;
+		return dynResMem50.toFloat()/MAX_DYNAMIC_MEM;
 	}
 
-	function addDynamicResource(r)
+	function addDynamicResource(r, m)
 	{
 		var i = dynResList.indexOf(r);
 		if (i>=0)
@@ -3320,6 +3323,8 @@ class myView
 		{
 			dynResList[dynResNum] = r;
 			dynResNum++;
+
+			dynResMem50 += m;
 			
 			return dynResNum-1;
 		}
@@ -3346,6 +3351,9 @@ class myView
 
     function loadDynamicResources()
     {
+//		var prevMem = System.getSystemStats().freeMemory; 
+//		System.println("loadDynamicResources free=" + prevMem);
+    
 		for (var i=0; i<dynResNum; i++)
 		{
 			var r = dynResList[i];
@@ -3360,6 +3368,10 @@ class myView
 			{
 				dynResResource[i] = (isDynamicResourceSystemFont(i) ? r : WatchUi.loadResource(r));
 			}
+
+//	    	var curMem = System.getSystemStats().freeMemory; 
+//	    	System.println("" + i + " = " + (prevMem-curMem) + " (" + ((prevMem-curMem+49)/50) + ")");
+//	    	prevMem = curMem;
 		}
     }
     
@@ -3425,71 +3437,56 @@ class myView
     	var jsonData = Rez.JsonData;
 		var graphics = Graphics;
 
+		// size rounded up in 50 byte blocks
+		// also see System.getSystemStats().freeMemory
+		// Total free mem = 34416 (=688*50) - then subtract about 4k for peak overhead 
+		var sizeArray240 = [
+			0, 0, 0, 0, 0,				// system
+			0, 0, 0, 0,					// system number
+			37, 41, 48, 54, 52, 50,		// big s
+			42, 51, 60, 60, 60, 58,		// big m
+			46, 58, 66, 66, 66, 64,		// big l
+			10, 12, 14,					// big colons
+			12, 14, 14, 15, 15,			// num s
+			14, 16, 19, 18, 20,			// num m
+			19, 21, 22, 23, 23,			// num l
+			27, 32, 32, 35, 33,			// abc s
+			32, 37, 44, 42, 46,			// abc m
+			45, 53, 55, 56, 56,			// abc l
+			45,							// icon
+			48, 41, 49, 40, 43, 39, 35, 31, 49, 48, 40, 40, 50,		// ring (+328 bytes (7) for position array)
+			84			// seconds (+4168 bytes (84) for buffer)
+		]b;
+
 		var fontList = [
 		// 0
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-
-		// 6
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-
-		// 24
 			graphics.FONT_SYSTEM_XTINY, 			// APPFONT_SYSTEM_XTINY
 			graphics.FONT_SYSTEM_TINY, 				// APPFONT_SYSTEM_TINY
 			graphics.FONT_SYSTEM_SMALL, 			// APPFONT_SYSTEM_SMALL
 			graphics.FONT_SYSTEM_MEDIUM,			// APPFONT_SYSTEM_MEDIUM
 			graphics.FONT_SYSTEM_LARGE,				// APPFONT_SYSTEM_LARGE
 			
-		// 29
+		// 5
 			graphics.FONT_SYSTEM_NUMBER_MILD,		// APPFONT_SYSTEM_NUMBER_NORMAL 
 			graphics.FONT_SYSTEM_NUMBER_MEDIUM,		// APPFONT_SYSTEM_NUMBER_MEDIUM 
 			graphics.FONT_SYSTEM_NUMBER_HOT,		// APPFONT_SYSTEM_NUMBER_LARGE 
 			graphics.FONT_SYSTEM_NUMBER_THAI_HOT,	// APPFONT_SYSTEM_NUMBER_HUGE 
 
-		// 33
-			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT_ITALIC
-			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT_ITALIC
-			fonts.id_trivial_light_italic,			// APPFONT_LIGHT_ITALIC
-			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR_ITALIC
-			fonts.id_trivial_bold_italic,			// APPFONT_BOLD_ITALIC
-			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY_ITALIC
-
-		// 39
+		// 9
 			fonts.id_large_s_1,		// large font minus (ultra light)
 			fonts.id_large_s_2,		// large font minus (extra light)
 			fonts.id_large_s_3,		// large font minus (light)
 			fonts.id_large_s_4,		// large font minus (regular)
 			fonts.id_large_s_5,		// large font minus (bold)
 			fonts.id_large_s_6,		// large font minus (heavy)
-		// 45
+		// 15
 			fonts.id_large_m_1,		// large font (ultra light)
 			fonts.id_large_m_2,		// large font (extra light)
 			fonts.id_large_m_3,		// large font (light)
 			fonts.id_large_m_4,		// large font (regular)
 			fonts.id_large_m_5,		// large font (bold)
 			fonts.id_large_m_6,		// large font (heavy)
-		// 51
+		// 21
 			fonts.id_large_l_1,		// large font plus (ultra light)
 			fonts.id_large_l_2,		// large font plus (extra light)
 			fonts.id_large_l_3,		// large font plus (light)
@@ -3497,12 +3494,12 @@ class myView
 			fonts.id_large_l_5,		// large font plus (bold)
 			fonts.id_large_l_6,		// large font plus (heavy)
 
-		// 57
+		// 27
 			fonts.id_colon_s,		// colon font minus
 			fonts.id_colon_m,		// colon font
 			fonts.id_colon_l,		// colon font plus
 			
-		// 60
+		// 30
 			fonts.id_num_s_1,		// number font minus (extra light)
 			fonts.id_num_s_2,		// number font minus (light)
 			fonts.id_num_s_3,		// number font minus (regular)
@@ -3521,7 +3518,7 @@ class myView
 			fonts.id_num_l_4,		// number font plus (bold)
 			fonts.id_num_l_5,		// number font plus (heavy)
 
-		// 75
+		// 45
 			fonts.id_abc_s_1,		// alphabet font minus (extra light)
 			fonts.id_abc_s_2,		// alphabet font minus (light)
 			fonts.id_abc_s_3,		// alphabet font minus (regular)
@@ -3539,18 +3536,11 @@ class myView
 			fonts.id_abc_l_3,		// alphabet font plus (regular)
 			fonts.id_abc_l_4,		// alphabet font plus (bold)
 			fonts.id_abc_l_5,		// alphabet font plus (heavy)
-		];
-		
-		if (fontIndex>=0)
-		{
-			return addDynamicResource(fontList[fontIndex]);
-		}
-		
-		var iconFontList = [
-			fonts.id_icons,
-		];
 
-		var outerFontList = [
+		// 60
+			fonts.id_icons,
+
+		// 61
 			fonts.id_seconds_tri,			// SECONDFONT_TRI
 			jsonData.id_secondArray240,
 			
@@ -3589,9 +3579,26 @@ class myView
 			
 			fonts.id_outer,
 			jsonData.id_outerArray240,
-		];
 
+		// 87
+
+		// ??
+			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT_ITALIC
+			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT_ITALIC
+			fonts.id_trivial_light_italic,			// APPFONT_LIGHT_ITALIC
+			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR_ITALIC
+			fonts.id_trivial_bold_italic,			// APPFONT_BOLD_ITALIC
+			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY_ITALIC
+		];
+		
+		if (fontIndex>=0)
+		{
+			return addDynamicResource(fontList[fontIndex], sizeArray240[fontIndex]);
+		}
+		
 		var origSize = 240;
+		
+		dynResMem50 = 0;
     	
 		for (var index=0; index<gfxNum; )
 		{
@@ -3623,8 +3630,8 @@ class myView
 				 		r = 9/*m regular*/;
 				 	}
 				 	//								colon								hour/minute
-				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 57) : (r-18+29)) : ((r<18) ? (r+39) : (r-18+29));
-					var resourceIndex = addDynamicResource(fontList[fontListIndex]);			
+				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 27) : (r-18+5)) : ((r<18) ? (r+9) : (r-18+5));
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
 					gfxData[index+1/*large_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -3638,8 +3645,8 @@ class myView
 				 		r = (r&~0xFF) + 7/*m regular*/;
 				 	}
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
-				 	var fontListIndex = ((r<15) ? (r + (useNumFont?60:75)) : (r-15+24));
-					var resourceIndex = addDynamicResource(fontList[fontListIndex]);
+				 	var fontListIndex = ((r<15) ? (r + (useNumFont?30:45)) : (r-15+0));
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
 					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -3648,7 +3655,8 @@ class myView
 				case 6:		// icon
 				{
 					var r = 0;
-					var resourceIndex = addDynamicResource(iconFontList[r]);
+				 	var fontListIndex = r + 60;
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
 					
 					gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3658,7 +3666,8 @@ class myView
 				case 7:		// movebar
 				{
 					var r = 0;
-					var resourceIndex = addDynamicResource(iconFontList[r]);
+				 	var fontListIndex = r + 60;
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
 					
 					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3687,11 +3696,11 @@ class myView
 				 		r = 12/*SECONDFONT_OUTER*/;
 				 	}
 
-					var r2 = r*2;
-					var resourceIndex = addDynamicResource(outerFontList[r2]);
+				 	var fontListIndex = r*2 + 61;
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[r+61]);
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 					
-					gfxData[index+9] = addDynamicResource(outerFontList[r2+1]);
+					gfxData[index+9] = addDynamicResource(fontList[fontListIndex+1], 7);
 
 					//printRingArray();
 					//printRingFont();
@@ -3709,14 +3718,14 @@ class myView
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
 				 	
-					var r2 = r*2;
-					propSecondResourceIndex = addDynamicResource(outerFontList[r2]);
-					propSecondPositionsIndex = addDynamicResource(outerFontList[r2+1]);
+				 	var fontListIndex = r*2 + 61;
+					propSecondResourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[r+61]);
+					propSecondPositionsIndex = addDynamicResource(fontList[fontListIndex+1], 7);
 					
 			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
 			    	if (propSecondRefreshStyle!=1/*REFRESH_EVERY_MINUTE*/)
 			    	{
-						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE);
+						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 84);
 					}
 					
 					//printSecondArray(false);
@@ -4747,13 +4756,13 @@ class myView
 						case 57/*FIELD_ALTITUDE*/:
 						{
 							// convert m to feet or m
-							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
+							eStr = ((deviceSettings.elevationUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
 							break;
 						}
 
 						case 58/*FIELD_ALTITUDE_UNITS*/:
 						{
-							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "ft" : "m");
+							eStr = ((deviceSettings.elevationUnits==System.UNIT_STATUTE) ? "ft" : "m");
 							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
 							break;
 						}
@@ -4771,7 +4780,7 @@ class myView
 						
 						if (useUnsupportedFont)
 						{
-							resourceIndex = gfxAddDynamicResources(24/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
+							resourceIndex = gfxAddDynamicResources(0/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
 							gfxData[index+2/*string_font*/] &= ~0x00FF0000;
 							gfxData[index+2/*string_font*/] |= ((resourceIndex & 0xFF) << 16);
 						}
