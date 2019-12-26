@@ -1298,6 +1298,16 @@ class myView
 			var s = getProfileString(profileNumber);
 			if (s!=null && (s instanceof String))
 			{
+				if (s.length()>255)
+				{
+					applicationProperties.setValue("EP2", s.substring(255, s.length()));					
+					s = s.substring(0, 255);
+				}
+				else
+				{ 				
+					applicationProperties.setValue("EP2", "");
+				}
+			
 				applicationProperties.setValue("EP", s);
 			}
 
@@ -1309,12 +1319,22 @@ class myView
 	{
 		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER)
 		{
-			var s = propertiesGetString("EP");
+			var s = propertiesGetString("EP") + propertiesGetString("EP2");
 			applicationStorage.setValue("P" + profileNumber, s);
+			s = null;
 
 			getProfileTimeDataFromPropertiesFaceOrApp(profileNumber);
 			saveProfileTimeData();		// remember new values
 		}
+	}
+	
+	function copyPropertyStringToGfx()
+	{
+		// load the Gfx from our property strings
+		var s = propertiesGetString("EP") + propertiesGetString("EP2");
+		var charArray = s.toCharArray();
+		s = null;
+		gfxFromCharArray(charArray);
 	}
 	
 	function handleSettingsChanged(second)
@@ -1462,8 +1482,7 @@ class myView
 
         if (doLoadDynamicResources)
         {
-			var charArray = propertiesGetCharArray("EP");		// get the profile string "EP"
-			gfxFromCharArray(charArray);			// load gfx from that
+			copyPropertyStringToGfx();
 
 			gfxAddDynamicResources(-1);
 //if (showTimer)
@@ -2941,22 +2960,26 @@ class myView
 	// 10 = ring
 	// 11 = seconds
 
+	const MAX_GFX_DATA = 500;
+
 	var gfxNum = 0;
-	var gfxData = new[500];
+	var gfxData = new[MAX_GFX_DATA];
 
 	(:m2app)
 	function getUsedGfxData()
 	{
-		return gfxNum/500.0;
+		return gfxNum.toFloat()/MAX_GFX_DATA;
 	}
 
-	var gfxCharArray = new[200];
+	const MAX_GFX_CHARS = 200;
+
+	var gfxCharArray = new[MAX_GFX_CHARS];
 	var gfxCharArrayLen = 0;
 
 	(:m2app)
 	function getUsedCharArray()
 	{
-		return gfxCharArrayLen/200.0;
+		return gfxCharArrayLen.toFloat()/MAX_GFX_CHARS;
 	}
 
 	function valEncodeChar(v)
@@ -3058,7 +3081,7 @@ class myView
 	(:m2app)
 	function gfxToCharArray()
 	{
-		var charArray = new[1024];
+		var charArray = new[MAX_PROFILE_STRING_LENGTH];
 		var charArrayLen = 0;
 	
 		//System.println("gfxNum=" + gfxNum);
@@ -3066,6 +3089,8 @@ class myView
 		for (var index=0; index<gfxNum; )
 		{
 			var id = getGfxId(index);
+		
+			var curLen = charArrayLen;
 		
 			var saveSize = gfxSizeSave(id);
 			for (var i=0; i<saveSize; i++)
@@ -3080,32 +3105,43 @@ class myView
 				
 				//System.print("" + val);
 
-				var c;
 				if (val<31)
 				{
-					c = valEncodeChar(val);
-					charArray[charArrayLen] = c;
-					charArrayLen++;
-					//System.print("[" + c.toString() + "], ");
+					if (curLen<MAX_PROFILE_STRING_LENGTH)
+					{
+						charArray[curLen] = valEncodeChar(val);
+						//System.print("[" + c.toString() + "], ");
+					}
+					curLen++;
 				}
 				else
 				{
-					var v0 = val/62 + 31;
-					var v1 = val%62;
-					
-					c = valEncodeChar(v0);
-					charArray[charArrayLen] = c;
-					charArrayLen++;
-					//System.print("[" + c.toString() + "+");
-
-					c = valEncodeChar(v1);
-					charArray[charArrayLen] = c;
-					charArrayLen++;
-					//System.print("" + c.toString() + "], ");
+					if (curLen<MAX_PROFILE_STRING_LENGTH-1)
+					{
+						var v0 = val/62 + 31;
+						var v1 = val%62;
+						
+						charArray[curLen] = valEncodeChar(v0);
+						//System.print("[" + c.toString() + "+");
+	
+						charArray[curLen+1] = valEncodeChar(v1);
+						//System.print("" + c.toString() + "], ");
+					}
+					curLen+=2;
 				}
 			}		
 		
-			index += gfxSize(id);				
+			// check we haven't reached the max profile string length
+			if (curLen<=MAX_PROFILE_STRING_LENGTH)
+			{
+				charArrayLen = curLen;
+				
+				index += gfxSize(id);
+			}
+			else
+			{
+				break;	// not space to add more				
+			}
 		}
 
 		//System.println("");
@@ -3123,7 +3159,8 @@ class myView
 		for (var index=0; index<charArraySize && !gotError; )
 		{
 			var id = 0;
-		
+			var itemSize = 0;
+			
 			var saveSize = 1;
 			for (var i=0; i<saveSize; i++)
 			{
@@ -3149,24 +3186,33 @@ class myView
 					v = (v-31)*62 + v1;
 				}
 
-				gfxData[gfxNum + i] = v;
-
 				//System.print("" + v + ", ");
 
 				if (i==0)
 				{
 					id = (v & 0xFF);
-					saveSize = gfxSizeSave(id);
+					itemSize = gfxSize(id);		// total item size in gfxData array
+					saveSize = gfxSizeSave(id);	// number of bytes to read from saved data
+
+					if (itemSize<=0)
+					{
+						gotError = true;
+						break; 
+					}
+					
+					// check the size of this item will fit into the gfxData array
+					if (gfxNum+itemSize > MAX_GFX_DATA)
+					{
+						// don't force an error & blank profile, but stop reading data
+						itemSize = 0;
+						break;
+					}
 				}
+
+				gfxData[gfxNum + i] = v;
 			}
 			
-			var size = gfxSize(id);
-			if (size <= 0)
-			{
-				gotError = true; 
-			}
-
-			gfxNum += size;
+			gfxNum += itemSize;		// only once item fully added successfully do we increase size of array
 		}
 
 		if (gotError || gfxNum<gfxSize(0) || getGfxId(0)!=0)	// check no error and header gfx at start
@@ -3198,18 +3244,26 @@ class myView
 	function gfxInsert(index, id)
 	{
 		var size = gfxSize(id);
-		for (var i=gfxNum-1; i>=index; i--)
+
+		if (gfxNum+size > MAX_GFX_DATA)		// check enough space in gfxData for new item
 		{
-			gfxData[i+size] = gfxData[i];
+			index = -1;		// no space
 		}
-		
-		gfxData[index] = id;
-		for (var i=index+1; i<index+size; i++)
+		else
 		{
-			gfxData[i] = 0;
+			for (var i=gfxNum-1; i>=index; i--)
+			{
+				gfxData[i+size] = gfxData[i];
+			}
+			
+			gfxData[index] = id;
+			for (var i=index+1; i<index+size; i++)
+			{
+				gfxData[i] = 0;
+			}
+			
+			gfxNum += size;
 		}
-		
-		gfxNum += size;
 		
 		return index;	// return successful index we inserted at (or -1 if no space)
 	}
@@ -3245,7 +3299,7 @@ class myView
 	(:m2app)
 	function getUsedDynamicResourceNum()
 	{
-		return dynResNum/MAX_DYNAMIC_RESOURCES.toFloat();
+		return dynResNum.toFloat()/MAX_DYNAMIC_RESOURCES;
 	}
 
 	(:m2app)
@@ -4734,7 +4788,7 @@ class myView
 						{
 							if (checkDiacritics)
 							{
-								eLen = addStringToCharArrayWithDiacritics(eStr, gfxCharArray, sLen, 256);
+								eLen = addStringToCharArrayWithDiacritics(eStr, gfxCharArray, sLen, MAX_GFX_CHARS);
 								gfxCharArrayLen = eLen + (eLen-sLen);
 								eStr = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));	// string without diacritics
 	
@@ -4742,7 +4796,7 @@ class myView
 							}
 							else
 							{
-								eLen = addStringToCharArray(eStr, gfxCharArray, sLen, 256);
+								eLen = addStringToCharArray(eStr, gfxCharArray, sLen, MAX_GFX_CHARS);
 								gfxCharArrayLen = eLen;
 	
 								gfxData[index+2/*string_font*/] &= ~0x80000000;		// diacritics flag
@@ -6116,27 +6170,46 @@ class myEditorView extends myView
     	return false;
     }    
 
+	const MAX_PROFILE_STRING_LENGTH = 255*2;
+
 	var lastProfileStringLength = 0;
 	
 	function getUsedProfileStringLength()
 	{
-		return lastProfileStringLength/510.0; 
+		return lastProfileStringLength.toFloat()/MAX_PROFILE_STRING_LENGTH; 
 	}
 	
 	function copyGfxToPropertyString()
 	{
 		var charArray = gfxToCharArray();
-		var s = StringUtil.charArrayToString(charArray);
-		if (s!=null)
-		{
-			applicationProperties.setValue("EP", s);
+		lastProfileStringLength = charArray.size();
 
-			lastProfileStringLength = s.length();
-		}
-		else
+		var s2 = "";
+
+		if (charArray.size()>255)
 		{
-			lastProfileStringLength = 0;
+			var charArray2 = charArray.slice(255, charArray.size());
+			s2 = StringUtil.charArrayToString(charArray2);
+			if (s2==null)
+			{
+				s2 = "";
+			}
+			
+			charArray2 = null;	// free up memory as no longer needed
+
+			charArray = charArray.slice(0, 255);
 		}
+
+		var s = StringUtil.charArrayToString(charArray);
+		if (s==null)
+		{
+			s = "";
+		}
+
+		charArray = null;	// free up memory as no longer needed
+		
+		applicationProperties.setValue("EP", s);
+		applicationProperties.setValue("EP2", s2);
 	}
 
 	var getColorGfxIndex = -1;
@@ -8494,8 +8567,13 @@ class myMenuItemElementAdd extends myMenuItem
 		}
 		else if (fState==6/*s_icon*/)
 		{
-			editorView.menuElementGfx = editorView.gfxAddIcon(afterIndex, 0);
-			fState += 10;
+			// don't set index for icons as we handle their creation differently
+			var temp = editorView.gfxAddIcon(afterIndex, 0);
+			if (temp>=0)
+			{
+				editorView.menuElementGfx = temp;
+				fState += 10;
+			}
 		}
 		else if (fState==7/*s_moveBar*/)
 		{
