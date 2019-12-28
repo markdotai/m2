@@ -1052,32 +1052,34 @@ class myView
 		// load in data values which are stored as byte arrays (to save memory) 
 		{
 			var tempResource = watchUi.loadResource(Rez.JsonData.id_dataBytes);
+			var tempCustom = watchUi.loadResource(Rez.JsonData.id_customBytes);
 			
+			systemNumberMaxAscent = tempCustom[0][0];
+
 			for (var i=0; i<78; i++)
 			{
 				myChars[i] = tempResource[0][i];	// table for characters with diacritics
 
-				if (i<64)
+				if (i<74)
 				{
-					colorArray[i] = tempResource[1][i];
-
-					if (i<24)
+					dynResSizeArray[i] = tempCustom[1][i];
+	
+					if (i<64)
 					{
-						gfxSizeArray[i] = tempResource[2][i];
+						colorArray[i] = tempResource[1][i];
+	
+						if (i<24)
+						{
+							gfxSizeArray[i] = tempResource[2][i];
+						}
 					}
 				}
 			}
 			
 			tempResource = null;
+			tempCustom = null;
 		}
 
-		// load in custom data values which are stored as byte arrays (to save memory) 
-		{
-			var tempResource = watchUi.loadResource(Rez.JsonData.id_customBytes);
-
-			systemNumberMaxAscent = tempResource[0][0];
-		}
-					
 //System.println("Timer json2=" + (System.getTimer()-timeStamp) + "ms");
 
 		var timeNowValue = Time.now().value();
@@ -3431,6 +3433,8 @@ class myView
 		}		
 	}
 
+	var dynResSizeArray = new[74]b;
+
 	function gfxAddDynamicResources(fontIndex)
 	{	
     	var fonts = Rez.Fonts;
@@ -3440,23 +3444,22 @@ class myView
 		// size rounded up in 50 byte blocks
 		// also see System.getSystemStats().freeMemory
 		// Total free mem = 34416 (=688*50) - then subtract about 4k for peak overhead 
-		var sizeArray240 = [
-			0, 0, 0, 0, 0,				// system
-			0, 0, 0, 0,					// system number
-			37, 41, 48, 54, 52, 50,		// big s
-			42, 51, 60, 60, 60, 58,		// big m
-			46, 58, 66, 66, 66, 64,		// big l
-			10, 12, 14,					// big colons
-			12, 14, 14, 15, 15,			// num s
-			14, 16, 19, 18, 20,			// num m
-			19, 21, 22, 23, 23,			// num l
-			27, 32, 32, 35, 33,			// abc s
-			32, 37, 44, 42, 46,			// abc m
-			45, 53, 55, 56, 56,			// abc l
-			45,							// icon
-			48, 41, 49, 40, 43, 39, 35, 31, 49, 48, 40, 40, 50,		// ring (+328 bytes (7) for position array)
-			84			// seconds (+4168 bytes (84) for buffer)
-		]b;
+//		var sizeArray240 = [
+//			0, 0, 0, 0, 0,				// system
+//			0, 0, 0, 0,					// system number
+//			37, 41, 48, 54, 52, 50,		// big s
+//			42, 51, 60, 60, 60, 58,		// big m
+//			46, 58, 66, 66, 66, 64,		// big l
+//			10, 12, 14,					// big colons
+//			12, 14, 14, 15, 15,			// num s
+//			14, 16, 19, 18, 20,			// num m
+//			19, 21, 22, 23, 23,			// num l
+//			27, 32, 32, 35, 33,			// abc s
+//			32, 37, 44, 42, 46,			// abc m
+//			45, 53, 55, 56, 56,			// abc l
+//			45,							// icon
+//			48, 41, 49, 40, 43, 39, 35, 31, 49, 48, 40, 40, 50		// ring (+328 bytes (7) for position array)
+//		]b;
 
 		var fontList = [
 		// 0
@@ -3593,7 +3596,7 @@ class myView
 		
 		if (fontIndex>=0)
 		{
-			return addDynamicResource(fontList[fontIndex], sizeArray240[fontIndex]);
+			return addDynamicResource(fontList[fontIndex], dynResSizeArray[fontIndex]);
 		}
 		
 		var origSize = 240;
@@ -3631,7 +3634,7 @@ class myView
 				 	}
 				 	//								colon								hour/minute
 				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 27) : (r-18+5)) : ((r<18) ? (r+9) : (r-18+5));
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+1/*large_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -3646,7 +3649,7 @@ class myView
 				 	}
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
 				 	var fontListIndex = ((r<15) ? (r + (useNumFont?30:45)) : (r-15+0));
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -3656,7 +3659,7 @@ class myView
 				{
 					var r = 0;
 				 	var fontListIndex = r + 60;
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
 					gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3667,7 +3670,7 @@ class myView
 				{
 					var r = 0;
 				 	var fontListIndex = r + 60;
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[fontListIndex]);
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
 					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3697,7 +3700,7 @@ class myView
 				 	}
 
 				 	var fontListIndex = r*2 + 61;
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[r+61]);
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+61]);
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 					
 					gfxData[index+9] = addDynamicResource(fontList[fontListIndex+1], 7);
@@ -3719,7 +3722,7 @@ class myView
 				 	}
 				 	
 				 	var fontListIndex = r*2 + 61;
-					propSecondResourceIndex = addDynamicResource(fontList[fontListIndex], sizeArray240[r+61]);
+					propSecondResourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+61]);
 					propSecondPositionsIndex = addDynamicResource(fontList[fontListIndex+1], 7);
 					
 			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
