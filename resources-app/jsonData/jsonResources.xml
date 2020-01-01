@@ -145,6 +145,7 @@
 			"system fonts\ncase override",
 			"replacement\nfont for names",
 			"menu hide",
+			"memory display",
 			
 			"any case",
 			"upper case",
@@ -154,7 +155,11 @@
 			"system small",
 			"system medium",
 			"system large",
-			"system huge"
+			"system huge",
+
+			"off",
+			"one bar",
+			"all bars"
 		]
 	</jsonData>
 					
@@ -478,7 +483,7 @@
 			[
 	   			"every second",
 				"every minute",
-				"alernate\nminutes"
+				"alternate\nminutes"
 			]
 		]
 	</jsonData>

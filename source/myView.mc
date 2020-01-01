@@ -1032,13 +1032,6 @@ class myView
 
 		//worldBitmap = WatchUi.loadResource(Rez.Drawables.id_world);
 
-		// load in permanent global data
-		{
-			var dataResource = watchUi.loadResource(Rez.JsonData.id_data);
-			kernTable = dataResource[0];
-			bitsSupported = dataResource[1];
-		}
-
 		// load in permanent global custom data
 //		{
 //			var dataResource = watchUi.loadResource(Rez.JsonData.id_custom);
@@ -1049,35 +1042,39 @@ class myView
 		// load in character string (for seconds & outer ring)
 		//characterString = WatchUi.loadResource(Rez.JsonData.id_characterString);
 
-		// load in data values which are stored as byte arrays (to save memory) 
 		{
-			var tempResource = watchUi.loadResource(Rez.JsonData.id_dataBytes);
-			var tempCustom = watchUi.loadResource(Rez.JsonData.id_customBytes);
+			// load in global data
+			var dataResource = watchUi.loadResource(Rez.JsonData.id_data);
 			
-			systemNumberMaxAscent = tempCustom[0][0];
+			// keep pointers to permanent arrays
+			kernTable = dataResource[0];
+			bitsSupported = dataResource[1];
 
+			// copy byte data into byte arrays (to save memory) 			
 			for (var i=0; i<78; i++)
 			{
-				myChars[i] = tempResource[0][i];	// table for characters with diacritics
+				myChars[i] = dataResource[2][i];	// table for characters with diacritics
 
 				if (i<74)
 				{
-					dynResSizeArray[i] = tempCustom[1][i];
+					dynResSizeArray[i] = dataResource[6][i];
 	
 					if (i<64)
 					{
-						colorArray[i] = tempResource[1][i];
+						colorArray[i] = dataResource[3][i];
 	
 						if (i<24)
 						{
-							gfxSizeArray[i] = tempResource[2][i];
+							gfxSizeArray[i] = dataResource[4][i];
 						}
 					}
 				}
 			}
 			
-			tempResource = null;
-			tempCustom = null;
+			// copy single value
+			systemNumberMaxAscent = dataResource[5][0];
+
+			dataResource = null;	// release the memory
 		}
 
 //System.println("Timer json2=" + (System.getTimer()-timeStamp) + "ms");
@@ -6229,6 +6226,17 @@ class myEditorView extends myView
 	// menu+gfx, menu+grid+gfx, grid+gfx, grid, gfx
 	var colorEditingMode = 1;
 
+	var menuHide = false;
+	var menuY = 50;
+	
+	function isMenuAtTop()
+	{
+		return (menuY<120);
+	}
+	
+	// off, 1 bar, all bars
+	var memoryDisplayMode = 2;
+
     function onUpdate(dc)
     {
     	if (reloadDynamicResources)
@@ -6254,17 +6262,106 @@ class myEditorView extends myView
     		drawColorGrid(dc);
     	}
     	
-    	if (!isColorEditing() || (colorEditingMode<=1))
+    	if (!menuHide && (!isColorEditing() || (colorEditingMode<=1)))
 		{
 	    	var x = (displaySize*25)/240;
-	    	var y = (displaySize*50)/240;
+	    	var y = (displaySize*menuY)/240;
 	
-	    	menuItem.draw(dc, x, y);    	// then draw any menus on top
+	    	drawMenu(dc, x, y);    	// then draw any menus on top
 	    	
 	    	drawMemory(dc, x, y);	// draw a memory indicator
 		}
     }
 
+    function drawMenu(dc, x, y)
+    {
+    	//var xEnd = x + 30;
+   
+ 		y = y-1;	// all drawText calls need to draw 1 pixel higher than expected ...
+  
+    	var eStr = menuItem.getString();
+    	
+    	if (isColorEditing())
+    	{
+    		eStr = geColorName();
+    	}
+    	
+		if (eStr != null)
+		{
+			var xText = x + 42;
+			var yText = y;
+			
+			if (isMenuAtTop())
+			{
+				yText -= Graphics.getFontAscent(Graphics.FONT_SYSTEM_TINY);
+			}
+			else
+			{
+				var textSize = dc.getTextDimensions(eStr, Graphics.FONT_SYSTEM_TINY);
+				yText -= textSize[1];
+				yText += Graphics.getFontDescent(Graphics.FONT_SYSTEM_TINY);
+			}
+		
+			// following only works on 3.1.0 +
+			//eStr = Graphics.fitTextToArea(eStr, Graphics.FONT_SYSTEM_TINY, editorView.displaySize - xText - x*1.5, editorView.displaySize, true);
+		
+			drawMultiText(dc, eStr, xText, yText, Graphics.FONT_SYSTEM_TINY);
+			
+			//xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
+		}
+
+//dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+//dc.fillPolygon([[120,120],[200,200],[120,200]]);
+
+		// editorfont
+		// A = 
+		// B = 
+		// C = up triangle
+		// D = down triangle
+		// E = left triangle
+		// F = right triangle
+		// G = rotating arrow
+
+    	if (menuItem.hasDirection(2))	// left
+    	{
+			drawMultiText(dc, "E", x, y-15, editorFontResource);
+		}
+
+    	if (menuItem.hasDirection(0))	// up
+    	{
+			drawMultiText(dc, "C", x+13, y-20, editorFontResource);
+		}
+
+    	if (menuItem.hasDirection(1))	// down
+    	{
+			drawMultiText(dc, "D", x+13, y-10, editorFontResource);
+		}
+
+    	if (menuItem.hasDirection(3))	// right
+    	{
+			//drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
+			drawMultiText(dc, "F", x+26, y-15, editorFontResource);
+		}
+    }
+        
+	function drawMultiText(dc, s, x, y, font)
+	{
+        dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+        for (var i=-1; i<=1; i+=2)
+        {
+        	for (var j=-1; j<=1; j+=2)
+        	{
+				dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+        	}
+        }
+        
+        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+        //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+		dc.drawText(x, y, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+	}
+    
 	function drawMemory(dc, x, y)
 	{
 		var usedProfileStringLength = getUsedProfileStringLength();
@@ -6279,13 +6376,34 @@ class myEditorView extends myView
 		//x = x + 42;
 		x = displayHalf - w/2;
 		
-		y = y - displaySize/9;
-
-		drawMemoryBar(dc, x, y-(h-1)*4, w, h, usedProfileStringLength);
-		drawMemoryBar(dc, x, y-(h-1)*3, w, h, usedGfxData);
-		drawMemoryBar(dc, x, y-(h-1)*2, w, h, usedCharArray);
-		drawMemoryBar(dc, x, y-(h-1), w, h, usedDynamicResourceNum);
-		drawMemoryBar(dc, x, y, w, h, usedResourceMemory);
+		if (isMenuAtTop())
+		{
+			y = (displaySize*15)/240;
+		}
+		else
+		{
+			y = (displaySize*220)/240 - (h-1)*4;
+		}
+		
+		if (memoryDisplayMode==2)	// all bars
+		{
+			drawMemoryBar(dc, x, y, w, h, usedProfileStringLength);
+			drawMemoryBar(dc, x, y+(h-1)*1, w, h, usedGfxData);
+			drawMemoryBar(dc, x, y+(h-1)*2, w, h, usedCharArray);
+			drawMemoryBar(dc, x, y+(h-1)*3, w, h, usedDynamicResourceNum);
+			drawMemoryBar(dc, x, y+(h-1)*4, w, h, usedResourceMemory);
+		}
+		else if (memoryDisplayMode==1)	// 1 bar
+		{
+			// find the highest used fraction out of all the pools
+			var frac = usedProfileStringLength;
+			frac = getMax(frac, usedGfxData);
+			frac = getMax(frac, usedCharArray);
+			frac = getMax(frac, usedDynamicResourceNum);
+			frac = getMax(frac, usedResourceMemory);
+		
+			drawMemoryBar(dc, x, y, w, h, frac);
+		}
 	}
 
 	function drawMemoryBar(dc, x, y, w, h, frac)
@@ -6317,6 +6435,22 @@ class myEditorView extends myView
 			//dc.drawRoundedRectangle(x, y, w, h, 3);
 			//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
 			//dc.fillRectangle(x, y, w, h);
+			
+			// make sure menu is at best position for editing this field
+			if (isMenuAtTop())
+			{
+				if (y<(displaySize*80)/240)
+				{
+					menuY = 200;	// move to bottom
+				}
+			}
+			else
+			{
+				if ((y+h)>(displaySize*160)/240)
+				{
+					menuY = 50;		// move to top
+				}
+			}
 		}
 	}
 		
@@ -7026,84 +7160,6 @@ class myMenuItem extends Lang.Object
     	return false;
     }
 
-	function drawText(dc, s, x, y, font)
-	{
-        dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
-        for (var i=-1; i<=1; i+=2)
-        {
-        	for (var j=-1; j<=1; j+=2)
-        	{
-				dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
-        	}
-        }
-        
-        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-        //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
-		dc.drawText(x, y, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
-	}
-    
-    function draw(dc, x, y)
-    {
-    	//var xEnd = x + 30;
-   
- 		y = y-1;	// all drawText calls need to draw 1 pixel higher than expected ...
-  
-    	var eStr = getString();
-    	
-    	if (editorView.isColorEditing())
-    	{
-    		eStr = editorView.geColorName();
-    	}
-    	
-		if (eStr != null)
-		{
-			var xText = x + 42;
-			var yText = y - Graphics.getFontAscent(Graphics.FONT_SYSTEM_TINY);
-		
-			// following only works on 3.1.0 +
-			//eStr = Graphics.fitTextToArea(eStr, Graphics.FONT_SYSTEM_TINY, editorView.displaySize - xText - x*1.5, editorView.displaySize, true);
-		
-			drawText(dc, eStr, xText, yText, Graphics.FONT_SYSTEM_TINY);
-			
-			//xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
-		}
-
-//dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-//dc.fillPolygon([[120,120],[200,200],[120,200]]);
-
-		// editorfont
-		// A = 
-		// B = 
-		// C = up triangle
-		// D = down triangle
-		// E = left triangle
-		// F = right triangle
-		// G = rotating arrow
-
-    	if (hasDirection(2))	// left
-    	{
-			drawText(dc, "E", x, y-15, editorView.editorFontResource);
-		}
-
-    	if (hasDirection(0))	// up
-    	{
-			drawText(dc, "C", x+13, y-20, editorView.editorFontResource);
-		}
-
-    	if (hasDirection(1))	// down
-    	{
-			drawText(dc, "D", x+13, y-10, editorView.editorFontResource);
-		}
-
-    	if (hasDirection(3))	// right
-    	{
-			//drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
-			drawText(dc, "F", x+26, y-15, editorView.editorFontResource);
-		}
-    }
-        
     function getString()
     {
     	return "unknown";
@@ -7629,6 +7685,7 @@ class myMenuItemHeader extends myMenuItem
 //		f_fontSystemCase,
 //		f_fontUnsupported,
 //		f_menuhide,
+//		f_memoryDisplay,
 //
 //		f_backgroundEdit,
 //		f_batteryHighEdit,
@@ -7638,6 +7695,7 @@ class myMenuItemHeader extends myMenuItem
 //		f_fontSystemCaseEdit,
 //		f_fontUnsupportedEdit,
 //		f_menuHideEdit,
+//		f_memoryDisplayEdit,
 //	}
 
 	var fState;
@@ -7651,31 +7709,35 @@ class myMenuItemHeader extends myMenuItem
     
     function getString()
     {
-    	if (fState==9/*f_batteryHighEdit*/)
+    	if (fState==10/*f_batteryHighEdit*/)
     	{
     		return "" + editorView.propBatteryHighPercentage;
     	}
-    	else if (fState==10/*f_batteryLowEdit*/)
+    	else if (fState==11/*f_batteryLowEdit*/)
     	{
     		return "" + editorView.propBatteryLowPercentage;
     	}
-    	else if (fState==11/*f_2ndTimeEdit*/)
+    	else if (fState==12/*f_2ndTimeEdit*/)
     	{
     		return "" + editorView.prop2ndTimeZoneOffset;
     	}
-    	else if (fState==12/*f_moveBarAlertEdit*/)
+    	else if (fState==13/*f_moveBarAlertEdit*/)
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
     	}
-    	else if (fState==13/*f_fontSystemCaseEdit*/)
+    	else if (fState==14/*f_fontSystemCaseEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 7/*f_menuhide*/ + 1 + editorView.propFieldFontSystemCase);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + editorView.propFieldFontSystemCase);
     	}
-    	else if (fState==14/*f_fontUnsupportedEdit*/)
+    	else if (fState==15/*f_fontUnsupportedEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 7/*f_menuhide*/ + 1 + 3 + editorView.propFieldFontUnsupported);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + 3 + editorView.propFieldFontUnsupported);
     	}
-    	else if (fState<=7/*f_menuhide*/)
+    	else if (fState==17/*f_fontUnsupportedEdit*/)
+    	{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + 3 + 5 + editorView.memoryDisplayMode);
+    	}
+    	else if (fState<=8/*f_memoryDisplay*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
     	}
@@ -7687,57 +7749,54 @@ class myMenuItemHeader extends myMenuItem
    		return null;
     }
     
-    function draw(dc, x, y)
-    {
-    	if (fState!=15/*f_menuHideEdit*/)
-    	{
-    		myMenuItem.draw(dc, x, y);
-    	}
-    }
-
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<8/*f_backgroundEdit*/);
+    	return (d!=3 || fState<9/*f_backgroundEdit*/);
     }
 
     function onEditing(val)
     {
-		if (fState<=7)
+		if (fState<=8)
 		{
-			fState = (fState+val+8)%8;    	
+			fState = (fState+val+9)%9;    	
 		}
-    	else if (fState==8/*f_backgroundEdit*/)
+    	else if (fState==9/*f_backgroundEdit*/)
     	{
     		editorView.headerBackgroundColorEditing(val);
     	}
-    	else if (fState==9/*f_batteryHighEdit*/)
+    	else if (fState==10/*f_batteryHighEdit*/)
     	{
     		editorView.headerBatteryEditing(0, val);
     	}
-    	else if (fState==10/*f_batteryLowEdit*/)
+    	else if (fState==11/*f_batteryLowEdit*/)
     	{
     		editorView.headerBatteryEditing(1, val);
     	}
-    	else if (fState==11/*f_2ndTimeEdit*/)
+    	else if (fState==12/*f_2ndTimeEdit*/)
     	{
     		editorView.header2ndTimeZoneEditing(val);
     	}
-    	else if (fState==12/*f_moveBarAlertEdit*/)
+    	else if (fState==13/*f_moveBarAlertEdit*/)
     	{
     		editorView.headerMoveBarAlertEditing(val);
     	}
-    	else if (fState==13/*f_fontSystemCaseEdit*/)
+    	else if (fState==14/*f_fontSystemCaseEdit*/)
     	{
     		editorView.headerFontSystemCaseEditing(val);
     	}
-    	else if (fState==14/*f_fontUnsupportedEdit*/)
+    	else if (fState==15/*f_fontUnsupportedEdit*/)
     	{
     		editorView.headerFontUnsupportedEditing(val);
     	}
-    	else if (fState==15/*f_menuHideEdit*/)
+    	else if (fState==16/*f_menuHideEdit*/)
     	{
-			fState -= 8;    	
+			editorView.menuHide = false;
+			fState -= 8;
+    	}
+    	else if (fState==17/*f_memoryDisplayEdit*/)
+    	{
+    		editorView.memoryDisplayMode = (editorView.memoryDisplayMode + val + 3)%3;
     	}
     	
     	return null;
@@ -7755,18 +7814,23 @@ class myMenuItemHeader extends myMenuItem
     
     function onSelect()
     {
-		if (fState<=7)
+		if (fState<=8)
 		{
 			if (fState==0/*f_background*/)
 			{
 				editorView.startColorEditing(editorView.menuFieldGfx+3);
 			}
+	    	else if (fState==7/*f_menuHide*/)
+	    	{
+				editorView.menuHide = true;
+			}
 		
-			fState += 8;    	
+			fState += 9;
 		}
-    	else if (fState==15/*f_menuHideEdit*/)
+    	else if (fState==16/*f_menuHideEdit*/)
     	{
-			fState -= 8;    	
+			editorView.menuHide = false;
+			fState -= 9;
     	}
     	
     	return null;
@@ -7774,18 +7838,22 @@ class myMenuItemHeader extends myMenuItem
     
     function onBack()
     {
-    	if (fState<=7)
+    	if (fState<=8)
     	{    
    			return new myMenuItemFieldSelect();
    		}
    		else
-   		{
-   			//if (fState==7/*f_backgroundEdit*/)
+   		{   		
+   			//if (fState==8/*f_backgroundEdit*/)
    			//{
 				editorView.endColorEditing();
    			//}
-   		
-   			fState -= 8;
+	    	//else if (fState==15/*f_menuHideEdit*/)
+	    	//{
+				editorView.menuHide = false;
+			//}
+
+   			fState -= 9;
    		}
 
    		return null;
