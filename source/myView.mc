@@ -3542,43 +3542,43 @@ class myView
 
 		// 61
 			fonts.id_seconds_tri,			// SECONDFONT_TRI
-			jsonData.id_secondArray240,
+			jsonData.id_secondArray,
 			
 			fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
-			jsonData.id_secondInArray240,
+			jsonData.id_secondInArray,
 			
 			fonts.id_seconds_v,				// SECONDFONT_V
-			jsonData.id_secondArray240,
+			jsonData.id_secondArray,
 			
 			fonts.id_seconds_v_in,			// SECONDFONT_V_IN
-			jsonData.id_secondInArray240,
+			jsonData.id_secondInArray,
 			
 			fonts.id_seconds_line,			// SECONDFONT_LINE
-			jsonData.id_secondArray240,
+			jsonData.id_secondArray,
 			
 			fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
-			jsonData.id_secondInArray240,
+			jsonData.id_secondInArray,
 			
 			fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
-			jsonData.id_secondArray240,
+			jsonData.id_secondArray,
 			
 			fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
-			jsonData.id_secondInArray240,
+			jsonData.id_secondInArray,
 			
 			fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
-			jsonData.id_secondArray240,
+			jsonData.id_secondArray,
 			
 			fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
-			jsonData.id_secondInArray240,
+			jsonData.id_secondInArray,
 			
 			fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
-			jsonData.id_secondArray240,
+			jsonData.id_secondArray,
 			
 			fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
-			jsonData.id_secondInArray240,
+			jsonData.id_secondInArray,
 			
 			fonts.id_outer,
-			jsonData.id_outerArray240,
+			jsonData.id_outerArray,
 
 		// 87
 
@@ -3729,9 +3729,10 @@ class myView
 					}
 					
 					//printSecondArray(false);
-					//printSecondArray(true);
 					//printSecondFont(false);
-					//printSecondFont(true);
+
+					//printSecondArray(true);	// move in
+					//printSecondFont(true);	// move in
 
 					break;
 				}
@@ -3880,15 +3881,15 @@ class myView
 //		posXY[0] = new[60];
 //		posXY[1] = new[60];
 //
-//		var offset = (120-8)/*SECONDS_CENTRE_OFFSET*/ + (moveIn ? -4 : 0);
+//		var offset = (displayHalf-8)/*SECONDS_CENTRE_OFFSET*/ + (moveIn ? -4 : 0);
 //
 //		for (var i=0; i<60; i++)
 //		{
 //	        var r = Math.toRadians(i*6);
 //
 //        	// centre of char
-//	    	posXY[0][i] = Math.floor(displayHalf + offset*Math.sin(r) + 0.5);
-//	    	posXY[1][i] = Math.floor(displayHalf - offset*Math.cos(r) + 0.5);
+//	    	posXY[0][i] = getMax(Math.floor(displayHalf + offset*Math.sin(r) + 0.5), 0);
+//	    	posXY[1][i] = getMax(Math.floor(displayHalf - offset*Math.cos(r) + 0.5), 0);
 //		}
 //		
 //		return posXY;
@@ -3902,8 +3903,8 @@ class myView
 //
 //		for (var i=0; i<60; i++)
 //		{
-//			var xCentre = getMax(posXY[0][i].toNumber(), 0);
-//	    	var yCentre = getMax(posXY[1][i].toNumber(), 0);
+//			var xCentre = posXY[0][i].toNumber();
+//	    	var yCentre = posXY[1][i].toNumber();
 //	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
 //		}
 //

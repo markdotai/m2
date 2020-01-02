@@ -60,30 +60,29 @@
 	<font id="id_abc_l_4" filename="TrivialAbc18Bold.fnt" antialias="true"></font>
 	<font id="id_abc_l_5" filename="TrivialAbc18Heavy.fnt" antialias="true"></font>
 
+	<font id="id_seconds_tri" filename="SecondsTri240.fnt" antialias="true"></font>
+	<font id="id_seconds_tri_in" filename="SecondsTriInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_v" filename="SecondsV240.fnt" antialias="true"></font>
+	<font id="id_seconds_v_in" filename="SecondsVInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_line" filename="SecondsLine240.fnt" antialias="true"></font>
+	<font id="id_seconds_line_in" filename="SecondsLineInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_linethin" filename="SecondsThin240.fnt" antialias="true"></font>
+	<font id="id_seconds_linethin_in" filename="SecondsThinInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular" filename="SecondsCircular240.fnt" antialias="true"></font>
+
+	<font id="id_seconds_circular_in" filename="circularin_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_circularthin" filename="circularthin_240x240.fnt" antialias="true"></font>
+	<font id="id_seconds_circularthin_in" filename="circularthinin_240x240.fnt" antialias="true"></font>
+	<font id="id_outer" filename="outer60_240x240.fnt" antialias="true"></font>
+
+	<font id="id_icons" filename="icons.fnt" antialias="true"></font>
+
 	<font id="id_trivial_ultra_light_italic" filename="TrivialUltraLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_extra_light_italic" filename="TrivialExtraLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_light_italic" filename="TrivialLightItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_regular_italic" filename="TrivialRegularItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_bold_italic" filename="TrivialBoldItalic70.fnt" antialias="true"></font>
 	<font id="id_trivial_heavy_italic" filename="TrivialHeavyItalic70.fnt" antialias="true"></font>
-
-	<font id="id_icons" filename="icons.fnt" antialias="true"></font>
-
-	<font id="id_seconds_tri" filename="tri_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_v" filename="v_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_line" filename="line_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_linethin" filename="thin_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_circular" filename="circular_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_circularthin" filename="circularthin_240x240.fnt" antialias="true"></font>
-
-	<font id="id_seconds_tri_in" filename="triinshort_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_v_in" filename="vinshort_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_line_in" filename="lineinshort_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_linethin_in" filename="thininshort_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_circular_in" filename="circularin_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_circularthin_in" filename="circularthinin_240x240.fnt" antialias="true"></font>
-
-	<font id="id_outer" filename="outer60_240x240.fnt" antialias="true"></font>
 
 	<font id="id_editor" filename="editor.fnt" antialias="true"></font>
 

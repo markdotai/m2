@@ -61,4 +61,14 @@
 	<font id="id_abc_l_4" filename="TrivialAbc18Bold.fnt" antialias="true"></font>
 	<font id="id_abc_l_5" filename="TrivialAbc18Heavy.fnt" antialias="true"></font>
 
+	<font id="id_seconds_tri" filename="SecondsTri240.fnt" antialias="true"></font>
+	<font id="id_seconds_tri_in" filename="SecondsTriInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_v" filename="SecondsV240.fnt" antialias="true"></font>
+	<font id="id_seconds_v_in" filename="SecondsVInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_line" filename="SecondsLine240.fnt" antialias="true"></font>
+	<font id="id_seconds_line_in" filename="SecondsLineInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_linethin" filename="SecondsThin240.fnt" antialias="true"></font>
+	<font id="id_seconds_linethin_in" filename="SecondsThinInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular" filename="SecondsCircular240.fnt" antialias="true"></font>
+
 </fonts>
