@@ -66,9 +66,7 @@
 	<font id="id_seconds_v" filename="SecondsV280.fnt" antialias="true"></font>
 	<font id="id_seconds_v_in" filename="SecondsVInShort280.fnt" antialias="true"></font>
 	<font id="id_seconds_line" filename="SecondsLine280.fnt" antialias="true"></font>
-	<font id="id_seconds_line_in" filename="SecondsLineInShort280.fnt" antialias="true"></font>
 	<font id="id_seconds_linethin" filename="SecondsThin280.fnt" antialias="true"></font>
-	<font id="id_seconds_linethin_in" filename="SecondsThinInShort280.fnt" antialias="true"></font>
 	<font id="id_seconds_circular" filename="SecondsCircular280.fnt" antialias="true"></font>
 
 </fonts>

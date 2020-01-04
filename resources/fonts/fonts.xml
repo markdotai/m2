@@ -61,19 +61,24 @@
 	<font id="id_abc_l_5" filename="TrivialAbc18Heavy.fnt" antialias="true"></font>
 
 	<font id="id_seconds_tri" filename="SecondsTri240.fnt" antialias="true"></font>
-	<font id="id_seconds_tri_in" filename="SecondsTriInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_tri_in" filename="SecondsTriIn240.fnt" antialias="true"></font>
 	<font id="id_seconds_v" filename="SecondsV240.fnt" antialias="true"></font>
-	<font id="id_seconds_v_in" filename="SecondsVInShort240.fnt" antialias="true"></font>
+	<font id="id_seconds_v_in" filename="SecondsVIn240.fnt" antialias="true"></font>
 	<font id="id_seconds_line" filename="SecondsLine240.fnt" antialias="true"></font>
-	<font id="id_seconds_line_in" filename="SecondsLineInShort240.fnt" antialias="true"></font>
 	<font id="id_seconds_linethin" filename="SecondsThin240.fnt" antialias="true"></font>
-	<font id="id_seconds_linethin_in" filename="SecondsThinInShort240.fnt" antialias="true"></font>
 	<font id="id_seconds_circular" filename="SecondsCircular240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_a" filename="SecondsCircularA240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_b" filename="SecondsCircularB240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_c" filename="SecondsCircularC240.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_wide" filename="SecondsCircularWide240.fnt" antialias="true"></font>
 
-	<font id="id_seconds_circular_in" filename="circularin_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_circularthin" filename="circularthin_240x240.fnt" antialias="true"></font>
-	<font id="id_seconds_circularthin_in" filename="circularthinin_240x240.fnt" antialias="true"></font>
-	<font id="id_outer" filename="outer60_240x240.fnt" antialias="true"></font>
+	<font id="id_ring_circular" filename="RingCircular240.fnt" antialias="true"></font>
+	<font id="id_ring_circular_a" filename="RingCircularA240.fnt" antialias="true"></font>
+	<font id="id_ring_circular_b" filename="RingCircularB240.fnt" antialias="true"></font>
+	<font id="id_ring_circular_c" filename="RingCircularC240.fnt" antialias="true"></font>
+	<font id="id_ring_circular_wide" filename="RingCircularWide240.fnt" antialias="true"></font>
+	<font id="id_ring_circular_wide_a" filename="RingCircularWideA240.fnt" antialias="true"></font>
+	<font id="id_ring_triclock" filename="RingTriClock240.fnt" antialias="true"></font>
 
 	<font id="id_icons" filename="icons.fnt" antialias="true"></font>
 

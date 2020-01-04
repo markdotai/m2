@@ -1055,7 +1055,7 @@ class myView
 			{
 				myChars[i] = dataResource[2][i];	// table for characters with diacritics
 
-				if (i<74)
+				if (i<61+18/*SECONDFONT_UNUSED*/)
 				{
 					dynResSizeArray[i] = dataResource[6][i];
 	
@@ -1622,12 +1622,13 @@ class myView
 		    
 			var xCur = getOuterX(dynamicPositions, secondsIndex);
 			var yCur = getOuterY(dynamicPositions, secondsIndex);
+			var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
 	
 		    if (!doUpdate)
 		    {
 				// see if need to redraw the offscreen buffer (if clearIndex is outside it)
-				doUpdate = ((xCur<bufferX+8/*SECONDS_SIZE_HALF*/) || (xCur>bufferX+62/*BUFFER_SIZE*/-8/*SECONDS_SIZE_HALF*/) || 
-							(yCur<bufferY+8/*SECONDS_SIZE_HALF*/) || (yCur>bufferY+62/*BUFFER_SIZE*/-8/*SECONDS_SIZE_HALF*/));
+				doUpdate = ((xCur<bufferX+secondsSizeHalf) || (xCur>bufferX-secondsSizeHalf+62/*BUFFER_SIZE*/) || 
+							(yCur<bufferY+secondsSizeHalf) || (yCur>bufferY-secondsSizeHalf+62/*BUFFER_SIZE*/));
 			}
 	
 		    if (doUpdate)
@@ -1637,7 +1638,7 @@ class myView
 				var yMin = yCur;
 				var yMax = yCur;
 	
-				var r = 62/*BUFFER_SIZE*/-8/*SECONDS_SIZE_HALF*/-8/*SECONDS_SIZE_HALF*/;
+				var r = 62/*BUFFER_SIZE*/-secondsSizeHalf*2;
 	
 		    	for (var i=secondsIndex+1; i<60; i++)
 		    	{
@@ -1672,20 +1673,20 @@ class myView
 		    
 				if (xMin>displayHalf && xMax>displayHalf)
 				{
-					bufferX = xMin-8/*SECONDS_SIZE_HALF*/;
+					bufferX = xMin-secondsSizeHalf;
 				}
 				else
 				{
-					bufferX = xMax+8/*SECONDS_SIZE_HALF*/-62/*BUFFER_SIZE*/;
+					bufferX = xMax+secondsSizeHalf-62/*BUFFER_SIZE*/;
 				}
 		    
 				if (yMin>displayHalf && yMax>displayHalf)
 				{
-					bufferY = yMin-8/*SECONDS_SIZE_HALF*/;
+					bufferY = yMin-secondsSizeHalf;
 				}
 				else
 				{
-					bufferY = yMax+8/*SECONDS_SIZE_HALF*/-62/*BUFFER_SIZE*/;
+					bufferY = yMax+secondsSizeHalf-62/*BUFFER_SIZE*/;
 				}
 		    
 				bufferPositionCounter++;		// set the buffer we are using
@@ -1882,7 +1883,8 @@ class myView
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
-   			dc.setClip(getOuterX(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, getOuterY(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, 8/*SECONDS_SIZE_HALF*/*2, 8/*SECONDS_SIZE_HALF*/*2);
+			var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+   			dc.setClip(getOuterX(dynamicPositions, index) - secondsSizeHalf, getOuterY(dynamicPositions, index) - secondsSizeHalf, secondsSizeHalf*2, secondsSizeHalf*2);
    		}
     }
 
@@ -1892,6 +1894,8 @@ class myView
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicResource!=null && dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
+			var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+
 	    	var curCol = COLOR_NOTSET;
 	    	for (var index=startIndex; index<=endIndex; index++)
 	    	{
@@ -1909,14 +1913,14 @@ class myView
 		        	curCol = col;
 		       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
 		       	}
-		       	//dc.setColor(col, Graphics.COLOR_GREEN);	// show background of whole font character
+		       	//dc.setColor(col, Graphics.COLOR_RED);	// show background of whole font character
 		       	//dc.setColor(getColor64(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 
 		       	//var s = characterString.substring(index+9, index+10);
 				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
 				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
 				// need to draw 1 pixel higher than expected ...
-	        	dc.drawText(getOuterX(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/, getOuterY(dynamicPositions, index) - 8/*SECONDS_SIZE_HALF*/ - 1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	        	dc.drawText(getOuterX(dynamicPositions, index) - secondsSizeHalf, getOuterY(dynamicPositions, index) - secondsSizeHalf - 1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 			}
 		}
     }
@@ -3430,7 +3434,7 @@ class myView
 		}		
 	}
 
-	var dynResSizeArray = new[74]b;
+	var dynResSizeArray = new[61+18/*SECONDFONT_UNUSED*/]b;
 
 	function gfxAddDynamicResources(fontIndex)
 	{	
@@ -3556,31 +3560,39 @@ class myView
 			fonts.id_seconds_line,			// SECONDFONT_LINE
 			jsonData.id_secondArray,
 			
-			fonts.id_seconds_line_in,		// SECONDFONT_LINE_IN
-			jsonData.id_secondInArray,
-			
 			fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
 			jsonData.id_secondArray,
 			
-			fonts.id_seconds_linethin_in,	// SECONDFONT_LINETHIN_IN
-			jsonData.id_secondInArray,
-			
 			fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
-			jsonData.id_secondArray,
+			jsonData.id_secondCircularArray,			
+			fonts.id_seconds_circular_a,
+			jsonData.id_secondCircularAArray,
+			fonts.id_seconds_circular_b,
+			jsonData.id_secondCircularBArray,
+			fonts.id_seconds_circular_c,
+			jsonData.id_secondCircularCArray,
 			
-			fonts.id_seconds_circular_in,	// SECONDFONT_CIRCULAR_IN
-			jsonData.id_secondInArray,
+			fonts.id_seconds_circular_wide,
+			jsonData.id_secondArrayWide,
 			
-			fonts.id_seconds_circularthin,	// SECONDFONT_CIRCULARTHIN
-			jsonData.id_secondArray,
-			
-			fonts.id_seconds_circularthin_in,	// SECONDFONT_CIRCULARTHIN_IN
-			jsonData.id_secondInArray,
-			
-			fonts.id_outer,
-			jsonData.id_outerArray,
+			fonts.id_ring_circular,
+			jsonData.id_ringCircularArray,
+			fonts.id_ring_circular_a,
+			jsonData.id_ringCircularAArray,
+			fonts.id_ring_circular_b,
+			jsonData.id_ringCircularBArray,
+			fonts.id_ring_circular_c,
+			jsonData.id_ringCircularCArray,
 
-		// 87
+			fonts.id_ring_circular_wide,
+			jsonData.id_ringWideArray,
+			fonts.id_ring_circular_wide_a,
+			jsonData.id_ringWideAArray,
+
+			fonts.id_ring_triclock,
+			jsonData.id_ringWideArray,
+
+		// 93
 
 		// ??
 			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT_ITALIC
@@ -3691,7 +3703,7 @@ class myView
 				case 10:	// ring
 				{
 					var r = (gfxData[index+2/*ring_font*/] & 0x00FF);	// font
-				 	if (r<0 || r>=13/*SECONDFONT_UNUSED*/)
+				 	if (r<0 || r>=18/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 12/*SECONDFONT_OUTER*/;
 				 	}
@@ -3702,8 +3714,19 @@ class myView
 					
 					gfxData[index+9] = addDynamicResource(fontList[fontListIndex+1], 7);
 
-					//printRingArray();
-					//printRingFont();
+					//printRingArray(2);	// ring
+					//printRingFont(2, 8);
+					//printRingArray(9);	// ring a
+					//printRingFont(9, 8);
+					//printRingArray(16);	// ring b
+					//printRingFont(16, 8);
+					//printRingArray(23);	// ring c
+					//printRingFont(23, 8);
+
+					//printRingArray(8);	// wide
+					//printRingFont(8, 9);
+					//printRingArray(18);	// wide a
+					//printRingFont(18, 9);
 
 					break;
 				}
@@ -3713,7 +3736,7 @@ class myView
 					buildSecondsColorArray(index);
 					
 					var r = (gfxData[index+1] & 0x00FF);	// font
-				 	if (r<0 || r>=13/*SECONDFONT_UNUSED*/)
+				 	if (r<0 || r>=18/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
@@ -3728,11 +3751,23 @@ class myView
 						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 84);
 					}
 					
-					//printSecondArray(false);
-					//printSecondFont(false);
+					//printSecondArray(2);	// circular
+					//printSecondFont(2, 8);
+					//printSecondArray(9);	// circular a
+					//printSecondFont(9, 8);
+					//printSecondArray(16);	// circular b
+					//printSecondFont(16, 8);
+					//printSecondArray(23);	// circular c
+					//printSecondFont(23, 8);
 
-					//printSecondArray(true);	// move in
-					//printSecondFont(true);	// move in
+					//printSecondArray(8);	// tri
+					//printSecondFont(8, 8);
+
+					//printSecondArray(12);	// move in
+					//printSecondFont(12, 8);
+
+					//printSecondArray(8);	// wide
+					//printSecondFont(8, 9);
 
 					break;
 				}
@@ -3754,126 +3789,68 @@ class myView
 		return ((r[index]>>16) & 0xFFFF);
 	}
 	
+	function getOuterSizeHalf(r)
+	{
+		return r[61];
+	}
+	
 	function outerAlignedToSeconds(r)
 	{
 		return r[60];
 	}
 	
-//	function calculateRingPositions()
-//	{
-//		var posXY = new[2];
-//		posXY[0] = new[60];
-//		posXY[1] = new[60];
-//
-//		var offset = 117/*OUTER_CENTRE_OFFSET*/;
-//
-//		for (var i=0; i<60; i++)
-//		{
-//	        var r = Math.toRadians((i*6) + 3.0);	// to centre of arc
-//
-//        	// centre of char
-//	    	posXY[0][i] = Math.floor(displayHalf + offset*Math.sin(r) + 0.5);
-//	    	posXY[1][i] = Math.floor(displayHalf - offset*Math.cos(r) + 0.5);
-//		}
-//		
-//		return posXY;
-//	}
-//	
-//	function printRingArray()
-//	{
-//		var posXY = calculateRingPositions();
-//	
-//		var posArray = new[60];
-//
-//		for (var i=0; i<60; i++)
-//		{
-//			var xCentre = getMax(posXY[0][i].toNumber(), 0);
-//	    	var yCentre = getMax(posXY[1][i].toNumber(), 0);
-//	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
-//		}
-//
-//		System.println(posArray);
-//	}
-//
-//	function printRingFont()
-//	{
-//		var posXY = calculateRingPositions();
-//	
-//		// debug code for calculating font character positions
-//        for (var i = 0; i < 60; i++)
-//        {
-//    		var id = 21/*OUTER_FIRST_CHAR_ID*/ + i;
-//			var page = (i % 2);		// even or odd pages
-//			var x = posXY[0][i].toNumber() - 8/*OUTER_SIZE_HALF*/;	// top left
-//        	var y = posXY[1][i].toNumber() - 8/*OUTER_SIZE_HALF*/;	// top left
-//
-//        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=$4$ chnl=15", [id, x.format("%d"), y.format("%d"), page]);
-//        	System.println(s);
-//		}
-//		
-//		/*
-//		char id=12 x=118 y=-5 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=13 x=130 y=-4 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=14 x=142 y=-1 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=15 x=154 y=3 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=16 x=165 y=8 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=17 x=176 y=14 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=18 x=186 y=21 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=19 x=195 y=29 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=20 x=203 y=38 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=21 x=210 y=48 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=22 x=216 y=59 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=23 x=221 y=70 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=24 x=225 y=82 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=25 x=228 y=94 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=26 x=229 y=106 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=27 x=229 y=118 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=28 x=228 y=130 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=29 x=225 y=142 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=30 x=221 y=154 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=31 x=216 y=165 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=32 x=210 y=176 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=33 x=203 y=186 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=34 x=195 y=195 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=35 x=186 y=203 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=36 x=176 y=210 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=37 x=165 y=216 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=38 x=154 y=221 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=39 x=142 y=225 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=40 x=130 y=228 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=41 x=118 y=229 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=42 x=106 y=229 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=43 x=94 y=228 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=44 x=82 y=225 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=45 x=70 y=221 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=46 x=59 y=216 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=47 x=48 y=210 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=48 x=38 y=203 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=49 x=29 y=195 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=50 x=21 y=186 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=51 x=14 y=176 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=52 x=8 y=165 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=53 x=3 y=154 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=54 x=-1 y=142 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=55 x=-4 y=130 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=56 x=-5 y=118 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=57 x=-5 y=106 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=58 x=-4 y=94 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=59 x=-1 y=82 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=60 x=3 y=70 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=61 x=8 y=59 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=62 x=14 y=48 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=63 x=21 y=38 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=64 x=29 y=29 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=65 x=38 y=21 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=66 x=48 y=14 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=67 x=59 y=8 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=68 x=70 y=3 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=69 x=82 y=-1 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=70 x=94 y=-4 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=71 x=106 y=-5 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		*/
-//	}
+	function calculateRingPositions(moveIn)
+	{
+		var posXY = new[2];
+		posXY[0] = new[60];
+		posXY[1] = new[60];
+
+		var offset = displayHalf - moveIn;
+
+		for (var i=0; i<60; i++)
+		{
+	        var r = Math.toRadians((i*6) + 3.0);	// to centre of arc
+
+        	// centre of char
+	    	posXY[0][i] = getMax(Math.floor(displayHalf + offset*Math.sin(r) + 0.5), 0);
+	    	posXY[1][i] = getMax(Math.floor(displayHalf - offset*Math.cos(r) + 0.5), 0);
+		}
+		
+		return posXY;
+	}
+	
+	function printRingArray(moveIn)
+	{
+		var posXY = calculateRingPositions(moveIn);
+	
+		var posArray = new[60];
+
+		for (var i=0; i<60; i++)
+		{
+			var xCentre = posXY[0][i].toNumber();
+	    	var yCentre = posXY[1][i].toNumber();
+	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
+		}
+
+		System.println(posArray);
+	}
+
+	function printRingFont(moveIn, sizeHalf)
+	{
+		var posXY = calculateRingPositions(moveIn);
+	
+		// debug code for calculating font character positions
+        for (var i = 0; i < 60; i++)
+        {
+    		var id = 21/*OUTER_FIRST_CHAR_ID*/ + i;
+			var page = (i % 2);		// even or odd pages
+			var x = posXY[0][i].toNumber() - sizeHalf;	// top left
+        	var y = posXY[1][i].toNumber() - sizeHalf;	// top left
+
+        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=$4$ height=$4$ xoffset=0 yoffset=0 xadvance=$4$ page=$5$ chnl=15", [id, x.format("%d"), y.format("%d"), sizeHalf*2, page]);
+        	System.println(s);
+		}
+	}
 
 //	function calculateSecondPositions(moveIn)
 //	{
@@ -3881,7 +3858,7 @@ class myView
 //		posXY[0] = new[60];
 //		posXY[1] = new[60];
 //
-//		var offset = (displayHalf-8)/*SECONDS_CENTRE_OFFSET*/ + (moveIn ? -4 : 0);
+//		var offset = displayHalf - moveIn;
 //
 //		for (var i=0; i<60; i++)
 //		{
@@ -3911,7 +3888,7 @@ class myView
 //		System.println(posArray);
 //	}
 //
-//	function printSecondFont(moveIn)
+//	function printSecondFont(moveIn, sizeHalf)
 //	{
 //		var posXY = calculateSecondPositions(moveIn);
 //	
@@ -3920,138 +3897,12 @@ class myView
 //        {
 //			var id = 21/*SECONDS_FIRST_CHAR_ID*/ + i;
 //			var page = (i % 2);		// even or odd pages
-//			var x = posXY[0][i].toNumber() - 8/*SECONDS_SIZE_HALF*/;	// top left
-//        	var y = posXY[1][i].toNumber() - 8/*SECONDS_SIZE_HALF*/;	// top left
+//			var x = posXY[0][i].toNumber() - sizeHalf;	// top left
+//        	var y = posXY[1][i].toNumber() - sizeHalf;	// top left
 //
-//        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=$4$ chnl=15", [id, x.format("%d"), y.format("%d"), page]);
+//        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=$4$ height=$4$ xoffset=0 yoffset=0 xadvance=$4$ page=$5$ chnl=15", [id, x.format("%d"), y.format("%d"), sizeHalf*2, page]);
 //        	System.println(s);
 //		}
-//
-//		/*
-//		char id=21 x=112 y=0 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=22 x=124 y=1 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=23 x=135 y=2 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=24 x=147 y=5 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=25 x=158 y=10 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=26 x=168 y=15 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=27 x=178 y=21 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=28 x=187 y=29 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=29 x=195 y=37 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=30 x=203 y=46 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=31 x=209 y=56 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=32 x=214 y=66 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=33 x=219 y=77 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=34 x=222 y=89 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=35 x=223 y=100 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=36 x=224 y=112 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=37 x=223 y=124 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=38 x=222 y=135 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=39 x=219 y=147 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=40 x=214 y=158 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=41 x=209 y=168 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=42 x=203 y=178 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=43 x=195 y=187 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=44 x=187 y=195 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=45 x=178 y=203 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=46 x=168 y=209 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=47 x=158 y=214 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=48 x=147 y=219 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=49 x=135 y=222 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=50 x=124 y=223 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=51 x=112 y=224 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=52 x=100 y=223 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=53 x=89 y=222 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=54 x=77 y=219 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=55 x=66 y=214 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=56 x=56 y=209 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=57 x=46 y=203 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=58 x=37 y=195 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=59 x=29 y=187 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=60 x=21 y=178 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=61 x=15 y=168 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=62 x=10 y=158 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=63 x=5 y=147 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=64 x=2 y=135 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=65 x=1 y=124 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=66 x=0 y=112 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=67 x=1 y=100 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=68 x=2 y=89 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=69 x=5 y=77 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=70 x=10 y=66 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=71 x=15 y=56 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=72 x=21 y=46 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=73 x=29 y=37 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=74 x=37 y=29 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=75 x=46 y=21 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=76 x=56 y=15 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=77 x=66 y=10 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=78 x=77 y=5 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=79 x=89 y=2 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=80 x=100 y=1 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		*/
-//		
-//		/*
-//		char id=21 x=112 y=4 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=22 x=123 y=5 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=23 x=134 y=6 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=24 x=145 y=9 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=25 x=156 y=13 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=26 x=166 y=18 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=27 x=175 y=25 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=28 x=184 y=32 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=29 x=192 y=40 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=30 x=199 y=49 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=31 x=206 y=58 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=32 x=211 y=68 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=33 x=215 y=79 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=34 x=218 y=90 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=35 x=219 y=101 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=36 x=220 y=112 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=37 x=219 y=123 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=38 x=218 y=134 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=39 x=215 y=145 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=40 x=211 y=156 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=41 x=206 y=166 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=42 x=199 y=175 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=43 x=192 y=184 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=44 x=184 y=192 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=45 x=175 y=199 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=46 x=166 y=206 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=47 x=156 y=211 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=48 x=145 y=215 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=49 x=134 y=218 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=50 x=123 y=219 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=51 x=112 y=220 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=52 x=101 y=219 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=53 x=90 y=218 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=54 x=79 y=215 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=55 x=68 y=211 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=56 x=58 y=206 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=57 x=49 y=199 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=58 x=40 y=192 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=59 x=32 y=184 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=60 x=25 y=175 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=61 x=18 y=166 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=62 x=13 y=156 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=63 x=9 y=145 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=64 x=6 y=134 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=65 x=5 y=123 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=66 x=4 y=112 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=67 x=5 y=101 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=68 x=6 y=90 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=69 x=9 y=79 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=70 x=13 y=68 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=71 x=18 y=58 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=72 x=25 y=49 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=73 x=32 y=40 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=74 x=40 y=32 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=75 x=49 y=25 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=76 x=58 y=18 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=77 x=68 y=13 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=78 x=79 y=9 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		char id=79 x=90 y=6 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
-//		char id=80 x=101 y=5 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
-//		*/
 //	}
 
 	function buildSecondsColorArray(index)
@@ -5477,10 +5328,12 @@ class myView
 					
 					var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
 
-					var bufferXMin = bufferX - 8/*OUTER_SIZE_HALF*/;
-					var bufferXMax = bufferX + 62/*BUFFER_SIZE*/ + 8/*OUTER_SIZE_HALF*/;
-					var bufferYMin = bufferY - 8/*OUTER_SIZE_HALF*/;
-					var bufferYMax = bufferY + 62/*BUFFER_SIZE*/ + 8/*OUTER_SIZE_HALF*/;
+					var outerSizeHalf = getOuterSizeHalf(arrayResource);
+
+					var bufferXMin = bufferX - outerSizeHalf;
+					var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
+					var bufferYMin = bufferY - outerSizeHalf;
+					var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
 
 					var jStart = 0;
 					var jRange = 59;	// all segments
@@ -5561,8 +5414,8 @@ class myView
 						testRange = drawRange; 
 					}
 					
-					var xOffset = -dcX - 8/*OUTER_SIZE_HALF*/;
-					var yOffset = -dcY - 8/*OUTER_SIZE_HALF*/ - 1;		// need to draw 1 pixel higher than expected ...
+					var xOffset = -dcX - outerSizeHalf;
+					var yOffset = -dcY - outerSizeHalf - 1;		// need to draw 1 pixel higher than expected ...
 					var curCol = COLOR_NOTSET;
 			
 					// draw the correct segments
@@ -7088,7 +6941,7 @@ class myEditorView extends myView
 	
 	function ringFontEditing(val)
 	{
-		gfxData[menuFieldGfx+2/*ring_font*/] = ((gfxData[menuFieldGfx+2/*ring_font*/]&0xFF) - val + 13/*SECONDFONT_UNUSED*/)%13/*SECONDFONT_UNUSED*/; 
+		gfxData[menuFieldGfx+2/*ring_font*/] = ((gfxData[menuFieldGfx+2/*ring_font*/]&0xFF) - val + 18/*SECONDFONT_UNUSED*/)%18/*SECONDFONT_UNUSED*/; 
 		reloadDynamicResources = true;
 	}
 	
@@ -7110,7 +6963,7 @@ class myEditorView extends myView
 	function secondsFontEditing(val)
 	{
 		var temp = (gfxData[menuFieldGfx+1]&0xFF);
-		temp = (temp-val+13/*SECONDFONT_UNUSED*/)%13/*SECONDFONT_UNUSED*/;
+		temp = (temp-val+18/*SECONDFONT_UNUSED*/)%18/*SECONDFONT_UNUSED*/;
 		
 		gfxData[menuFieldGfx+1] &= ~0x00FF; 
 		gfxData[menuFieldGfx+1] |= temp;
