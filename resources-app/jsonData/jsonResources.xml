@@ -144,8 +144,8 @@
 			"movebar alert\nlevel",
 			"system fonts\ncase override",
 			"replacement\nfont for names",
-			"menu hide",
 			"memory display",
+			"menu hide",
 			
 			"any case",
 			"upper case",

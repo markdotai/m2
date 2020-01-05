@@ -1055,7 +1055,7 @@ class myView
 			{
 				myChars[i] = dataResource[2][i];	// table for characters with diacritics
 
-				if (i<61+19/*SECONDFONT_UNUSED*/)
+				if (i<61+25/*SECONDFONT_UNUSED*/)
 				{
 					dynResSizeArray[i] = dataResource[6][i];
 	
@@ -3434,7 +3434,7 @@ class myView
 		}		
 	}
 
-	var dynResSizeArray = new[61+19/*SECONDFONT_UNUSED*/]b;
+	var dynResSizeArray = new[61+25/*SECONDFONT_UNUSED*/]b;
 
 	function gfxAddDynamicResources(fontIndex)
 	{	
@@ -3591,9 +3591,21 @@ class myView
 
 			fonts.id_ring_slashclock,
 			jsonData.id_ringWideArray,
+			fonts.id_ring_slashclock_a,
+			jsonData.id_ringWideAArray,
+			fonts.id_ring_slashanti,
+			jsonData.id_ringWideArray,
+			fonts.id_ring_slashanti_a,
+			jsonData.id_ringWideAArray,
 
 			fonts.id_ring_triclock,
 			jsonData.id_ringWideArray,
+			fonts.id_ring_triclock_a,
+			jsonData.id_ringWideAArray,
+			fonts.id_ring_trianti,
+			jsonData.id_ringWideArray,
+			fonts.id_ring_trianti_a,
+			jsonData.id_ringWideAArray,
 
 		// 93
 
@@ -3706,7 +3718,7 @@ class myView
 				case 10:	// ring
 				{
 					var r = (gfxData[index+2/*ring_font*/] & 0x00FF);	// font
-				 	if (r<0 || r>=19/*SECONDFONT_UNUSED*/)
+				 	if (r<0 || r>=25/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 12/*SECONDFONT_OUTER*/;
 				 	}
@@ -3739,7 +3751,7 @@ class myView
 					buildSecondsColorArray(index);
 					
 					var r = (gfxData[index+1] & 0x00FF);	// font
-				 	if (r<0 || r>=19/*SECONDFONT_UNUSED*/)
+				 	if (r<0 || r>=25/*SECONDFONT_UNUSED*/)
 				 	{
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
@@ -6944,7 +6956,7 @@ class myEditorView extends myView
 	
 	function ringFontEditing(val)
 	{
-		gfxData[menuFieldGfx+2/*ring_font*/] = ((gfxData[menuFieldGfx+2/*ring_font*/]&0xFF) - val + 19/*SECONDFONT_UNUSED*/)%19/*SECONDFONT_UNUSED*/; 
+		gfxData[menuFieldGfx+2/*ring_font*/] = ((gfxData[menuFieldGfx+2/*ring_font*/]&0xFF) - val + 25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/; 
 		reloadDynamicResources = true;
 	}
 	
@@ -6966,7 +6978,7 @@ class myEditorView extends myView
 	function secondsFontEditing(val)
 	{
 		var temp = (gfxData[menuFieldGfx+1]&0xFF);
-		temp = (temp-val+19/*SECONDFONT_UNUSED*/)%19/*SECONDFONT_UNUSED*/;
+		temp = (temp-val+25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/;
 		
 		gfxData[menuFieldGfx+1] &= ~0x00FF; 
 		gfxData[menuFieldGfx+1] |= temp;
@@ -7541,8 +7553,8 @@ class myMenuItemHeader extends myMenuItem
 //		f_moveBarAlert,
 //		f_fontSystemCase,
 //		f_fontUnsupported,
-//		f_menuhide,
 //		f_memoryDisplay,
+//		f_menuhide,
 //
 //		f_backgroundEdit,
 //		f_batteryHighEdit,
@@ -7551,8 +7563,8 @@ class myMenuItemHeader extends myMenuItem
 //		f_moveBarAlertEdit,
 //		f_fontSystemCaseEdit,
 //		f_fontUnsupportedEdit,
-//		f_menuHideEdit,
 //		f_memoryDisplayEdit,
+//		f_menuHideEdit,
 //	}
 
 	var fState;
@@ -7590,11 +7602,11 @@ class myMenuItemHeader extends myMenuItem
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + 3 + editorView.propFieldFontUnsupported);
     	}
-    	else if (fState==17/*f_fontUnsupportedEdit*/)
+    	else if (fState==16/*f_memoryDisplayEdit*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + 3 + 5 + editorView.memoryDisplayMode);
     	}
-    	else if (fState<=8/*f_memoryDisplay*/)
+    	else if (fState<=8/*f_menuHide*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
     	}
@@ -7646,14 +7658,14 @@ class myMenuItemHeader extends myMenuItem
     	{
     		editorView.headerFontUnsupportedEditing(val);
     	}
-    	else if (fState==16/*f_menuHideEdit*/)
-    	{
-			editorView.menuHide = false;
-			fState -= 8;
-    	}
-    	else if (fState==17/*f_memoryDisplayEdit*/)
+    	else if (fState==16/*f_memoryDisplayEdit*/)
     	{
     		editorView.memoryDisplayMode = (editorView.memoryDisplayMode + val + 3)%3;
+    	}
+    	else if (fState==17/*f_menuHideEdit*/)
+    	{
+			editorView.menuHide = false;
+			fState -= 9;
     	}
     	
     	return null;
@@ -7677,14 +7689,14 @@ class myMenuItemHeader extends myMenuItem
 			{
 				editorView.startColorEditing(editorView.menuFieldGfx+3);
 			}
-	    	else if (fState==7/*f_menuHide*/)
+	    	else if (fState==8/*f_menuHide*/)
 	    	{
 				editorView.menuHide = true;
 			}
 		
 			fState += 9;
 		}
-    	else if (fState==16/*f_menuHideEdit*/)
+    	else if (fState==17/*f_menuHideEdit*/)
     	{
 			editorView.menuHide = false;
 			fState -= 9;
@@ -7701,11 +7713,11 @@ class myMenuItemHeader extends myMenuItem
    		}
    		else
    		{   		
-   			//if (fState==8/*f_backgroundEdit*/)
+   			//if (fState==9/*f_backgroundEdit*/)
    			//{
 				editorView.endColorEditing();
    			//}
-	    	//else if (fState==15/*f_menuHideEdit*/)
+	    	//else if (fState==17/*f_menuHideEdit*/)
 	    	//{
 				editorView.menuHide = false;
 			//}

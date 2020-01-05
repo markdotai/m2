@@ -1,7 +1,7 @@
-info face="RingSlashClock" size=20 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=4 padding=0,0,0,0 spacing=1,1 outline=0
+info face="RingSlashAnti" size=20 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=4 padding=0,0,0,0 spacing=1,1 outline=0
 common lineHeight=16 base=16 scaleW=256 scaleH=256 pages=2 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0
-page id=0 file="RingSlashClock240Even.png"
-page id=1 file="RingSlashClock240Odd.png"
+page id=0 file="RingSlashAnti240Even.png"
+page id=1 file="RingSlashAnti240Odd.png"
 chars count=60
 char id=21 x=118 y=-1 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=0 chnl=15
 char id=22 x=130 y=0 width=16 height=16 xoffset=0 yoffset=0 xadvance=16 page=1 chnl=15
