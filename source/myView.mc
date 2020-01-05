@@ -3729,18 +3729,32 @@ class myView
 					
 					gfxData[index+9] = addDynamicResource(fontList[fontListIndex+1], 7);
 
-					//printRingArray(2);	// ring
+					//printRingArray(2);	// 218 ring
 					//printRingFont(2, 8);
-					//printRingArray(9);	// ring a
-					//printRingFont(9, 8);
-					//printRingArray(16);	// ring b
+					//printRingArray(8);	// 218 ring a
+					//printRingFont(8, 8);
+					//printRingArray(14);	// 218 ring b
+					//printRingFont(14, 8);
+					//printRingArray(20);	// 218 ring c
+					//printRingFont(20, 8);
+
+					//printRingArray(6);	// 218 wide
+					//printRingFont(6, 8);
+					//printRingArray(16);	// 218 wide a
 					//printRingFont(16, 8);
-					//printRingArray(23);	// ring c
+
+					//printRingArray(2);	// 240 ring
+					//printRingFont(2, 8);
+					//printRingArray(9);	// 240 ring a
+					//printRingFont(9, 8);
+					//printRingArray(16);	// 240 ring b
+					//printRingFont(16, 8);
+					//printRingArray(23);	// 240 ring c
 					//printRingFont(23, 8);
 
-					//printRingArray(7);	// wide
+					//printRingArray(7);	// 240 wide
 					//printRingFont(7, 8);
-					//printRingArray(19);	// wide a
+					//printRingArray(19);	// 240 wide a
 					//printRingFont(19, 8);
 
 					break;
@@ -3766,22 +3780,36 @@ class myView
 						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 84);
 					}
 					
-					//printSecondArray(2);	// circular
+					//printSecondArray(2);	// 218 circular
 					//printSecondFont(2, 8);
-					//printSecondArray(9);	// circular a
+					//printSecondArray(8);	// 218 circular a
+					//printSecondFont(8, 8);
+					//printSecondArray(14);	// 218 circular b
+					//printSecondFont(14, 8);
+					//printSecondArray(20);	// 218 circular c
+					//printSecondFont(20, 8);
+
+					//printSecondArray(6);	// 218 tri
+					//printSecondFont(6, 8);
+					//printSecondArray(11);	// 218 move in
+					//printSecondFont(11, 8);
+					//printSecondArray(6);	// 218 wide
+					//printSecondFont(6, 8);
+
+					//printSecondArray(2);	// 240 circular
+					//printSecondFont(2, 8);
+					//printSecondArray(9);	// 240 circular a
 					//printSecondFont(9, 8);
-					//printSecondArray(16);	// circular b
+					//printSecondArray(16);	// 240 circular b
 					//printSecondFont(16, 8);
-					//printSecondArray(23);	// circular c
+					//printSecondArray(23);	// 240 circular c
 					//printSecondFont(23, 8);
 
-					//printSecondArray(8);	// tri
+					//printSecondArray(8);	// 240 tri
 					//printSecondFont(8, 8);
-
-					//printSecondArray(12);	// move in
+					//printSecondArray(12);	// 240 move in
 					//printSecondFont(12, 8);
-
-					//printSecondArray(7);	// wide
+					//printSecondArray(7);	// 240 wide
 					//printSecondFont(7, 8);
 
 					break;
@@ -3814,111 +3842,111 @@ class myView
 		return r[60];
 	}
 	
-//	function calculateRingPositions(moveIn)
-//	{
-//		var posXY = new[2];
-//		posXY[0] = new[60];
-//		posXY[1] = new[60];
-//
-//		var offset = displayHalf - moveIn;
-//
-//		for (var i=0; i<60; i++)
-//		{
-//	        var r = Math.toRadians((i*6) + 3.0);	// to centre of arc
-//
-//        	// centre of char
-//	    	posXY[0][i] = getMax(Math.floor(displayHalf + offset*Math.sin(r) + 0.5), 0);
-//	    	posXY[1][i] = getMax(Math.floor(displayHalf - offset*Math.cos(r) + 0.5), 0);
-//		}
-//		
-//		return posXY;
-//	}
-//	
-//	function printRingArray(moveIn)
-//	{
-//		var posXY = calculateRingPositions(moveIn);
-//	
-//		var posArray = new[60];
-//
-//		for (var i=0; i<60; i++)
-//		{
-//			var xCentre = posXY[0][i].toNumber();
-//	    	var yCentre = posXY[1][i].toNumber();
-//	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
-//		}
-//
-//		System.println(posArray);
-//	}
-//
-//	function printRingFont(moveIn, sizeHalf)
-//	{
-//		var posXY = calculateRingPositions(moveIn);
-//	
-//		// debug code for calculating font character positions
-//        for (var i = 0; i < 60; i++)
-//        {
-//    		var id = 21/*OUTER_FIRST_CHAR_ID*/ + i;
-//			var page = (i % 2);		// even or odd pages
-//			var x = posXY[0][i].toNumber() - sizeHalf;	// top left
-//        	var y = posXY[1][i].toNumber() - sizeHalf;	// top left
-//
-//        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=$4$ height=$4$ xoffset=0 yoffset=0 xadvance=$4$ page=$5$ chnl=15", [id, x.format("%d"), y.format("%d"), sizeHalf*2, page]);
-//        	System.println(s);
-//		}
-//	}
+	function calculateRingPositions(moveIn)
+	{
+		var posXY = new[2];
+		posXY[0] = new[60];
+		posXY[1] = new[60];
 
-//	function calculateSecondPositions(moveIn)
-//	{
-//		var posXY = new[2];
-//		posXY[0] = new[60];
-//		posXY[1] = new[60];
-//
-//		var offset = displayHalf - moveIn;
-//
-//		for (var i=0; i<60; i++)
-//		{
-//	        var r = Math.toRadians(i*6);
-//
-//        	// centre of char
-//	    	posXY[0][i] = getMax(Math.floor(displayHalf + offset*Math.sin(r) + 0.5), 0);
-//	    	posXY[1][i] = getMax(Math.floor(displayHalf - offset*Math.cos(r) + 0.5), 0);
-//		}
-//		
-//		return posXY;
-//	}
-//
-//	function printSecondArray(moveIn)
-//	{
-//		var posXY = calculateSecondPositions(moveIn);
-//	
-//		var posArray = new[60];
-//
-//		for (var i=0; i<60; i++)
-//		{
-//			var xCentre = posXY[0][i].toNumber();
-//	    	var yCentre = posXY[1][i].toNumber();
-//	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
-//		}
-//
-//		System.println(posArray);
-//	}
-//
-//	function printSecondFont(moveIn, sizeHalf)
-//	{
-//		var posXY = calculateSecondPositions(moveIn);
-//	
-//		// debug code for calculating font character positions
-//        for (var i = 0; i < 60; i++)
-//        {
-//			var id = 21/*SECONDS_FIRST_CHAR_ID*/ + i;
-//			var page = (i % 2);		// even or odd pages
-//			var x = posXY[0][i].toNumber() - sizeHalf;	// top left
-//        	var y = posXY[1][i].toNumber() - sizeHalf;	// top left
-//
-//        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=$4$ height=$4$ xoffset=0 yoffset=0 xadvance=$4$ page=$5$ chnl=15", [id, x.format("%d"), y.format("%d"), sizeHalf*2, page]);
-//        	System.println(s);
-//		}
-//	}
+		var offset = displayHalf - moveIn;
+
+		for (var i=0; i<60; i++)
+		{
+	        var r = Math.toRadians((i*6) + 3.0);	// to centre of arc
+
+        	// centre of char
+	    	posXY[0][i] = getMax(Math.floor(displayHalf + offset*Math.sin(r) + 0.5), 0);
+	    	posXY[1][i] = getMax(Math.floor(displayHalf - offset*Math.cos(r) + 0.5), 0);
+		}
+		
+		return posXY;
+	}
+	
+	function printRingArray(moveIn)
+	{
+		var posXY = calculateRingPositions(moveIn);
+	
+		var posArray = new[60];
+
+		for (var i=0; i<60; i++)
+		{
+			var xCentre = posXY[0][i].toNumber();
+	    	var yCentre = posXY[1][i].toNumber();
+	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
+		}
+
+		System.println(posArray);
+	}
+
+	function printRingFont(moveIn, sizeHalf)
+	{
+		var posXY = calculateRingPositions(moveIn);
+	
+		// debug code for calculating font character positions
+        for (var i = 0; i < 60; i++)
+        {
+    		var id = 21/*OUTER_FIRST_CHAR_ID*/ + i;
+			var page = (i % 2);		// even or odd pages
+			var x = posXY[0][i].toNumber() - sizeHalf;	// top left
+        	var y = posXY[1][i].toNumber() - sizeHalf;	// top left
+
+        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=$4$ height=$4$ xoffset=0 yoffset=0 xadvance=$4$ page=$5$ chnl=15", [id, x.format("%d"), y.format("%d"), sizeHalf*2, page]);
+        	System.println(s);
+		}
+	}
+
+	function calculateSecondPositions(moveIn)
+	{
+		var posXY = new[2];
+		posXY[0] = new[60];
+		posXY[1] = new[60];
+
+		var offset = displayHalf - moveIn;
+
+		for (var i=0; i<60; i++)
+		{
+	        var r = Math.toRadians(i*6);
+
+        	// centre of char
+	    	posXY[0][i] = getMax(Math.floor(displayHalf + offset*Math.sin(r) + 0.5), 0);
+	    	posXY[1][i] = getMax(Math.floor(displayHalf - offset*Math.cos(r) + 0.5), 0);
+		}
+		
+		return posXY;
+	}
+
+	function printSecondArray(moveIn)
+	{
+		var posXY = calculateSecondPositions(moveIn);
+	
+		var posArray = new[60];
+
+		for (var i=0; i<60; i++)
+		{
+			var xCentre = posXY[0][i].toNumber();
+	    	var yCentre = posXY[1][i].toNumber();
+	    	posArray[i] = (xCentre & 0xFFFF) | ((yCentre & 0x8FFFF)<<16); 
+		}
+
+		System.println(posArray);
+	}
+
+	function printSecondFont(moveIn, sizeHalf)
+	{
+		var posXY = calculateSecondPositions(moveIn);
+	
+		// debug code for calculating font character positions
+        for (var i = 0; i < 60; i++)
+        {
+			var id = 21/*SECONDS_FIRST_CHAR_ID*/ + i;
+			var page = (i % 2);		// even or odd pages
+			var x = posXY[0][i].toNumber() - sizeHalf;	// top left
+        	var y = posXY[1][i].toNumber() - sizeHalf;	// top left
+
+        	var s = Lang.format("char id=$1$ x=$2$ y=$3$ width=$4$ height=$4$ xoffset=0 yoffset=0 xadvance=$4$ page=$5$ chnl=15", [id, x.format("%d"), y.format("%d"), sizeHalf*2, page]);
+        	System.println(s);
+		}
+	}
 
 	function buildSecondsColorArray(index)
 	{
