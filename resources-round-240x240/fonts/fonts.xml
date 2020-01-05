@@ -80,5 +80,6 @@
 	<font id="id_ring_circular_wide" filename="RingCircularWide240.fnt" antialias="true"></font>
 	<font id="id_ring_circular_wide_a" filename="RingCircularWideA240.fnt" antialias="true"></font>
 	<font id="id_ring_triclock" filename="RingTriClock240.fnt" antialias="true"></font>
+	<font id="id_ring_slashclock" filename="RingSlashClock240.fnt" antialias="true"></font>
 
 </fonts>
