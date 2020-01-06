@@ -1620,9 +1620,13 @@ class myView
 		{
 		    var doUpdate = (bufferPositionCounter < 0);	// if no buffer yet
 		    
-			var xCur = getOuterX(dynamicPositions, secondsIndex);
-			var yCur = getOuterY(dynamicPositions, secondsIndex);
-			var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+			//var xCur = getOuterX(dynamicPositions, secondsIndex);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+			//var yCur = getOuterY(dynamicPositions, secondsIndex);
+			var xyVal = dynamicPositions[secondsIndex];
+			var xCur = (xyVal & 0xFFFF);
+			var yCur = ((xyVal>>16) & 0xFFFF);
+			//var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+			var secondsSizeHalf = dynamicPositions[61];
 	
 		    if (!doUpdate)
 		    {
@@ -1642,15 +1646,18 @@ class myView
 	
 		    	for (var i=secondsIndex+1; i<60; i++)
 		    	{
-		    		var x = getOuterX(dynamicPositions, i);
-		    		var y = getOuterY(dynamicPositions, i);
+		    		//var x = getOuterX(dynamicPositions, i);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+		    		//var y = getOuterY(dynamicPositions, i);
+					var xyVal = dynamicPositions[i];
+					var x = (xyVal & 0xFFFF);
+					var y = ((xyVal>>16) & 0xFFFF);
 		    		
 		    		// stop at second which can't fit inside buffer
 		    		if ((x-xMin)>r || (xMax-x)>r || (y-yMin)>r || (yMax-y)>r)
 		    		{
 		    			break;
 		    		}
-		    		 
+		    		
 		    		// remember new max limits
 		    		if (x<xMin)
 		    		{
@@ -1671,23 +1678,9 @@ class myView
 		    		}
 		    	}
 		    
-				if (xMin>displayHalf && xMax>displayHalf)
-				{
-					bufferX = xMin-secondsSizeHalf;
-				}
-				else
-				{
-					bufferX = xMax+secondsSizeHalf-62/*BUFFER_SIZE*/;
-				}
-		    
-				if (yMin>displayHalf && yMax>displayHalf)
-				{
-					bufferY = yMin-secondsSizeHalf;
-				}
-				else
-				{
-					bufferY = yMax+secondsSizeHalf-62/*BUFFER_SIZE*/;
-				}
+		    	// shift buffer to the outside as much as possible while still fitting valid seconds
+				bufferX = ((xMin>displayHalf) ? (xMin-secondsSizeHalf) : (xMax+secondsSizeHalf-62/*BUFFER_SIZE*/)); 
+				bufferY = ((yMin>displayHalf) ? (yMin-secondsSizeHalf) : (yMax+secondsSizeHalf-62/*BUFFER_SIZE*/));
 		    
 				bufferPositionCounter++;		// set the buffer we are using
 					
@@ -1883,8 +1876,14 @@ class myView
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
-			var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
-   			dc.setClip(getOuterX(dynamicPositions, index) - secondsSizeHalf, getOuterY(dynamicPositions, index) - secondsSizeHalf, secondsSizeHalf*2, secondsSizeHalf*2);
+    		//var x = getOuterX(dynamicPositions, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+    		//var y = getOuterY(dynamicPositions, index);
+			var xyVal = dynamicPositions[index];
+			var x = (xyVal & 0xFFFF);
+			var y = ((xyVal>>16) & 0xFFFF);
+			//var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+			var secondsSizeHalf = dynamicPositions[61];
+   			dc.setClip(x-secondsSizeHalf, y-secondsSizeHalf, secondsSizeHalf*2, secondsSizeHalf*2);
    		}
     }
 
@@ -1894,7 +1893,8 @@ class myView
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicResource!=null && dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
 		{
-			var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+			//var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
+			var secondsSizeHalf = dynamicPositions[61];
 
 	    	var curCol = COLOR_NOTSET;
 	    	for (var index=startIndex; index<=endIndex; index++)
@@ -1916,11 +1916,17 @@ class myView
 		       	//dc.setColor(col, Graphics.COLOR_RED);	// show background of whole font character
 		       	//dc.setColor(getColor64(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 
+	    		//var x = getOuterX(dynamicPositions, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+	    		//var y = getOuterY(dynamicPositions, index);
+				var xyVal = dynamicPositions[index];
+				var x = (xyVal & 0xFFFF);
+				var y = ((xyVal>>16) & 0xFFFF);
+	
 		       	//var s = characterString.substring(index+9, index+10);
 				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
 				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
 				// need to draw 1 pixel higher than expected ...
-	        	dc.drawText(getOuterX(dynamicPositions, index) - secondsSizeHalf, getOuterY(dynamicPositions, index) - secondsSizeHalf - 1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+	        	dc.drawText(x-secondsSizeHalf, y-secondsSizeHalf-1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
 			}
 		}
     }
@@ -3852,20 +3858,20 @@ class myView
 		return null;
 	}
 	
-	function getOuterX(r, index)
-	{
-		return (r[index] & 0xFFFF);
-	}
-	
-	function getOuterY(r, index)
-	{
-		return ((r[index]>>16) & 0xFFFF);
-	}
-	
-	function getOuterSizeHalf(r)
-	{
-		return r[61];
-	}
+//	function getOuterX(r, index)
+//	{
+//		return (r[index] & 0xFFFF);
+//	}
+//	
+//	function getOuterY(r, index)
+//	{
+//		return ((r[index]>>16) & 0xFFFF);
+//	}
+//	
+//	function getOuterSizeHalf(r)
+//	{
+//		return r[61];
+//	}
 	
 	function outerAlignedToSeconds(r)
 	{
@@ -5362,24 +5368,11 @@ class myView
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
 
-					var colFilled = getColor64(gfxData[index+5]-1);
-					var colValue = getColor64(gfxData[index+6]-1);
-					if (colValue==COLOR_NOTSET)
-					{
-						colValue = colFilled;
-					}
-					var colUnfilled = getColor64(gfxData[index+7]-1);
 					var fillStart = (gfxData[index+8]&0xFF);
 					var fillEnd = ((gfxData[index+8]>>8)&0xFF);
 					var noFill = ((gfxData[index+8]&0x10000)!=0);
 					var fillValue = fillEnd;
 
-					if (noFill)
-					{
-						colFilled = colUnfilled;
-						colValue = colUnfilled;
-					}
-		
 					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
 					if (eDirAnti)	// swap start & end for clockwise drawing
 					{
@@ -5401,66 +5394,108 @@ class myView
 					
 					var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
 
-					var outerSizeHalf = getOuterSizeHalf(arrayResource);
-
-					var bufferXMin = bufferX - outerSizeHalf;
-					var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
-					var bufferYMin = bufferY - outerSizeHalf;
-					var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
+//					//var outerSizeHalf = getOuterSizeHalf(arrayResource);
+//					var outerSizeHalf = arrayResource[61];
+//					var bufferXMin = bufferX - outerSizeHalf;
+//					var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
+//					var bufferYMin = bufferY - outerSizeHalf;
+//					var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
 
 					var jStart = 0;
 					var jRange = 59;	// all segments
+					
+					// Calculate the segment range which is inside the buffer area (as best we can while being cheap)
+					// - check for quarter & half segments
 					if (toBuffer)
 					{
-						if (bufferXMin > getMax(getOuterX(arrayResource, 59), getOuterX(arrayResource, 30)))
+						jRange = 16;
+						if (bufferX>=displayHalf)
 						{
-							// right half only
-							//jStart = 0;
-							jRange = 29;
-						}
-						else if (bufferXMax < getMin(getOuterX(arrayResource, 0), getOuterX(arrayResource, 29)))
-						{
-							// left half only
-							jStart = 30;
-							jRange = 29;
-						}
-						
-						if (bufferYMin > getMax(getOuterY(arrayResource, 14), getOuterY(arrayResource, 45)))
-						{
-							// bottom half only
-							if (jRange==59)
+							if (bufferY>=displayHalf)
 							{
-								jStart = 15;
-								jRange = 29;
+								jStart = 14;
+							}
+							else if ((bufferY+62/*BUFFER_SIZE*/)<=displayHalf)
+							{
+								jStart = 59;
 							}
 							else
 							{
-								jStart = ((jStart==0) ? 15 : 30);
-								jRange = 14;	// 15->29 or 30->44 
+								jStart = 7;
 							}
 						}
-						else if (bufferYMax < getMin(getOuterY(arrayResource, 44), getOuterY(arrayResource, 15)))
+						else if ((bufferX+62/*BUFFER_SIZE*/)<=displayHalf)
 						{
-							// top half only
-							if (jRange==59)
+							if (bufferY>=displayHalf)
 							{
-								jStart = 45;
-								jRange = 29;
+								jStart = 29;
+							}
+							else if ((bufferY+62/*BUFFER_SIZE*/)<=displayHalf)
+							{
+								jStart = 44;
 							}
 							else
 							{
-								jStart = ((jStart==0) ? 0 : 45);
-								jRange = 14;	// 0->14 or 45->59 
+								jStart = 37;
 							}
 						}
-						
-//	//const BUFFER_SIZE = 62;
-//	var bufferBitmap = null;
-//	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
-//	var bufferX;
-//	var bufferY;
-//outerXY[index2], yOffset + outerXY[index2+1]
-
+						else
+						{
+							if (bufferY<=displayHalf)
+							{
+								jStart = 52;
+							}
+							else
+							{
+								jStart = 22;
+							}
+						}
+	
+//						//if (bufferXMin > getMax(getOuterX(arrayResource, 59), getOuterX(arrayResource, 30)))
+//						if (bufferXMin > getMax(arrayResource[59]&0xFFFF, arrayResource[30]&0xFFFF))
+//						{
+//							// right half only
+//							//jStart = 0;
+//							jRange = 29;
+//						}
+//						//else if (bufferXMax < getMin(getOuterX(arrayResource, 0), getOuterX(arrayResource, 29)))
+//						else if (bufferXMax < getMin(arrayResource[0]&0xFFFF, arrayResource[29]&0xFFFF))
+//						{
+//							// left half only
+//							jStart = 30;
+//							jRange = 29;
+//						}
+//						
+//						//if (bufferYMin > getMax(getOuterY(arrayResource, 14), getOuterY(arrayResource, 45)))
+//						if (bufferYMin > getMax((arrayResource[14]>>16)&0xFFFF, (arrayResource[45]>>16)&0xFFFF))
+//						{
+//							// bottom half only
+//							if (jRange==59)
+//							{
+//								jStart = 15;
+//								jRange = 29;
+//							}
+//							else
+//							{
+//								jStart = ((jStart==0) ? 15 : 30);
+//								jRange = 14;	// 15->29 or 30->44 
+//							}
+//						}
+//						//else if (bufferYMax < getMin(getOuterY(arrayResource, 44), getOuterY(arrayResource, 15)))
+//						else if (bufferYMax < getMin((arrayResource[44]>>16)&0xFFFF, (arrayResource[15]>>16)&0xFFFF))
+//						{
+//							// top half only
+//							if (jRange==59)
+//							{
+//								jStart = 45;
+//								jRange = 29;
+//							}
+//							else
+//							{
+//								jStart = ((jStart==0) ? 0 : 45);
+//								jRange = 14;	// 0->14 or 45->59 
+//							}
+//						}
 					}
 					
 //System.println("drawStart=" + drawStart + " drawEnd=" + drawEnd);
@@ -5487,6 +5522,34 @@ class myView
 						testRange = drawRange; 
 					}
 					
+					// do a check that at least some of the visible segments are inside the buffer range
+					// the start or end of the shorter range MUST be inside the larger range 
+					if (!((loopStart-testStart+60)%60<=testRange || (loopEnd-testStart+60)%60<=testRange))
+					{
+						break; 
+					}
+
+					var colFilled = getColor64(gfxData[index+5]-1);
+					var colValue = getColor64(gfxData[index+6]-1);
+					if (colValue==COLOR_NOTSET)
+					{
+						colValue = colFilled;
+					}
+					var colUnfilled = getColor64(gfxData[index+7]-1);
+					
+					if (noFill)
+					{
+						colFilled = colUnfilled;
+						colValue = colUnfilled;
+					}
+		
+					//var outerSizeHalf = getOuterSizeHalf(arrayResource);
+					var outerSizeHalf = arrayResource[61];
+					var bufferXMin = bufferX - outerSizeHalf;
+					var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
+					var bufferYMin = bufferY - outerSizeHalf;
+					var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
+
 					var xOffset = -dcX - outerSizeHalf;
 					var yOffset = -dcY - outerSizeHalf - 1;		// need to draw 1 pixel higher than expected ...
 					var curCol = COLOR_NOTSET;
@@ -5496,20 +5559,20 @@ class myView
 					{
 						var index = j%60;
 						
-						var outerX = getOuterX(arrayResource, index);
-						var outerY = getOuterY(arrayResource, index);
+						//var outerX = getOuterX(arrayResource, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+						//var outerY = getOuterY(arrayResource, index);
+						var xyVal = arrayResource[index];
+						var outerX = (xyVal & 0xFFFF);
+						var outerY = ((xyVal>>16) & 0xFFFF);
 
 						// don't draw if not inside buffer
-						if (toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY))
+						// don't draw segments outside the other range we are testing
+						//var testOffset = (index-testStart+60)%60;
+						//if (testOffset>testRange)
+						if ((toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY)) ||
+							(((index-testStart+60)%60)>testRange))
 						{
 							continue; 
-						}
-							
-						// don't draw segments outside the range
-						var testOffset = (index-testStart+60)%60;
-						if (testOffset>testRange)
-						{
-							continue;
 						}
 								
 						var indexCol;
