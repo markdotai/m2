@@ -68,5 +68,24 @@
 	<font id="id_seconds_line" filename="SecondsLine260.fnt" antialias="true"></font>
 	<font id="id_seconds_linethin" filename="SecondsThin260.fnt" antialias="true"></font>
 	<font id="id_seconds_circular" filename="SecondsCircular260.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_a" filename="SecondsCircularA260.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_b" filename="SecondsCircularB260.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_c" filename="SecondsCircularC260.fnt" antialias="true"></font>
+	<font id="id_seconds_circular_wide" filename="SecondsCircularWide260.fnt" antialias="true"></font>
+
+	<font id="id_ring_circular" filename="RingCircular260.fnt" antialias="true"></font>
+	<font id="id_ring_circular_a" filename="RingCircularA260.fnt" antialias="true"></font>
+	<font id="id_ring_circular_b" filename="RingCircularB260.fnt" antialias="true"></font>
+	<font id="id_ring_circular_c" filename="RingCircularC260.fnt" antialias="true"></font>
+	<font id="id_ring_circular_wide" filename="RingCircularWide260.fnt" antialias="true"></font>
+	<font id="id_ring_circular_wide_a" filename="RingCircularWideA260.fnt" antialias="true"></font>
+	<font id="id_ring_slashclock" filename="RingSlashClock260.fnt" antialias="true"></font>
+	<font id="id_ring_slashclock_a" filename="RingSlashClockA260.fnt" antialias="true"></font>
+	<font id="id_ring_slashanti" filename="RingSlashAnti260.fnt" antialias="true"></font>
+	<font id="id_ring_slashanti_a" filename="RingSlashAntiA260.fnt" antialias="true"></font>
+	<font id="id_ring_triclock" filename="RingTriClock260.fnt" antialias="true"></font>
+	<font id="id_ring_triclock_a" filename="RingTriClockA260.fnt" antialias="true"></font>
+	<font id="id_ring_trianti" filename="RingTriAntiA260.fnt" antialias="true"></font>
+	<font id="id_ring_trianti_a" filename="RingTriAntiA260.fnt" antialias="true"></font>
 
 </fonts>

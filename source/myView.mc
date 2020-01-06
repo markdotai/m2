@@ -3757,6 +3757,20 @@ class myView
 					//printRingArray(19);	// 240 wide a
 					//printRingFont(19, 8);
 
+					//printRingArray(2);	// 260 ring
+					//printRingFont(2, 8);
+					//printRingArray(9);	// 260 ring a
+					//printRingFont(9, 8);
+					//printRingArray(16);	// 260 ring b
+					//printRingFont(16, 8);
+					//printRingArray(23);	// 260 ring c
+					//printRingFont(23, 8);
+
+					//printRingArray(7);	// 260 wide
+					//printRingFont(7, 9);
+					//printRingArray(19);	// 260 wide a
+					//printRingFont(19, 9);
+
 					break;
 				}
 				
@@ -3811,6 +3825,22 @@ class myView
 					//printSecondFont(12, 8);
 					//printSecondArray(7);	// 240 wide
 					//printSecondFont(7, 8);
+
+					//printSecondArray(2);	// 260 circular
+					//printSecondFont(2, 8);
+					//printSecondArray(9);	// 260 circular a
+					//printSecondFont(9, 8);
+					//printSecondArray(16);	// 260 circular b
+					//printSecondFont(16, 8);
+					//printSecondArray(23);	// 260 circular c
+					//printSecondFont(23, 8);
+
+					//printSecondArray(8);	// 260 tri
+					//printSecondFont(8, 8);
+					//printSecondArray(12);	// 260 move in
+					//printSecondFont(12, 8);
+					//printSecondArray(7);	// 260 wide
+					//printSecondFont(7, 9);
 
 					break;
 				}
