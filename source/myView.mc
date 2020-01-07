@@ -3743,7 +3743,6 @@ class myView
 					//printRingFont(14, 8);
 					//printRingArray(20);	// 218 ring c
 					//printRingFont(20, 8);
-
 					//printRingArray(6);	// 218 wide
 					//printRingFont(6, 8);
 					//printRingArray(16);	// 218 wide a
@@ -3757,7 +3756,6 @@ class myView
 					//printRingFont(16, 8);
 					//printRingArray(23);	// 240 ring c
 					//printRingFont(23, 8);
-
 					//printRingArray(7);	// 240 wide
 					//printRingFont(7, 8);
 					//printRingArray(19);	// 240 wide a
@@ -3771,11 +3769,23 @@ class myView
 					//printRingFont(16, 8);
 					//printRingArray(23);	// 260 ring c
 					//printRingFont(23, 8);
-
 					//printRingArray(7);	// 260 wide
 					//printRingFont(7, 9);
 					//printRingArray(19);	// 260 wide a
 					//printRingFont(19, 9);
+
+					//printRingArray(3);	// 280 ring
+					//printRingFont(3, 8);
+					//printRingArray(11);	// 280 ring a
+					//printRingFont(11, 8);
+					//printRingArray(19);	// 280 ring b
+					//printRingFont(19, 8);
+					//printRingArray(27);	// 280 ring c
+					//printRingFont(27, 8);
+					//printRingArray(8);	// 280 wide
+					//printRingFont(8, 10);
+					//printRingArray(22);	// 280 wide a
+					//printRingFont(22, 9);
 
 					break;
 				}
@@ -3800,6 +3810,10 @@ class myView
 						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 84);
 					}
 					
+					//printSecondArray(6);	// 218 tri
+					//printSecondFont(6, 8);
+					//printSecondArray(11);	// 218 move in
+					//printSecondFont(11, 8);
 					//printSecondArray(2);	// 218 circular
 					//printSecondFont(2, 8);
 					//printSecondArray(8);	// 218 circular a
@@ -3808,14 +3822,13 @@ class myView
 					//printSecondFont(14, 8);
 					//printSecondArray(20);	// 218 circular c
 					//printSecondFont(20, 8);
-
-					//printSecondArray(6);	// 218 tri
-					//printSecondFont(6, 8);
-					//printSecondArray(11);	// 218 move in
-					//printSecondFont(11, 8);
 					//printSecondArray(6);	// 218 wide
 					//printSecondFont(6, 8);
 
+					//printSecondArray(8);	// 240 tri
+					//printSecondFont(8, 8);
+					//printSecondArray(12);	// 240 move in
+					//printSecondFont(12, 8);
 					//printSecondArray(2);	// 240 circular
 					//printSecondFont(2, 8);
 					//printSecondArray(9);	// 240 circular a
@@ -3824,14 +3837,13 @@ class myView
 					//printSecondFont(16, 8);
 					//printSecondArray(23);	// 240 circular c
 					//printSecondFont(23, 8);
-
-					//printSecondArray(8);	// 240 tri
-					//printSecondFont(8, 8);
-					//printSecondArray(12);	// 240 move in
-					//printSecondFont(12, 8);
 					//printSecondArray(7);	// 240 wide
 					//printSecondFont(7, 8);
 
+					//printSecondArray(8);	// 260 tri
+					//printSecondFont(8, 8);
+					//printSecondArray(12);	// 260 move in
+					//printSecondFont(12, 8);
 					//printSecondArray(2);	// 260 circular
 					//printSecondFont(2, 8);
 					//printSecondArray(9);	// 260 circular a
@@ -3840,13 +3852,23 @@ class myView
 					//printSecondFont(16, 8);
 					//printSecondArray(23);	// 260 circular c
 					//printSecondFont(23, 8);
-
-					//printSecondArray(8);	// 260 tri
-					//printSecondFont(8, 8);
-					//printSecondArray(12);	// 260 move in
-					//printSecondFont(12, 8);
 					//printSecondArray(7);	// 260 wide
 					//printSecondFont(7, 9);
+
+					//printSecondArray(9);	// 280 tri
+					//printSecondFont(9, 8);
+					//printSecondArray(13);	// 280 move in
+					//printSecondFont(13, 8);
+					//printSecondArray(3);	// 280 circular
+					//printSecondFont(3, 8);
+					//printSecondArray(11);	// 280 circular a
+					//printSecondFont(11, 8);
+					//printSecondArray(19);	// 280 circular b
+					//printSecondFont(19, 8);
+					//printSecondArray(27);	// 280 circular c
+					//printSecondFont(27, 8);
+					//printSecondArray(8);	// 280 wide
+					//printSecondFont(8, 10);
 
 					break;
 				}
