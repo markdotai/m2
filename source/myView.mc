@@ -1051,13 +1051,13 @@ class myView
 			bitsSupported = dataResource[1];
 
 			// copy byte data into byte arrays (to save memory) 			
-			for (var i=0; i<78; i++)
+			for (var i=0; i<82+25/*SECONDFONT_UNUSED*/; i++)
 			{
-				myChars[i] = dataResource[2][i];	// table for characters with diacritics
+				dynResSizeArray[i] = dataResource[6][i];
 
-				if (i<61+25/*SECONDFONT_UNUSED*/)
+				if (i<78)
 				{
-					dynResSizeArray[i] = dataResource[6][i];
+					myChars[i] = dataResource[2][i];	// table for characters with diacritics
 	
 					if (i<64)
 					{
@@ -3440,7 +3440,7 @@ class myView
 		}		
 	}
 
-	var dynResSizeArray = new[61+25/*SECONDFONT_UNUSED*/]b;
+	var dynResSizeArray = new[82+25/*SECONDFONT_UNUSED*/]b;
 
 	function gfxAddDynamicResources(fontIndex)
 	{	
@@ -3505,11 +3505,36 @@ class myView
 			fonts.id_large_l_6,		// large font plus (heavy)
 
 		// 27
+			fonts.id_large_italic_s_1,		// large font minus (ultra light)
+			fonts.id_large_italic_s_2,		// large font minus (extra light)
+			fonts.id_large_italic_s_3,		// large font minus (light)
+			fonts.id_large_italic_s_4,		// large font minus (regular)
+			fonts.id_large_italic_s_5,		// large font minus (bold)
+			fonts.id_large_italic_s_6,		// large font minus (heavy)
+		// 33
+			fonts.id_large_italic_m_1,		// large font (ultra light)
+			fonts.id_large_italic_m_2,		// large font (extra light)
+			fonts.id_large_italic_m_3,		// large font (light)
+			fonts.id_large_italic_m_4,		// large font (regular)
+			fonts.id_large_italic_m_5,		// large font (bold)
+			fonts.id_large_italic_m_6,		// large font (heavy)
+		// 39
+			fonts.id_large_italic_l_1,		// large font plus (ultra light)
+			fonts.id_large_italic_l_2,		// large font plus (extra light)
+			fonts.id_large_italic_l_3,		// large font plus (light)
+			fonts.id_large_italic_l_4,		// large font plus (regular)
+			fonts.id_large_italic_l_5,		// large font plus (bold)
+			fonts.id_large_italic_l_6,		// large font plus (heavy)
+
+		// 45
 			fonts.id_colon_s,		// colon font minus
 			fonts.id_colon_m,		// colon font
 			fonts.id_colon_l,		// colon font plus
+			fonts.id_colon_italic_s,		// colon font minus
+			fonts.id_colon_italic_m,		// colon font
+			fonts.id_colon_italic_l,		// colon font plus
 			
-		// 30
+		// 51
 			fonts.id_num_s_1,		// number font minus (extra light)
 			fonts.id_num_s_2,		// number font minus (light)
 			fonts.id_num_s_3,		// number font minus (regular)
@@ -3528,7 +3553,7 @@ class myView
 			fonts.id_num_l_4,		// number font plus (bold)
 			fonts.id_num_l_5,		// number font plus (heavy)
 
-		// 45
+		// 66
 			fonts.id_abc_s_1,		// alphabet font minus (extra light)
 			fonts.id_abc_s_2,		// alphabet font minus (light)
 			fonts.id_abc_s_3,		// alphabet font minus (regular)
@@ -3547,10 +3572,10 @@ class myView
 			fonts.id_abc_l_4,		// alphabet font plus (bold)
 			fonts.id_abc_l_5,		// alphabet font plus (heavy)
 
-		// 60
+		// 81
 			fonts.id_icons,
 
-		// 61
+		// 82
 			fonts.id_seconds_tri,			// SECONDFONT_TRI
 			jsonData.id_secondArray,
 			
@@ -3613,15 +3638,7 @@ class myView
 			fonts.id_ring_trianti_a,
 			jsonData.id_ringWideAArray,
 
-		// 93
-
-		// ??
-			fonts.id_trivial_ultra_light_italic,	// APPFONT_ULTRA_LIGHT_ITALIC
-			fonts.id_trivial_extra_light_italic,	// APPFONT_EXTRA_LIGHT_ITALIC
-			fonts.id_trivial_light_italic,			// APPFONT_LIGHT_ITALIC
-			fonts.id_trivial_regular_italic,		// APPFONT_REGULAR_ITALIC
-			fonts.id_trivial_bold_italic,			// APPFONT_BOLD_ITALIC
-			fonts.id_trivial_heavy_italic,			// APPFONT_HEAVY_ITALIC
+		// 132
 		];
 		
 		if (fontIndex>=0)
@@ -3658,12 +3675,12 @@ class myView
 				case 4:		// colon large
 				{
 					var r = (gfxData[index+1/*large_font*/] & 0xFF);
-				 	if (r<0 || r>21)	// 0-17 (s,m,l fonts), 18-21 (4 system number fonts)
+				 	if (r<0 || r>39)	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts)
 				 	{
 				 		r = 9/*m regular*/;
 				 	}
 				 	//								colon								hour/minute
-				 	var fontListIndex = (id==4) ? ((r<18) ? (r/6 + 27) : (r-18+5)) : ((r<18) ? (r+9) : (r-18+5));
+				 	var fontListIndex = (id==4) ? ((r<36) ? (r/6 + 45) : (r-36+5)) : ((r<36) ? (r+9) : (r-36+5));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+1/*large_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3678,7 +3695,7 @@ class myView
 				 		r = (r&~0xFF) + 7/*m regular*/;
 				 	}
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
-				 	var fontListIndex = ((r<15) ? (r + (useNumFont?30:45)) : (r-15+0));
+				 	var fontListIndex = ((r<15) ? (r + (useNumFont?51:66)) : (r-15+0));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3688,7 +3705,7 @@ class myView
 				case 6:		// icon
 				{
 					var r = 0;
-				 	var fontListIndex = r + 60;
+				 	var fontListIndex = r + 81;
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
 					gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
@@ -3699,7 +3716,7 @@ class myView
 				case 7:		// movebar
 				{
 					var r = 0;
-				 	var fontListIndex = r + 60;
+				 	var fontListIndex = r + 81;
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
 					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
@@ -3729,8 +3746,8 @@ class myView
 				 		r = 12/*SECONDFONT_OUTER*/;
 				 	}
 
-				 	var fontListIndex = r*2 + 61;
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+61]);
+				 	var fontListIndex = r*2 + 82;
+					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+82]);
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 					
 					gfxData[index+9] = addDynamicResource(fontList[fontListIndex+1], 7);
@@ -3800,8 +3817,8 @@ class myView
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
 				 	
-				 	var fontListIndex = r*2 + 61;
-					propSecondResourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+61]);
+				 	var fontListIndex = r*2 + 82;
+					propSecondResourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+82]);
 					propSecondPositionsIndex = addDynamicResource(fontList[fontListIndex+1], 7);
 					
 			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
@@ -4283,7 +4300,7 @@ class myView
 					else //if (id==4)
 					{
 						var r = (gfxData[index+1/*large_font*/] & 0xFF);
-					 	if (r<18)	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
+					 	if (r<36)	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts)
 					 	{
 							charArray = [((r%6) + 48).toChar()];
 					 	}
@@ -5804,7 +5821,7 @@ class myEditorView extends myView
 		index = gfxInsert(index, 2+largeType);
 		if (index>=0)
 		{
-			gfxData[index+1/*large_font*/] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-21 (system number fonts) + resourceIndex + fontIndex
+			gfxData[index+1/*large_font*/] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts) + resourceIndex + fontIndex
 			gfxData[index+2/*large_color*/] = 3+1;	// color
 			// string 0
 			// width 0
@@ -5822,7 +5839,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = dataType;		// type
-			gfxData[index+2/*string_font*/] = 7/*m_regular*/;	// 0-14 (s,m,l fonts), 15-19 (system fonts) + diacritics
+			gfxData[index+2/*string_font*/] = 7/*m_regular*/;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
 			gfxData[index+3/*string_color*/] = 3+1;	// color
 			// string start
 			// string end
@@ -6956,7 +6973,7 @@ class myEditorView extends myView
 		
 	function largeFontEditing(val)
 	{	
-		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+22)%22);	// 0-17 (s,m,l fonts), 18-21 (system number fonts)
+		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+40)%40);	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts)
 		reloadDynamicResources = true;
 	}
 
@@ -6972,7 +6989,7 @@ class myEditorView extends myView
 		
 	function stringFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*string_font*/] = (stringGetFont()-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (system fonts)
+		gfxData[menuElementGfx+2/*string_font*/] = (stringGetFont()-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 		reloadDynamicResources = true;
 	}
 
