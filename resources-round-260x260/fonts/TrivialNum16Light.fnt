@@ -16,7 +16,7 @@ char id=57   x=210   y=14    width=13    height=16    xoffset=1     yoffset=0   
 
 char id=46   x=300   y=28    width=2     height=2     xoffset=1     yoffset=14    xadvance=4     page=0  chnl=15
 char id=44   x=330   y=27    width=3     height=6     xoffset=1     yoffset=13    xadvance=5     page=0  chnl=15
-char id=58   x=360   y=18    width=2     height=8     xoffset=1     yoffset=4     xadvance=5     page=0  chnl=15
+char id=58   x=360   y=21    width=2     height=9     xoffset=1     yoffset=7     xadvance=5     page=0  chnl=15
 char id=32   x=390   y=29    width=1     height=1     xoffset=0     yoffset=15    xadvance=9     page=0  chnl=15
 char id=45   x=420   y=21    width=9     height=2     xoffset=1     yoffset=7     xadvance=12    page=0  chnl=15
 char id=47   x=450   y=14    width=16    height=16    xoffset=1     yoffset=0     xadvance=18    page=0  chnl=15
