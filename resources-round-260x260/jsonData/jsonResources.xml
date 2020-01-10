@@ -237,8 +237,17 @@
 				28, 33, 34, 36, 34,			<!-- abc s -->
 				33, 40, 45, 45, 48,			<!-- abc m -->
 				47, 53, 57, 58, 58,			<!-- abc l -->
-				45,							<!-- icon -->
-				48, 41, 49, 40, 43, 39, 35, 31, 49, 48, 40, 40, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50		<!-- ring (+328 bytes (7) for position array) -->
+				45							<!-- icon -->
+			],
+			
+			<!-- dynResOuterSizeArray -->
+			<!-- ring (+328 bytes (7) for position array) -->
+			[
+				48, 41, 49, 40, 43, 39,		<!-- tri, triin, v, vin, line, thin -->
+				35,	31, 49, 48, 40,			<!-- seconds circular, a, b, c, wide -->
+				40, 50, 50, 50, 50, 50,		<!-- ring circular, a, b, c, wide, a -->
+				50, 50, 50, 50,				<!-- slash clock, anti -->
+				50, 50, 50, 50				<!-- tri clock, anti -->
 			]
 		]
 	</jsonData>

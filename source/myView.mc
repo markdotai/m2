@@ -1051,7 +1051,7 @@ class myView
 			bitsSupported = dataResource[1];
 
 			// copy byte data into byte arrays (to save memory) 			
-			for (var i=0; i<82+25/*SECONDFONT_UNUSED*/; i++)
+			for (var i=0; i<82; i++)
 			{
 				dynResSizeArray[i] = dataResource[6][i];
 
@@ -1063,9 +1063,14 @@ class myView
 					{
 						colorArray[i] = dataResource[3][i];
 	
-						if (i<24)
+						if (i<25/*SECONDFONT_UNUSED*/)
 						{
-							gfxSizeArray[i] = dataResource[4][i];
+							dynResOuterSizeArray[i] = dataResource[7][i];
+
+							if (i<24)
+							{
+								gfxSizeArray[i] = dataResource[4][i];
+							}
 						}
 					}
 				}
@@ -3440,7 +3445,8 @@ class myView
 		}		
 	}
 
-	var dynResSizeArray = new[82+25/*SECONDFONT_UNUSED*/]b;
+	var dynResSizeArray = new[82]b;
+	var dynResOuterSizeArray = new[25/*SECONDFONT_UNUSED*/]b;
 
 	function gfxAddDynamicResources(fontIndex)
 	{	
@@ -3574,8 +3580,14 @@ class myView
 
 		// 81
 			fonts.id_icons,
-
-		// 82
+		];
+		
+		if (fontIndex>=0)
+		{
+			return addDynamicResource(fontList[fontIndex], dynResSizeArray[fontIndex]);
+		}
+		
+		var outerList = [
 			fonts.id_seconds_tri,			// SECONDFONT_TRI
 			jsonData.id_secondArray,
 			
@@ -3637,14 +3649,7 @@ class myView
 			jsonData.id_ringWideArray,
 			fonts.id_ring_trianti_a,
 			jsonData.id_ringWideAArray,
-
-		// 132
 		];
-		
-		if (fontIndex>=0)
-		{
-			return addDynamicResource(fontList[fontIndex], dynResSizeArray[fontIndex]);
-		}
 		
 		var origSize = 240;
 		
@@ -3746,11 +3751,11 @@ class myView
 				 		r = 12/*SECONDFONT_OUTER*/;
 				 	}
 
-				 	var fontListIndex = r*2 + 82;
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+82]);
+				 	var outerListIndex = r*2;
+					var resourceIndex = addDynamicResource(outerList[outerListIndex], dynResOuterSizeArray[r]);
 					gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 					
-					gfxData[index+9] = addDynamicResource(fontList[fontListIndex+1], 7);
+					gfxData[index+9] = addDynamicResource(outerList[outerListIndex+1], 7);
 
 					//printRingArray(2);	// 218 ring
 					//printRingFont(2, 8);
@@ -3817,9 +3822,9 @@ class myView
 				 		r = 0/*SECONDFONT_TRI*/;
 				 	}
 				 	
-				 	var fontListIndex = r*2 + 82;
-					propSecondResourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[r+82]);
-					propSecondPositionsIndex = addDynamicResource(fontList[fontListIndex+1], 7);
+				 	var outerListIndex = r*2;
+					propSecondResourceIndex = addDynamicResource(outerList[outerListIndex], dynResOuterSizeArray[r]);
+					propSecondPositionsIndex = addDynamicResource(outerList[outerListIndex+1], 7);
 					
 			    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0xFF);	// refresh style
 			    	if (propSecondRefreshStyle!=1/*REFRESH_EVERY_MINUTE*/)
@@ -6264,7 +6269,7 @@ class myEditorView extends myView
 	}
 	
 	// off, 1 bar, all bars
-	var memoryDisplayMode = 2;
+	var memoryDisplayMode = 1;
 
     function onUpdate(dc)
     {
