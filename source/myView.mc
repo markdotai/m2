@@ -3697,9 +3697,9 @@ class myView
 				case 4:		// colon large
 				{
 					var r = (gfxData[index+1/*large_font*/] & 0xFF);
-				 	if (r<0 || r>49)	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts)
+				 	if (r<0 || r>49)	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
 				 	{
-				 		r = 19/*m regular*/;
+				 		r = 25/*m regular*/;
 				 	}
 				 	var fontListIndex;
 				 	
@@ -4337,7 +4337,7 @@ class myView
 					else //if (id==4)
 					{
 						var r = (gfxData[index+1/*large_font*/] & 0xFF);
-					 	if (r<10)	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts)
+					 	if (r<10)	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
 					 	{
 							charArray = [((r%5) + 48).toChar()];
 					 	}
@@ -5862,7 +5862,7 @@ class myEditorView extends myView
 		index = gfxInsert(index, 2+largeType);
 		if (index>=0)
 		{
-			gfxData[index+1/*large_font*/] = 19/*m regular*/;	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts) + resourceIndex + fontIndex
+			gfxData[index+1/*large_font*/] = 25/*m regular*/;	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
 			gfxData[index+2/*large_color*/] = 3+1;	// color
 			// string 0
 			// width 0
@@ -7014,7 +7014,7 @@ class myEditorView extends myView
 		
 	function largeFontEditing(val)
 	{	
-		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+50)%50);	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts)
+		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+50)%50);	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
 		reloadDynamicResources = true;
 	}
 
