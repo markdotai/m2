@@ -1,5 +1,11 @@
 <fonts>
 
+	<font id="id_half_1" filename="TrivialHalf260ExtraLight.fnt" antialias="true"></font>
+	<font id="id_half_2" filename="TrivialHalf260Light.fnt" antialias="true"></font>
+	<font id="id_half_3" filename="TrivialHalf260Regular.fnt" antialias="true"></font>
+	<font id="id_half_4" filename="TrivialHalf260Bold.fnt" antialias="true"></font>
+	<font id="id_half_5" filename="TrivialHalf260Heavy.fnt" antialias="true"></font>
+
 	<font id="id_large_s_1" filename="TrivialMono240UltraLight.fnt" antialias="true"></font>
 	<font id="id_large_s_2" filename="TrivialMono240ExtraLight.fnt" antialias="true"></font>
 	<font id="id_large_s_3" filename="TrivialMono240Light.fnt" antialias="true"></font>
@@ -20,6 +26,12 @@
 	<font id="id_large_l_4" filename="TrivialMono280Regular.fnt" antialias="true"></font>
 	<font id="id_large_l_5" filename="TrivialMono280Bold.fnt" antialias="true"></font>
 	<font id="id_large_l_6" filename="TrivialMono280Heavy.fnt" antialias="true"></font>
+
+	<font id="id_half_italic_1" filename="TrivialHalfItalic260ExtraLight.fnt" antialias="true"></font>
+	<font id="id_half_italic_2" filename="TrivialHalfItalic260Light.fnt" antialias="true"></font>
+	<font id="id_half_italic_3" filename="TrivialHalfItalic260Regular.fnt" antialias="true"></font>
+	<font id="id_half_italic_4" filename="TrivialHalfItalic260Bold.fnt" antialias="true"></font>
+	<font id="id_half_italic_5" filename="TrivialHalfItalic260Heavy.fnt" antialias="true"></font>
 
 	<font id="id_large_italic_s_1" filename="TrivialMonoItalic240UltraLight.fnt" antialias="true"></font>
 	<font id="id_large_italic_s_2" filename="TrivialMonoItalic240ExtraLight.fnt" antialias="true"></font>
@@ -42,6 +54,7 @@
 	<font id="id_large_italic_l_5" filename="TrivialMonoItalic280Bold.fnt" antialias="true"></font>
 	<font id="id_large_italic_l_6" filename="TrivialMonoItalic280Heavy.fnt" antialias="true"></font>
 
+	<font id="id_colon_half" filename="ColonHalf260.fnt" antialias="true"></font>
 	<font id="id_colon_s" filename="ColonMono240.fnt" antialias="true"></font>
 	<font id="id_colon_m" filename="ColonMono260.fnt" antialias="true"></font>
 	<font id="id_colon_l" filename="ColonMono280.fnt" antialias="true"></font>

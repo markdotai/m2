@@ -1051,7 +1051,7 @@ class myView
 			bitsSupported = dataResource[1];
 
 			// copy byte data into byte arrays (to save memory) 			
-			for (var i=0; i<82; i++)
+			for (var i=0; i<94; i++)
 			{
 				dynResSizeArray[i] = dataResource[6][i];
 
@@ -3445,7 +3445,7 @@ class myView
 		}		
 	}
 
-	var dynResSizeArray = new[82]b;
+	var dynResSizeArray = new[94]b;
 	var dynResOuterSizeArray = new[25/*SECONDFONT_UNUSED*/]b;
 
 	function gfxAddDynamicResources(fontIndex)
@@ -3489,42 +3489,56 @@ class myView
 			graphics.FONT_SYSTEM_NUMBER_THAI_HOT,	// APPFONT_SYSTEM_NUMBER_HUGE 
 
 		// 9
+			fonts.id_half_1,		// half font (ultra light)
+			fonts.id_half_2,		// half font (extra light)
+			fonts.id_half_3,		// half font (light)
+			fonts.id_half_4,		// half font (regular)
+			fonts.id_half_5,		// half font (bold)
+		// 14
+			fonts.id_half_italic_1,		// half font (ultra light)
+			fonts.id_half_italic_2,		// half font (extra light)
+			fonts.id_half_italic_3,		// half font (light)
+			fonts.id_half_italic_4,		// half font (regular)
+			fonts.id_half_italic_5,		// half font (bold)
+
+		// 19
 			fonts.id_large_s_1,		// large font minus (ultra light)
 			fonts.id_large_s_2,		// large font minus (extra light)
 			fonts.id_large_s_3,		// large font minus (light)
 			fonts.id_large_s_4,		// large font minus (regular)
 			fonts.id_large_s_5,		// large font minus (bold)
 			fonts.id_large_s_6,		// large font minus (heavy)
-		// 15
-			fonts.id_large_m_1,		// large font (ultra light)
-			fonts.id_large_m_2,		// large font (extra light)
-			fonts.id_large_m_3,		// large font (light)
-			fonts.id_large_m_4,		// large font (regular)
-			fonts.id_large_m_5,		// large font (bold)
-			fonts.id_large_m_6,		// large font (heavy)
-		// 21
-			fonts.id_large_l_1,		// large font plus (ultra light)
-			fonts.id_large_l_2,		// large font plus (extra light)
-			fonts.id_large_l_3,		// large font plus (light)
-			fonts.id_large_l_4,		// large font plus (regular)
-			fonts.id_large_l_5,		// large font plus (bold)
-			fonts.id_large_l_6,		// large font plus (heavy)
-
-		// 27
+		// 25
 			fonts.id_large_italic_s_1,		// large font minus (ultra light)
 			fonts.id_large_italic_s_2,		// large font minus (extra light)
 			fonts.id_large_italic_s_3,		// large font minus (light)
 			fonts.id_large_italic_s_4,		// large font minus (regular)
 			fonts.id_large_italic_s_5,		// large font minus (bold)
 			fonts.id_large_italic_s_6,		// large font minus (heavy)
-		// 33
+
+		// 31
+			fonts.id_large_m_1,		// large font (ultra light)
+			fonts.id_large_m_2,		// large font (extra light)
+			fonts.id_large_m_3,		// large font (light)
+			fonts.id_large_m_4,		// large font (regular)
+			fonts.id_large_m_5,		// large font (bold)
+			fonts.id_large_m_6,		// large font (heavy)
+		// 37
 			fonts.id_large_italic_m_1,		// large font (ultra light)
 			fonts.id_large_italic_m_2,		// large font (extra light)
 			fonts.id_large_italic_m_3,		// large font (light)
 			fonts.id_large_italic_m_4,		// large font (regular)
 			fonts.id_large_italic_m_5,		// large font (bold)
 			fonts.id_large_italic_m_6,		// large font (heavy)
-		// 39
+
+		// 43
+			fonts.id_large_l_1,		// large font plus (ultra light)
+			fonts.id_large_l_2,		// large font plus (extra light)
+			fonts.id_large_l_3,		// large font plus (light)
+			fonts.id_large_l_4,		// large font plus (regular)
+			fonts.id_large_l_5,		// large font plus (bold)
+			fonts.id_large_l_6,		// large font plus (heavy)
+		// 49
 			fonts.id_large_italic_l_1,		// large font plus (ultra light)
 			fonts.id_large_italic_l_2,		// large font plus (extra light)
 			fonts.id_large_italic_l_3,		// large font plus (light)
@@ -3532,15 +3546,18 @@ class myView
 			fonts.id_large_italic_l_5,		// large font plus (bold)
 			fonts.id_large_italic_l_6,		// large font plus (heavy)
 
-		// 45
-			fonts.id_colon_s,		// colon font minus
-			fonts.id_colon_m,		// colon font
-			fonts.id_colon_l,		// colon font plus
-			fonts.id_colon_italic_s,		// colon font minus
-			fonts.id_colon_italic_m,		// colon font
-			fonts.id_colon_italic_l,		// colon font plus
+		// 55
+			fonts.id_colon_half,		// colon half font
+			fonts.id_colon_half_italic,	// colon half font
+		// 57
+			fonts.id_colon_s,			// colon font minus
+			fonts.id_colon_italic_s,	// colon font minus
+			fonts.id_colon_m,			// colon font
+			fonts.id_colon_italic_m,	// colon font
+			fonts.id_colon_l,			// colon font plus
+			fonts.id_colon_italic_l,	// colon font plus
 			
-		// 51
+		// 63
 			fonts.id_num_s_1,		// number font minus (extra light)
 			fonts.id_num_s_2,		// number font minus (light)
 			fonts.id_num_s_3,		// number font minus (regular)
@@ -3559,7 +3576,7 @@ class myView
 			fonts.id_num_l_4,		// number font plus (bold)
 			fonts.id_num_l_5,		// number font plus (heavy)
 
-		// 66
+		// 78
 			fonts.id_abc_s_1,		// alphabet font minus (extra light)
 			fonts.id_abc_s_2,		// alphabet font minus (light)
 			fonts.id_abc_s_3,		// alphabet font minus (regular)
@@ -3578,7 +3595,7 @@ class myView
 			fonts.id_abc_l_4,		// alphabet font plus (bold)
 			fonts.id_abc_l_5,		// alphabet font plus (heavy)
 
-		// 81
+		// 93
 			fonts.id_icons,
 		];
 		
@@ -3680,13 +3697,28 @@ class myView
 				case 4:		// colon large
 				{
 					var r = (gfxData[index+1/*large_font*/] & 0xFF);
-				 	if (r<0 || r>39)	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts)
+				 	if (r<0 || r>49)	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts)
 				 	{
-				 		r = 9/*m regular*/;
+				 		r = 19/*m regular*/;
 				 	}
-				 	//								colon								hour/minute
-				 	var fontListIndex = (id==4) ? ((r<36) ? (r/6 + 45) : (r-36+5)) : ((r<36) ? (r+9) : (r-36+5));
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
+				 	var fontListIndex;
+				 	
+				 	if (r<46)	// custom font
+				 	{
+				 		if (id==4)		// colon
+				 		{
+				 			fontListIndex = (r<10) ? (r/5 + 55) : ((r-10)/6 + 57);
+				 		}
+				 		else
+				 		{
+				 			fontListIndex = (r+9);
+				 		}
+				 	}
+				 	else		// system font
+				 	{
+				 		fontListIndex = (r-46+5);
+				 	}
+				 	var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+1/*large_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -3700,7 +3732,7 @@ class myView
 				 		r = (r&~0xFF) + 7/*m regular*/;
 				 	}
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
-				 	var fontListIndex = ((r<15) ? (r + (useNumFont?51:66)) : (r-15+0));
+				 	var fontListIndex = ((r<15) ? (r + (useNumFont?63:78)) : (r-15+0));
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
@@ -3710,7 +3742,7 @@ class myView
 				case 6:		// icon
 				{
 					var r = 0;
-				 	var fontListIndex = r + 81;
+				 	var fontListIndex = r + 93;
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
 					gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
@@ -3721,7 +3753,7 @@ class myView
 				case 7:		// movebar
 				{
 					var r = 0;
-				 	var fontListIndex = r + 81;
+				 	var fontListIndex = r + 93;
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
 					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
@@ -4305,9 +4337,13 @@ class myView
 					else //if (id==4)
 					{
 						var r = (gfxData[index+1/*large_font*/] & 0xFF);
-					 	if (r<36)	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts)
+					 	if (r<10)	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts)
 					 	{
-							charArray = [((r%6) + 48).toChar()];
+							charArray = [((r%5) + 48).toChar()];
+					 	}
+					 	else if (r<46)
+					 	{
+							charArray = [(((r-10)%6) + 48).toChar()];
 					 	}
 					 	else
 					 	{
@@ -5826,7 +5862,7 @@ class myEditorView extends myView
 		index = gfxInsert(index, 2+largeType);
 		if (index>=0)
 		{
-			gfxData[index+1/*large_font*/] = 9/*m regular*/;	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts) + resourceIndex + fontIndex
+			gfxData[index+1/*large_font*/] = 19/*m regular*/;	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts) + resourceIndex + fontIndex
 			gfxData[index+2/*large_color*/] = 3+1;	// color
 			// string 0
 			// width 0
@@ -6978,7 +7014,7 @@ class myEditorView extends myView
 		
 	function largeFontEditing(val)
 	{	
-		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+40)%40);	// 0-17 (s,m,l fonts), 18-35 (italic), 36-39 (4 system number fonts)
+		gfxData[menuElementGfx+1/*large_font*/] = ((largeGetFont()-val+50)%50);	// 0-9 (half fonts),  10-27 (s,m,l fonts), 28-45 (italic), 46-49 (4 system number fonts)
 		reloadDynamicResources = true;
 	}
 
