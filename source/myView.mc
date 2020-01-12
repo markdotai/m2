@@ -1051,7 +1051,7 @@ class myView
 			bitsSupported = dataResource[1];
 
 			// copy byte data into byte arrays (to save memory) 			
-			for (var i=0; i<94; i++)
+			for (var i=0; i<95; i++)
 			{
 				dynResSizeArray[i] = dataResource[6][i];
 
@@ -3445,7 +3445,7 @@ class myView
 		}		
 	}
 
-	var dynResSizeArray = new[94]b;
+	var dynResSizeArray = new[95]b;
 	var dynResOuterSizeArray = new[25/*SECONDFONT_UNUSED*/]b;
 
 	function gfxAddDynamicResources(fontIndex)
@@ -3597,6 +3597,7 @@ class myView
 
 		// 93
 			fonts.id_icons,
+			fonts.id_icons2,
 		];
 		
 		if (fontIndex>=0)
@@ -3701,8 +3702,8 @@ class myView
 				 	{
 				 		r = 25/*m regular*/;
 				 	}
-				 	var fontListIndex;
 				 	
+				 	var fontListIndex;
 				 	if (r<46)	// custom font
 				 	{
 				 		if (id==4)		// colon
@@ -3729,7 +3730,7 @@ class myView
 					var r = (gfxData[index+2/*string_font*/] & 0xFF);
 				 	if (r<0 || r>19)	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 				 	{
-				 		r = (r&~0xFF) + 7/*m regular*/;
+				 		r = 7/*m regular*/;
 				 	}
 				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
 				 	var fontListIndex = ((r<15) ? (r + (useNumFont?63:78)) : (r-15+0));
@@ -3740,8 +3741,13 @@ class myView
 				}
 				
 				case 6:		// icon
+				case 7:		// movebar
 				{
-					var r = 0;
+					var r = (gfxData[index+2/*icon_font*/] & 0xFF);
+				 	if (r<0 || r>1)
+				 	{
+				 		r = 0;
+				 	}
 				 	var fontListIndex = r + 93;
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					
@@ -3750,16 +3756,20 @@ class myView
 					break;
 				}
 				
-				case 7:		// movebar
-				{
-					var r = 0;
-				 	var fontListIndex = r + 93;
-					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
-					
-					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
-
-					break;
-				}
+//				case 7:		// movebar
+//				{
+//					var r = (gfxData[index+2/*movebar_font*/] & 0xFF);
+//				 	if (r<0 || r>1)
+//				 	{
+//				 		r = 0;
+//				 	}
+//				 	var fontListIndex = r + 93;
+//					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
+//					
+//					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
+//
+//					break;
+//				}
 				
 //				case 8:		// chart
 //				{
@@ -7049,13 +7059,13 @@ class myEditorView extends myView
 
 	function iconFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*icon_font*/] = 0;
+		gfxData[menuElementGfx+2/*icon_font*/] = (gfxData[menuElementGfx+2/*icon_font*/]+val+2)%2;
 		reloadDynamicResources = true;
 	}
 
 	function moveBarFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*movebar_font*/] = 0;
+		gfxData[menuElementGfx+2/*movebar_font*/] = (gfxData[menuElementGfx+2/*movebar_font*/]+val+2)%2;
 		reloadDynamicResources = true;
 	}
 

@@ -126,4 +126,7 @@
 	<font id="id_ring_trianti" filename="RingTriAnti240.fnt" antialias="true"></font>
 	<font id="id_ring_trianti_a" filename="RingTriAntiA240.fnt" antialias="true"></font>
 
+	<font id="id_icons" filename="icons15.fnt" antialias="true"></font>
+	<font id="id_icons2" filename="icons18.fnt" antialias="true"></font>
+
 </fonts>
