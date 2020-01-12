@@ -215,7 +215,7 @@
 			<!-- icon -->
 			[
 				"type",
-				"font",
+				"font size",
 				"color",
 				"visibility",
 				"move earlier",
@@ -225,7 +225,7 @@
 		
 			<!-- movebar -->
 			[
-				"font",
+				"font size",
 				"color 1",
 				"color 2",
 				"color 3",
