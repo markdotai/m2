@@ -78,7 +78,9 @@
 			"pressure",
 			"mb (units)",
 			"altitude",
-			"ft/m (units)"
+			"ft/m (units)",
+			"temperature",
+			"F/C (units)"
 		]
 	</jsonData>
 		
@@ -204,6 +206,7 @@
 		
 			<!-- string -->
 			[
+				"change text",
 				"font",
 				"color",
 				"visibility",
@@ -214,7 +217,7 @@
 		
 			<!-- icon -->
 			[
-				"type",
+				"change icon",
 				"font size",
 				"color",
 				"visibility",
@@ -325,6 +328,26 @@
 				"system medium",
 				"system large",
 				"system huge"
+			],
+
+			<!-- icon font names -->
+			[
+				"medium",
+				"large"
+			],
+
+			<!-- movebar font names -->
+			[
+				"medium",
+				"large"
+			],
+			
+			<!-- string type names -->
+			[
+				"time",
+				"separator",
+				"date",
+				"value"
 			]
 		]
 	</jsonData>
@@ -405,7 +428,9 @@
 				55,		<!-- FIELD_PRESSURE -->
 				184,	<!-- FIELD_PRESSURE_UNITS --> <!-- 56|0x80 -->
 				57,		<!-- FIELD_ALTITUDE -->
-				186		<!-- FIELD_ALTITUDE_UNITS --> <!-- 58|0x80 -->
+				186,	<!-- FIELD_ALTITUDE_UNITS --> <!-- 58|0x80 -->
+				59,		<!-- FIELD_TEMPERATURE -->
+				188		<!-- FIELD_TEMPERATURE_UNITS --> <!-- 60|0x80 -->
 			]
 		]
 	</jsonData>
@@ -479,9 +504,10 @@
 			[
 		   		"plain color",
 				"steps",
+				"floors",
+		   		"battery",
 				"minutes",
 				"hours",
-		   		"battery",
 				"2nd time hours",
 		   		"sun (now\n= start)",
 		   		"sun (midnight\n= start)",
@@ -489,6 +515,50 @@
 				"intensity\nminutes",
 				"smart intensity\nminutes",
 		   		"heart rate"
+			],
+			
+			[
+		   		"ring color",
+				"ring steps",
+				"ring floors",
+		   		"ring battery",
+				"ring mins",
+				"ring hours",
+				"ring 2nd time",
+		   		"ring sun",
+		   		"ring sun",
+		   		"ring sun",
+				"ring intensity",
+				"ring smart\nintensity",
+		   		"ring HR"
+			],
+			
+			[
+				"secs tri 1",
+				"secs tri 2",
+				"secs v 1",
+				"secs v 2",
+				"secs line 1",
+				"secs line 2",
+				"secs circular 1",
+				"secs circular 2",
+				"secs circular 3",
+				"secs circular 4",
+				"secs circular\nwide",
+				"ring circular 1",
+				"ring circular 2",
+				"ring circular 3",
+				"ring circular 4",
+				"ring circular\nwide 1",
+				"ring circular\nwide 2",
+				"ring slash 1",
+				"ring slash 2",
+				"ring slash 3",
+				"ring slash 4",
+				"ring arrow 1",
+				"ring arrow 2",
+				"ring arrow 3",
+				"ring arrow 4"
 			]
 		]
 	</jsonData>
@@ -512,6 +582,34 @@
 	   			"every second",
 				"every minute",
 				"alternate\nminutes"
+			],
+			
+			[
+				"secs tri 1",
+				"secs tri 2",
+				"secs v 1",
+				"secs v 2",
+				"secs line 1",
+				"secs line 2",
+				"secs circular 1",
+				"secs circular 2",
+				"secs circular 3",
+				"secs circular 4",
+				"secs circular\nwide",
+				"ring circular 1",
+				"ring circular 2",
+				"ring circular 3",
+				"ring circular 4",
+				"ring circular\nwide 1",
+				"ring circular\nwide 2",
+				"ring slash 1",
+				"ring slash 2",
+				"ring slash 3",
+				"ring slash 4",
+				"ring arrow 1",
+				"ring arrow 2",
+				"ring arrow 3",
+				"ring arrow 4"
 			]
 		]
 	</jsonData>

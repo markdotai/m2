@@ -157,7 +157,9 @@ class myView
 	var hasLTE;
 	var hasElevationHistory;
 	var hasPressureHistory;
+	var hasTemperatureHistory;
 	var hasHeartRateHistory;
+	var hasFloorsClimbed;
 
 	function lteConnected()
 	{
@@ -1017,7 +1019,9 @@ class myView
 		hasLTE = (deviceSettings.connectionInfo[:lte]!=null);
 		hasElevationHistory = SensorHistory has :getElevationHistory;
 		hasPressureHistory = SensorHistory has :getPressureHistory;
+		hasTemperatureHistory = SensorHistory has :getTemperatureHistory;
 		hasHeartRateHistory = SensorHistory has :getHeartRateHistory;
+		hasFloorsClimbed = ActivityMonitor.Info has :floorsClimbed;
 
 		displaySize = dc.getWidth();
 		displayHalf = displaySize/2;
@@ -3790,7 +3794,7 @@ class myView
 					var r = (gfxData[index+2/*ring_font*/] & 0x00FF);	// font
 				 	if (r<0 || r>=25/*SECONDFONT_UNUSED*/)
 				 	{
-				 		r = 12/*SECONDFONT_OUTER*/;
+				 		r = 11/*SECONDFONT_OUTER*/;
 				 	}
 
 				 	var outerListIndex = r*2;
@@ -4174,12 +4178,6 @@ class myView
         // Get the current time and format it correctly
     	var hourString = formatHourForDisplayString(hour, deviceSettings.is24Hour, propAddLeadingZero);
         var minuteString = minute.format("%02d");
-
-		var activityMonitorSteps = getNullCheckZero(activityMonitorInfo.steps);
-		var activityMonitorStepGoal = getNullCheckZero(activityMonitorInfo.stepGoal);
-		var activityMonitorActiveMinutesWeekTotal = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
-		var activityMonitorActiveMinutesWeekGoal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
-		var activeMinutesWeekSmartGoal = ((activityMonitorActiveMinutesWeekGoal * dayNumberOfWeek) / 7);
 
 		// calculate fields to display
 		var visibilityStatus = new[25/*STATUS_NUM*/];
@@ -4607,25 +4605,25 @@ class myView
 
 						case 31/*FIELD_STEPSCOUNT*/:
 						{
-							eStr = "" + activityMonitorSteps;
+							eStr = "" + getNullCheckZero(activityMonitorInfo.steps);
 							break;
 						}
 
 						case 32/*FIELD_STEPSGOAL*/:
 						{
-							eStr = "" + activityMonitorStepGoal;
+							eStr = "" + getNullCheckZero(activityMonitorInfo.stepGoal);
 							break;
 						}
 
 						case 33/*FIELD_FLOORSCOUNT*/:
 						{
-							eStr = "" + getNullCheckZero(activityMonitorInfo.floorsClimbed);
+							eStr = "" + (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbed) : 0);
 							break;
 						}
 
 						case 34/*FIELD_FLOORSGOAL*/:
 						{
-							eStr = "" + getNullCheckZero(activityMonitorInfo.floorsClimbedGoal);
+							eStr = "" + (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbedGoal) : 0);
 							break;
 						}
 
@@ -4719,19 +4717,19 @@ class myView
 
 						case 50/*FIELD_INTENSITY*/:
 						{
-							eStr = "" + activityMonitorActiveMinutesWeekTotal;
+							eStr = "" + ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
 							break;
 						}
 
 						case 51/*FIELD_INTENSITY_GOAL*/:
 						{
-							eStr = "" + activityMonitorActiveMinutesWeekGoal;
+							eStr = "" + getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
 							break;
 						}
 
 						case 52/*FIELD_SMART_GOAL*/:
 						{
-							eStr = "" + activeMinutesWeekSmartGoal;
+							eStr = "" + ((getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal) * dayNumberOfWeek) / 7);
 							break;
 						}
 
@@ -4757,7 +4755,7 @@ class myView
 								var pressureSample = SensorHistory.getPressureHistory({:period => 1}).next();
 								if (pressureSample!=null && pressureSample.data!=null)
 								{ 
-									eStr = (pressureSample.data / 100.0).format("%.1f");	// convert Pa to mbar
+									eStr = (pressureSample.data / 100.0).format("%d");	// convert Pa to mbar
 								}
 								else
 								{
@@ -4785,6 +4783,29 @@ class myView
 						{
 							eStr = ((deviceSettings.elevationUnits==System.UNIT_STATUTE) ? "ft" : "m");
 							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
+							break;
+						}
+
+						case 59/*FIELD_TEMPERATURE*/:
+						{
+							if (hasTemperatureHistory)
+							{
+								var temperatureSample = SensorHistory.getTemperatureHistory({:period => 1}).next();
+								if (temperatureSample!=null && temperatureSample.data!=null)
+								{ 
+									eStr = (Math.round((deviceSettings.temperatureUnits==System.UNIT_STATUTE) ? (temperatureSample.data*1.8 + 32) : temperatureSample.data)).format("%d");
+								}
+								else
+								{
+									eStr = "--";
+								}
+							}
+							break;
+						}
+						
+						case 60/*FIELD_TEMPERATURE_UNITS*/:
+						{
+							eStr = ((deviceSettings.temperatureUnits==System.UNIT_STATUTE) ? "F" : "C");
 							break;
 						}
 					}
@@ -4992,23 +5013,49 @@ class myView
 					var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
 					var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
 
+					// Other things that could be displayed:
+					//
+			   		// day of week
+			   		// day of month
+			   		// day of year
+			   		// month
+			   		//
+			   		// notifications count
+			   		// active calories (filled) out of total calories so far
+			   		//
+			   		// week ISO
+			   		// week calendar
+			   		// pressure	870-1084mb, standard at sea level is 1013, 300 on top of Everest, normal range is 1016+-34
+			   		// temperature -50 to +50 ?
+				   		
 					switch (eDisplay)
 					{
 						case 1:		// steps
-						case 9:		// intensity
-						case 10:	// smart intensity
+						case 2:		// floors
+						case 10:	// intensity
+						case 11:	// smart intensity
 						{
-							var val = activityMonitorSteps;
-							var goal = activityMonitorStepGoal;
-							if (eDisplay==9)
+							var val;
+							var goal;
+							if (eDisplay==2)
 							{
-								val = activityMonitorActiveMinutesWeekTotal;
-								goal = activityMonitorActiveMinutesWeekGoal;
+								val = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbed) : 0);
+								goal = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbedGoal) : 0);
 							}
-							else if (eDisplay==10)
+							else if (eDisplay==9 || eDisplay==10)
 							{
-								val = activityMonitorActiveMinutesWeekTotal;
-								goal = activeMinutesWeekSmartGoal;
+								val = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
+								goal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
+
+								if (eDisplay==10)	// smart
+								{
+									goal = ((goal * dayNumberOfWeek) / 7);
+								}
+							}
+							else
+							{
+								val = getNullCheckZero(activityMonitorInfo.steps);
+								goal = getNullCheckZero(activityMonitorInfo.stepGoal);
 							}
 							
 							fillEnd = ((goal>0) ? ((drawRange * val) / goal - alignedAdjust) : -1);
@@ -5033,14 +5080,20 @@ class myView
 							break;
 						}
 
-						case 2:		// minutes
+				   		case 3:		// battery percentage
+				   		{
+							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - alignedAdjust;
+							break;
+				   		}
+				   		
+						case 4:		// minutes
 						{
 			    			fillEnd = (minute * drawRange)/60 - alignedAdjust;
 							break;
 						}
 						
-						case 3:		// hours
-						case 5:		// 2nd time zone hours
+						case 5:		// hours
+						case 6:		// 2nd time zone hours
 						{
 							var useHour = ((eDisplay==3) ? hour : hour2nd);  
 					        if (deviceSettings.is24Hour)
@@ -5055,15 +5108,9 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 4:		// battery percentage
-				   		{
-							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - alignedAdjust;
-							break;
-				   		}
-				   		
-				   		case 6:		// sunrise & sunset now top
-				   		case 7:		// sunrise & sunset midnight top
-				   		case 8:		// sunrise & sunset noon top
+				   		case 7:		// sunrise & sunset now top
+				   		case 8:		// sunrise & sunset midnight top
+				   		case 9:		// sunrise & sunset noon top
 				   		{
 							calculateSun(dateInfoShort);
 
@@ -5083,10 +5130,13 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 11:	// heart rate
+				   		case 12:	// heart rate
 				   		{
 							calculateHeartRate(minute, second);
-							fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - alignedAdjust;
+							if (heartDisplayLatest!=null)
+							{
+								fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - alignedAdjust;
+							}
 							break;
 				   		}
 				   		
@@ -5971,7 +6021,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;	// type & direction
-			gfxData[index+2/*ring_font*/] = 0;	// font
+			gfxData[index+2/*ring_font*/] = 11/*SECONDFONT_OUTER*/;
 			gfxData[index+3] = 0;	// start
 			gfxData[index+4] = 59;	// end
 			gfxData[index+5] = 3+1;	// color filled
@@ -6455,18 +6505,15 @@ class myEditorView extends myView
 
 		//x = x + 42;
 		x = displayHalf - w/2;
-		
-		if (isMenuAtTop())
-		{
-			y = (displaySize*15)/240;
-		}
-		else
-		{
-			y = (displaySize*220)/240 - (h-1)*4;
-		}
+		y = (displaySize*(isMenuAtTop() ? 15 : 220))/240;
 		
 		if (memoryDisplayMode==2)	// all bars
 		{
+			if (!isMenuAtTop())
+			{
+				y -= (h-1)*4;
+			}
+
 			drawMemoryBar(dc, x, y, w, h, usedProfileStringLength);
 			drawMemoryBar(dc, x, y+(h-1)*1, w, h, usedGfxData);
 			drawMemoryBar(dc, x, y+(h-1)*2, w, h, usedCharArray);
@@ -6749,6 +6796,10 @@ class myEditorView extends myView
 		{
 			return getStringTypeName(gfxData[index+1]);
 		}
+		else if (id==10)	// ring
+		{
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 4, ringGetTypeFromGfxIndex(index));    		
+		}
 		else
 		{
 			return safeStringFromJsonData(Rez.JsonData.id_gfxNameStrings, -1, id);
@@ -7028,6 +7079,42 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function stringGetType()
+	{
+		return gfxData[menuElementGfx+1];
+	}
+		
+	function stringSetType(v)
+	{
+		gfxData[menuElementGfx+1] = v;
+		reloadDynamicResources = true;
+	}
+		
+    function stringTypeEditing(val, idArray, idArrayValue)
+    {
+		var tempArray = WatchUi.loadResource(Rez.JsonData.id_addStringArrays);
+    	if (tempArray!=null)
+    	{
+    		if (idArray>=0 && idArray<tempArray.size())
+    		{
+		    	tempArray = tempArray[idArray];
+		    	
+		    	var index = tempArray.indexOf(idArrayValue);
+		    	if (index>=0)
+		    	{
+		    		index = (index+val+tempArray.size())%tempArray.size();
+					return tempArray[index];
+		    	}
+		    	else if (tempArray.size()>0)
+		    	{
+					return tempArray[0];
+		    	}
+		    }		
+		}
+		
+		return 0;
+    }
+    
 	function stringColorEditing(val)
 	{
 		gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+64-1)%64 + 1;	// 1 to 64
@@ -7057,15 +7144,25 @@ class myEditorView extends myView
 		gfxData[menuElementGfx+3/*icon_color*/] = (gfxData[menuElementGfx+3/*icon_color*/]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
+	function iconGetFont()
+	{
+		return (gfxData[menuElementGfx+2/*icon_font*/]&0xFF);
+	}
+
 	function iconFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*icon_font*/] = (gfxData[menuElementGfx+2/*icon_font*/]+val+2)%2;
+		gfxData[menuElementGfx+2/*icon_font*/] = (iconGetFont()-val+2)%2;
 		reloadDynamicResources = true;
+	}
+
+	function moveBarGetFont()
+	{
+		return (gfxData[menuElementGfx+2/*movebar_font*/]&0xFF);
 	}
 
 	function moveBarFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*movebar_font*/] = (gfxData[menuElementGfx+2/*movebar_font*/]+val+2)%2;
+		gfxData[menuElementGfx+2/*movebar_font*/] = (moveBarGetFont()-val+2)%2;
 		reloadDynamicResources = true;
 	}
 
@@ -7128,6 +7225,11 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]-val, 1, displaySize);
 	}
 
+	function ringGetTypeFromGfxIndex(index)
+	{
+		return (gfxData[index+1]&0x3F);
+	}
+
 	function ringGetType()
 	{
 		return (gfxData[menuFieldGfx+1]&0x3F);
@@ -7135,7 +7237,7 @@ class myEditorView extends myView
 
 	function ringTypeEditing(val)
 	{
-		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 12)%12;
+		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 13)%13;
 		gfxData[menuFieldGfx+1] &= ~0x3F; 
 		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
 	}
@@ -7165,9 +7267,14 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+1] ^= 0x80;
 	}
 	
+	function ringGetFont()
+	{
+		return (gfxData[menuFieldGfx+2/*ring_font*/]&0xFF);
+	}
+	
 	function ringFontEditing(val)
 	{
-		gfxData[menuFieldGfx+2/*ring_font*/] = ((gfxData[menuFieldGfx+2/*ring_font*/]&0xFF) - val + 25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/; 
+		gfxData[menuFieldGfx+2/*ring_font*/] = (ringGetFont() - val + 25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/; 
 		reloadDynamicResources = true;
 	}
 	
@@ -7186,10 +7293,14 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+5+n] = (gfxData[menuFieldGfx+5+n]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 	
+	function secondsGetFont()
+	{
+		return (gfxData[menuFieldGfx+1]&0xFF);
+	}
+	
 	function secondsFontEditing(val)
 	{
-		var temp = (gfxData[menuFieldGfx+1]&0xFF);
-		temp = (temp-val+25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/;
+		var temp = (secondsGetFont()-val+25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/;
 		
 		gfxData[menuFieldGfx+1] &= ~0x00FF; 
 		gfxData[menuFieldGfx+1] |= temp;
@@ -7528,6 +7639,17 @@ class myMenuItemFieldAdd extends myMenuItem
 (:m2app)
 class myMenuItemQuickAdd extends myMenuItem
 {
+	//time
+	//time with colon
+	//date
+	//steps (text)
+	//steps (ring)
+	//heart rate (text)
+	//seconds indicator
+	//digital seconds
+	//horizontal line
+	//vertical line
+
     function initialize()
     {
     	myMenuItem.initialize();
@@ -8264,6 +8386,9 @@ class myMenuItemElementEdit extends myMenuItem
 	var fStringsIndex;
 	var fNumCustom;
 
+	var idArray;
+	var idArrayValue;
+
     function initialize(id)
     {
     	myMenuItem.initialize();
@@ -8279,7 +8404,7 @@ class myMenuItemElementEdit extends myMenuItem
     	else if (fId==5)	// string
     	{
     		fStringsIndex = 1;
-    		fNumCustom = 2;
+    		fNumCustom = 3;
     	}
     	else if (fId==6)	// icon
     	{
@@ -8296,6 +8421,9 @@ class myMenuItemElementEdit extends myMenuItem
     		fStringsIndex = 4;
     		fNumCustom = 3;
     	}
+    	
+    	idArray = -1;
+    	idArrayValue = -1;
     }
     
     function getString()
@@ -8314,9 +8442,28 @@ class myMenuItemElementEdit extends myMenuItem
 		{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 5, editorView.largeGetFont());
 	    }
-		else if (fId==5 && fState==numTop)	// string
+		else if (fId==5 && fState==numTop)	// string type
+		{
+			if (idArrayValue<0)
+			{
+    			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 9, idArray);
+			}
+			else
+			{
+				return editorView.getStringTypeName(idArrayValue);
+			}
+	    }
+		else if (fId==5 && fState==numTop+1)	// string font
 		{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 6, editorView.stringGetFont());
+	    }
+		else if (fId==6 && fState==numTop+1)	// icon
+		{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 7, editorView.iconGetFont());
+	    }
+		else if (fId==7 && fState==numTop)	// movebar
+		{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 8, editorView.moveBarGetFont());
 	    }
     	else
     	{
@@ -8327,7 +8474,7 @@ class myMenuItemElementEdit extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<(fNumCustom+4));
+    	return (d!=3 || fState<(fNumCustom+4) || (fId==5 && fState==(fNumCustom+4) && idArrayValue<0));
     }
 
     function onEditing(val)
@@ -8359,9 +8506,21 @@ class myMenuItemElementEdit extends myMenuItem
     		{
 		    	if (fState==numTop)
 		    	{
-	    			editorView.stringFontEditing(val);
+		    		if (idArrayValue<0)
+		    		{
+		    			idArray = (idArray-val+4)%4;
+		    		}
+		    		else
+		    		{
+			    		idArrayValue = editorView.stringTypeEditing(val, idArray, idArrayValue);
+			    		editorView.stringSetType(idArrayValue);
+		    		}
 		    	}
 		    	else if (fState==numTop+1)
+		    	{
+	    			editorView.stringFontEditing(val);
+		    	}
+		    	else if (fState==numTop+2)
 		    	{
 		    		editorView.stringColorEditing(val);
 		    	}
@@ -8439,7 +8598,15 @@ class myMenuItemElementEdit extends myMenuItem
 		    }
     		else if (fId==5)	// string
     		{
-		    	if (fState==numTop+1)
+    			if (fState==numTop)
+    			{
+    				if (idArray<0)
+    				{
+		    			idArray = 0;
+			    		idArrayValue = -1;
+			    	}
+    			}
+		    	else if (fState==numTop+2)
 		    	{
 		    		editorView.startColorEditing(editorView.menuElementGfx+3/*string_color*/);
 		    	}
@@ -8486,7 +8653,15 @@ class myMenuItemElementEdit extends myMenuItem
 				return new myMenuItemElementAdd();
 			}
     	}
-    
+		else if (fState==numTop)
+		{
+    		if (fId==5)	// string
+    		{
+	    		idArrayValue = editorView.stringTypeEditing(0, idArray, editorView.stringGetType());
+	    		editorView.stringSetType(idArrayValue);
+			}
+    	}
+    	
     	return null;
     }
     
@@ -8500,6 +8675,22 @@ class myMenuItemElementEdit extends myMenuItem
     	}
     	else
     	{
+			if (fState==numTop)
+			{
+	    		if (fId==5)	// string
+	    		{
+	    			if (idArrayValue>=0)
+	    			{
+		    			idArrayValue = -1;
+   						return null;		// keep fState==numTop
+	    			}
+	    			else
+	    			{
+	    				idArray = -1;
+	    			}
+				}
+			}
+						
     		editorView.endColorEditing();
 
 			fState -= numTop;
@@ -8582,9 +8773,10 @@ class myMenuItemElementAdd extends myMenuItem
 //		56/*FIELD_PRESSURE_UNITS*/ | 0x80,
 //		57/*FIELD_ALTITUDE*/,
 //		58/*FIELD_ALTITUDE_UNITS*/ | 0x80,
+//		59/*FIELD_TEMPERATURE*/,
+//		60/*FIELD_TEMPERATURE_UNITS*/ | 0x80,
 //	]b;
 	
-	var idIndex;
 	var idArray;
 	var idArrayValue;
 	
@@ -8619,26 +8811,8 @@ class myMenuItemElementAdd extends myMenuItem
     	myMenuItem.initialize();
 
     	fState = 0;
-		idIndex = 0;
 		idArray = 0;
 		idArrayValue = 0;
-    }
-    
-    function adjustIdIndexCalcIdArray(val)
-    {
-    	//var tempArray = applicationStorage.getValue("i");
-		var tempArray = WatchUi.loadResource(Rez.JsonData.id_addStringArrays);
-    	if (tempArray!=null)
-    	{
-    		if (idArray>=0 && idArray<tempArray.size())
-    		{
-		    	tempArray = tempArray[idArray];
-		    	idIndex = (idIndex+val+tempArray.size())%tempArray.size();	// remember new idIndex
-				return tempArray[idIndex];
-			}		
-		}
-		
-		return 0;
     }
     
     function getString()
@@ -8684,7 +8858,7 @@ class myMenuItemElementAdd extends myMenuItem
     	}
 		else if (fState<=15/*s_valueEdit*/)
 		{
-			idArrayValue = adjustIdIndexCalcIdArray(val);
+    		idArrayValue = editorView.stringTypeEditing(val, idArray, idArrayValue);
     	}
 		else if (fState==16/*s_iconEdit*/)
 		{
@@ -8721,8 +8895,7 @@ class myMenuItemElementAdd extends myMenuItem
 		else if (fState<=5/*s_value*/)
 		{
 			idArray = fState-2;
-			idIndex = 0;
-			idArrayValue = adjustIdIndexCalcIdArray(0);
+    		idArrayValue = editorView.stringTypeEditing(0, idArray, 0);		// first value in sub array
 			fState += 10;
 		}
 		else if (fState==6/*s_icon*/)
@@ -9010,6 +9183,10 @@ class myMenuItemRing extends myMenuItem
     	{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 3, editorView.ringGetType());    		
     	}
+    	else if (fState==14/*r_fontEdit*/)
+    	{
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 5, editorView.ringGetFont());    		
+    	}
     	else if (fState==17/*r_directionEdit*/)
     	{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, editorView.ringGetDirectionAnti() ? 1 : 0);
@@ -9182,7 +9359,11 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-    	if (fState==10/*s_refreshEdit*/)
+    	if (fState==9/*s_fontEdit*/)
+    	{
+			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 2, editorView.secondsGetFont());
+    	}
+    	else if (fState==10/*s_refreshEdit*/)
     	{
 			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, editorView.secondsGetRefresh());
     	}
