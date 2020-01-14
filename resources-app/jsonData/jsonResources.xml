@@ -5,9 +5,7 @@
 		[
 			"global settings",
 			"field",
-			"hour (big)",
-			"minute (big)",
-			"colon (big)",
+			"big",
 			"string",
 			"icon",
 			"movebar",
@@ -16,6 +14,15 @@
 			"ring",
 			"seconds\nindicator"
 		]
+	</jsonData>
+		
+	<!-- large type -->
+	<jsonData id="id_largeTypeStrings">
+		[
+			"hour (big)",
+			"minute (big)",
+			"colon (big)"
+		],
 	</jsonData>
 		
 	<!-- string type -->
@@ -120,7 +127,6 @@
 		[
 			"add new",
 			"add field",
-			"add freeform",
 			"add rect",
 			"add ring",
 			"add seconds"
@@ -345,6 +351,7 @@
 			<!-- string type names -->
 			[
 				"time",
+				"time (advanced)",
 				"separator",
 				"date",
 				"value"
@@ -371,6 +378,11 @@
 				44,		<!-- FIELD_SUNSET_MINUTE -->
 				45,		<!-- FIELD_SUNEVENT_HOUR -->
 				46		<!-- FIELD_SUNEVENT_MINUTE -->
+			],
+
+			<!-- advancedIds -->
+			[
+				1		<!-- FIELD_HOUR -->
 			],
 
 			<!-- separatorIds -->
@@ -441,15 +453,13 @@
 			"add element",
 			"add time (big)",
 			"add time",
+			"add time\n(advanced)", 
 			"add separator",
 			"add date",
 			"add value",
 			"add icon",
 			"add movebar",
-			"add chart",
-			"hour (big)",
-			"minute (big)",
-			"colon (big)"
+			"add chart"
 		]
 	</jsonData>
 		

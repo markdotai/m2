@@ -303,9 +303,7 @@
 			[
 				10, 10,		<!-- header -->
 				6, 4,		<!-- field -->
-				7, 3,		<!-- hour large -->
-				7, 3,		<!-- minute large -->
-				7, 3,		<!-- colon large -->
+				8, 4,		<!-- large (hour, minute, colon) -->
 				7, 4,		<!-- string -->
 				6, 4,		<!-- icon -->
 				11, 9,		<!-- movebar -->
