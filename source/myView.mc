@@ -1071,7 +1071,7 @@ class myView
 						{
 							dynResOuterSizeArray[i] = dataResource[7][i];
 
-							if (i<20)
+							if (i<10/*GFX_SIZE_NUM*/*2)
 							{
 								gfxSizeArray[i] = dataResource[4][i];
 							}
@@ -3104,11 +3104,17 @@ class myView
 
 		for (var index=0; index<gfxNum; )
 		{
-			var id = getGfxId(index);
+			//var id = getGfxId(index);
+			var id = (gfxData[index] & 0xFF);	// cheaper with no function call in loop
 		
 			var curLen = charArrayLen;
 		
-			var saveSize = gfxSizeSave(id);
+			//var saveSize = gfxSizeSave(id);
+			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			{
+				break;
+			}
+			var saveSize =  gfxSizeArray[id*2 + 1];	// cheaper with no function call in loop
 			for (var i=0; i<saveSize; i++)
 			{
 				var val = gfxData[index+i] & 0xFFFF;
@@ -3152,7 +3158,12 @@ class myView
 			{
 				charArrayLen = curLen;
 				
-				index += gfxSize(id);
+				//index += gfxSize(id);
+				//if (id<0 || id>=10/*GFX_SIZE_NUM*/)	this is checked above already
+				//{
+				//	break;
+				//}
+				index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
 			}
 			else
 			{
@@ -3207,8 +3218,17 @@ class myView
 				if (i==0)
 				{
 					id = (v & 0xFF);
-					itemSize = gfxSize(id);		// total item size in gfxData array
-					saveSize = gfxSizeSave(id);	// number of bytes to read from saved data
+										
+					//itemSize = gfxSize(id);		// total item size in gfxData array
+					if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+					{
+						gotError = true;
+						break; 
+					}
+					itemSize = gfxSizeArray[id*2]; 	// cheaper with no function call in loop
+					
+					//saveSize = gfxSizeSave(id);	// number of bytes to read from saved data
+					saveSize = gfxSizeArray[id*2 + 1];	// cheaper with no function call in loop
 
 					if (itemSize<=0)
 					{
@@ -3245,16 +3265,17 @@ class myView
 		return (gfxData[index] & 0xFF);
 	}
 
-	var gfxSizeArray = new[20]b;
+	//const GFX_SIZE_NUM = 10;
+	var gfxSizeArray = new[10/*GFX_SIZE_NUM*/*2]b;
 
 	function gfxSize(id)
 	{
-		return ((id<0 || id>9) ? 0 : gfxSizeArray[id*2]); 
+		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id*2]); 
 	}
 
 	function gfxSizeSave(id)
 	{
-		return ((id<0 || id>9) ? 0 : gfxSizeArray[id*2 + 1]);
+		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id*2 + 1]);
 	}
 
 	function gfxInsert(index, id)
@@ -3677,7 +3698,8 @@ class myView
     	
 		for (var index=0; index<gfxNum; )
 		{
-			var id = getGfxId(index);
+			//var id = getGfxId(index);
+			var id = (gfxData[index] & 0xFF);	// cheaper with no function call in loop
 			
 			switch(id)
 			{
@@ -3937,8 +3959,13 @@ class myView
 					break;
 				}
 			}
-			
-			index += gfxSize(id);
+						
+			//index += gfxSize(id);
+			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			{
+				break;
+			}
+			index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
 		}
 		
 		return null;
@@ -4228,7 +4255,8 @@ class myView
 	
 		for (var index=0; index<gfxNum; )
 		{
-			var id = getGfxId(index);
+			//var id = getGfxId(index);
+			var id = (gfxData[index] & 0xFF);	// cheaper with no function call in loop
 			var eVisible = ((gfxData[index] >> 8) & 0xFF);
 
 			var isVisible = true;
@@ -5184,7 +5212,12 @@ class myView
 				}
 			}
 			
-			index += gfxSize(id);
+			//index += gfxSize(id);
+			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			{
+				break;
+			}
+			index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
 		}
 	}
 	
@@ -5211,7 +5244,8 @@ class myView
 
 		for (var index=0; index<gfxNum; )
 		{
-			var id = getGfxId(index);
+			//var id = getGfxId(index);
+			var id = (gfxData[index] & 0xFF);	// cheaper with no function call in loop
 			var isVisible = ((gfxData[index] & 0x10000) != 0);
 			
 			switch(id)
@@ -5480,6 +5514,8 @@ class myView
 				        dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
 						dc.fillRectangle(x, y, w, h);
 					}
+
+					gfxFieldHighlight(dc, index, x, y, w, h);
 
 					break;
 				}
@@ -5758,7 +5794,12 @@ class myView
 //				}
 			}
 			
-			index += gfxSize(id);
+			//index += gfxSize(id);
+			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			{
+				break;
+			}
+			index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
 		}
 	}
 }
@@ -6541,21 +6582,25 @@ class myEditorView extends myView
 
 	function gfxFieldHighlight(dc, index, x, y, w, h)
 	{
-		if (index==menuFieldGfx && menuElementGfx==0)
+		if (index==menuFieldGfx)
 		{
-			dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
-		
-			dc.setPenWidth(2);		  
-			dc.drawRoundedRectangle(x-2, y-3, w+2+2+1, h+3+3+1, 3);
-
-			//dc.setPenWidth(1);		  
-			//dc.setPenWidth(2);	// pen width 2 is 1 pixel above, and 1 pixel left of all lines		  
-			//dc.setPenWidth(3);	// pen width 3 is 1 pixel above & below, and 1 pixel left & right of all lines
-			//dc.drawRectangle(x, y, w, h);
-			//dc.drawRoundedRectangle(x, y, w, h, 3);
-			//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
-			//dc.fillRectangle(x, y, w, h);
+			if ((getGfxId(menuFieldGfx)==1 && menuElementGfx==0) ||		// field
+				(getGfxId(menuFieldGfx)==7 && menuItem!=null && (menuItem instanceof myMenuItemFieldSelect)))		// rectangle
+			{
+				dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
 			
+				dc.setPenWidth(2);		  
+				dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
+	
+				//dc.setPenWidth(1);		  
+				//dc.setPenWidth(2);	// pen width 2 is 1 pixel above, and 1 pixel left of all lines		  
+				//dc.setPenWidth(3);	// pen width 3 is 1 pixel above & below, and 1 pixel left & right of all lines
+				//dc.drawRectangle(x, y, w, h);
+				//dc.drawRoundedRectangle(x, y, w, h, 3);
+				//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+				//dc.fillRectangle(x, y, w, h);
+			}
+						
 			// make sure menu is at best position for editing this field
 			if (isMenuAtTop())
 			{
@@ -6581,7 +6626,7 @@ class myEditorView extends myView
 			dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
 
 			dc.setPenWidth(2);		  
-			dc.drawRoundedRectangle(x-2, y-3, w+2+2+1, h+3+3+1, 3);
+			dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
 
 			//dc.drawRectangle(x, y, w, h);
 			//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
@@ -6836,6 +6881,16 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx] |= ((val & 0xFF) << 8);
 	}
 
+	function fieldPositionGetX()
+	{
+		return gfxData[menuFieldGfx+1];
+	}
+
+	function fieldPositionGetY()
+	{
+		return gfxData[menuFieldGfx+2];
+	}
+
 	function fieldPositionXEditing(val)
 	{
 		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, displaySize);
@@ -7065,6 +7120,17 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
+	function largeGetType()
+	{
+		return gfxData[menuElementGfx+1];
+	}
+		
+	function largeTypeEditing(val)
+	{
+		gfxData[menuElementGfx+1] = (largeGetType()+val+3)%3;
+		reloadDynamicResources = true;
+	}
+		
 	function largeColorEditing(val)
 	{
 		gfxData[menuElementGfx+3/*large_color*/] = (gfxData[menuElementGfx+3/*large_color*/]-val+64-1)%64 + 1;	// 1 to 64
@@ -7197,6 +7263,16 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
+	function rectanglePositionGetX()
+	{
+		return gfxData[menuFieldGfx+2];
+	}
+
+	function rectanglePositionGetY()
+	{
+		return gfxData[menuFieldGfx+3];
+	}
+
 	function rectanglePositionXEditing(val)
 	{
 		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
@@ -7217,9 +7293,19 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+3] = displayHalf;
 	}
 
+	function rectangleGetWidth()
+	{
+		return gfxData[menuFieldGfx+4];
+	}
+
 	function rectangleWidthEditing(val)
 	{
 		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]-val, 1, displaySize);
+	}
+
+	function rectangleGetHeight()
+	{
+		return gfxData[menuFieldGfx+5];
 	}
 
 	function rectangleHeightEditing(val)
@@ -8101,7 +8187,15 @@ class myMenuItemFieldEdit extends myMenuItem
     
     function getString()
     {
-    	if (fState==14/*f_alignEdit*/)
+		if (fState==12/*f_xEdit*/)
+    	{
+    		return "x=" + editorView.fieldPositionGetX();
+    	}
+		else if (fState==13/*f_yEdit*/)
+    	{
+    		return "y=" + editorView.fieldPositionGetY();
+    	}
+    	else if (fState==14/*f_alignEdit*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, editorView.fieldGetAlignment());
     	}
@@ -8133,7 +8227,8 @@ class myMenuItemFieldEdit extends myMenuItem
     	}
 		else if (fState<=11/*f_tap*/)
     	{
-    		fState = (fState+val+5-7)%5 + 7;
+    		//fState = (fState+val+5-7)%5 + 7;
+    		fState = (fState+val+4-7)%4 + 7;		// removed tap for now
     	}
 		else if (fState==12/*f_xEdit*/)
     	{
@@ -8398,7 +8493,7 @@ class myMenuItemElementEdit extends myMenuItem
     	if (fId==2)	// large (hour, minute, colon)
     	{
     		fStringsIndex = 0;
-    		fNumCustom = 2;
+    		fNumCustom = 3;
     	}
     	else if (fId==3)	// string
     	{
@@ -8437,9 +8532,13 @@ class myMenuItemElementEdit extends myMenuItem
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, fStringsIndex, fState);
     	}
-		else if (fId==2 && fState==numTop)	// large font
+		else if (fId==2 && fState==numTop)	// large type
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 5, editorView.largeGetFont());
+			return editorView.getLargeTypeName(editorView.largeGetType());
+	    }
+		else if (fId==2 && fState==numTop+1)	// large font
+		{
+   			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 5, editorView.largeGetFont());
 	    }
 		else if (fId==3 && fState==numTop)	// string type
 		{
@@ -8494,9 +8593,13 @@ class myMenuItemElementEdit extends myMenuItem
     		{
 		    	if (fState==numTop)
 		    	{
-	    			editorView.largeFontEditing(val);
+	    			editorView.largeTypeEditing(val);
 		    	}
 		    	else if (fState==numTop+1)
+		    	{
+	    			editorView.largeFontEditing(val);
+		    	}
+		    	else if (fState==numTop+2)
 		    	{
 		    		editorView.largeColorEditing(val);
 		    	}
@@ -8590,7 +8693,7 @@ class myMenuItemElementEdit extends myMenuItem
 
     		if (fId==2)	// large (hour, minute, colon)
     		{
-		    	if (fState==numTop+1)
+		    	if (fState==numTop+2)
 		    	{
 		    		editorView.startColorEditing(editorView.menuElementGfx+3/*large_color*/);
 		    	}
@@ -9004,9 +9107,25 @@ class myMenuItemRectangle extends myMenuItem
     
     function getString()
     {
-    	if (fState==104/*r_visEdit*/)
+    	if (fState==102/*r_wEdit*/)
+    	{
+    		return "w=" + editorView.rectangleGetWidth();
+    	}
+    	else if (fState==103/*r_hEdit*/)
+    	{
+    		return "h=" + editorView.rectangleGetHeight();
+    	}
+    	else if (fState==104/*r_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
+    	}
+    	else if (fState==108/*r_xEdit*/)
+    	{
+    		return "x=" + editorView.rectanglePositionGetX();
+    	}
+    	else if (fState==109/*r_yEdit*/)
+    	{
+    		return "y=" + editorView.rectanglePositionGetY();
     	}
 		else if (fState<=12/*r_tap*/)
 		{
@@ -9032,7 +9151,8 @@ class myMenuItemRectangle extends myMenuItem
     	}
     	else if (fState>=8/*r_x*/ && fState<=12/*r_tap*/)
     	{
-    		fState = (fState+val+5-8)%5 + 8;
+    		//fState = (fState+val+5-8)%5 + 8;
+    		fState = (fState+val+4-8)%4 + 8;		// removed tap for now
     	}
     	else if (fState==100/*r_colorEdit*/)
     	{
