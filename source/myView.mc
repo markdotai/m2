@@ -3800,10 +3800,10 @@ class myView
 				
 				case 7:		// rectangle
 				{
-					gfxScalePositionSize(index+2, origSize);	// x from left
-					gfxScalePositionSize(index+3, origSize);	// y from bottom
-					gfxScalePositionSize(index+4, origSize);	// width
-					gfxScalePositionSize(index+5, origSize);	// height
+					gfxScalePositionSize(index+4/*rect_x*/, origSize);	// x from left
+					gfxScalePositionSize(index+5/*rect_y*/, origSize);	// y from bottom
+					gfxScalePositionSize(index+6/*rect_w*/, origSize);	// width
+					gfxScalePositionSize(index+7/*rect_h*/, origSize);	// height
 					break;
 				}
 				
@@ -5016,7 +5016,7 @@ class myView
 					var alignedAdjust = (outerAlignedToSeconds(arrayResource) ? 0 : 1);
 
 					var eDisplay = (gfxData[index+1] & 0x3F);
-					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
+					var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
 					var eLimit100 = ((gfxData[index+1] & 0x80) != 0);
 
 					var drawStart = gfxData[index+3];	// 0-59
@@ -5504,15 +5504,22 @@ class myView
 						break;
 					}
 
-					var w = gfxData[index+4];
-					var h = gfxData[index+5];
-					var x = gfxData[index+2] - dcX - w/2;
-					var y = displaySize - gfxData[index+3] - dcY - h/2;
+					var w = gfxData[index+6/*rect_w*/];
+					var h = gfxData[index+7/*rect_h*/];
+					var x = gfxData[index+4/*rect_x*/] - dcX - w/2;
+					var y = displaySize - gfxData[index+5/*rect_y*/] - dcY - h/2;
 
 					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
-				        dc.setColor(getColor64(gfxData[index+1]-1), -1/*COLOR_TRANSPARENT*/);
-						dc.fillRectangle(x, y, w, h);
+						//var dataType = gfxData[index+1/*rect_type*/];
+						//var colUnfilled = getColor64(gfxData[index+3/*rect_unfilled*/]);
+
+						var colFilled = getColor64(gfxData[index+2/*rect_filled*/]);
+						if (colFilled!=COLOR_NOTSET)
+						{
+					        dc.setColor(getColor64(gfxData[index+2/*rect_filled*/]-1), -1/*COLOR_TRANSPARENT*/);
+							dc.fillRectangle(x, y, w, h);
+						}
 					}
 
 					gfxFieldHighlight(dc, index, x, y, w, h);
@@ -5543,7 +5550,7 @@ class myView
 					var noFill = ((gfxData[index+8]&0x10000)!=0);
 					var fillValue = fillEnd;
 
-					var eDirAnti = ((gfxData[index+1] & 0x100) != 0);	// false==clockwise
+					var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
 					if (eDirAnti)	// swap start & end for clockwise drawing
 					{
 						var temp = drawStart;
@@ -6042,11 +6049,13 @@ class myEditorView extends myView
 		index = gfxInsert(index, 7);
 		if (index>=0)
 		{
-			gfxData[index+1] = 3+1;	// color
-			gfxData[index+2] = displayHalf;	// x from left
-			gfxData[index+3] = displayHalf;	// y from bottom
-			gfxData[index+4] = 20;	// width
-			gfxData[index+5] = 20;	// height
+			gfxData[index+1/*rect_type*/] = 0;	// type & direction
+			gfxData[index+2/*rect_filled*/] = 3+1;	// color filled
+			gfxData[index+3/*rect_unfilled*/] = COLOR_NOTSET+1;	// color unfilled
+			gfxData[index+4/*rect_x*/] = displayHalf;	// x from left
+			gfxData[index+5/*rect_y*/] = displayHalf;	// y from bottom
+			gfxData[index+6/*rect_w*/] = 20;	// width
+			gfxData[index+7/*rect_h*/] = 20;	// height
 		}
 		return index;
 	}
@@ -7258,59 +7267,83 @@ class myEditorView extends myView
 		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]-val+64-1)%64 + 1;	// 1 to 64
 	}
 
-	function rectangleColorEditing(val)
+	function rectangleGetType()
 	{
-		gfxData[menuFieldGfx+1] = (gfxData[menuFieldGfx+1]-val+64-1)%64 + 1;	// 1 to 64
+		return (gfxData[menuFieldGfx+1]&0x3F);
+	}
+
+	function rectangleTypeEditing(val)
+	{
+		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 1)%1;
+		gfxData[menuFieldGfx+1] &= ~0x3F; 
+		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
+	}
+	
+	function rectangleGetDirection()
+	{
+		return ((gfxData[menuFieldGfx+1]&0xC0)>>6); 
+	}
+	
+	function rectangleDirectionEditing(val)
+	{
+		var temp = (rectangleGetDirection()-val+4)%4;
+		gfxData[menuFieldGfx+1] &= ~0xC0; 
+		gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0); 
+	}
+
+	function rectangleColorEditing(n, val)
+	{
+		gfxData[menuFieldGfx+2/*rect_filled*/+n] = (gfxData[menuFieldGfx+2/*rect_filled*/+n]-val+65)%65;	// allow for COLOR_NOTSET (-1) so 0 to 64
 	}
 
 	function rectanglePositionGetX()
 	{
-		return gfxData[menuFieldGfx+2];
+		return gfxData[menuFieldGfx+4/*rect_x*/];
 	}
 
 	function rectanglePositionGetY()
 	{
-		return gfxData[menuFieldGfx+3];
+		return gfxData[menuFieldGfx+5/*rect_y*/];
 	}
 
 	function rectanglePositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
+		gfxData[menuFieldGfx+4/*rect_x*/] = getMinMax(gfxData[menuFieldGfx+4/*rect_x*/]-val, 0, displaySize);
 	}
 
 	function rectanglePositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = getMinMax(gfxData[menuFieldGfx+3]-val, 0, displaySize);
+		gfxData[menuFieldGfx+5/*rect_y*/] = getMinMax(gfxData[menuFieldGfx+5/*rect_y*/]-val, 0, displaySize);
 	}
 
 	function rectanglePositionCentreX()
 	{
-		gfxData[menuFieldGfx+2] = displayHalf;
+		gfxData[menuFieldGfx+4/*rect_x*/] = displayHalf;
 	}
 
 	function rectanglePositionCentreY()
 	{
-		gfxData[menuFieldGfx+3] = displayHalf;
+		gfxData[menuFieldGfx+5/*rect_y*/] = displayHalf;
 	}
 
 	function rectangleGetWidth()
 	{
-		return gfxData[menuFieldGfx+4];
+		return gfxData[menuFieldGfx+6/*rect_w*/];
 	}
 
 	function rectangleWidthEditing(val)
 	{
-		gfxData[menuFieldGfx+4] = getMinMax(gfxData[menuFieldGfx+4]-val, 1, displaySize);
+		gfxData[menuFieldGfx+6/*rect_w*/] = getMinMax(gfxData[menuFieldGfx+6/*rect_w*/]-val, 1, displaySize);
 	}
 
 	function rectangleGetHeight()
 	{
-		return gfxData[menuFieldGfx+5];
+		return gfxData[menuFieldGfx+7/*rect_h*/];
 	}
 
 	function rectangleHeightEditing(val)
 	{
-		gfxData[menuFieldGfx+5] = getMinMax(gfxData[menuFieldGfx+5]-val, 1, displaySize);
+		gfxData[menuFieldGfx+7/*rect_h*/] = getMinMax(gfxData[menuFieldGfx+7/*rect_h*/]-val, 1, displaySize);
 	}
 
 	function ringGetTypeFromGfxIndex(index)
@@ -7332,12 +7365,12 @@ class myEditorView extends myView
 	
 	function ringGetDirectionAnti()
 	{
-		return ((gfxData[menuFieldGfx+1]&0x100)!=0); 
+		return ((gfxData[menuFieldGfx+1]&0x40)!=0); 
 	}
 	
 	function ringDirectionEditing()
 	{
-		gfxData[menuFieldGfx+1] ^= 0x100;
+		gfxData[menuFieldGfx+1] ^= 0x40;
 		
 		// swap start and end over too
 		var temp = gfxData[menuFieldGfx+3];
@@ -7489,7 +7522,7 @@ class myMenuItemExitApp extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d>=2);
+    	return (d==3);
     }
 
     function exitApp()
@@ -7732,6 +7765,8 @@ class myMenuItemQuickAdd extends myMenuItem
 	//steps (text)
 	//steps (ring)
 	//heart rate (text)
+	//battery indicator
+	//alarm icon
 	//seconds indicator
 	//digital seconds
 	//horizontal line
@@ -8572,7 +8607,7 @@ class myMenuItemElementEdit extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<(fNumCustom+4) || (fId==3 && fState==(fNumCustom+4) && idArrayValue<0));
+    	return (d!=3 || fState<(fNumCustom+4) || ((fId==2 || fId==3) && fState==(fNumCustom+4)));
     }
 
     function onEditing(val)
@@ -8610,7 +8645,7 @@ class myMenuItemElementEdit extends myMenuItem
 		    	{
 		    		if (idArrayValue<0)
 		    		{
-		    			idArray = (idArray-val+5)%5;
+		    			idArray = (idArray+val+5)%5;
 		    		}
 		    		else
 		    		{
@@ -8757,10 +8792,23 @@ class myMenuItemElementEdit extends myMenuItem
     	}
 		else if (fState==numTop)
 		{
-    		if (fId==3)	// string
+    		if (fId==2)	// large (hour, minute, colon)
     		{
-	    		idArrayValue = editorView.stringTypeEditing(0, idArray, editorView.stringGetType());
-	    		editorView.stringSetType(idArrayValue);
+				return onBack();	// selected by user so go back
+		    }
+    		else if (fId==3)	// string
+    		{
+    			if (idArrayValue<0)
+    			{
+	    			idArrayValue = editorView.stringTypeEditing(0, idArray, editorView.stringGetType());	// set initial value
+	    			editorView.stringSetType(idArrayValue);
+	    		}
+	    		else
+	    		{
+	    			// selected by user so go back (twice)
+	    			onBack();
+	    			return onBack();
+	    		}
 			}
     	}
     	
@@ -9072,28 +9120,34 @@ class myMenuItemRectangle extends myMenuItem
 {
 //	enum
 //	{
-//		r_color,		0
-//		r_position,		1
-//		r_w,			2
-//		r_h,			3
-//		r_vis,			4
-//		r_earlier,		5
-//		r_later,		6
-//		r_delete,		7
+//		r_type,			0
+//		r_direction,	1
+//		r_color,		2
+//		r_unfilled,		3
+//		r_position,		4
+//		r_w,			5
+//		r_h,			6
+//		r_vis,			7
+//		r_earlier,		8
+//		r_later,		9
+//		r_delete,		10
 //
-//		r_x,			8
-//		r_y,			9
-//		r_xCentre,		10
-//		r_yCentre,		11
-//		r_tap,			12
+//		r_x,			11
+//		r_y,			12
+//		r_xCentre,		13
+//		r_yCentre,		14
+//		r_tap,			15
 //
-//		r_colorEdit,	100
-//		r_wEdit,		102
-//		r_hEdit,		103
-//		r_visEdit,		104
+//		r_typeEdit,		100
+//		r_directionEdit,101
+//		r_colorEdit,	102
+//		r_unfilledEdit,	103
+//		r_wEdit,		105
+//		r_hEdit,		106
+//		r_visEdit,		107
 //
-//		r_xEdit,		108
-//		r_yEdit,		109
+//		r_xEdit,		111
+//		r_yEdit,		112
 //	}
 
 	var fState;
@@ -9107,29 +9161,37 @@ class myMenuItemRectangle extends myMenuItem
     
     function getString()
     {
-    	if (fState==102/*r_wEdit*/)
+    	if (fState==100/*r_typeEdit*/)
+    	{
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 1, editorView.rectangleGetType());
+    	}
+    	else if (fState==101/*r_directionEdit*/)
+    	{
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 2, editorView.rectangleGetDirection());
+    	}
+    	else if (fState==105/*r_wEdit*/)
     	{
     		return "w=" + editorView.rectangleGetWidth();
     	}
-    	else if (fState==103/*r_hEdit*/)
+    	else if (fState==106/*r_hEdit*/)
     	{
     		return "h=" + editorView.rectangleGetHeight();
     	}
-    	else if (fState==104/*r_visEdit*/)
+    	else if (fState==107/*r_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
-    	else if (fState==108/*r_xEdit*/)
+    	else if (fState==111/*r_xEdit*/)
     	{
     		return "x=" + editorView.rectanglePositionGetX();
     	}
-    	else if (fState==109/*r_yEdit*/)
+    	else if (fState==112/*r_yEdit*/)
     	{
     		return "y=" + editorView.rectanglePositionGetY();
     	}
-		else if (fState<=12/*r_tap*/)
+		else if (fState<=15/*r_tap*/)
 		{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, -1, fState);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 0, fState);
  		}
  		else
  		{
@@ -9140,41 +9202,49 @@ class myMenuItemRectangle extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<12/*r_tap*/);
+    	return (d!=3 || fState<15/*r_tap*/);
     }
 
     function onEditing(val)
     {
-    	if (fState<=7/*r_delete*/)
+    	if (fState<=10/*r_delete*/)
     	{
-    		fState = (fState+val+8)%8;
+    		fState = (fState+val+11)%11;
     	}
-    	else if (fState>=8/*r_x*/ && fState<=12/*r_tap*/)
+    	else if (fState>=11/*r_x*/ && fState<=15/*r_tap*/)
     	{
-    		//fState = (fState+val+5-8)%5 + 8;
-    		fState = (fState+val+4-8)%4 + 8;		// removed tap for now
+    		//fState = (fState+val+5-11)%5 + 11;
+    		fState = (fState+val+4-11)%4 + 11;		// removed tap for now
     	}
-    	else if (fState==100/*r_colorEdit*/)
+    	else if (fState==100/*r_typeEdit*/)
     	{
-    		editorView.rectangleColorEditing(val);
+ 			editorView.rectangleTypeEditing(val);
     	}
-    	else if (fState==102/*r_wEdit*/)
+    	else if (fState==101/*r_directionEdit*/)
+    	{
+ 			editorView.rectangleDirectionEditing(val);
+    	}
+    	else if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
+    	{
+    		editorView.rectangleColorEditing(fState-102/*r_colorEdit*/, val);
+    	}
+    	else if (fState==105/*r_wEdit*/)
     	{
     		editorView.rectangleWidthEditing(val);
     	}
-    	else if (fState==103/*r_hEdit*/)
+    	else if (fState==106/*r_hEdit*/)
     	{
     		editorView.rectangleHeightEditing(val);
     	}
-    	else if (fState==104/*r_visEdit*/)
+    	else if (fState==107/*r_visEdit*/)
     	{
     		editorView.fieldVisibilityEditing(val);
     	}
-    	else if (fState==108/*r_xEdit*/)
+    	else if (fState==111/*r_xEdit*/)
     	{
     		editorView.rectanglePositionXEditing(val);
     	}
-    	else if (fState==109/*r_yEdit*/)
+    	else if (fState==112/*r_yEdit*/)
     	{
     		editorView.rectanglePositionYEditing(val);
     	}
@@ -9194,41 +9264,41 @@ class myMenuItemRectangle extends myMenuItem
     
     function onSelect()
     {
-    	if (fState==1/*r_position*/)
+    	if (fState==4/*r_position*/)
     	{
-    		fState = 8/*r_x*/;
+    		fState = 11/*r_x*/;
     	}
-    	else if (fState==5/*r_earlier*/)
+    	else if (fState==8/*r_earlier*/)
     	{
     		editorView.fieldEarlier();
     	}
-    	else if (fState==6/*r_later*/)
+    	else if (fState==9/*r_later*/)
     	{
     		editorView.fieldLater();
     	}
-    	else if (fState==7/*r_delete*/)
+    	else if (fState==10/*r_delete*/)
     	{
     		editorView.fieldDelete();
     		return new myMenuItemFieldSelect();
     	}
-    	else if (fState==10/*r_xCentre*/)
+    	else if (fState==13/*r_xCentre*/)
     	{
     		editorView.rectanglePositionCentreX();
     	}
-    	else if (fState==11/*r_yCentre*/)
+    	else if (fState==14/*r_yCentre*/)
     	{
     		editorView.rectanglePositionCentreY();
     	}
-    	else if (fState==12/*r_tap*/)
+    	else if (fState==15/*r_tap*/)
     	{
     	}
     	else if (fState<100)
     	{
    			fState += 100;
 
-    		if (fState==100/*r_colorEdit*/)
+    		if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
 	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+1);
+	    		editorView.startColorEditing(editorView.menuFieldGfx+fState-102/*r_colorEdit*/+2/*rect_filled*/);
 	    	}
     	}
 
@@ -9237,7 +9307,7 @@ class myMenuItemRectangle extends myMenuItem
     
     function onBack()
     {
-    	if (fState<=7/*r_delete*/)
+    	if (fState<=10/*r_delete*/)
     	{
     		return new myMenuItemFieldSelect();
     	}
@@ -9247,9 +9317,9 @@ class myMenuItemRectangle extends myMenuItem
 
     		fState -= 100;
     	}
-    	else if (fState>=8/*r_x*/)
+    	else if (fState>=11/*r_x*/)
     	{
-    		fState = 1/*r_position*/;
+    		fState = 4/*r_position*/;
     	}
 
     	return null;

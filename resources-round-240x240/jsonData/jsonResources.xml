@@ -205,7 +205,7 @@
 				6, 4,		<!-- icon -->
 				11, 9,		<!-- movebar -->
 				5, 4,		<!-- chart -->
-				6, 6,		<!-- rectangle -->
+				8, 8,		<!-- rectangle -->
 				10, 8,		<!-- ring -->
 				8, 7  		<!-- seconds -->
 			],
@@ -221,33 +221,33 @@
 			[
 				0, 0, 0, 0, 0,				<!-- system -->
 				0, 0, 0, 0,					<!-- system number -->
-				41, 48, 54, 52, 50,			<!-- half -->
-				41, 48, 54, 52, 50,			<!-- half italic -->
+				19, 23, 25, 26, 26,			<!-- half -->
+				20, 24, 27, 28, 27,			<!-- half italic -->
 				37, 41, 48, 54, 52, 50,		<!-- big s -->
-				37, 41, 48, 54, 52, 50,		<!-- big italic s -->
+				36, 46, 53, 57, 56, 53,		<!-- big italic s -->
 				42, 51, 60, 60, 60, 58,		<!-- big m -->
-				42, 51, 60, 60, 60, 58,		<!-- big italic m -->
+				40, 54, 63, 63, 63, 61,		<!-- big italic m -->
 				46, 58, 66, 66, 66, 64,		<!-- big l -->
-				46, 58, 66, 66, 66, 64,		<!-- big italic l -->
-				10, 10,						<!-- half colons -->
-				10, 10, 12, 12, 14, 14,		<!-- big colons -->
+				45, 62, 70, 70, 69, 68,		<!-- big italic l -->
+				6, 7,						<!-- half colons -->
+				11, 13, 12, 14, 13, 16,		<!-- big colons -->
 				12, 14, 14, 15, 15,			<!-- num s -->
 				14, 16, 19, 18, 20,			<!-- num m -->
 				19, 21, 22, 23, 23,			<!-- num l -->
 				27, 32, 32, 35, 33,			<!-- abc s -->
 				32, 37, 44, 42, 46,			<!-- abc m -->
 				45, 53, 55, 56, 56,			<!-- abc l -->
-				45, 45						<!-- icon -->
+				40, 49						<!-- icon -->
 			],
 			
 			<!-- dynResOuterSizeArray -->
 			<!-- ring (+328 bytes (7) for position array) -->
 			[
-				48, 41, 49, 40, 43, 39,		<!-- tri, triin, v, vin, line, thin -->
-				35,	31, 49, 48, 40,			<!-- seconds circular, a, b, c, wide -->
-				40, 50, 50, 50, 50, 50,		<!-- ring circular, a, b, c, wide, a -->
-				50, 50, 50, 50,				<!-- slash clock, anti -->
-				50, 50, 50, 50				<!-- tri clock, anti -->
+				48, 41, 49, 41, 43, 35,		<!-- tri, triin, v, vin, line, thin -->
+				54,	50, 50, 48, 58,			<!-- seconds circular, a, b, c, wide -->
+				54, 51, 50, 48, 59, 58,		<!-- ring circular, a, b, c, wide, a -->
+				53, 52, 53, 52,				<!-- slash clock, anti -->
+				48, 46, 48, 46				<!-- tri clock, anti -->
 			]
 		]
 	</jsonData>

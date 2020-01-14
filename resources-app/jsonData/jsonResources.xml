@@ -467,19 +467,35 @@
 	<!-- rectangle -->
 	<jsonData id="id_rectangleStrings">
 		[
-			"color",
-			"position",
-			"width",
-			"height",
-			"visibility",
-			"move earlier",
-			"move later",
-			"delete rect",
-			"x",
-			"y",
-			"centre x",
-			"centre y",
-			"tap"
+			[
+				"data",
+				"direction",
+				"color filled",
+				"color unfilled",
+				"position",
+				"width",
+				"height",
+				"visibility",
+				"move earlier",
+				"move later",
+				"delete rect",
+				"x",
+				"y",
+				"centre x",
+				"centre y",
+				"tap"
+			],
+			
+			[
+				"plain color"
+			],
+			
+			[
+				"right",
+				"left",
+				"up",
+				"down"
+			]
 		]
 	</jsonData>
 			
@@ -529,19 +545,19 @@
 			],
 			
 			[
-		   		"ring color",
-				"ring steps",
-				"ring floors",
-		   		"ring battery",
-				"ring mins",
-				"ring hours",
-				"ring 2nd time",
-		   		"ring sun",
-		   		"ring sun",
-		   		"ring sun",
-				"ring intensity",
-				"ring smart\nintensity",
-		   		"ring HR"
+		   		"ring (color)",
+				"ring (steps)",
+				"ring (floors)",
+		   		"ring (battery)",
+				"ring (mins)",
+				"ring (hours)",
+				"ring (2nd time)",
+		   		"ring (sun now)",
+		   		"ring (sun\nmidnight)",
+		   		"ring (sun noon)", 
+				"ring (intensity)",
+				"ring (smart\nintensity)",
+		   		"ring (HR)"
 			],
 			
 			[
