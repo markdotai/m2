@@ -3343,11 +3343,12 @@ class myView
 
 	const MAX_DYNAMIC_MEM = 500;
 	var dynResMem50 = 0;
+	var dynResMemFailed = false;
 
 	(:m2app)
 	function getUsedResourceMemory()
 	{
-		return dynResMem50.toFloat()/MAX_DYNAMIC_MEM;
+		return (dynResMemFailed ? 1.0 : (dynResMem50.toFloat()/MAX_DYNAMIC_MEM));
 	}
 
 	function addDynamicResource(r, m)
@@ -3358,14 +3359,21 @@ class myView
 			return i;
 		}
 	
-		if (dynResNum < MAX_DYNAMIC_RESOURCES)
+		if (dynResNum<MAX_DYNAMIC_RESOURCES)
 		{
-			dynResList[dynResNum] = r;
-			dynResNum++;
-
-			dynResMem50 += m;
-			
-			return dynResNum-1;
+			if ((dynResMem50+m)<=MAX_DYNAMIC_MEM)
+			{
+				dynResList[dynResNum] = r;
+				dynResNum++;
+	
+				dynResMem50 += m;
+				
+				return dynResNum-1;
+			}
+			else
+			{
+				dynResMemFailed = true;
+			}
 		}
 		
 		return MAX_DYNAMIC_RESOURCES;
@@ -3419,20 +3427,24 @@ class myView
 		return ((i<dynResNum) ? dynResResource[i] : null);
 	}
 
-	function getDynamicResourceAscent(i)
-	{
-		return ((i<dynResNum) ? Graphics.getFontAscent(dynResResource[i]) : 0);
-	}
+//	function getDynamicResourceAscent(i)
+//	{
+//		return ((i<dynResNum) ? Graphics.getFontAscent(dynResResource[i]) : 0);
+//	}
 
-	function getDynamicResourceDescent(i)
-	{
-		return ((i<dynResNum) ? Graphics.getFontDescent(dynResResource[i]) : 0);
-	}
+//	function getDynamicResourceDescent(i)
+//	{
+//		return ((i<dynResNum) ? Graphics.getFontDescent(dynResResource[i]) : 0);
+//	}
 
-	function updateFieldMaxAscentDescent(val, i, ascent, descent)
+	function updateFieldMaxAscentDescentResource(val, i)
 	{
 		if (i>=0 && i<dynResNum)
 		{
+			var ascent = Graphics.getFontAscent(dynResResource[i]);
+			var descent = Graphics.getFontDescent(dynResResource[i]);
+
+			// limit the size of system number fonts (as they can be way off compared to real number sizes)
 			if (dynResList[i]>=Graphics.FONT_SYSTEM_NUMBER_MILD && dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT)
 			{
 				if (ascent>systemNumberMaxAscent)
@@ -3445,8 +3457,15 @@ class myView
 					descent = 0;
 				}
 			}
+
+			val = updateFieldMaxAscentDescent(val, ascent, descent);
 		}
-	
+		
+		return val;
+	}
+
+	function updateFieldMaxAscentDescent(val, ascent, descent)
+	{
 		var a = (val&0xFF);
 		var d = ((val&0xFF00) >> 8);
 		
@@ -3697,6 +3716,7 @@ class myView
 		var origSize = 240;
 		
 		dynResMem50 = 0;
+		dynResMemFailed = false;
     	
 		for (var index=0; index<gfxNum; )
 		{
@@ -4329,8 +4349,8 @@ class myView
 					var dynamicResource = getDynamicResource(resourceIndex);
 					if (dynamicResource==null)
 					{
-						gfxData[index+4] = 0;	// width 0
-						gfxData[index+6] = 0;	// width 0
+						gfxData[index+5] = 0;	// width 0
+						gfxData[index+7] = 0;	// width 0
 						break;
 					}
 					
@@ -4431,7 +4451,7 @@ class myView
 //						}
 					}
 
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
 					
 					break;
 				}
@@ -4883,7 +4903,7 @@ class myView
 							gfxData[index+5] = eLen;	// string end
 							gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
 							gfxData[indexCurField+4] += gfxData[index+6];	// total width
-							gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
+							gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
 							//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 						}					
 					}
@@ -4928,7 +4948,7 @@ class myView
 						gfxData[index+4] = c;	// char
 						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
-						gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
+						gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
 						//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 				    }
 
@@ -4965,7 +4985,7 @@ class myView
 					}
 					
 					gfxData[indexCurField+4] += gfxData[index+10];	// total width
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], resourceIndex, getDynamicResourceAscent(resourceIndex), getDynamicResourceDescent(resourceIndex));		// store max ascent & descent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5]);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
@@ -4986,7 +5006,7 @@ class myView
 
 					gfxData[index+4] = (axesSide ? 55 : 51);	// width
 					gfxData[indexCurField+4] += gfxData[index+4];	// total width					
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], -1, 21/*heartChartHeight*/, 0);		// store max ascent & descent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], 21/*heartChartHeight*/, 0);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
@@ -5309,12 +5329,23 @@ class myView
 
 					var resourceIndex = ((gfxData[index+2/*large_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
+					
+					var timeY = fieldYStart;
+					if (dynamicResource != null)
+					{
+						timeY -= Graphics.getFontAscent(dynamicResource);		// subtract ascent
+					}
+
+					if (isEditor)
+					{
+						gfxElementHighlight(dc, index, fieldX, timeY);
+					}
+
 					if (dynamicResource==null)
 					{
 						break;
 					}
 
-					var timeY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 			
 //	// font ascent & font height are all over the place with system fonts on different watches
 //	// - have to hard code some values for each font and for each watch?
@@ -5323,11 +5354,6 @@ class myView
 
 //System.println("ascent=" + Graphics.getFontAscent(dynamicResource));
 					
-					if (isEditor)
-					{
-						gfxElementHighlight(dc, index, fieldX, timeY);
-					}
-
 					if (gfxData[index+5]>0)	// width 1
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)		// check digit x overlaps buffer
@@ -5367,16 +5393,21 @@ class myView
 						{ 
 							var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
 							var dynamicResource = getDynamicResource(resourceIndex);							
-							if (dynamicResource==null)
-							{
-								break;
-							}
 
-							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
+							var dateY = fieldYStart;
+							if (dynamicResource!=null)
+							{
+								dateY -= Graphics.getFontAscent(dynamicResource);		// subtract ascent
+							}
 						
 							if (isEditor)
 							{
 								gfxElementHighlight(dc, index, fieldX, dateY);
+							}
+
+							if (dynamicResource==null)
+							{
+								break;
 							}
 
 					        dc.setColor(getColor64(gfxData[index+3/*string_color*/]-1), -1/*COLOR_TRANSPARENT*/);
@@ -5419,18 +5450,23 @@ class myView
 						{ 
 							var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
 							var dynamicResource = getDynamicResource(resourceIndex);
-							if (dynamicResource==null)
-							{
-								break;
-							}
 
-							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
+							var dateY = fieldYStart;
+							if (dynamicResource!=null)
+							{
+								dateY -= Graphics.getFontAscent(dynamicResource);		// subtract ascent
+							}
 						
 							if (isEditor)
 							{
 								gfxElementHighlight(dc, index, fieldX, dateY);
 							}
 							
+							if (dynamicResource==null)
+							{
+								break;
+							}
+
 					        dc.setColor(getColor64(gfxData[index+3/*icon_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 						}
@@ -5450,17 +5486,22 @@ class myView
 
 					var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);
-					if (dynamicResource==null)
-					{
-						break;
-					}
 
 					var dateX = fieldX;
-					var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
+					var dateY = fieldYStart;
+					if (dynamicResource!=null)
+					{
+						dateY -= Graphics.getFontAscent(dynamicResource);		// subtract ascent
+					}
 
 					if (isEditor)
 					{
 						gfxElementHighlight(dc, index, fieldX, dateY);
+					}
+
+					if (dynamicResource==null)
+					{
+						break;
 					}
 
 					// moveBarLevel 0 = not triggered
@@ -6614,6 +6655,7 @@ class myEditorView extends myView
 	{
 		if (index==menuFieldGfx)
 		{
+			// only highlight the field itself when selecting fields (at the top level of menu)
 			if ((getGfxId(menuFieldGfx)==1 && menuElementGfx==0) ||		// field
 				(getGfxId(menuFieldGfx)==7 && menuItem!=null && (menuItem instanceof myMenuItemFieldSelect)))		// rectangle
 			{
@@ -6665,7 +6707,7 @@ class myEditorView extends myView
 				var dynamicResource = getDynamicResource(resourceIndex);
 				if (dynamicResource!=null)
 				{
-					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+					h = Graphics.getFontHeight(dynamicResource);
 				}
 			}
 			else if (id==3)		// string
@@ -6676,7 +6718,7 @@ class myEditorView extends myView
 				var dynamicResource = getDynamicResource(resourceIndex);
 				if (dynamicResource!=null)
 				{
-					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+					h = Graphics.getFontHeight(dynamicResource);
 				}
 			}
 			else if (id==4)		// icon
@@ -6687,7 +6729,7 @@ class myEditorView extends myView
 				var dynamicResource = getDynamicResource(resourceIndex);
 				if (dynamicResource!=null)
 				{
-					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+					h = Graphics.getFontHeight(dynamicResource);
 				}
 			}
 			else if (id==5)		// movebar
@@ -6698,7 +6740,7 @@ class myEditorView extends myView
 				var dynamicResource = getDynamicResource(resourceIndex);
 				if (dynamicResource!=null)
 				{
-					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+					h = Graphics.getFontHeight(dynamicResource);
 				}
 			}
 			else if (id==6)		// chart
@@ -7039,6 +7081,8 @@ class myEditorView extends myView
 
 			menuFieldGfx = prevField;
 		}
+
+		reloadDynamicResources = true;		// if maxed out dynamic resources this may load different ones now
 	}
 
 	function fieldLater()
@@ -7048,6 +7092,8 @@ class myEditorView extends myView
 		{
 			menuFieldGfx = fieldSwap(menuFieldGfx, nextField);
 		}
+
+		reloadDynamicResources = true;		// if maxed out dynamic resources this may load different ones now
 	}
 
 	function fieldDelete()
@@ -7178,6 +7224,8 @@ class myEditorView extends myView
 
 			menuElementGfx = prevElement;
 		}
+
+		reloadDynamicResources = true;		// if maxed out dynamic resources this may load different ones now
 	}
 
 	function elementLater()
@@ -7190,6 +7238,8 @@ class myEditorView extends myView
 				menuElementGfx = elementSwap(menuElementGfx, nextElement);
 			}
 		}
+
+		reloadDynamicResources = true;		// if maxed out dynamic resources this may load different ones now
 	}
 
 	function elementDelete()
