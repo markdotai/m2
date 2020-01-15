@@ -40,7 +40,8 @@ class myView
 	const GFX_VERSION = 0;			// a version number
 	
 	const PROFILE_NUM_USER = 24;		// number of user profiles
-	const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
+	//const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
+	const PROFILE_NUM_PRESET = 1;		// number of preset profiles (in the jsondata resource)
 
 	var displaySize = 240;
 	var displayHalf = 120;
@@ -1187,7 +1188,7 @@ class myView
 	{
 		var jsonData = Rez.JsonData;
 		var loadPreset = [jsonData.id_preset0, jsonData.id_preset1, jsonData.id_preset2, jsonData.id_preset3, jsonData.id_preset4, jsonData.id_preset5, jsonData.id_preset6, jsonData.id_preset7, jsonData.id_preset8, jsonData.id_preset9, jsonData.id_preset10, jsonData.id_preset11, jsonData.id_preset12, jsonData.id_preset13, jsonData.id_preset14, jsonData.id_preset15, jsonData.id_preset16];
-		return WatchUi.loadResource(loadPreset[profileIndex - PROFILE_NUM_USER])[n];
+		return ((profileIndex>=PROFILE_NUM_USER && profileIndex<(PROFILE_NUM_USER+PROFILE_NUM_PRESET)) ? WatchUi.loadResource(loadPreset[profileIndex - PROFILE_NUM_USER])[n] : "");
 	}
 
 	function getProfileString(profileIndex)
@@ -5067,7 +5068,10 @@ class myView
 			   		// month
 			   		//
 			   		// notifications count
-			   		// active calories (filled) out of total calories so far
+			   		// movebar
+			   		// daily active calories (filled) out of total calories so far
+			   		// weekly active calories compared to previous weeks
+			   		// smart training performance/load
 			   		//
 			   		// week ISO
 			   		// week calendar
@@ -5076,6 +5080,11 @@ class myView
 				   		
 					switch (eDisplay)
 					{
+						//case 0:		// solid color
+						//{
+						//	break;
+						//}
+					
 						case 1:		// steps
 						case 2:		// floors
 						case 10:	// intensity
