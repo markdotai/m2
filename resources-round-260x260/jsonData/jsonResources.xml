@@ -205,7 +205,7 @@
 				6, 4,		<!-- icon -->
 				11, 9,		<!-- movebar -->
 				5, 4,		<!-- chart -->
-				8, 8,		<!-- rectangle -->
+				9, 8,		<!-- rectangle -->
 				10, 8,		<!-- ring -->
 				8, 7  		<!-- seconds -->
 			],

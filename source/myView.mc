@@ -6127,6 +6127,7 @@ class myEditorView extends myView
 			gfxData[index+5/*rect_y*/] = displayHalf;	// y from bottom
 			gfxData[index+6/*rect_w*/] = 20;	// width
 			gfxData[index+7/*rect_h*/] = 20;	// height
+			// start fill, end fill & no fill flag
 		}
 		return index;
 	}
