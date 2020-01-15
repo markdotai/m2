@@ -56,7 +56,11 @@
         <settingConfig type="boolean" />
     </setting>
 
-    <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle">
+    <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle" helpUrl="https://paypal.me/markdotai">
+        <settingConfig type="boolean" />
+    </setting>
+
+    <setting propertyKey="@Properties.H2" title="@Strings.H2Title" helpUrl="">
         <settingConfig type="boolean" />
     </setting>
 

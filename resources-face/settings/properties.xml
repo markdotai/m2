@@ -18,8 +18,9 @@
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
 
     <property id="H" type="boolean">false</property>		<!-- honesty checkbox -->
+    <property id="H2" type="boolean">false</property>		<!-- honesty 2 -->
 
-    <property id="sd" type="string"></property>				<!-- profile save data -->
+    <property id="sd" type="string"></property>				<!-- profile save (time) data -->
 
     <property id="pg" type="boolean">false</property>		<!-- position got -->
     <property id="lo" type="float">0</property>				<!-- longitude -->
