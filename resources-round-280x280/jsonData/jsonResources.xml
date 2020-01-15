@@ -198,7 +198,7 @@
 
 			<!-- gfxSizeArray -->
 			[
-				10, 10,		<!-- header -->
+				16, 16,		<!-- header -->
 				6, 4,		<!-- field -->
 				8, 4,		<!-- large (hour, minute, colon) -->
 				7, 4,		<!-- string -->

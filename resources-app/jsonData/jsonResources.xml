@@ -145,29 +145,42 @@
 	<!-- header -->
 	<jsonData id="id_headerStrings">
 		[
-			"background\ncolor",
-			"battery high",
-			"battery low",
-			"2nd time zone\nUTC offset",
-			"movebar alert\nlevel",
-			"system fonts\ncase override",
-			"replacement\nfont for names",
-			"memory display",
-			"menu hide",
+			[
+				"background\ncolor",
+				"foreground\ndefault color",
+				"menu color",
+				"menu border",
+				"field highlight",
+				"element\nhighlight",
+				"battery high",
+				"battery low",
+				"2nd time zone\nUTC offset",
+				"movebar alert\nlevel",
+				"system fonts\ncase override",
+				"replacement\nfont for names",
+				"memory display",
+				"menu hide"
+			],
 			
-			"any case",
-			"upper case",
-			"lower case",
+			[
+				"any case",
+				"upper case",
+				"lower case"
+			],
 			
-			"system tiny",
-			"system small",
-			"system medium",
-			"system large",
-			"system huge",
+			[
+				"system tiny",
+				"system small",
+				"system medium",
+				"system large",
+				"system huge"
+			],
 
-			"off",
-			"one bar",
-			"all bars"
+			[
+				"off",
+				"one bar",
+				"all bars"
+			]
 		]
 	</jsonData>
 					

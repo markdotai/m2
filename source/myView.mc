@@ -72,6 +72,11 @@ class myView
 
 	var propBackgroundColor = 0x000000;
 	var propForegroundColor = 0xFFFFFF;		// default foreground color
+	//var propMenuColor = 0xFFFFFF;	// menu color editor only
+	//var propMenuBorder = 0x000000;	// menu border editor only
+	//var propFieldHighlight = 0xFFFFFF;	editor only
+	//var propElementHighlight = 0xFFFFFF;	editor only
+	var propKerningOn = true;
     var propBatteryHighPercentage = 75;
 	var propBatteryLowPercentage = 25;
 	var prop2ndTimeZoneOffset = 0;
@@ -3322,13 +3327,18 @@ class myView
 			gfxData[index+1] = GFX_VERSION;	// version
 			gfxData[index+2] = displaySize;	// watch display size
 			gfxData[index+3] = 0+2/*COLOR_SAVE*/;	// background color
-	    	gfxData[index+4] = 75;	// battery high percentage
-	    	gfxData[index+5] = 25;	// battery low percentage
-			gfxData[index+6] = 24; 	// prop2ndTimeZoneOffset
-    		gfxData[index+7] = 1;	// propMoveBarAlertTriggerLevel
-    		gfxData[index+8] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
-    		gfxData[index+9] = 1;	// propFieldFontUnsupported (0=xtiny to 4=large)
-			//gfxData[index+8] = 3+2/*COLOR_SAVE*/;	// default field color
+			gfxData[index+4] = 3+2/*COLOR_SAVE*/;	// foreground color
+			gfxData[index+5] = 3+2/*COLOR_SAVE*/;	// menu color
+			gfxData[index+6] = 0+2/*COLOR_SAVE*/;	// menu border
+			gfxData[index+7] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// field highlight
+			gfxData[index+8] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// element highlight
+			gfxData[index+9] = 1;	// kerning on for large fonts
+	    	gfxData[index+10] = 75;	// propBatteryHighPercentage, 0 to 100
+	    	gfxData[index+11] = 25;	// propBatteryLowPercentage, 0 to 100
+			gfxData[index+12] = 24; // prop2ndTimeZoneOffset, 24==0 (0 to 48)
+    		gfxData[index+13] = 1;	// propMoveBarAlertTriggerLevel, 1 to 5
+    		gfxData[index+14] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
+    		gfxData[index+15] = 1;	// propFieldFontUnsupported (0=xtiny to 4=large)
 			//gfxData[index+9] = 0;	// default field font
 		}
 		return index;
@@ -3724,6 +3734,26 @@ class myView
 		dynResMem50 = 0;
 		dynResMemFailed = false;
     	
+		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here so similar to gfxOnUpdate
+		{
+			origSize = getMinMax(gfxData[0+2], 218, 280);	// displaysize stored in gfx
+			gfxData[0+2] = displaySize;	// everything will be updated to match the real displaysize of this watch
+
+			gfxData[0+3] = getMinMax(gfxData[0+3], 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propBackgroundColor
+			gfxData[0+4] = getMinMax(gfxData[0+4], 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propForegroundColor
+			//gfxData[0+5] = getMinMax(gfxData[0+5], COLOR_FOREGROUND+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuColor editor only
+			//gfxData[0+6] = getMinMax(gfxData[0+6], COLOR_NOTSET+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuBorder editor only
+			//gfxData[0+7] = getMinMax(gfxData[0+7], COLOR_NOTSET+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propFieldHighlight editor only
+			//gfxData[0+8] = getMinMax(gfxData[0+8], COLOR_NOTSET+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propElementHighlight editor only
+			//gfxData[0+9] = getMinMax(gfxData[0+9], 0, 1);		// propKerningOn
+			gfxData[0+10] = getMinMax(gfxData[0+10], 0, 100);		// propBatteryHighPercentage, 0 to 100
+			gfxData[0+11] = getMinMax(gfxData[0+11], 0, 100);		// propBatteryLowPercentage, 0 to 100
+			gfxData[0+12] = getMinMax(gfxData[0+12], 0, 48);		// prop2ndTimeZoneOffset, 24==0 (0 to 48)
+			gfxData[0+13] = getMinMax(gfxData[0+13], 1, 5);			// propMoveBarAlertTriggerLevel, 1 to 5
+			gfxData[0+14] = getMinMax(gfxData[0+14], 0, 2); 		// propFieldFontSystemCase, (0=any, 1=upper, 2=lower)
+			gfxData[0+15] = getMinMax(gfxData[0+15], 0, 4);			// propFieldFontUnsupported, (0=xtiny to 4=large)
+		}
+
 		for (var index=0; index<gfxNum; )
 		{
 			//var id = getGfxId(index);
@@ -3731,20 +3761,10 @@ class myView
 			
 			switch(id)
 			{
-				case 0:		// header
-				{
-					origSize = getMinMax(gfxData[index+2], 218, 280);	// displaysize stored in gfx
-					gfxData[index+2] = displaySize;	// everything will be updated to match the real displaysize of this watch
-
-					gfxData[index+3] = getMinMax(gfxData[index+3], 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// background color
-					gfxData[index+4] = getMinMax(gfxData[index+4], 0, 100);	// battery high, 0 to 100
-					gfxData[index+5] = getMinMax(gfxData[index+5], 0, 100);	// battery low, 0 to 100
-					gfxData[index+6] = getMinMax(gfxData[index+6], 0, 48);		// 2nd time offset, 24==0 (0 to 48)
-					gfxData[index+7] = getMinMax(gfxData[index+7], 1, 5);		// move bar alert, 1 to 5
-					gfxData[index+8] = getMinMax(gfxData[index+8], 0, 2); 		// font system case, (0=any, 1=upper, 2=lower)
-					gfxData[index+9] = getMinMax(gfxData[index+9], 0, 4);		// font unsupported, (0=xtiny to 4=large)
-					break;
-				}
+				//case 0:		// header done above
+				//{
+				//	break;
+				//}
 				
 				case 1:		// field
 				{
@@ -4206,12 +4226,18 @@ class myView
 		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here as they are used early ...
 		{
 			propBackgroundColor = getColor64FromGfx(gfxData[0+3]);
-			propBatteryHighPercentage = gfxData[0+4];		// 0 to 100
-			propBatteryLowPercentage = gfxData[0+5];		// 0 to 100
-			prop2ndTimeZoneOffset = gfxData[0+6] - 24;		// 24==0 (0 to 48)
-			propMoveBarAlertTriggerLevel = gfxData[0+7];	// 1 to 5
-			propFieldFontSystemCase = gfxData[0+8]; 		// (0=any, 1=upper, 2=lower)
-			propFieldFontUnsupported = gfxData[0+9];		// (0=xtiny to 4=large)
+			propForegroundColor = getColor64FromGfx(gfxData[0+4]);
+			//propMenuColor = getColor64FromGfx(gfxData[0+5]);			editor only
+			//propMenuBorder = getColor64FromGfx(gfxData[0+6]);			editor only
+			//propFieldHighlight = getColor64FromGfx(gfxData[0+7]);		editor only
+			//propElementHighlight = getColor64FromGfx(gfxData[0+8]);	editor only
+			propKerningOn = (gfxData[0+9]!=0);
+			propBatteryHighPercentage = gfxData[0+10];		// 0 to 100
+			propBatteryLowPercentage = gfxData[0+11];		// 0 to 100
+			prop2ndTimeZoneOffset = gfxData[0+12] - 24;		// 24==0 (0 to 48)
+			propMoveBarAlertTriggerLevel = gfxData[0+13];	// 1 to 5
+			propFieldFontSystemCase = gfxData[0+14]; 		// (0=any, 1=upper, 2=lower)
+			propFieldFontUnsupported = gfxData[0+15];		// (0=xtiny to 4=large)
 		}
 
         var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
@@ -5890,6 +5916,11 @@ class myEditorView extends myView
 	
 	var editorFontResource;
 
+	var propMenuColor = 0xFFFFFF;	// menu color
+	var propMenuBorder = 0x000000;	// menu border
+	var propFieldHighlight = 0xFFFFFF;
+	var propElementHighlight = 0xFFFFFF;
+
     function initialize()
     {
 		myView.initialize();
@@ -6040,7 +6071,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1/*large_type*/] = dataType;		// type
 			gfxData[index+2/*large_font*/] = 25/*m regular*/;	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
-			gfxData[index+3/*large_color*/] = 3+2/*COLOR_SAVE*/;	// color
+			gfxData[index+3/*large_color*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color
 			// string 0
 			// width 0
 			// string 1
@@ -6058,7 +6089,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = dataType;		// type + useNumFont
 			gfxData[index+2/*string_font*/] = 7/*m_regular*/;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
-			gfxData[index+3/*string_color*/] = 3+2/*COLOR_SAVE*/;	// color
+			gfxData[index+3/*string_color*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color
 			// string start
 			// string end
 			// width
@@ -6075,7 +6106,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = iconType;	// type
 			gfxData[index+2/*icon_font*/] = 0;	// font
-			gfxData[index+3/*icon_color*/] = 3+2/*COLOR_SAVE*/;	// color
+			gfxData[index+3/*icon_color*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color
 			// char
 			// width
 
@@ -6091,11 +6122,11 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = 0;	// type
 			gfxData[index+2/*movebar_font*/] = 0;	// font
-			gfxData[index+3] = 3+2/*COLOR_SAVE*/;	// color 1
-			gfxData[index+4] = 3+2/*COLOR_SAVE*/;	// color 2
-			gfxData[index+5] = 3+2/*COLOR_SAVE*/;	// color 3
-			gfxData[index+6] = 3+2/*COLOR_SAVE*/;	// color 4
-			gfxData[index+7] = 3+2/*COLOR_SAVE*/;	// color 5
+			gfxData[index+3] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 1
+			gfxData[index+4] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 2
+			gfxData[index+5] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 3
+			gfxData[index+6] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 4
+			gfxData[index+7] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 5
 			gfxData[index+8] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color off
 			// level to draw
 			// width
@@ -6111,8 +6142,8 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;	// type
-			gfxData[index+2] = 3+2/*COLOR_SAVE*/;	// color chart
-			gfxData[index+3] = 3+2/*COLOR_SAVE*/;	// color axes
+			gfxData[index+2] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color chart
+			gfxData[index+3] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color axes
 			// width
 		}
 		return index;
@@ -6124,7 +6155,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1/*rect_type*/] = 0;	// type & direction
-			gfxData[index+2/*rect_filled*/] = 3+2/*COLOR_SAVE*/;	// color filled
+			gfxData[index+2/*rect_filled*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color filled
 			gfxData[index+3/*rect_unfilled*/] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color unfilled
 			gfxData[index+4/*rect_x*/] = displayHalf;	// x from left
 			gfxData[index+5/*rect_y*/] = displayHalf;	// y from bottom
@@ -6144,7 +6175,7 @@ class myEditorView extends myView
 			gfxData[index+2/*ring_font*/] = 11/*SECONDFONT_OUTER*/;
 			gfxData[index+3] = 0;	// start
 			gfxData[index+4] = 59;	// end
-			gfxData[index+5] = 3+2/*COLOR_SAVE*/;	// color filled
+			gfxData[index+5] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color filled
 			gfxData[index+6] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color value
 			gfxData[index+7] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color unfilled
 			// start fill, end fill & no fill flag
@@ -6162,7 +6193,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = 0;			// font
 			//gfxData[index+1] |= (0 << 8);	// refresh style
-			gfxData[index+2] = 3+2/*COLOR_SAVE*/; // color
+			gfxData[index+2] = COLOR_FOREGROUND+2/*COLOR_SAVE*/; // color
 			gfxData[index+3] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color5
 			gfxData[index+4] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color10
 			gfxData[index+5] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color15
@@ -6521,6 +6552,38 @@ class myEditorView extends myView
 		}
     }
 
+	function gfxAddDynamicResources(fontIndex)
+	{	
+		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here so similar to gfxOnUpdate
+		{
+			gfxData[0+5] = getMinMax(gfxData[0+5], COLOR_FOREGROUND+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuColor
+			gfxData[0+6] = getMinMax(gfxData[0+6], COLOR_NOTSET+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuBorder
+			gfxData[0+7] = getMinMax(gfxData[0+7], COLOR_NOTSET+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propFieldHighlight
+			gfxData[0+8] = getMinMax(gfxData[0+8], COLOR_NOTSET+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propElementHighlight
+		}
+		
+		return myView.gfxAddDynamicResources(fontIndex);
+	}
+	
+	function gfxOnUpdate(dc, clockTime, timeNow)
+	{
+		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here as they are used early ...
+		{
+			propMenuColor = getColor64FromGfx(gfxData[0+5]);
+			propMenuBorder = getColor64FromGfx(gfxData[0+6]);
+			propFieldHighlight = getColor64FromGfx(gfxData[0+7]);
+			propElementHighlight = getColor64FromGfx(gfxData[0+8]);
+		}
+
+    	myView.gfxOnUpdate(dc, clockTime, timeNow);
+
+		// make sure either the menu or border color is different from the background
+		if (propMenuBorder==propMenuColor && propMenuBorder==propBackgroundColor)
+		{
+			propMenuBorder = ((propBackgroundColor==0) ? 0xFFFFFF : 0x000000); 
+		}
+	}
+	
     function drawMenu(dc, x, y)
     {
     	//var xEnd = x + 30;
@@ -6594,16 +6657,19 @@ class myEditorView extends myView
         
 	function drawMultiText(dc, s, x, y, font)
 	{
-        dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
-        for (var i=-1; i<=1; i+=2)
-        {
-        	for (var j=-1; j<=1; j+=2)
-        	{
-				dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
-        	}
-        }
-        
-        dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+		if (propMenuBorder!=COLOR_NOTSET)
+		{
+	        dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
+	        for (var i=-1; i<=1; i+=2)
+	        {
+	        	for (var j=-1; j<=1; j+=2)
+	        	{
+					dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+	        	}
+	        }
+		}
+		        
+        dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
         //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
 		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -6653,15 +6719,18 @@ class myEditorView extends myView
 
 	function drawMemoryBar(dc, x, y, w, h, frac)
 	{
-		dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+		dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
 		dc.setPenWidth(1);		  
 		dc.drawRectangle(x, y, w, h);
 
-		var w2 = (w-2)*frac;
+		var w2 = ((w-2)*frac).toNumber();
 		dc.fillRectangle(x+1, y+1, w2, h-2);
 
-		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
-		dc.fillRectangle(x+1+w2, y+1, w-2-w2, h-2);
+		if (propMenuBorder!=COLOR_NOTSET)
+		{
+			dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
+			dc.fillRectangle(x+1+w2, y+1, w-2-w2, h-2);
+		}
 	}
 
 	function gfxFieldHighlight(dc, index, x, y, w, h)
@@ -6672,19 +6741,22 @@ class myEditorView extends myView
 			if ((getGfxId(menuFieldGfx)==1 && menuElementGfx==0) ||		// field
 				(getGfxId(menuFieldGfx)==7 && menuItem!=null && (menuItem instanceof myMenuItemFieldSelect)))		// rectangle
 			{
-				//dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
-				dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
-			
-				dc.setPenWidth(2);		  
-				dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
-	
-				//dc.setPenWidth(1);		  
-				//dc.setPenWidth(2);	// pen width 2 is 1 pixel above, and 1 pixel left of all lines		  
-				//dc.setPenWidth(3);	// pen width 3 is 1 pixel above & below, and 1 pixel left & right of all lines
-				//dc.drawRectangle(x, y, w, h);
-				//dc.drawRoundedRectangle(x, y, w, h, 3);
-				//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
-				//dc.fillRectangle(x, y, w, h);
+				if (propFieldHighlight!=COLOR_NOTSET)
+				{
+					//dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
+					dc.setColor(propFieldHighlight, -1/*COLOR_TRANSPARENT*/);
+				
+					dc.setPenWidth(2);		  
+					dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
+		
+					//dc.setPenWidth(1);		  
+					//dc.setPenWidth(2);	// pen width 2 is 1 pixel above, and 1 pixel left of all lines		  
+					//dc.setPenWidth(3);	// pen width 3 is 1 pixel above & below, and 1 pixel left & right of all lines
+					//dc.drawRectangle(x, y, w, h);
+					//dc.drawRoundedRectangle(x, y, w, h, 3);
+					//dc.drawRoundedRectangle(x-1, y-1, w+2, h+2, 3);
+					//dc.fillRectangle(x, y, w, h);
+				}
 			}
 						
 			// make sure menu is at best position for editing this field
@@ -6707,7 +6779,7 @@ class myEditorView extends myView
 		
 	function gfxElementHighlight(dc, index, x, y)
 	{
-		if (index==menuElementGfx)
+		if (index==menuElementGfx && propElementHighlight!=COLOR_NOTSET)
 		{
 			// moved calculation of width & height just into the editor to save code on the watchface
 			var w = 1;
@@ -6764,7 +6836,7 @@ class myEditorView extends myView
 			}
 
 			//dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
-			dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
+			dc.setColor(propElementHighlight, -1/*COLOR_TRANSPARENT*/);
 
 			dc.setPenWidth(2);		  
 			dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
@@ -6832,9 +6904,9 @@ class myEditorView extends myView
 	   			dc.fillCircle(displayHalf + x, displayHalf - y, (i==highlightGrid)?cScaleHighlight:cScale);
 	   		}
 	
-	        if (highlightGrid>=0)
+	        if (highlightGrid>=0 && propMenuBorder!=COLOR_NOTSET)
 	        {
-	    		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+	    		dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
 				dc.setPenWidth(3);		  
 				dc.drawCircle(displayHalf + hx, displayHalf - hy, cScaleHighlight+1);
 	        }
@@ -7158,34 +7230,89 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
 	}
 	
+	function headerForegroundColorEditing(val)
+	{
+		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
+	}
+	
+	function headerMenuColorEditing(val)
+	{
+		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+	}
+	
+	function headerMenuBorderColorEditing(val)
+	{
+		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]-val+66)%66;	// 0 to 65
+	}
+	
+	function headerFieldHighlightColorEditing(val)
+	{
+		gfxData[menuFieldGfx+7] = (gfxData[menuFieldGfx+7]-val+66)%66;	// 0 to 65
+	}
+	
+	function headerElementHighlightColorEditing(val)
+	{
+		gfxData[menuFieldGfx+8] = (gfxData[menuFieldGfx+8]-val+66)%66;	// 0 to 65
+	}
+	
 	function headerBatteryEditing(n, val)
 	{
-		var cur = gfxData[menuFieldGfx+4+n];
+		var cur = gfxData[menuFieldGfx+10+n];
 		if ((val<0 && cur>=10 && cur<=85) || (val>0 && cur>=15 && cur<=90))
 		{
 			val = val*5;
 		} 
-		gfxData[menuFieldGfx+4+n] = getMinMax(cur-val, 0, 100);	// 0 to 100
+		gfxData[menuFieldGfx+10+n] = getMinMax(cur-val, 0, 100);	// 0 to 100
+	}
+	
+	function headerBatteryAtMax(n)
+	{
+		return (gfxData[menuFieldGfx+10+n]>=100);	// 0 to 100
+	}
+	
+	function headerBatteryAtMin(n)
+	{
+		return (gfxData[menuFieldGfx+10+n]<=0);	// 0 to 100
 	}
 	
 	function header2ndTimeZoneEditing(val)
 	{
-		gfxData[menuFieldGfx+6] = getMinMax(gfxData[menuFieldGfx+6]-val, 0, 48);	// 0 to 48
+		gfxData[menuFieldGfx+12] = getMinMax(gfxData[menuFieldGfx+12]-val, 0, 48);	// 0 to 48
+	}
+	
+	function header2ndTimeZoneAtMax()
+	{
+		return (gfxData[menuFieldGfx+12]>=48);	// 0 to 48
+	}
+	
+	function header2ndTimeZoneAtMin()
+	{
+		return (gfxData[menuFieldGfx+12]<=0);	// 0 to 48
 	}
 	
 	function headerMoveBarAlertEditing(val)
 	{
-		gfxData[menuFieldGfx+7] = getMinMax(gfxData[menuFieldGfx+7]-val, 1, 5);		// 1 to 5
+		gfxData[menuFieldGfx+13] = getMinMax(gfxData[menuFieldGfx+13]-val, 1, 5);		// 1 to 5
+	}
+	
+	function headerMoveBarAlertAtMax()
+	{
+		return (gfxData[menuFieldGfx+13]>=5);	// 1 to 5
+	}
+	
+	function headerMoveBarAlertAtMin()
+	{
+		return (gfxData[menuFieldGfx+13]<=1);	// 1 to 5
 	}
 	
 	function headerFontSystemCaseEditing(val)
 	{
-		gfxData[menuFieldGfx+8] = (gfxData[menuFieldGfx+8]-val+3)%3;		// 0 to 2
+		gfxData[menuFieldGfx+14] = (gfxData[menuFieldGfx+14]-val+3)%3;		// 0 to 2
 	}
 	
 	function headerFontUnsupportedEditing(val)
 	{
-		gfxData[menuFieldGfx+9] = (gfxData[menuFieldGfx+9]-val+5)%5;		// 0 to 4
+		gfxData[menuFieldGfx+15] = (gfxData[menuFieldGfx+15]-val+5)%5;		// 0 to 4
 	}
 	
 	function elementVisibilityString()
@@ -8139,27 +8266,39 @@ class myMenuItemReset extends myMenuItem
 (:m2app)
 class myMenuItemHeader extends myMenuItem
 {
+//gfxData[0+9] = getMinMax(gfxData[0+9], 0, 1);		// propKerningOn
+
 //	enum
 //	{
-//		f_background,
-//		f_batteryHigh,
-//		f_batteryLow,
-//		f_2ndTime,
-//		f_moveBarAlert,
-//		f_fontSystemCase,
-//		f_fontUnsupported,
-//		f_memoryDisplay,
-//		f_menuhide,
+//		f_background,		0
+//		f_foreground,		1
+//		f_menuColor,		2
+//		f_menuBorder,		3
+//		f_fieldHighlight,	4
+//		f_ElementHighlight,	5
+//		f_batteryHigh,		6
+//		f_batteryLow,		7
+//		f_2ndTime,			8
+//		f_moveBarAlert,		9
+//		f_fontSystemCase,	10
+//		f_fontUnsupported,	11
+//		f_memoryDisplay,	12
+//		f_menuhide,			13
 //
-//		f_backgroundEdit,
-//		f_batteryHighEdit,
-//		f_batteryLowEdit,
-//		f_2ndTimeEdit,
-//		f_moveBarAlertEdit,
-//		f_fontSystemCaseEdit,
-//		f_fontUnsupportedEdit,
-//		f_memoryDisplayEdit,
-//		f_menuHideEdit,
+//		f_backgroundEdit,		100
+//		f_foregroundEdit,		101
+//		f_menuColorEdit,		102
+//		f_menuBorderEdit,		103
+//		f_fieldHighlightEdit,	104
+//		f_ElementHighlightEdit,	105
+//		f_batteryHighEdit,		106
+//		f_batteryLowEdit,		107
+//		f_2ndTimeEdit,			108
+//		f_moveBarAlertEdit,		109
+//		f_fontSystemCaseEdit,	110
+//		f_fontUnsupportedEdit,	111
+//		f_memoryDisplayEdit,	112
+//		f_menuHideEdit,			113
 //	}
 
 	var fState;
@@ -8173,37 +8312,37 @@ class myMenuItemHeader extends myMenuItem
     
     function getString()
     {
-    	if (fState==10/*f_batteryHighEdit*/)
+    	if (fState==106/*f_batteryHighEdit*/)
     	{
     		return "" + editorView.propBatteryHighPercentage;
     	}
-    	else if (fState==11/*f_batteryLowEdit*/)
+    	else if (fState==107/*f_batteryLowEdit*/)
     	{
     		return "" + editorView.propBatteryLowPercentage;
     	}
-    	else if (fState==12/*f_2ndTimeEdit*/)
+    	else if (fState==108/*f_2ndTimeEdit*/)
     	{
     		return "" + editorView.prop2ndTimeZoneOffset;
     	}
-    	else if (fState==13/*f_moveBarAlertEdit*/)
+    	else if (fState==109/*f_moveBarAlertEdit*/)
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
     	}
-    	else if (fState==14/*f_fontSystemCaseEdit*/)
+    	else if (fState==110/*f_fontSystemCaseEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + editorView.propFieldFontSystemCase);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 1, editorView.propFieldFontSystemCase);
     	}
-    	else if (fState==15/*f_fontUnsupportedEdit*/)
+    	else if (fState==111/*f_fontUnsupportedEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + 3 + editorView.propFieldFontUnsupported);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 2, editorView.propFieldFontUnsupported);
     	}
-    	else if (fState==16/*f_memoryDisplayEdit*/)
+    	else if (fState==112/*f_memoryDisplayEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, 8/*f_memoryDisplay*/ + 1 + 3 + 5 + editorView.memoryDisplayMode);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 3, editorView.memoryDisplayMode);
     	}
-    	else if (fState<=8/*f_menuHide*/)
+    	else if (fState<100/*f_backgroundEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 0, fState);
     	}
     	//else
     	//{
@@ -8216,51 +8355,117 @@ class myMenuItemHeader extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<9/*f_backgroundEdit*/);
+    	if (d==3)	// right
+    	{
+    	 	if (fState>=100/*f_backgroundEdit*/)
+    	 	{
+    			return false;
+    		}
+    	}
+    	else if (d==0)	// up
+    	{
+	    	if (fState==106/*f_batteryHighEdit*/)
+	    	{
+			    return !editorView.headerBatteryAtMax(0);
+	    	}
+	    	else if (fState==107/*f_batteryLowEdit*/)
+	    	{
+			    return !editorView.headerBatteryAtMax(1);
+	    	}
+	    	else if (fState==108/*f_2ndTimeEdit*/)
+	    	{
+			    return !editorView.header2ndTimeZoneAtMax();
+	    	}
+	    	else if (fState==109/*f_moveBarAlertEdit*/)
+	    	{
+			    return !editorView.headerMoveBarAlertAtMax();
+	    	}
+    	}
+    	else if (d==1)	// down
+    	{
+	    	if (fState==106/*f_batteryHighEdit*/)
+	    	{
+			    return !editorView.headerBatteryAtMin(0);
+	    	}
+	    	else if (fState==107/*f_batteryLowEdit*/)
+	    	{
+			    return !editorView.headerBatteryAtMin(1);
+	    	}
+	    	else if (fState==108/*f_2ndTimeEdit*/)
+	    	{
+			    return !editorView.header2ndTimeZoneAtMin();
+	    	}
+	    	else if (fState==109/*f_moveBarAlertEdit*/)
+	    	{
+			    return !editorView.headerMoveBarAlertAtMin();
+	    	}
+    	}
+
+    	return true;
     }
 
     function onEditing(val)
     {
-		if (fState<=8)
+		if (fState<100/*f_backgroundEdit*/)
 		{
-			fState = (fState+val+9)%9;    	
+			fState = (fState+val+14)%14;
 		}
-    	else if (fState==9/*f_backgroundEdit*/)
+    	else if (fState==100/*f_backgroundEdit*/)
     	{
     		editorView.headerBackgroundColorEditing(val);
     	}
-    	else if (fState==10/*f_batteryHighEdit*/)
+    	else if (fState==101/*f_foregroundEdit*/)
+    	{
+    		editorView.headerForegroundColorEditing(val);
+    	}
+    	else if (fState==102/*f_menuColorEdit*/)
+    	{
+    		editorView.headerMenuColorEditing(val);
+    	}
+    	else if (fState==103/*f_menuBorderEdit*/)
+    	{
+    		editorView.headerMenuBorderColorEditing(val);
+    	}
+    	else if (fState==104/*f_fieldHighlightEdit*/)
+    	{
+    		editorView.headerFieldHighlightColorEditing(val);
+    	}
+    	else if (fState==105/*f_ElementHighlightEdit*/)
+    	{
+    		editorView.headerElementHighlightColorEditing(val);
+    	}
+    	else if (fState==106/*f_batteryHighEdit*/)
     	{
     		editorView.headerBatteryEditing(0, val);
     	}
-    	else if (fState==11/*f_batteryLowEdit*/)
+    	else if (fState==107/*f_batteryLowEdit*/)
     	{
     		editorView.headerBatteryEditing(1, val);
     	}
-    	else if (fState==12/*f_2ndTimeEdit*/)
+    	else if (fState==108/*f_2ndTimeEdit*/)
     	{
     		editorView.header2ndTimeZoneEditing(val);
     	}
-    	else if (fState==13/*f_moveBarAlertEdit*/)
+    	else if (fState==109/*f_moveBarAlertEdit*/)
     	{
     		editorView.headerMoveBarAlertEditing(val);
     	}
-    	else if (fState==14/*f_fontSystemCaseEdit*/)
+    	else if (fState==110/*f_fontSystemCaseEdit*/)
     	{
     		editorView.headerFontSystemCaseEditing(val);
     	}
-    	else if (fState==15/*f_fontUnsupportedEdit*/)
+    	else if (fState==111/*f_fontUnsupportedEdit*/)
     	{
     		editorView.headerFontUnsupportedEditing(val);
     	}
-    	else if (fState==16/*f_memoryDisplayEdit*/)
+    	else if (fState==112/*f_memoryDisplayEdit*/)
     	{
     		editorView.memoryDisplayMode = (editorView.memoryDisplayMode + val + 3)%3;
     	}
-    	else if (fState==17/*f_menuHideEdit*/)
+    	else if (fState==113/*f_menuHideEdit*/)
     	{
 			editorView.menuHide = false;
-			fState -= 9;
+			fState -= 100;
     	}
     	
     	return null;
@@ -8278,23 +8483,23 @@ class myMenuItemHeader extends myMenuItem
     
     function onSelect()
     {
-		if (fState<=8)
+		if (fState<100)
 		{
-			if (fState==0/*f_background*/)
+			if (fState>=0/*f_background*/ && fState<=5/*f_ElementHighlight*/)
 			{
-				editorView.startColorEditing(editorView.menuFieldGfx+3);
+				editorView.startColorEditing(editorView.menuFieldGfx+3+fState);
 			}
-	    	else if (fState==8/*f_menuHide*/)
+	    	else if (fState==13/*f_menuHide*/)
 	    	{
 				editorView.menuHide = true;
 			}
 		
-			fState += 9;
+			fState += 100;
 		}
-    	else if (fState==17/*f_menuHideEdit*/)
+    	else if (fState==113/*f_menuHideEdit*/)
     	{
 			editorView.menuHide = false;
-			fState -= 9;
+			fState -= 100;
     	}
     	
     	return null;
@@ -8302,7 +8507,7 @@ class myMenuItemHeader extends myMenuItem
     
     function onBack()
     {
-    	if (fState<=8)
+    	if (fState<100)
     	{    
    			return new myMenuItemFieldSelect();
    		}
@@ -8317,7 +8522,7 @@ class myMenuItemHeader extends myMenuItem
 				editorView.menuHide = false;
 			//}
 
-   			fState -= 9;
+   			fState -= 100;
    		}
 
    		return null;

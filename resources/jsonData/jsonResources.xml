@@ -3,7 +3,7 @@
     <jsonData id="id_preset0">
     	[
 			"default",
-			"00ZW1WDPO1011XGWc020Vc421VZ41XGYJ03X7C41XGVn035C43NC43XDC49040000"
+			"00ZW2552111WDPO1011XGWc020Vc121VZ11XGYQ03X7C11XGVj035C13NC13XDC19010000"
 		]
 	</jsonData>
     <jsonData id="id_preset1">
@@ -301,7 +301,7 @@
 
 			<!-- gfxSizeArray -->
 			[
-				10, 10,		<!-- header -->
+				16, 16,		<!-- header -->
 				6, 4,		<!-- field -->
 				8, 4,		<!-- large (hour, minute, colon) -->
 				7, 4,		<!-- string -->
