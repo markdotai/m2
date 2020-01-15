@@ -35,6 +35,8 @@ class myView
 //	{
 //	}
 
+	var isEditor = false;
+
 	const GFX_VERSION = 0;			// a version number
 	
 	const PROFILE_NUM_USER = 24;		// number of user profiles
@@ -5225,22 +5227,18 @@ class myView
 	{
 	}
 		
-	function gfxElementHighlight(dc, index, x, y, w, h)
+	function gfxElementHighlight(dc, index, x, y)
 	{
 	}
 	
 	function gfxDrawBackground(dc, dcX, dcY, toBuffer)
 	{
-		var graphics = Graphics;
-
+		var fieldDraw = false;
+		var fieldYStart = displayHalf;
+		var fieldX = displayHalf;
+		
 		var dcWidth = dc.getWidth();
 		var dcHeight = dc.getHeight();
-
-		var fieldDraw = false;
-		var fieldXStart = displayHalf;
-		var fieldYStart = displayHalf;
-
-		var fieldX = displayHalf;
 
 		for (var index=0; index<gfxNum; )
 		{
@@ -5267,7 +5265,7 @@ class myView
 
 					var totalWidth = gfxData[index+4];
 
-					fieldXStart = gfxData[index+1] - dcX; // + gfxData[index+5];	// add x adjustment
+					var fieldXStart = gfxData[index+1] - dcX; // + gfxData[index+5];	// add x adjustment
 					fieldYStart = displaySize - gfxData[index+2] - dcY;
 			
 					if (gfxData[index+3]==0)	// centre justification
@@ -5290,9 +5288,12 @@ class myView
 			
 					fieldX = fieldXStart;
 
-					gfxFieldHighlight(dc, index, fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
+					if (isEditor)
+					{
+						gfxFieldHighlight(dc, index, fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
+					}
 
-//	dc.setColor(graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+//	dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
 //	dc.fillRectangle(fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
 					break;
 				}
@@ -5317,12 +5318,15 @@ class myView
 			
 //	// font ascent & font height are all over the place with system fonts on different watches
 //	// - have to hard code some values for each font and for each watch?
-//	dc.setColor(graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
-//	dc.fillRectangle(fieldX, timeY, gfxData[index+4]+gfxData[index+6], graphics.getFontHeight(dynamicResource));
+//	dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+//	dc.fillRectangle(fieldX, timeY, gfxData[index+4]+gfxData[index+6], Graphics.getFontHeight(dynamicResource));
 
-//System.println("ascent=" + graphics.getFontAscent(dynamicResource));
+//System.println("ascent=" + Graphics.getFontAscent(dynamicResource));
 					
-					gfxElementHighlight(dc, index, fieldX, timeY, gfxData[index+5]+gfxData[index+7], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex));
+					if (isEditor)
+					{
+						gfxElementHighlight(dc, index, fieldX, timeY);
+					}
 
 					if (gfxData[index+5]>0)	// width 1
 					{
@@ -5330,7 +5334,7 @@ class myView
 						{
 							// align bottom of text
 				       		dc.setColor(getColor64(gfxData[index+3/*large_color*/]-1), -1/*COLOR_TRANSPARENT*/);
-//	dc.setColor(getColor64(gfxData[index+1]-1), graphics.COLOR_BLUE);
+//	dc.setColor(getColor64(gfxData[index+1]-1), Graphics.COLOR_BLUE);
 			        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+4].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 						}
 													
@@ -5370,7 +5374,10 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+6], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex));
+							if (isEditor)
+							{
+								gfxElementHighlight(dc, index, fieldX, dateY);
+							}
 
 					        dc.setColor(getColor64(gfxData[index+3/*string_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 
@@ -5419,8 +5426,11 @@ class myView
 
 							var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 						
-							gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+5], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex));
-
+							if (isEditor)
+							{
+								gfxElementHighlight(dc, index, fieldX, dateY);
+							}
+							
 					        dc.setColor(getColor64(gfxData[index+3/*icon_color*/]-1), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 						}
@@ -5448,7 +5458,10 @@ class myView
 					var dateX = fieldX;
 					var dateY = fieldYStart - getDynamicResourceAscent(resourceIndex);		// subtract ascent
 
-					gfxElementHighlight(dc, index, fieldX, dateY, gfxData[index+10], getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex));
+					if (isEditor)
+					{
+						gfxElementHighlight(dc, index, fieldX, dateY);
+					}
 
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
@@ -5482,7 +5495,10 @@ class myView
 						break;
 					}
 
-					gfxElementHighlight(dc, index, fieldX, fieldYStart-21/*heartChartHeight*/, gfxData[index+4], 21/*heartChartHeight*/);
+					if (isEditor)
+					{
+						gfxElementHighlight(dc, index, fieldX, fieldYStart-21/*heartChartHeight*/);
+					}
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)	// check element x overlaps buffer
 					{
@@ -5522,7 +5538,10 @@ class myView
 						}
 					}
 
-					gfxFieldHighlight(dc, index, x, y, w, h);
+					if (isEditor)
+					{
+						gfxFieldHighlight(dc, index, x, y, w, h);
+					}
 
 					break;
 				}
@@ -5835,6 +5854,8 @@ class myEditorView extends myView
 //			tempResource = null;
 //		}
 
+		isEditor = true;
+	
 		editorFontResource = WatchUi.loadResource(Rez.Fonts.id_editor);
 
 		myView.onLayout(dc);
@@ -6628,10 +6649,64 @@ class myEditorView extends myView
 		}
 	}
 		
-	function gfxElementHighlight(dc, index, x, y, w, h)
+	function gfxElementHighlight(dc, index, x, y)
 	{
 		if (index==menuElementGfx)
 		{
+			// moved calculation of width & height just into the editor to save code on the watchface
+			var w = 1;
+			var h = 1;
+			var id = getGfxId(index);
+			if (id==2)		// large (hour, minute, colon)
+			{
+				w = gfxData[index+5]+gfxData[index+7];
+
+				var resourceIndex = ((gfxData[index+2/*large_font*/] >> 16) & 0xFF);
+				var dynamicResource = getDynamicResource(resourceIndex);
+				if (dynamicResource!=null)
+				{
+					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+				}
+			}
+			else if (id==3)		// string
+			{
+				w = gfxData[index+6];
+
+				var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
+				var dynamicResource = getDynamicResource(resourceIndex);
+				if (dynamicResource!=null)
+				{
+					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+				}
+			}
+			else if (id==4)		// icon
+			{
+				w = gfxData[index+5];
+				
+				var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
+				var dynamicResource = getDynamicResource(resourceIndex);
+				if (dynamicResource!=null)
+				{
+					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+				}
+			}
+			else if (id==5)		// movebar
+			{
+				w = gfxData[index+10];
+				
+				var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
+				var dynamicResource = getDynamicResource(resourceIndex);
+				if (dynamicResource!=null)
+				{
+					h = getDynamicResourceAscent(resourceIndex)+getDynamicResourceDescent(resourceIndex);
+				}
+			}
+			else if (id==6)		// chart
+			{
+				w = gfxData[index+4];
+				h = 21/*heartChartHeight*/;
+			}
+
 			dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
 
 			dc.setPenWidth(2);		  
