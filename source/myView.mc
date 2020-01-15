@@ -70,7 +70,8 @@ class myView
 	// prop or "property" variables - are the ones which we store in onUpdate, so they don't change when they are used in onPartialUpdate
 	//var propAddLeadingZero = false;
 
-	var propBackgroundColor = 0x00000000;
+	var propBackgroundColor = 0x000000;
+	var propForegroundColor = 0xFFFFFF;		// default foreground color
     var propBatteryHighPercentage = 75;
 	var propBatteryLowPercentage = 25;
 	var prop2ndTimeZoneOffset = 0;
@@ -83,7 +84,7 @@ class myView
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
     var propSecondRefreshStyle = 0;
     var propSecondAligned = true;
-	var propSecondColorIndexArray;
+	var propSecondColorIndexArray = new[60]b;
 	var propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
 	var propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
 	
@@ -320,13 +321,19 @@ class myView
 		
 	var colorArray = new[64]b;
 
-	const COLOR_NOTSET = -1;	// just used in the code to indicate no color set
+	const COLOR_NOTSET = -2;		// just used in the code to indicate no color set
+	const COLOR_FOREGROUND = -1;	// use default foreground color
+
+	//const COLOR_SAVE = 2;		// offset used when storing colors to gfx array
+	//const COLOR_ONE = 1;		// used when editing colors to allow default foreground but not notset  
 	
-	function getColor64(i)
+	function getColor64FromGfx(i)
 	{
+		i -= 2/*COLOR_SAVE*/;
+	
 		if (i<0 || i>=64)
 		{
-			return COLOR_NOTSET; 
+			return ((i==COLOR_FOREGROUND) ? propForegroundColor : COLOR_NOTSET); 
 		}
 	
 		// 0x00 = 000, 0x01 = 005, 0x02 = 00A, 0x03 = 00F
@@ -1614,7 +1621,7 @@ class myView
 		// test draw background of offscreen buffer in a different color
 		//if (toBuffer)
 		//{
-	    //	useDc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferPositionCounter*4)%12));
+	    //	useDc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64FromGfx(2/*COLOR_SAVE*/+4+42+(bufferPositionCounter*4)%12));
 		//}
         useDc.clear();
 		
@@ -1705,7 +1712,7 @@ class myView
 	
 				// draw a rect showing position of buffer
 		    	//dc.setClip(bufferX, bufferY, 62/*BUFFER_SIZE*/, 62/*BUFFER_SIZE*/);
-			    //dc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64(4+42+(bufferPositionCounter*4)%12));
+			    //dc.setColor(-1/*COLOR_TRANSPARENT*/, getColor64FromGfx(2/*COLOR_SAVE*/+4+42+(bufferPositionCounter*4)%12));
 		        //dc.clear();
 		    	//dc.clearClip();
 			}
@@ -1918,7 +1925,7 @@ class myView
 			    // 	dc.clear();
 			    //}
 	    	
-				var col = getColor64(propSecondColorIndexArray[index]);
+				var col = getColor64FromGfx(propSecondColorIndexArray[index]);
 		
 		        if (curCol != col)
 		        {
@@ -1926,7 +1933,7 @@ class myView
 		       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
 		       	}
 		       	//dc.setColor(col, Graphics.COLOR_RED);	// show background of whole font character
-		       	//dc.setColor(getColor64(4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
+		       	//dc.setColor(getColor64FromGfx(2/*COLOR_SAVE*/+4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 
 	    		//var x = getOuterX(dynamicPositions, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
 	    		//var y = getOuterY(dynamicPositions, index);
@@ -3124,9 +3131,8 @@ class myView
 				
 				// 0-9 a-z A-Z
 				// 10 +26 +26 =62
-				// 62*62=3844, so 0-3843
-				
-				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range)
+				// 62*62=3844, so 0-3843				
+				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range is 0-1921)
 				
 				//System.print("" + val);
 
@@ -3315,14 +3321,14 @@ class myView
 		{
 			gfxData[index+1] = GFX_VERSION;	// version
 			gfxData[index+2] = displaySize;	// watch display size
-			gfxData[index+3] = 0+1;	// background color
+			gfxData[index+3] = 0+2/*COLOR_SAVE*/;	// background color
 	    	gfxData[index+4] = 75;	// battery high percentage
 	    	gfxData[index+5] = 25;	// battery low percentage
 			gfxData[index+6] = 24; 	// prop2ndTimeZoneOffset
     		gfxData[index+7] = 1;	// propMoveBarAlertTriggerLevel
     		gfxData[index+8] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
     		gfxData[index+9] = 1;	// propFieldFontUnsupported (0=xtiny to 4=large)
-			//gfxData[index+8] = 3+1;	// default field color
+			//gfxData[index+8] = 3+2/*COLOR_SAVE*/;	// default field color
 			//gfxData[index+9] = 0;	// default field font
 		}
 		return index;
@@ -3394,7 +3400,6 @@ class myView
 		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 		propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
 		propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
-		propSecondColorIndexArray = null;
     }
 
     function loadDynamicResources()
@@ -3730,6 +3735,14 @@ class myView
 				{
 					origSize = getMinMax(gfxData[index+2], 218, 280);	// displaysize stored in gfx
 					gfxData[index+2] = displaySize;	// everything will be updated to match the real displaysize of this watch
+
+					gfxData[index+3] = getMinMax(gfxData[index+3], 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// background color
+					gfxData[index+4] = getMinMax(gfxData[index+4], 0, 100);	// battery high, 0 to 100
+					gfxData[index+5] = getMinMax(gfxData[index+5], 0, 100);	// battery low, 0 to 100
+					gfxData[index+6] = getMinMax(gfxData[index+6], 0, 48);		// 2nd time offset, 24==0 (0 to 48)
+					gfxData[index+7] = getMinMax(gfxData[index+7], 1, 5);		// move bar alert, 1 to 5
+					gfxData[index+8] = getMinMax(gfxData[index+8], 0, 2); 		// font system case, (0=any, 1=upper, 2=lower)
+					gfxData[index+9] = getMinMax(gfxData[index+9], 0, 4);		// font unsupported, (0=xtiny to 4=large)
 					break;
 				}
 				
@@ -4122,40 +4135,30 @@ class myView
 
 	function buildSecondsColorArray(index)
 	{
-		if (propSecondColorIndexArray==null)
-		{
-			propSecondColorIndexArray = new[60]b;
-		}
-
 		// calculate the seconds color array
-    	var secondColorIndex = gfxData[index+2]-1;		// second color
-    	var secondColorIndex5 = gfxData[index+3]-1;
-    	var secondColorIndex10 = gfxData[index+4]-1;
-    	var secondColorIndex15 = gfxData[index+5]-1;
-    	var secondColorIndex0 = gfxData[index+6]-1;
-    	var secondColorDemo = false;		// second color demo
+    	var secondColorIndex = gfxData[index+2];		// second color
+    	var secondColorIndex5 = gfxData[index+3];
+    	var secondColorIndex10 = gfxData[index+4];
+    	var secondColorIndex15 = gfxData[index+5];
+    	var secondColorIndex0 = gfxData[index+6];
     	
     	for (var i=0; i<60; i++)
     	{
 			var col;
 	
-	        if (secondColorDemo)		// second color demo
-	        {
-	        	col = 4 + i;
-	        }
-			else if (secondColorIndex0!=COLOR_NOTSET && i==0)
+			if (secondColorIndex0!=(COLOR_NOTSET+2/*COLOR_SAVE*/) && i==0)
 			{
 				col = secondColorIndex0;
 			}
-			else if (secondColorIndex15!=COLOR_NOTSET && (i%15)==0)
+			else if (secondColorIndex15!=(COLOR_NOTSET+2/*COLOR_SAVE*/) && (i%15)==0)
 			{
 				col = secondColorIndex15;
 			}
-			else if (secondColorIndex10!=COLOR_NOTSET && (i%10)==0)
+			else if (secondColorIndex10!=(COLOR_NOTSET+2/*COLOR_SAVE*/) && (i%10)==0)
 			{
 				col = secondColorIndex10;
 			}
-			else if (secondColorIndex5!=COLOR_NOTSET && (i%10)==5)
+			else if (secondColorIndex5!=(COLOR_NOTSET+2/*COLOR_SAVE*/) && (i%10)==5)
 			{
 				col = secondColorIndex5;
 			}
@@ -4202,13 +4205,13 @@ class myView
 
 		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here as they are used early ...
 		{
-			propBackgroundColor = getColor64(gfxData[0+3]-1);
-			propBatteryHighPercentage = getMinMax(gfxData[0+4], 0, 100);	// 0 to 100
-			propBatteryLowPercentage = getMinMax(gfxData[0+5], 0, 100);		// 0 to 100
-			prop2ndTimeZoneOffset = getMinMax(gfxData[0+6] - 24, -24, 24);	// 24==0 (0 to 48)
-			propMoveBarAlertTriggerLevel = getMinMax(gfxData[0+7], 1, 5);	// 1 to 5
-			propFieldFontSystemCase = getMinMax(gfxData[0+8], 0, 2); 		// (0=any, 1=upper, 2=lower)
-			propFieldFontUnsupported = getMinMax(gfxData[0+9], 0, 4);		// (0=xtiny to 4=large)
+			propBackgroundColor = getColor64FromGfx(gfxData[0+3]);
+			propBatteryHighPercentage = gfxData[0+4];		// 0 to 100
+			propBatteryLowPercentage = gfxData[0+5];		// 0 to 100
+			prop2ndTimeZoneOffset = gfxData[0+6] - 24;		// 24==0 (0 to 48)
+			propMoveBarAlertTriggerLevel = gfxData[0+7];	// 1 to 5
+			propFieldFontSystemCase = gfxData[0+8]; 		// (0=any, 1=upper, 2=lower)
+			propFieldFontUnsupported = gfxData[0+9];		// (0=xtiny to 4=large)
 		}
 
         var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
@@ -5368,8 +5371,8 @@ class myView
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)		// check digit x overlaps buffer
 						{
 							// align bottom of text
-				       		dc.setColor(getColor64(gfxData[index+3/*large_color*/]-1), -1/*COLOR_TRANSPARENT*/);
-//	dc.setColor(getColor64(gfxData[index+1]-1), Graphics.COLOR_BLUE);
+				       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
+//	dc.setColor(getColor64FromGfx(gfxData[index+1]), Graphics.COLOR_BLUE);
 			        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+4].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 						}
 													
@@ -5378,7 +5381,7 @@ class myView
 
 					if (fieldX<=dcWidth && (fieldX+gfxData[index+7])>=0)		// check digit x overlaps buffer
 					{
-			       		dc.setColor(getColor64(gfxData[index+3/*large_color*/]-1), -1/*COLOR_TRANSPARENT*/);
+			       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
 		        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+6].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 					}
 
@@ -5419,7 +5422,7 @@ class myView
 								break;
 							}
 
-					        dc.setColor(getColor64(gfxData[index+3/*string_color*/]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), -1/*COLOR_TRANSPARENT*/);
 
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
 			        		dc.drawText(fieldX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
@@ -5476,7 +5479,7 @@ class myView
 								break;
 							}
 
-					        dc.setColor(getColor64(gfxData[index+3/*icon_color*/]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 						}
 
@@ -5524,7 +5527,7 @@ class myView
 
 						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
 						{ 
-							var col = ((barIsOn || gfxData[index+8]==(COLOR_NOTSET+1)) ? getColor64(gfxData[index+3+i]-1) : getColor64(gfxData[index+8]-1));
+							var col = ((barIsOn || gfxData[index+8]==(COLOR_NOTSET+2/*COLOR_SAVE*/)) ? getColor64FromGfx(gfxData[index+3+i]) : getColor64FromGfx(gfxData[index+8]));
 							
 					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(dateX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
@@ -5555,7 +5558,7 @@ class myView
 						var axesSide = ((gfxData[index+1]&0x01)!=0);
 						var axesBottom = ((gfxData[index+1]&0x02)!=0);
 	
-						drawHeartChart(dc, fieldX, fieldYStart, getColor64(gfxData[index+2]-1), getColor64(gfxData[index+3]-1), axesSide, axesBottom);		// draw heart rate chart
+						drawHeartChart(dc, fieldX, fieldYStart, getColor64FromGfx(gfxData[index+2]), getColor64FromGfx(gfxData[index+3]), axesSide, axesBottom);		// draw heart rate chart
 					}
 
 		        	fieldX += gfxData[index+4];
@@ -5578,12 +5581,12 @@ class myView
 					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
 						//var dataType = gfxData[index+1/*rect_type*/];
-						//var colUnfilled = getColor64(gfxData[index+3/*rect_unfilled*/]);
+						//var colUnfilled = getColor64FromGfx(gfxData[index+3/*rect_unfilled*/]);
 
-						var colFilled = getColor64(gfxData[index+2/*rect_filled*/]);
+						var colFilled = getColor64FromGfx(gfxData[index+2/*rect_filled*/]);
 						if (colFilled!=COLOR_NOTSET)
 						{
-					        dc.setColor(getColor64(gfxData[index+2/*rect_filled*/]-1), -1/*COLOR_TRANSPARENT*/);
+					        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
 							dc.fillRectangle(x, y, w, h);
 						}
 					}
@@ -5775,13 +5778,13 @@ class myView
 						break; 
 					}
 
-					var colFilled = getColor64(gfxData[index+5]-1);
-					var colValue = getColor64(gfxData[index+6]-1);
+					var colFilled = getColor64FromGfx(gfxData[index+5]);
+					var colValue = getColor64FromGfx(gfxData[index+6]);
 					if (colValue==COLOR_NOTSET)
 					{
 						colValue = colFilled;
 					}
-					var colUnfilled = getColor64(gfxData[index+7]-1);
+					var colUnfilled = getColor64FromGfx(gfxData[index+7]);
 					
 					if (noFill)
 					{
@@ -6037,7 +6040,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1/*large_type*/] = dataType;		// type
 			gfxData[index+2/*large_font*/] = 25/*m regular*/;	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
-			gfxData[index+3/*large_color*/] = 3+1;	// color
+			gfxData[index+3/*large_color*/] = 3+2/*COLOR_SAVE*/;	// color
 			// string 0
 			// width 0
 			// string 1
@@ -6055,7 +6058,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = dataType;		// type + useNumFont
 			gfxData[index+2/*string_font*/] = 7/*m_regular*/;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
-			gfxData[index+3/*string_color*/] = 3+1;	// color
+			gfxData[index+3/*string_color*/] = 3+2/*COLOR_SAVE*/;	// color
 			// string start
 			// string end
 			// width
@@ -6072,7 +6075,7 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = iconType;	// type
 			gfxData[index+2/*icon_font*/] = 0;	// font
-			gfxData[index+3/*icon_color*/] = 3+1;	// color
+			gfxData[index+3/*icon_color*/] = 3+2/*COLOR_SAVE*/;	// color
 			// char
 			// width
 
@@ -6088,12 +6091,12 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = 0;	// type
 			gfxData[index+2/*movebar_font*/] = 0;	// font
-			gfxData[index+3] = 3+1;	// color 1
-			gfxData[index+4] = 3+1;	// color 2
-			gfxData[index+5] = 3+1;	// color 3
-			gfxData[index+6] = 3+1;	// color 4
-			gfxData[index+7] = 3+1;	// color 5
-			gfxData[index+8] = COLOR_NOTSET+1;	// color off
+			gfxData[index+3] = 3+2/*COLOR_SAVE*/;	// color 1
+			gfxData[index+4] = 3+2/*COLOR_SAVE*/;	// color 2
+			gfxData[index+5] = 3+2/*COLOR_SAVE*/;	// color 3
+			gfxData[index+6] = 3+2/*COLOR_SAVE*/;	// color 4
+			gfxData[index+7] = 3+2/*COLOR_SAVE*/;	// color 5
+			gfxData[index+8] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color off
 			// level to draw
 			// width
 
@@ -6108,8 +6111,8 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;	// type
-			gfxData[index+2] = 3+1;	// color chart
-			gfxData[index+3] = 3+1;	// color axes
+			gfxData[index+2] = 3+2/*COLOR_SAVE*/;	// color chart
+			gfxData[index+3] = 3+2/*COLOR_SAVE*/;	// color axes
 			// width
 		}
 		return index;
@@ -6121,8 +6124,8 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1/*rect_type*/] = 0;	// type & direction
-			gfxData[index+2/*rect_filled*/] = 3+1;	// color filled
-			gfxData[index+3/*rect_unfilled*/] = COLOR_NOTSET+1;	// color unfilled
+			gfxData[index+2/*rect_filled*/] = 3+2/*COLOR_SAVE*/;	// color filled
+			gfxData[index+3/*rect_unfilled*/] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color unfilled
 			gfxData[index+4/*rect_x*/] = displayHalf;	// x from left
 			gfxData[index+5/*rect_y*/] = displayHalf;	// y from bottom
 			gfxData[index+6/*rect_w*/] = 20;	// width
@@ -6141,9 +6144,9 @@ class myEditorView extends myView
 			gfxData[index+2/*ring_font*/] = 11/*SECONDFONT_OUTER*/;
 			gfxData[index+3] = 0;	// start
 			gfxData[index+4] = 59;	// end
-			gfxData[index+5] = 3+1;	// color filled
-			gfxData[index+6] = COLOR_NOTSET+1;	// color value
-			gfxData[index+7] = COLOR_NOTSET+1;	// color unfilled
+			gfxData[index+5] = 3+2/*COLOR_SAVE*/;	// color filled
+			gfxData[index+6] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color value
+			gfxData[index+7] = COLOR_NOTSET+2/*COLOR_SAVE*/;	// color unfilled
 			// start fill, end fill & no fill flag
 			// xy array resource index
 
@@ -6159,11 +6162,11 @@ class myEditorView extends myView
 		{
 			gfxData[index+1] = 0;			// font
 			//gfxData[index+1] |= (0 << 8);	// refresh style
-			gfxData[index+2] = 3+1; // color
-			gfxData[index+3] = COLOR_NOTSET+1; // color5
-			gfxData[index+4] = COLOR_NOTSET+1; // color10
-			gfxData[index+5] = COLOR_NOTSET+1; // color15
-			gfxData[index+6] = COLOR_NOTSET+1; // color0
+			gfxData[index+2] = 3+2/*COLOR_SAVE*/; // color
+			gfxData[index+3] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color5
+			gfxData[index+4] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color10
+			gfxData[index+5] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color15
+			gfxData[index+6] = COLOR_NOTSET+2/*COLOR_SAVE*/; // color0
 			// xy array resource index
 
 			reloadDynamicResources = true;
@@ -6669,7 +6672,8 @@ class myEditorView extends myView
 			if ((getGfxId(menuFieldGfx)==1 && menuElementGfx==0) ||		// field
 				(getGfxId(menuFieldGfx)==7 && menuItem!=null && (menuItem instanceof myMenuItemFieldSelect)))		// rectangle
 			{
-				dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
+				//dc.setColor(Graphics.COLOR_BLUE, -1/*COLOR_TRANSPARENT*/);
+				dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
 			
 				dc.setPenWidth(2);		  
 				dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
@@ -6759,7 +6763,8 @@ class myEditorView extends myView
 				h = 21/*heartChartHeight*/;
 			}
 
-			dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+			//dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+			dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
 
 			dc.setPenWidth(2);		  
 			dc.drawRoundedRectangle(x-3, y-3, w+3+3+1, h+3+3+1, 3);
@@ -6799,7 +6804,7 @@ class myEditorView extends myView
 		var colorGridArray = WatchUi.loadResource(Rez.JsonData.id_colorGridArray);
 		if (colorGridArray!=null)
 		{
-			var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-1) : -1);
+			var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-2/*COLOR_SAVE*/) : -1);
 		
 			var rScale = (displaySize*14 + 120)/240;
 			var cScaleHighlight = (displaySize*7 + 120)/240;
@@ -6822,7 +6827,7 @@ class myEditorView extends myView
 		        	hy = y;
 		        }
 		         	        
-		        dc.setColor(getColor64(i), -1/*COLOR_TRANSPARENT*/);	        
+		        dc.setColor(getColor64FromGfx(i+2/*COLOR_SAVE*/), -1/*COLOR_TRANSPARENT*/);	        
 	    		//dc.drawText(displayHalf + x, displayHalf - y - 1, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 	   			dc.fillCircle(displayHalf + x, displayHalf - y, (i==highlightGrid)?cScaleHighlight:cScale);
 	   		}
@@ -7150,7 +7155,7 @@ class myEditorView extends myView
 
 	function headerBackgroundColorEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
 	}
 	
 	function headerBatteryEditing(n, val)
@@ -7277,7 +7282,7 @@ class myEditorView extends myView
 		
 	function largeColorEditing(val)
 	{
-		gfxData[menuElementGfx+3/*large_color*/] = (gfxData[menuElementGfx+3/*large_color*/]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3/*large_color*/] = (gfxData[menuElementGfx+3/*large_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
 	}
 
 	function largeGetFont()
@@ -7329,7 +7334,7 @@ class myEditorView extends myView
     
 	function stringColorEditing(val)
 	{
-		gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
 	}
 
 	function stringGetFont()
@@ -7353,7 +7358,7 @@ class myEditorView extends myView
 
 	function iconColorEditing(val)
 	{
-		gfxData[menuElementGfx+3/*icon_color*/] = (gfxData[menuElementGfx+3/*icon_color*/]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3/*icon_color*/] = (gfxData[menuElementGfx+3/*icon_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
 	}
 
 	function iconGetFont()
@@ -7380,12 +7385,12 @@ class myEditorView extends myView
 
 	function moveBarColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
 	}
 
 	function moveBarOffColorEditing(val)
 	{
-		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
+		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]-val+66)%66;		// allow for COLOR_NOTSET (-2) so 0 to 65
 	}
 
 	function chartTypeEditing(val)
@@ -7399,7 +7404,7 @@ class myEditorView extends myView
 
 	function chartColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]-val+64-1)%64 + 1;	// 1 to 64
+		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
 	}
 
 	function rectangleGetType()
@@ -7428,7 +7433,7 @@ class myEditorView extends myView
 
 	function rectangleColorEditing(n, val)
 	{
-		gfxData[menuFieldGfx+2/*rect_filled*/+n] = (gfxData[menuFieldGfx+2/*rect_filled*/+n]-val+65)%65;	// allow for COLOR_NOTSET (-1) so 0 to 64
+		gfxData[menuFieldGfx+2/*rect_filled*/+n] = (gfxData[menuFieldGfx+2/*rect_filled*/+n]-val+66)%66;	// allow for COLOR_NOTSET (-2) so 0 to 65
 	}
 
 	function rectanglePositionGetX()
@@ -7546,7 +7551,7 @@ class myEditorView extends myView
 	
 	function ringColorEditing(n, val)
 	{
-		gfxData[menuFieldGfx+5+n] = (gfxData[menuFieldGfx+5+n]-val+65)%65;		// allow for COLOR_NOTSET (-1) so 0 to 64
+		gfxData[menuFieldGfx+5+n] = (gfxData[menuFieldGfx+5+n]-val+66)%66;		// allow for COLOR_NOTSET (-2) so 0 to 65
 	}
 	
 	function secondsGetFont()
@@ -7581,11 +7586,11 @@ class myEditorView extends myView
 	{
 		if (n==0)	/* base color */
 		{
-			gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]-val+64-1)%64 + 1;	// 1 to 64
+			gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
 		}
 		else		/* optional override colors */
 		{
-			gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]-val+65)%65;		// 0 to 64
+			gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]-val+66)%66;		// 0 to 65
 		}
 
 		buildSecondsColorArray(menuFieldGfx);
@@ -8616,32 +8621,32 @@ class myMenuItemElementEdit extends myMenuItem
 
 // large hour, minute, colon
 //		gfxData[index+1] = 0/*APPFONT_ULTRA_LIGHT*/;	// font
-//		gfxData[index+2] = 3+1;	// color
+//		gfxData[index+2] = 3+2;	// color
 
 // string
 //		gfxData[index+1] = dataType;		// type
 //		gfxData[index+2] = 15/*APPFONT_REGULAR_SMALL*/;	// font & diacritics
-//		gfxData[index+3] = 3+1;	// color
+//		gfxData[index+3] = 3+2;	// color
 
 // icon
 //		gfxData[index+1] = 0;	// type
 //		gfxData[index+2] = 0;	// font
-//		gfxData[index+3] = 3+1;	// color
+//		gfxData[index+3] = 3+2;	// color
 
 // move bar
 //		gfxData[index+1] = 0;	// type
 //		gfxData[index+2] = 0;	// font
-//		gfxData[index+3] = 3+1;	// color 1
-//		gfxData[index+4] = 3+1;	// color 2
-//		gfxData[index+5] = 3+1;	// color 3
-//		gfxData[index+6] = 3+1;	// color 4
-//		gfxData[index+7] = 3+1;	// color 5
-//		gfxData[index+8] = COLOR_NOTSET+1;	// color off
+//		gfxData[index+3] = 3+2;	// color 1
+//		gfxData[index+4] = 3+2;	// color 2
+//		gfxData[index+5] = 3+2;	// color 3
+//		gfxData[index+6] = 3+2;	// color 4
+//		gfxData[index+7] = 3+2;	// color 5
+//		gfxData[index+8] = COLOR_NOTSET+2;	// color off
 
 // chart
 //		gfxData[index+1] = 0;	// type
-//		gfxData[index+2] = 3+1;	// color chart
-//		gfxData[index+3] = 3+1;	// color axes
+//		gfxData[index+2] = 3+2;	// color chart
+//		gfxData[index+3] = 3+2;	// color axes
 
 	var fId;
 

@@ -645,6 +645,7 @@
 	<jsonData id="id_colorStrings">
 		[
 			"unset",
+			"foreground",
 			"black",
 			"dark gray",
 			"light gray",
