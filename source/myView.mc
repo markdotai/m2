@@ -6070,7 +6070,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1/*large_type*/] = dataType;		// type
-			gfxData[index+2/*large_font*/] = 25/*m regular*/;	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
+			gfxData[index+2/*large_font*/] = getLastFontLarge(index);
 			gfxData[index+3/*large_color*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color
 			// string 0
 			// width 0
@@ -6088,7 +6088,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = dataType;		// type + useNumFont
-			gfxData[index+2/*string_font*/] = 7/*m_regular*/;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
+			gfxData[index+2/*string_font*/] = getLastFontString(index);
 			gfxData[index+3/*string_color*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color
 			// string start
 			// string end
@@ -6105,7 +6105,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = iconType;	// type
-			gfxData[index+2/*icon_font*/] = 0;	// font
+			gfxData[index+2/*icon_font*/] = getLastFontIcon(index);	// font
 			gfxData[index+3/*icon_color*/] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color
 			// char
 			// width
@@ -6121,7 +6121,7 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = 0;	// type
-			gfxData[index+2/*movebar_font*/] = 0;	// font
+			gfxData[index+2/*movebar_font*/] = getLastFontIcon(index);	// font
 			gfxData[index+3] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 1
 			gfxData[index+4] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 2
 			gfxData[index+5] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// color 3
@@ -6203,6 +6203,93 @@ class myEditorView extends myView
 			reloadDynamicResources = true;
 		}
 		return index;
+	}
+
+	function getLastFontLarge(index)
+	{
+		// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
+		return getLastFont(index, 2, -1, 2/*large_font*/, 25/*m regular*/, 0);
+	}
+
+	function getLastFontString(index)
+	{
+		// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
+		return getLastFont(index, 3, -1, 2/*string_font*/, 7/*m_regular*/, 1);
+	}
+	
+	function getLastFontIcon(index)
+	{
+		// icon or movebar
+		// luckily 2/*icon_font*/ == 2/*movebar_font*/
+		return getLastFont(index, 4, 5, 2/*icon_font*/, 0, 2);
+	}
+
+	var lastFontArray = [-1, -1, -1];	// large, string, icon
+	
+	function getLastFont(index, id1, id2, gfxOffset, defaultFont, lastFontArrayIndex)
+	{
+		var f = -1;
+
+		// look for previous font in same field
+		for (var i=index; f<0; )
+		{
+			i = prevGfx(i);
+			if (i<0 || gfxIsField(i))
+			{
+				break;
+			}
+			
+			var id = getGfxId(i);
+			if (id==id1 || id==id2)
+			{
+				f = (gfxData[i+gfxOffset]&0xFF);
+			}
+		}
+		
+		// look for next font in same field
+		for (var i=index; f<0; )
+		{
+			i = nextGfx(i);
+			if (i<0 || gfxIsField(i))
+			{
+				break;
+			}
+			
+			var id = getGfxId(i);
+			if (id==id1 || id==id2)
+			{
+				f = (gfxData[i+gfxOffset]&0xFF);
+			}
+		}
+		
+		if (f<0)
+		{
+			// search for first large font in any field (that is not itself!!)
+			for (var i=0; lastFontArray[lastFontArrayIndex]<0; )
+			{
+				i = nextGfx(i);
+				if (i<0)
+				{
+					break;
+				}
+				
+				var id = getGfxId(i);
+				if ((id==id1 || id==id2) && i!=index)	// right type but not itself
+				{
+					lastFontArray[lastFontArrayIndex] = (gfxData[i+gfxOffset]&0xFF);
+				}
+			}
+
+			// use the last large font that the user used
+			f = lastFontArray[lastFontArrayIndex];
+		}
+		
+		if (f<0)
+		{
+			f = defaultFont;
+		}
+
+		return f;
 	}
 
 	function gfxDelete(index)
@@ -7421,6 +7508,8 @@ class myEditorView extends myView
 	{	
 		gfxData[menuElementGfx+2/*large_font*/] = ((largeGetFont()-val+50)%50);	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
 		reloadDynamicResources = true;
+
+		lastFontArray[0] = gfxData[menuElementGfx+2/*large_font*/];
 	}
 
 	function stringGetType()
@@ -7473,6 +7562,8 @@ class myEditorView extends myView
 	{
 		gfxData[menuElementGfx+2/*string_font*/] = (stringGetFont()-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 		reloadDynamicResources = true;
+
+		lastFontArray[1] = gfxData[menuElementGfx+2/*string_font*/];
 	}
 
 	function iconTypeEditing(val)
@@ -7497,6 +7588,8 @@ class myEditorView extends myView
 	{
 		gfxData[menuElementGfx+2/*icon_font*/] = (iconGetFont()-val+2)%2;
 		reloadDynamicResources = true;
+
+		lastFontArray[2] = gfxData[menuElementGfx+2/*icon_font*/];
 	}
 
 	function moveBarGetFont()
@@ -7508,6 +7601,8 @@ class myEditorView extends myView
 	{
 		gfxData[menuElementGfx+2/*movebar_font*/] = (moveBarGetFont()-val+2)%2;
 		reloadDynamicResources = true;
+
+		lastFontArray[2] = gfxData[menuElementGfx+2/*movebar_font*/];
 	}
 
 	function moveBarColorEditing(n, val)
