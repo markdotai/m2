@@ -6747,11 +6747,21 @@ class myEditorView extends myView
 		if (propMenuBorder!=COLOR_NOTSET)
 		{
 	        dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
-	        for (var i=-1; i<=1; i+=2)
+//	        for (var i=-1; i<=1; i+=2)
+//	        {
+//	        	for (var j=-1; j<=1; j+=2)
+//	        	{
+//					dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+//	        	}
+//	        }
+	        for (var i=-2; i<=2; i+=2)
 	        {
-	        	for (var j=-1; j<=1; j+=2)
+	        	for (var j=-2; j<=2; j+=2)
 	        	{
-					dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+	        		if (i!=0 || j!=0)
+	        		{
+						dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+					}
 	        	}
 	        }
 		}
