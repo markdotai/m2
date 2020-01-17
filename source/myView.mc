@@ -6875,6 +6875,12 @@ class myEditorView extends myView
 				y -= (h-1)*4;
 			}
 
+			dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
+			//dc.setPenWidth(1);		  
+			//dc.drawRectangle(x-1, y-1, w+2, h*5-2);
+			dc.fillRectangle(x-1, y+1, 1, h*5-6);
+			dc.fillRectangle(x+w, y+1, 1, h*5-6);
+					
 			drawMemoryBar(dc, x, y, w, h, usedProfileStringLength);
 			drawMemoryBar(dc, x, y+(h-1)*1, w, h, usedGfxData);
 			drawMemoryBar(dc, x, y+(h-1)*2, w, h, usedCharArray);
@@ -6883,6 +6889,10 @@ class myEditorView extends myView
 		}
 		else if (memoryDisplayMode==1)	// 1 bar
 		{
+			dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
+			dc.setPenWidth(1);		  
+			dc.drawRectangle(x-1, y-1, w+2, h+2);
+					
 			// find the highest used fraction out of all the pools
 			var frac = usedProfileStringLength;
 			frac = getMax(frac, usedGfxData);
@@ -6896,17 +6906,18 @@ class myEditorView extends myView
 
 	function drawMemoryBar(dc, x, y, w, h, frac)
 	{
-		dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
-		dc.setPenWidth(1);		  
-		dc.drawRectangle(x, y, w, h);
-
 		var w2 = ((w-2)*frac).toNumber();
+
+		dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
 		dc.fillRectangle(x+1, y+1, w2, h-2);
 
 		if (propMenuBorder!=COLOR_NOTSET)
 		{
 			dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
 			dc.fillRectangle(x+1+w2, y+1, w-2-w2, h-2);
+	
+			dc.setPenWidth(1);		  
+			dc.drawRectangle(x, y, w, h);
 		}
 	}
 
@@ -7058,16 +7069,16 @@ class myEditorView extends myView
 		        	hx = x;
 		        	hy = y;
 		        }
-		         	        
+		        
 		        dc.setColor(getColor64FromGfx(i+2/*COLOR_SAVE*/), -1/*COLOR_TRANSPARENT*/);	        
 	    		//dc.drawText(displayHalf + x, displayHalf - y - 1, editorFontResource, (i==highlightGrid)?"B":"A", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 	   			dc.fillCircle(displayHalf + x, displayHalf - y, (i==highlightGrid)?cScaleHighlight:cScale);
 	   		}
 	
-	        if (highlightGrid>=0 && propMenuBorder!=COLOR_NOTSET)
+	        if (highlightGrid>=0)
 	        {
-	    		dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
-				dc.setPenWidth(3);		  
+	    		dc.setColor(Graphics.COLOR_BLACK, -1/*COLOR_TRANSPARENT*/);
+				dc.setPenWidth(3);
 				dc.drawCircle(displayHalf + hx, displayHalf - hy, cScaleHighlight+1);
 	        }
 		}

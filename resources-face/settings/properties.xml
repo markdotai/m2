@@ -1,5 +1,5 @@
 <properties>
-    <property id="EP" type="string">00ZW2553111WDPO1011XGWc020Vc121VZ11XGYQ03X7C11XGVj035C13NC13XDC19010000</property>				<!-- export import profile -->
+    <property id="EP" type="string">00ZW2525111WDPO1011XGWc020Vc121VZ11XGYQ03X7C11XGVj035C13NC13XDC19010000</property>				<!-- export import profile -->
     <property id="EP2" type="string"></property>
 
     <property id="PM" type="number">0</property>			<!-- profile management -->
