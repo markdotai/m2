@@ -1,0 +1,10 @@
+<jsonDataResources>
+
+	<jsonData id="id_editorSpecial">
+		[
+			true,		<!-- touch screen -->
+			false		<!-- smaller menu font -->
+		]
+	</jsonData>
+
+</jsonDataResources>
