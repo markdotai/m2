@@ -1061,6 +1061,12 @@ class myView
 		// load in character string (for seconds & outer ring)
 		//characterString = WatchUi.loadResource(Rez.JsonData.id_characterString);
 
+//var prevMem = System.getSystemStats().freeMemory; 
+//var myTestResource = watchUi.loadResource(Rez.JsonData.id_colorStrings3);
+//var curMem = System.getSystemStats().freeMemory; 
+//System.println("myTestResource=" + (prevMem-curMem));
+//myTestResource = null;
+
 		{
 			// load in global data
 			var dataResource = watchUi.loadResource(Rez.JsonData.id_data);
@@ -1119,18 +1125,13 @@ class myView
 		//gfxDemo();
     }
 
-	function saveDataForStop()
-	{
-		// remember the active profile and profileDelayEnd and other variables we want to save between runs
-		saveMemoryData();
-	}
-
 	// called from the app when it is being ended
 	function onStop()
 	{
         //System.println("onStop");
 
-		saveDataForStop();
+		// remember the active profile and profileDelayEnd and other variables we want to save between runs
+		saveMemoryData();
 	}
 
     // Called when this View is brought to the foreground.
@@ -2917,6 +2918,8 @@ class myView
 	//const PROFILE_END_SUNRISE = 0x04;
 	//const PROFILE_END_SUNSET = 0x08;
 	//const PROFILE_BLOCK_MASK = 0x10;			// block random
+
+	(:m2face)
 	var profileTimeData = new[PROFILE_NUM_USER*6];
 	
 	(:m2face)
@@ -4787,7 +4790,7 @@ class myView
 							//var nonActiveCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
 							var nonActiveCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
 							var activeCalories = getNullCheckZero(activityMonitorInfo.calories) - ((nonActiveCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber(); 
-							eStr = "" + ((activeCalories<0) ? "--" : activeCalories);
+							eStr = "" + ((activeCalories<0) ? "0" : activeCalories);
 							break;
 						}
 
@@ -6413,7 +6416,7 @@ class myEditorView extends myView
     	}
 
     	WatchUi.requestUpdate();
-    
+
         return true;
     }
 
@@ -6873,6 +6876,13 @@ class myEditorView extends myView
 			}
 		}
 	}
+
+	function getResourceFontHeight(i)
+	{
+		var resourceIndex = ((gfxData[i] >> 16) & 0xFF);
+		var dynamicResource = getDynamicResource(resourceIndex);
+		return ((dynamicResource!=null) ? Graphics.getFontHeight(dynamicResource) : 1);
+	}
 		
 	function gfxElementHighlight(dc, index, x, y)
 	{
@@ -6885,46 +6895,22 @@ class myEditorView extends myView
 			if (id==2)		// large (hour, minute, colon)
 			{
 				w = gfxData[index+5]+gfxData[index+7];
-
-				var resourceIndex = ((gfxData[index+2/*large_font*/] >> 16) & 0xFF);
-				var dynamicResource = getDynamicResource(resourceIndex);
-				if (dynamicResource!=null)
-				{
-					h = Graphics.getFontHeight(dynamicResource);
-				}
+				h = getResourceFontHeight(index+2/*large_font*/);
 			}
 			else if (id==3)		// string
 			{
 				w = gfxData[index+6];
-
-				var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
-				var dynamicResource = getDynamicResource(resourceIndex);
-				if (dynamicResource!=null)
-				{
-					h = Graphics.getFontHeight(dynamicResource);
-				}
+				h = getResourceFontHeight(index+2/*string_font*/);
 			}
 			else if (id==4)		// icon
 			{
 				w = gfxData[index+5];
-				
-				var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
-				var dynamicResource = getDynamicResource(resourceIndex);
-				if (dynamicResource!=null)
-				{
-					h = Graphics.getFontHeight(dynamicResource);
-				}
+				h = getResourceFontHeight(index+2/*icon_font*/);
 			}
 			else if (id==5)		// movebar
 			{
 				w = gfxData[index+10];
-				
-				var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
-				var dynamicResource = getDynamicResource(resourceIndex);
-				if (dynamicResource!=null)
-				{
-					h = Graphics.getFontHeight(dynamicResource);
-				}
+				h = getResourceFontHeight(index+2/*movebar_font*/);
 			}
 			else if (id==6)		// chart
 			{
@@ -7014,7 +7000,7 @@ class myEditorView extends myView
 	{
 		var colorNum = ((getColorGfxIndex>=0) ? gfxData[getColorGfxIndex] : 0);
 
-		return safeStringFromJsonData(Rez.JsonData.id_colorStrings, -1, colorNum);
+		return safeStringFromJsonDataMulti(Rez.JsonData.id_colorStrings, Rez.JsonData.id_colorStrings2, Rez.JsonData.id_colorStrings3, colorNum);
 	}
 
 ////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
@@ -7117,9 +7103,9 @@ class myEditorView extends myView
 //		return "unknown";
 //	}
 
-	function safeStringFromJsonData(r, index1, index2)
+	function safeStringFromJsonData(r1, index1, index2)
 	{
-		var tempArray = WatchUi.loadResource(r);
+		var tempArray = WatchUi.loadResource(r1);
 		if (tempArray!=null)
 		{
 			if (index1>=0 && index1<tempArray.size())
@@ -7133,6 +7119,48 @@ class myEditorView extends myView
 			}
 		}
 		
+		return "unknown";
+	}
+
+	// split the string resource into multiple chunks to save memory ...
+	function safeStringFromJsonDataMulti(r1, r2, r3, index)
+	{
+		if (index>=0)
+		{
+			var tempArray;
+			
+			if (r1!=null)
+			{
+				tempArray = WatchUi.loadResource(r1);
+				if (tempArray!=null && index<tempArray.size())
+				{
+					return tempArray[index];
+				}
+				index -= tempArray.size();
+				tempArray = null;
+			}
+			
+			if (r2!=null)
+			{
+				tempArray = WatchUi.loadResource(r2);
+				if (tempArray!=null && index<tempArray.size())
+				{
+					return tempArray[index];
+				}
+				index -= tempArray.size();
+				tempArray = null;
+			}
+			
+			if (r3!=null)
+			{
+				tempArray = WatchUi.loadResource(r3);
+				if (tempArray!=null && index<tempArray.size())
+				{
+					return tempArray[index];
+				}
+			}
+		}
+				
 		return "unknown";
 	}
 
@@ -7150,7 +7178,7 @@ class myEditorView extends myView
 		}
 		else if (id==8)		// ring
 		{
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 4, ringGetTypeFromGfxIndex(index));    		
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringNameStrings, -1, ringGetTypeFromGfxIndex(index));    		
 		}
 		else
 		{
@@ -7165,7 +7193,7 @@ class myEditorView extends myView
 
 	function getStringTypeName(eDisplay)
 	{
-		return safeStringFromJsonData(Rez.JsonData.id_stringTypeStrings, -1, (eDisplay&0x7F)-1);
+		return safeStringFromJsonDataMulti(Rez.JsonData.id_stringTypeStrings, Rez.JsonData.id_stringTypeStrings2, Rez.JsonData.id_stringTypeStrings3, (eDisplay&0x7F)-1);
 	}
 
 	function getVisibilityString(vis)
@@ -8435,19 +8463,19 @@ class myMenuItemHeader extends myMenuItem
     	}
     	else if (fState==110/*f_fontSystemCaseEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 1, editorView.propFieldFontSystemCase);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 0, editorView.propFieldFontSystemCase);
     	}
     	else if (fState==111/*f_fontUnsupportedEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 2, editorView.propFieldFontUnsupported);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 1, editorView.propFieldFontUnsupported);
     	}
     	else if (fState==112/*f_memoryDisplayEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 3, editorView.memoryDisplayMode);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 2, editorView.memoryDisplayMode);
     	}
     	else if (fState<100/*f_backgroundEdit*/)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, 0, fState);
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
     	}
     	//else
     	//{
@@ -9023,13 +9051,13 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==2 && fState==numTop+1)	// large font
 		{
-   			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 5, editorView.largeGetFont());
+			return editorView.safeStringFromJsonDataMulti(Rez.JsonData.id_editElementLargeFontStrings, Rez.JsonData.id_editElementLargeFontStrings2, null, editorView.largeGetFont());
 	    }
 		else if (fId==3 && fState==numTop)	// string type
 		{
 			if (idArrayValue<0)
 			{
-    			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 9, idArray);
+    			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 2, idArray);
 			}
 			else
 			{
@@ -9038,15 +9066,15 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==3 && fState==numTop+1)	// string font
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 6, editorView.stringGetFont());
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings2, -1, editorView.stringGetFont());
 	    }
 		else if (fId==4 && fState==numTop+1)	// icon
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 7, editorView.iconGetFont());
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 0, editorView.iconGetFont());
 	    }
 		else if (fId==5 && fState==numTop)	// movebar
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, 8, editorView.moveBarGetFont());
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 1, editorView.moveBarGetFont());
 	    }
     	else
     	{
@@ -9820,11 +9848,11 @@ class myMenuItemRing extends myMenuItem
     {
     	if (fState==13/*r_typeEdit*/)
     	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 3, editorView.ringGetType());    		
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 1, editorView.ringGetType());    		
     	}
     	else if (fState==14/*r_fontEdit*/)
     	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 5, editorView.ringGetFont());    		
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings3, -1, editorView.ringGetFont());    		
     	}
     	else if (fState==17/*r_directionEdit*/)
     	{
@@ -9832,7 +9860,7 @@ class myMenuItemRing extends myMenuItem
     	}
     	else if (fState==18/*r_limitEdit*/)
     	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, editorView.ringGetLimit100() ? 1 : 0);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, editorView.ringGetLimit100() ? 1 : 0);
     	}
     	else if (fState==22/*r_visEdit*/)
     	{
@@ -10000,7 +10028,7 @@ class myMenuItemSeconds extends myMenuItem
     {
     	if (fState==9/*s_fontEdit*/)
     	{
-			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 2, editorView.secondsGetFont());
+			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings2, -1, editorView.secondsGetFont());
     	}
     	else if (fState==10/*s_refreshEdit*/)
     	{

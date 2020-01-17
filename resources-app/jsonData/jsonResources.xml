@@ -25,7 +25,7 @@
 		],
 	</jsonData>
 		
-	<!-- string type -->
+	<!-- string type = 824, 856, 560 bytes -->
 	<jsonData id="id_stringTypeStrings">
 		[
 			"hour",
@@ -49,7 +49,11 @@
 			"AM",
 			"PM",
 			"A",
-			"P",
+			"P"
+		]
+	</jsonData>
+	<jsonData id="id_stringTypeStrings2">
+		[
 	    	"space",
 	    	"/",
 	    	"\\",
@@ -73,7 +77,11 @@
 			"sunset hour",
 			"sunset minute",
 			"next sun event\nhour",
-			"next sun event\nminute",
+			"next sun event\nminute"
+		]
+	</jsonData>
+	<jsonData id="id_stringTypeStrings3">
+		[
 			"2nd time hour",
 			"calories",
 			"active calories",
@@ -91,7 +99,7 @@
 		]
 	</jsonData>
 		
-	<!-- visibility -->
+	<!-- visibility = 1032 bytes -->
 	<jsonData id="id_visibilityStrings">
 		[
 			"always on",
@@ -142,26 +150,27 @@
    		]
 	</jsonData>
 		
-	<!-- header -->
+	<!-- header = 640, 512 bytes -->
 	<jsonData id="id_headerStrings">
 		[
-			[
-				"background\ncolor",
-				"foreground\ndefault color",
-				"menu color",
-				"menu border",
-				"field highlight",
-				"element\nhighlight",
-				"battery high",
-				"battery low",
-				"2nd time zone\nUTC offset",
-				"movebar alert\nlevel",
-				"system fonts\ncase override",
-				"replacement\nfont for names",
-				"memory display",
-				"menu hide"
-			],
-			
+			"background\ncolor",
+			"foreground\ndefault color",
+			"menu color",
+			"menu border",
+			"field highlight",
+			"element\nhighlight",
+			"battery high",
+			"battery low",
+			"2nd time zone\nUTC offset",
+			"movebar alert\nlevel",
+			"system fonts\ncase override",
+			"replacement\nfont for names",
+			"memory display",
+			"menu hide"
+		]
+	</jsonData>
+	<jsonData id="id_headerStrings2">
+		[
 			[
 				"any case",
 				"upper case",
@@ -184,7 +193,7 @@
 		]
 	</jsonData>
 					
-	<!-- field edit -->
+	<!-- field edit = 616 bytes -->
 	<jsonData id="id_fieldEditStrings">
 		[
 			[
@@ -210,7 +219,7 @@
 		]
 	</jsonData>
 		
-	<!-- edit element -->
+	<!-- edit element = 944, 768, 360 bytes -->
 	<jsonData id="id_editElementStrings">
 		[
 			<!-- large -->
@@ -270,86 +279,36 @@
 				"move earlier",
 				"move later",
 				"delete element"
-			],
-			
-			<!-- large font names -->
-			[
-				"half 1",
-				"half 2",
-				"half 3",
-				"half 4",
-				"half 5",
-				"italic half 1",
-				"italic half 2",
-				"italic half 3",
-				"italic half 4",
-				"italic half 5",
-				"small 1",
-				"small 2",
-				"small 3",
-				"small 4",
-				"small 5",
-				"small 6",
-				"italic small 1",
-				"italic small 2",
-				"italic small 3",
-				"italic small 4",
-				"italic small 5",
-				"italic small 6",
-				"medium 1",
-				"medium 2",
-				"medium 3",
-				"medium 4",
-				"medium 5",
-				"medium 6",
-				"italic med 1",
-				"italic med 2",
-				"italic med 3",
-				"italic med 4",
-				"italic med 5",
-				"italic med 6",
-				"large 1",
-				"large 2",
-				"large 3",
-				"large 4",
-				"large 5",
-				"large 6",
-				"italic large 1",
-				"italic large 2",
-				"italic large 3",
-				"italic large 4",
-				"italic large 5",
-				"italic large 6",
-				"system tiny",
-				"system small",
-				"system medium",
-				"system large"
-			],
-			
+			]
+		]
+	</jsonData>
+	<jsonData id="id_editElementStrings2">
+		[
 			<!-- string font names -->
-			[
-				"small 1",
-				"small 2",
-				"small 3",
-				"small 4",
-				"small 5",
-				"medium 1",
-				"medium 2",
-				"medium 3",
-				"medium 4",
-				"medium 5",
-				"large 1",
-				"large 2",
-				"large 3",
-				"large 4",
-				"large 5",
-				"system tiny",
-				"system small",
-				"system medium",
-				"system large",
-				"system huge"
-			],
-
+			"small 1",
+			"small 2",
+			"small 3",
+			"small 4",
+			"small 5",
+			"medium 1",
+			"medium 2",
+			"medium 3",
+			"medium 4",
+			"medium 5",
+			"large 1",
+			"large 2",
+			"large 3",
+			"large 4",
+			"large 5",
+			"system tiny",
+			"system small",
+			"system medium",
+			"system large",
+			"system huge"
+		]
+	</jsonData>
+	<jsonData id="id_editElementStrings3">
+		[
 			<!-- icon font names -->
 			[
 				"medium",
@@ -373,7 +332,67 @@
 		]
 	</jsonData>
 					
-	<!-- add element sub arrays -->
+	<!-- edit element large font names = 912, 952 bytes -->
+	<jsonData id="id_editElementLargeFontStrings">
+		[
+			"half 1",
+			"half 2",
+			"half 3",
+			"half 4",
+			"half 5",
+			"italic half 1",
+			"italic half 2",
+			"italic half 3",
+			"italic half 4",
+			"italic half 5",
+			"small 1",
+			"small 2",
+			"small 3",
+			"small 4",
+			"small 5",
+			"small 6",
+			"italic small 1",
+			"italic small 2",
+			"italic small 3",
+			"italic small 4",
+			"italic small 5",
+			"italic small 6",
+			"medium 1",
+			"medium 2",
+			"medium 3"
+		]
+	</jsonData>
+	<jsonData id="id_editElementLargeFontStrings2">
+		[
+			"medium 4",
+			"medium 5",
+			"medium 6",
+			"italic med 1",
+			"italic med 2",
+			"italic med 3",
+			"italic med 4",
+			"italic med 5",
+			"italic med 6",
+			"large 1",
+			"large 2",
+			"large 3",
+			"large 4",
+			"large 5",
+			"large 6",
+			"italic large 1",
+			"italic large 2",
+			"italic large 3",
+			"italic large 4",
+			"italic large 5",
+			"italic large 6",
+			"system tiny",
+			"system small",
+			"system medium",
+			"system large"
+		]
+	</jsonData>
+					
+	<!-- add element sub arrays = 488 bytes -->
 	<jsonData id="id_addStringArrays">
 		[
 			<!-- timeIds -->
@@ -477,7 +496,7 @@
 		]
 	</jsonData>
 		
-	<!-- rectangle -->
+	<!-- rectangle = 816 bytes -->
 	<jsonData id="id_rectangleStrings">
 		[
 			[
@@ -512,7 +531,7 @@
 		]
 	</jsonData>
 			
-	<!-- ring -->			
+	<!-- ring = 608, 664, 1040 bytes -->			
 	<jsonData id="id_ringStrings">
 		[
 			[
@@ -534,8 +553,11 @@
 			[
 				"clockwise",
 				"anticlockwise"
-			],
-			
+			]
+		]
+	</jsonData>
+	<jsonData id="id_ringStrings2">
+		[
 			[
 				"no limit",
 				"100%"
@@ -555,55 +577,59 @@
 				"intensity\nminutes",
 				"smart intensity\nminutes",
 		   		"heart rate"
-			],
-			
-			[
-		   		"ring (color)",
-				"ring (steps)",
-				"ring (floors)",
-		   		"ring (battery)",
-				"ring (mins)",
-				"ring (hours)",
-				"ring (2nd time)",
-		   		"ring (sun now)",
-		   		"ring (sun\nmidnight)",
-		   		"ring (sun noon)", 
-				"ring (intensity)",
-				"ring (smart\nintensity)",
-		   		"ring (HR)"
-			],
-			
-			[
-				"secs tri 1",
-				"secs tri 2",
-				"secs v 1",
-				"secs v 2",
-				"secs line 1",
-				"secs line 2",
-				"secs circular 1",
-				"secs circular 2",
-				"secs circular 3",
-				"secs circular 4",
-				"secs circular\nwide",
-				"ring circular 1",
-				"ring circular 2",
-				"ring circular 3",
-				"ring circular 4",
-				"ring circular\nwide 1",
-				"ring circular\nwide 2",
-				"ring slash 1",
-				"ring slash 2",
-				"ring slash 3",
-				"ring slash 4",
-				"ring arrow 1",
-				"ring arrow 2",
-				"ring arrow 3",
-				"ring arrow 4"
 			]
 		]
 	</jsonData>
+	<jsonData id="id_ringStrings3">
+		[
+			"secs tri 1",
+			"secs tri 2",
+			"secs v 1",
+			"secs v 2",
+			"secs line 1",
+			"secs line 2",
+			"secs circular 1",
+			"secs circular 2",
+			"secs circular 3",
+			"secs circular 4",
+			"secs circular\nwide",
+			"ring circular 1",
+			"ring circular 2",
+			"ring circular 3",
+			"ring circular 4",
+			"ring circular\nwide 1",
+			"ring circular\nwide 2",
+			"ring slash 1",
+			"ring slash 2",
+			"ring slash 3",
+			"ring slash 4",
+			"ring arrow 1",
+			"ring arrow 2",
+			"ring arrow 3",
+			"ring arrow 4"
+		]
+	</jsonData>
 
-	<!-- seconds indicator -->
+	<!-- ring name = 544 bytes -->			
+	<jsonData id="id_ringNameStrings">
+		[
+	   		"ring (color)",
+			"ring (steps)",
+			"ring (floors)",
+	   		"ring (battery)",
+			"ring (mins)",
+			"ring (hours)",
+			"ring (2nd time)",
+	   		"ring (sun now)",
+	   		"ring (sun\nmidnight)",
+	   		"ring (sun noon)", 
+			"ring (intensity)",
+			"ring (smart\nintensity)",
+	   		"ring (HR)"
+		]
+	</jsonData>
+			
+	<!-- seconds indicator = 528, 1040 bytes -->
 	<jsonData id="id_secondsStrings">
 		[
 			[
@@ -622,39 +648,40 @@
 	   			"every second",
 				"every minute",
 				"alternate\nminutes"
-			],
-			
-			[
-				"secs tri 1",
-				"secs tri 2",
-				"secs v 1",
-				"secs v 2",
-				"secs line 1",
-				"secs line 2",
-				"secs circular 1",
-				"secs circular 2",
-				"secs circular 3",
-				"secs circular 4",
-				"secs circular\nwide",
-				"ring circular 1",
-				"ring circular 2",
-				"ring circular 3",
-				"ring circular 4",
-				"ring circular\nwide 1",
-				"ring circular\nwide 2",
-				"ring slash 1",
-				"ring slash 2",
-				"ring slash 3",
-				"ring slash 4",
-				"ring arrow 1",
-				"ring arrow 2",
-				"ring arrow 3",
-				"ring arrow 4"
 			]
 		]
 	</jsonData>
+	<jsonData id="id_secondsStrings2">
+		[
+			"secs tri 1",
+			"secs tri 2",
+			"secs v 1",
+			"secs v 2",
+			"secs line 1",
+			"secs line 2",
+			"secs circular 1",
+			"secs circular 2",
+			"secs circular 3",
+			"secs circular 4",
+			"secs circular\nwide",
+			"ring circular 1",
+			"ring circular 2",
+			"ring circular 3",
+			"ring circular 4",
+			"ring circular\nwide 1",
+			"ring circular\nwide 2",
+			"ring slash 1",
+			"ring slash 2",
+			"ring slash 3",
+			"ring slash 4",
+			"ring arrow 1",
+			"ring arrow 2",
+			"ring arrow 3",
+			"ring arrow 4"
+		]
+	</jsonData>
 
-	<!-- color names -->
+	<!-- color names = 776, 760, 816 bytes -->
 	<jsonData id="id_colorStrings">
 		[
 			"unset",
@@ -678,7 +705,11 @@
 			"neon blue",
 			"pale violet",
 			"flamingo",
-			"brilliant rose",
+			"brilliant rose"
+		]
+	</jsonData>
+	<jsonData id="id_colorStrings2">
+		[
 			"tomato",
 			"pale orange",
 			"yellow",
@@ -700,7 +731,11 @@
 			"strong orange",
 			"orange",
 			"olive green",
-			"fruit salad",
+			"fruit salad"
+		]
+	</jsonData>
+	<jsonData id="id_colorStrings3">
+		[
 			"tradewind blue",
 			"rich blue",
 			"tapestry purple",
@@ -726,7 +761,7 @@
 		]
 	</jsonData>
 
-	<!-- colorGridArray -->
+	<!-- colorGridArray = 664 bytes -->
 	<!-- distance from centre (0-7) + clockwise angle (0-36) -->
 	<jsonData id="id_colorGridArray">
 		[
