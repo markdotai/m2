@@ -95,7 +95,8 @@
 			"altitude",
 			"ft/m (units)",
 			"temperature",
-			"F/C (units)"
+			"F/C (units)",
+			"rest calories"
 		]
 	</jsonData>
 		
@@ -465,6 +466,7 @@
 				38,		<!-- FIELD_HEART_MAX -->
 				48,		<!-- FIELD_CALORIES -->
 				49,		<!-- FIELD_ACTIVE_CALORIES -->
+				61,		<!-- FIELD_RESTING_CALORIES -->
 				50,		<!-- FIELD_INTENSITY -->
 				51,		<!-- FIELD_INTENSITY_GOAL -->
 				52,		<!-- FIELD_SMART_GOAL -->

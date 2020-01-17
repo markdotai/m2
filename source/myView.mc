@@ -4785,12 +4785,14 @@ class myView
 						}
 
 						case 49/*FIELD_ACTIVE_CALORIES*/:
+						case 61/*FIELD_RESTING_CALORIES*/:
 						{
 							var userProfile = UserProfile.getProfile();
 							//var nonActiveCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
 							var nonActiveCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
-							var activeCalories = getNullCheckZero(activityMonitorInfo.calories) - ((nonActiveCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber(); 
-							eStr = "" + ((activeCalories<0) ? "0" : activeCalories);
+							nonActiveCalories = ((nonActiveCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber(); 
+							var val = ((eDisplay==49/*FIELD_ACTIVE_CALORIES*/) ? (getNullCheckZero(activityMonitorInfo.calories) - nonActiveCalories) : nonActiveCalories);
+							eStr = "" + ((val<0) ? "0" : val);
 							break;
 						}
 
