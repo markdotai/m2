@@ -6681,10 +6681,11 @@ class myEditorView extends myView
 
     	myView.gfxOnUpdate(dc, clockTime, timeNow);
 
-		// make sure either the menu or border color is different from the background
-		if (propMenuBorder==propMenuColor && propMenuBorder==propBackgroundColor)
+		// make sure the menu color is visible
+		var testColor = ((propMenuBorder!=COLOR_NOTSET) ? propMenuBorder : propBackgroundColor);  
+		if (propMenuColor==testColor)
 		{
-			propMenuBorder = ((propBackgroundColor==0) ? 0xFFFFFF : 0x000000); 
+ 			propMenuColor = ((testColor==0) ? 0xFFFFFF : 0x000000); 
 		}
 	}
 	
@@ -6722,9 +6723,19 @@ class myEditorView extends myView
 			// following only works on 3.1.0 +
 			//eStr = Graphics.fitTextToArea(eStr, font, editorView.displaySize - xText - x*1.5, editorView.displaySize, true);
 		
-			drawMultiText(dc, eStr, xText, yText, font);
+			//drawMultiText(dc, eStr, xText, yText, font);
 			
-			//xEnd = xText + dc.getTextWidthInPixels(eStr, font) + 5;
+			//xEnd = xText + dc.getTextWidthInPixels(eStr, font) + 5;		
+			
+			if (propMenuBorder!=COLOR_NOTSET)
+			{
+				dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
+				var dim = dc.getTextDimensions(eStr, font);
+				dc.fillRectangle(xText-3, yText, dim[0]+6, dim[1]+2);
+			}
+			
+			dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
+			dc.drawText(xText, yText, font, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
 		}
 
 //dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
@@ -6739,59 +6750,108 @@ class myEditorView extends myView
 		// F = right triangle
 		// G = rotating arrow
 
+//    	if (menuItem.hasDirection(2))	// left
+//    	{
+//			drawMultiText(dc, "E", x, y-15, editorFontResource);
+//		}
+//
+//    	if (menuItem.hasDirection(hasTouchScreen?1:0))	// up
+//    	{
+//			drawMultiText(dc, "C", x+13, y-20, editorFontResource);
+//		}
+//
+//    	if (menuItem.hasDirection(hasTouchScreen?0:1))	// down
+//    	{
+//			drawMultiText(dc, "D", x+13, y-10, editorFontResource);
+//		}
+//
+//    	if (menuItem.hasDirection(3))	// right
+//    	{
+//			//drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
+//			drawMultiText(dc, "F", x+26, y-15, editorFontResource);
+//		}
+		
+		if (propMenuBorder!=COLOR_NOTSET)
+		{
+			dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
+	    	if (menuItem.hasDirection(2))	// left
+	    	{
+				//dc.drawText(x, y-15, editorFontResource, "E", 2/*TEXT_JUSTIFY_LEFT*/);
+				dc.fillRectangle(x+1, y-15+3, 13, 13);
+			}
+	
+	    	if (menuItem.hasDirection(hasTouchScreen?1:0))	// up
+	    	{
+				//dc.drawText(x+13, y-20, editorFontResource, "C", 2/*TEXT_JUSTIFY_LEFT*/);
+				dc.fillRectangle(x+13+1, y-20+3, 13, 13);
+			}
+	
+	    	if (menuItem.hasDirection(hasTouchScreen?0:1))	// down
+	    	{
+				//dc.drawText(x+13, y-10, editorFontResource, "D", 2/*TEXT_JUSTIFY_LEFT*/);
+				dc.fillRectangle(x+13+1, y-10+3, 13, 13);
+			}
+	
+	    	if (menuItem.hasDirection(3))	// right
+	    	{
+				//dc.drawText(x+26, y-15, editorFontResource, "F", 2/*TEXT_JUSTIFY_LEFT*/);
+				dc.fillRectangle(x+26+1, y-15+3, 13, 13);
+			}
+		}
+				
+		dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
     	if (menuItem.hasDirection(2))	// left
     	{
-			drawMultiText(dc, "E", x, y-15, editorFontResource);
+			dc.drawText(x, y-15, editorFontResource, "E", 2/*TEXT_JUSTIFY_LEFT*/);
 		}
 
     	if (menuItem.hasDirection(hasTouchScreen?1:0))	// up
     	{
-			drawMultiText(dc, "C", x+13, y-20, editorFontResource);
+			dc.drawText(x+13, y-20, editorFontResource, "C", 2/*TEXT_JUSTIFY_LEFT*/);
 		}
 
     	if (menuItem.hasDirection(hasTouchScreen?0:1))	// down
     	{
-			drawMultiText(dc, "D", x+13, y-10, editorFontResource);
+			dc.drawText(x+13, y-10, editorFontResource, "D", 2/*TEXT_JUSTIFY_LEFT*/);
 		}
 
     	if (menuItem.hasDirection(3))	// right
     	{
-			//drawText(dc, "F", xEnd, y-15, editorView.editorFontResource);
-			drawMultiText(dc, "F", x+26, y-15, editorFontResource);
+			dc.drawText(x+26, y-15, editorFontResource, "F", 2/*TEXT_JUSTIFY_LEFT*/);
 		}
     }
         
-	function drawMultiText(dc, s, x, y, font)
-	{
-		if (propMenuBorder!=COLOR_NOTSET)
-		{
-	        dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
-//	        for (var i=-1; i<=1; i+=2)
+//	function drawMultiText(dc, s, x, y, font)
+//	{
+//		if (propMenuBorder!=COLOR_NOTSET)
+//		{
+//	        dc.setColor(propMenuBorder, -1/*COLOR_TRANSPARENT*/);
+////	        for (var i=-1; i<=1; i+=2)
+////	        {
+////	        	for (var j=-1; j<=1; j+=2)
+////	        	{
+////					dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+////	        	}
+////	        }
+//	        for (var i=-2; i<=2; i+=2)
 //	        {
-//	        	for (var j=-1; j<=1; j+=2)
+//	        	for (var j=-2; j<=2; j+=2)
 //	        	{
-//					dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+//	        		if (i!=0 || j!=0)
+//	        		{
+//						dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+//					}
 //	        	}
 //	        }
-	        for (var i=-2; i<=2; i+=2)
-	        {
-	        	for (var j=-2; j<=2; j+=2)
-	        	{
-	        		if (i!=0 || j!=0)
-	        		{
-						dc.drawText(x + i, y + j, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
-					}
-	        	}
-	        }
-		}
-		        
-        dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
-        //dc.setColor(propMenuColor, propMenuBorder);
-        //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
-		dc.drawText(x, y, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
-	}
+//		}
+//		        
+//        dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
+//        //dc.setColor(propMenuColor, propMenuBorder);
+//        //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+//        //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+//		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
+//		dc.drawText(x, y, font, s, 2/*TEXT_JUSTIFY_LEFT*/);
+//	}
     
 	function drawMemory(dc, x, y)
 	{
