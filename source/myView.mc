@@ -644,7 +644,7 @@ class myView
 //
 //		// all the chars in the custom field .fnt files
 //		var chars = [
-//			65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,
+//			46,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,
 //			193,196,197,199,201,204,205,211,214,216,218,219,220,221,260,268,282,317,321,323,336,344,346,352,377,381			 
 //		];
 //		
@@ -4519,6 +4519,7 @@ class myView
 						case 1/*FIELD_HOUR*/:			// hour
 					    {
 							eStr = formatHourForDisplayString(hour, deviceSettings.is24Hour, false);
+							//eStr = ".1,";							// test the "." character
 							break;
 						}
 	
@@ -4535,6 +4536,7 @@ class myView
 
 							//eStr = "\u0158\u015a\u00c7Z\u0179\u0104";		// test string for diacritics & bounding rectangle (use system large)
 							//eStr = "A\u042d\u03b8\u05e9\u069b";			// test string for other languages (unsupported)
+							//eStr = ".A.";							// test the "." character
 
 							if (isDynamicResourceSystemFont(resourceIndex))
 							{
