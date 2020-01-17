@@ -3665,7 +3665,12 @@ class myView
 		
 		if (fontIndex>=0)
 		{
-			return addDynamicResource(fontList[fontIndex], dynResSizeArray[fontIndex]);
+			var resourceIndex = addDynamicResource(fontList[fontIndex], dynResSizeArray[fontIndex]);
+			if (resourceIndex>=0 && resourceIndex<dynResNum && dynResResource[resourceIndex]==null && isDynamicResourceSystemFont(resourceIndex))
+			{
+				dynResResource[resourceIndex] = fontList[fontIndex];
+			}
+			return resourceIndex;
 		}
 		
 		var outerList = [
@@ -4567,6 +4572,8 @@ class myView
 									makeUpperCase = true;
 								}
 							}
+							
+							//System.println("eStr=" + eStr + " useUnsupportedFont="+useUnsupportedFont);
 							
 							break;
 						}
