@@ -1,5 +1,12 @@
 <jsonDataResources>
 
+	<jsonData id="id_editorSpecial">
+		[
+			false,		<!-- touch screen -->
+			false		<!-- smaller menu font -->
+		]
+	</jsonData>
+
 	<!-- gfx name -->
 	<jsonData id="id_gfxNameStrings">
 		[

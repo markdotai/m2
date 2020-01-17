@@ -5926,6 +5926,9 @@ class myEditorView extends myView
 	var propFieldHighlight = 0xFFFFFF;
 	var propElementHighlight = 0xFFFFFF;
 
+	var hasTouchScreen = false;
+	var smallerMenuFont = false;
+
     function initialize()
     {
 		myView.initialize();
@@ -5946,6 +5949,15 @@ class myEditorView extends myView
 		isEditor = true;
 	
 		editorFontResource = WatchUi.loadResource(Rez.Fonts.id_editor);
+
+		var editorSpecial = WatchUi.loadResource(Rez.JsonData.id_editorSpecial);
+		if (editorSpecial!=null)
+		{
+			hasTouchScreen = editorSpecial[0];
+			smallerMenuFont = editorSpecial[1];
+
+			editorSpecial = null;
+		}
 
 		myView.onLayout(dc);
 		
@@ -6694,23 +6706,25 @@ class myEditorView extends myView
 			var xText = x + 42;
 			var yText = y;
 			
+			var font = (smallerMenuFont ? Graphics.FONT_SYSTEM_XTINY : Graphics.FONT_SYSTEM_TINY);
+			
 			if (isMenuAtTop())
 			{
-				yText -= Graphics.getFontAscent(Graphics.FONT_SYSTEM_TINY);
+				yText -= Graphics.getFontAscent(font);
 			}
 			else
 			{
-				var textSize = dc.getTextDimensions(eStr, Graphics.FONT_SYSTEM_TINY);
+				var textSize = dc.getTextDimensions(eStr, font);
 				yText -= textSize[1];
-				yText += Graphics.getFontDescent(Graphics.FONT_SYSTEM_TINY);
+				yText += Graphics.getFontDescent(font);
 			}
 		
 			// following only works on 3.1.0 +
-			//eStr = Graphics.fitTextToArea(eStr, Graphics.FONT_SYSTEM_TINY, editorView.displaySize - xText - x*1.5, editorView.displaySize, true);
+			//eStr = Graphics.fitTextToArea(eStr, font, editorView.displaySize - xText - x*1.5, editorView.displaySize, true);
 		
-			drawMultiText(dc, eStr, xText, yText, Graphics.FONT_SYSTEM_TINY);
+			drawMultiText(dc, eStr, xText, yText, font);
 			
-			//xEnd = xText + dc.getTextWidthInPixels(eStr, Graphics.FONT_SYSTEM_TINY) + 5;
+			//xEnd = xText + dc.getTextWidthInPixels(eStr, font) + 5;
 		}
 
 //dc.setColor(Graphics.COLOR_WHITE, -1/*COLOR_TRANSPARENT*/);
@@ -6730,12 +6744,12 @@ class myEditorView extends myView
 			drawMultiText(dc, "E", x, y-15, editorFontResource);
 		}
 
-    	if (menuItem.hasDirection(0))	// up
+    	if (menuItem.hasDirection(hasTouchScreen?1:0))	// up
     	{
 			drawMultiText(dc, "C", x+13, y-20, editorFontResource);
 		}
 
-    	if (menuItem.hasDirection(1))	// down
+    	if (menuItem.hasDirection(hasTouchScreen?0:1))	// down
     	{
 			drawMultiText(dc, "D", x+13, y-10, editorFontResource);
 		}
@@ -6772,6 +6786,7 @@ class myEditorView extends myView
 		}
 		        
         dc.setColor(propMenuColor, -1/*COLOR_TRANSPARENT*/);
+        //dc.setColor(propMenuColor, propMenuBorder);
         //dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         //dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
 		//dc.drawText((editorView.displaySize*50)/240, (editorView.displaySize*50)/240, Graphics.FONT_SYSTEM_XTINY, eStr, 2/*TEXT_JUSTIFY_LEFT*/);
@@ -7231,14 +7246,32 @@ class myEditorView extends myView
 		return gfxData[menuFieldGfx+2];
 	}
 
+	function gfxSubtractValInPlace(index, val, min, max)
+	{
+		gfxData[index] = getMinMax(gfxData[index]+(hasTouchScreen?val:-val), min, max);
+	}
+
+	function gfxSubtractValModulo(indexValue, val, min, max)
+	{
+		var numPlusOne = max-min+1;
+		return (indexValue+(hasTouchScreen?val:-val)+numPlusOne-min)%numPlusOne + min;
+	}
+
+	function gfxSubtractValModuloInPlace(index, val, min, max)
+	{
+		gfxData[index] = gfxSubtractValModulo(gfxData[index], val, min, max);
+	}
+
 	function fieldPositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, displaySize);
+		//gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, displaySize);
+		gfxSubtractValInPlace(menuFieldGfx+1, val, 0, displaySize);
 	}
 
 	function fieldPositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
+		//gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
+		gfxSubtractValInPlace(menuFieldGfx+2, val, 0, displaySize);
 	}
 
 	function fieldPositionCentreX()
@@ -7354,37 +7387,47 @@ class myEditorView extends myView
 
 	function headerBackgroundColorEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
+		//gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
 	}
 	
 	function headerForegroundColorEditing(val)
 	{
-		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
+		//gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+64-2/*COLOR_SAVE*/)%64 + 2/*COLOR_SAVE*/;	// 2 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
 	}
 	
 	function headerMenuColorEditing(val)
 	{
-		gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		//gfxData[menuFieldGfx+5] = (gfxData[menuFieldGfx+5]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+5, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 	}
 	
 	function headerMenuBorderColorEditing(val)
 	{
-		gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]-val+66)%66;	// 0 to 65
+		//gfxData[menuFieldGfx+6] = (gfxData[menuFieldGfx+6]-val+66)%66;	// 0 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+6, val, 0, 65);	// 0 to 65
 	}
 	
 	function headerFieldHighlightColorEditing(val)
 	{
-		gfxData[menuFieldGfx+7] = (gfxData[menuFieldGfx+7]-val+66)%66;	// 0 to 65
+		//gfxData[menuFieldGfx+7] = (gfxData[menuFieldGfx+7]-val+66)%66;	// 0 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+7, val, 0, 65);	// 0 to 65
 	}
 	
 	function headerElementHighlightColorEditing(val)
 	{
-		gfxData[menuFieldGfx+8] = (gfxData[menuFieldGfx+8]-val+66)%66;	// 0 to 65
+		//gfxData[menuFieldGfx+8] = (gfxData[menuFieldGfx+8]-val+66)%66;	// 0 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+8, val, 0, 65);	// 0 to 65
 	}
 	
 	function headerBatteryEditing(n, val)
 	{
 		var cur = gfxData[menuFieldGfx+10+n];
+		if (hasTouchScreen)
+		{
+			val = -val;
+		}
 		if ((val<0 && cur>=10 && cur<=85) || (val>0 && cur>=15 && cur<=90))
 		{
 			val = val*5;
@@ -7404,7 +7447,8 @@ class myEditorView extends myView
 	
 	function header2ndTimeZoneEditing(val)
 	{
-		gfxData[menuFieldGfx+12] = getMinMax(gfxData[menuFieldGfx+12]-val, 0, 48);	// 0 to 48
+		//gfxData[menuFieldGfx+12] = getMinMax(gfxData[menuFieldGfx+12]-val, 0, 48);	// 0 to 48
+		gfxSubtractValInPlace(menuFieldGfx+12, val, 0, 48);	// 0 to 48
 	}
 	
 	function header2ndTimeZoneAtMax()
@@ -7419,7 +7463,8 @@ class myEditorView extends myView
 	
 	function headerMoveBarAlertEditing(val)
 	{
-		gfxData[menuFieldGfx+13] = getMinMax(gfxData[menuFieldGfx+13]-val, 1, 5);		// 1 to 5
+		//gfxData[menuFieldGfx+13] = getMinMax(gfxData[menuFieldGfx+13]-val, 1, 5);		// 1 to 5
+		gfxSubtractValInPlace(menuFieldGfx+13, val, 1, 5);		// 1 to 5
 	}
 	
 	function headerMoveBarAlertAtMax()
@@ -7434,12 +7479,14 @@ class myEditorView extends myView
 	
 	function headerFontSystemCaseEditing(val)
 	{
-		gfxData[menuFieldGfx+14] = (gfxData[menuFieldGfx+14]-val+3)%3;		// 0 to 2
+		//gfxData[menuFieldGfx+14] = (gfxData[menuFieldGfx+14]-val+3)%3;		// 0 to 2
+		gfxSubtractValModuloInPlace(menuFieldGfx+14, val, 0, 2);		// 0 to 2
 	}
 	
 	function headerFontUnsupportedEditing(val)
 	{
-		gfxData[menuFieldGfx+15] = (gfxData[menuFieldGfx+15]-val+5)%5;		// 0 to 4
+		//gfxData[menuFieldGfx+15] = (gfxData[menuFieldGfx+15]-val+5)%5;		// 0 to 4
+		gfxSubtractValModuloInPlace(menuFieldGfx+15, val, 0, 4);		// 0 to 4
 	}
 	
 	function elementVisibilityString()
@@ -7536,7 +7583,8 @@ class myEditorView extends myView
 		
 	function largeColorEditing(val)
 	{
-		gfxData[menuElementGfx+3/*large_color*/] = (gfxData[menuElementGfx+3/*large_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		//gfxData[menuElementGfx+3/*large_color*/] = (gfxData[menuElementGfx+3/*large_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		gfxSubtractValModuloInPlace(menuElementGfx+3/*large_color*/, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 	}
 
 	function largeGetFont()
@@ -7546,7 +7594,8 @@ class myEditorView extends myView
 		
 	function largeFontEditing(val)
 	{	
-		gfxData[menuElementGfx+2/*large_font*/] = ((largeGetFont()-val+50)%50);	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
+		//gfxData[menuElementGfx+2/*large_font*/] = ((largeGetFont()-val+50)%50);	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
+		gfxData[menuElementGfx+2/*large_font*/] = gfxSubtractValModulo(largeGetFont(), val, 0, 49);	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
 		reloadDynamicResources = true;
 
 		lastFontArray[0] = gfxData[menuElementGfx+2/*large_font*/];
@@ -7590,7 +7639,8 @@ class myEditorView extends myView
     
 	function stringColorEditing(val)
 	{
-		gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		//gfxData[menuElementGfx+3/*string_color*/] = (gfxData[menuElementGfx+3/*string_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		gfxSubtractValModuloInPlace(menuElementGfx+3/*string_color*/, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 	}
 
 	function stringGetFont()
@@ -7600,7 +7650,8 @@ class myEditorView extends myView
 		
 	function stringFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*string_font*/] = (stringGetFont()-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
+		//gfxData[menuElementGfx+2/*string_font*/] = (stringGetFont()-val+20)%20;	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
+		gfxData[menuElementGfx+2/*string_font*/] = gfxSubtractValModulo(stringGetFont(), val, 0, 19);	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 		reloadDynamicResources = true;
 
 		lastFontArray[1] = gfxData[menuElementGfx+2/*string_font*/];
@@ -7616,7 +7667,8 @@ class myEditorView extends myView
 
 	function iconColorEditing(val)
 	{
-		gfxData[menuElementGfx+3/*icon_color*/] = (gfxData[menuElementGfx+3/*icon_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		//gfxData[menuElementGfx+3/*icon_color*/] = (gfxData[menuElementGfx+3/*icon_color*/]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		gfxSubtractValModuloInPlace(menuElementGfx+3/*icon_color*/, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 	}
 
 	function iconGetFont()
@@ -7626,7 +7678,8 @@ class myEditorView extends myView
 
 	function iconFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*icon_font*/] = (iconGetFont()-val+2)%2;
+		//gfxData[menuElementGfx+2/*icon_font*/] = (iconGetFont()-val+2)%2;
+		gfxData[menuElementGfx+2/*icon_font*/] = gfxSubtractValModulo(iconGetFont(), val, 0, 1);
 		reloadDynamicResources = true;
 
 		lastFontArray[2] = gfxData[menuElementGfx+2/*icon_font*/];
@@ -7639,7 +7692,8 @@ class myEditorView extends myView
 
 	function moveBarFontEditing(val)
 	{
-		gfxData[menuElementGfx+2/*movebar_font*/] = (moveBarGetFont()-val+2)%2;
+		//gfxData[menuElementGfx+2/*movebar_font*/] = (moveBarGetFont()-val+2)%2;
+		gfxData[menuElementGfx+2/*movebar_font*/] = gfxSubtractValModulo(moveBarGetFont(), val, 0, 1);
 		reloadDynamicResources = true;
 
 		lastFontArray[2] = gfxData[menuElementGfx+2/*movebar_font*/];
@@ -7647,12 +7701,14 @@ class myEditorView extends myView
 
 	function moveBarColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		//gfxData[menuElementGfx+3+n] = (gfxData[menuElementGfx+3+n]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		gfxSubtractValModuloInPlace(menuElementGfx+3+n, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 	}
 
 	function moveBarOffColorEditing(val)
 	{
-		gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]-val+66)%66;		// allow for COLOR_NOTSET (-2) so 0 to 65
+		//gfxData[menuElementGfx+8] = (gfxData[menuElementGfx+8]-val+66)%66;		// allow for COLOR_NOTSET (-2) so 0 to 65
+		gfxSubtractValModuloInPlace(menuElementGfx+8, val, 0, 65);		// allow for COLOR_NOTSET (-2) so 0 to 65
 	}
 
 	function chartTypeEditing(val)
@@ -7666,7 +7722,8 @@ class myEditorView extends myView
 
 	function chartColorEditing(n, val)
 	{
-		gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		//gfxData[menuElementGfx+2+n] = (gfxData[menuElementGfx+2+n]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+		gfxSubtractValModuloInPlace(menuElementGfx+2+n, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 	}
 
 	function rectangleGetType()
@@ -7688,14 +7745,16 @@ class myEditorView extends myView
 	
 	function rectangleDirectionEditing(val)
 	{
-		var temp = (rectangleGetDirection()-val+4)%4;
+		//var temp = (rectangleGetDirection()-val+4)%4;
+		var temp = gfxSubtractValModulo(rectangleGetDirection(), val, 0, 3);
 		gfxData[menuFieldGfx+1] &= ~0xC0; 
 		gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0); 
 	}
 
 	function rectangleColorEditing(n, val)
 	{
-		gfxData[menuFieldGfx+2/*rect_filled*/+n] = (gfxData[menuFieldGfx+2/*rect_filled*/+n]-val+66)%66;	// allow for COLOR_NOTSET (-2) so 0 to 65
+		//gfxData[menuFieldGfx+2/*rect_filled*/+n] = (gfxData[menuFieldGfx+2/*rect_filled*/+n]-val+66)%66;	// allow for COLOR_NOTSET (-2) so 0 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+2/*rect_filled*/+n, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65
 	}
 
 	function rectanglePositionGetX()
@@ -7710,12 +7769,14 @@ class myEditorView extends myView
 
 	function rectanglePositionXEditing(val)
 	{
-		gfxData[menuFieldGfx+4/*rect_x*/] = getMinMax(gfxData[menuFieldGfx+4/*rect_x*/]-val, 0, displaySize);
+		//gfxData[menuFieldGfx+4/*rect_x*/] = getMinMax(gfxData[menuFieldGfx+4/*rect_x*/]-val, 0, displaySize);
+		gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val, 0, displaySize);
 	}
 
 	function rectanglePositionYEditing(val)
 	{
-		gfxData[menuFieldGfx+5/*rect_y*/] = getMinMax(gfxData[menuFieldGfx+5/*rect_y*/]-val, 0, displaySize);
+		//gfxData[menuFieldGfx+5/*rect_y*/] = getMinMax(gfxData[menuFieldGfx+5/*rect_y*/]-val, 0, displaySize);
+		gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val, 0, displaySize);
 	}
 
 	function rectanglePositionCentreX()
@@ -7735,7 +7796,8 @@ class myEditorView extends myView
 
 	function rectangleWidthEditing(val)
 	{
-		gfxData[menuFieldGfx+6/*rect_w*/] = getMinMax(gfxData[menuFieldGfx+6/*rect_w*/]-val, 1, displaySize);
+		//gfxData[menuFieldGfx+6/*rect_w*/] = getMinMax(gfxData[menuFieldGfx+6/*rect_w*/]-val, 1, displaySize);
+		gfxSubtractValInPlace(menuFieldGfx+6/*rect_w*/, val, 1, displaySize);
 	}
 
 	function rectangleGetHeight()
@@ -7745,7 +7807,8 @@ class myEditorView extends myView
 
 	function rectangleHeightEditing(val)
 	{
-		gfxData[menuFieldGfx+7/*rect_h*/] = getMinMax(gfxData[menuFieldGfx+7/*rect_h*/]-val, 1, displaySize);
+		//gfxData[menuFieldGfx+7/*rect_h*/] = getMinMax(gfxData[menuFieldGfx+7/*rect_h*/]-val, 1, displaySize);
+		gfxSubtractValInPlace(menuFieldGfx+7/*rect_h*/, val, 1, displaySize);
 	}
 
 	function ringGetTypeFromGfxIndex(index)
@@ -7803,17 +7866,20 @@ class myEditorView extends myView
 	
 	function ringStartEditing(val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+60)%60;
+		//gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]-val+60)%60;
+		gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 0, 59);
 	}
 	
 	function ringEndEditing(val)
 	{
-		gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+60)%60;
+		//gfxData[menuFieldGfx+4] = (gfxData[menuFieldGfx+4]-val+60)%60;
+		gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 0, 59);
 	}
 	
 	function ringColorEditing(n, val)
 	{
-		gfxData[menuFieldGfx+5+n] = (gfxData[menuFieldGfx+5+n]-val+66)%66;		// allow for COLOR_NOTSET (-2) so 0 to 65
+		//gfxData[menuFieldGfx+5+n] = (gfxData[menuFieldGfx+5+n]-val+66)%66;		// allow for COLOR_NOTSET (-2) so 0 to 65
+		gfxSubtractValModuloInPlace(menuFieldGfx+5+n, val, 0, 65);		// allow for COLOR_NOTSET (-2) so 0 to 65
 	}
 	
 	function secondsGetFont()
@@ -7823,7 +7889,8 @@ class myEditorView extends myView
 	
 	function secondsFontEditing(val)
 	{
-		var temp = (secondsGetFont()-val+25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/;
+		//var temp = (secondsGetFont()-val+25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/;
+		var temp = gfxSubtractValModulo(secondsGetFont(), val, 0, 25/*SECONDFONT_UNUSED*/-1);
 		
 		gfxData[menuFieldGfx+1] &= ~0x00FF; 
 		gfxData[menuFieldGfx+1] |= temp;
@@ -7848,11 +7915,13 @@ class myEditorView extends myView
 	{
 		if (n==0)	/* base color */
 		{
-			gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+			//gfxData[menuFieldGfx+2] = (gfxData[menuFieldGfx+2]-val+65-1/*COLOR_ONE*/)%65 + 1/*COLOR_ONE*/;	// 1 to 65
+			gfxSubtractValModuloInPlace(menuFieldGfx+2, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
 		}
 		else		/* optional override colors */
 		{
-			gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]-val+66)%66;		// 0 to 65
+			//gfxData[menuFieldGfx+2+n] = (gfxData[menuFieldGfx+2+n]-val+66)%66;		// 0 to 65
+			gfxSubtractValModuloInPlace(menuFieldGfx+2+n, val, 0, 65);		// 0 to 65
 		}
 
 		buildSecondsColorArray(menuFieldGfx);
@@ -8497,7 +8566,7 @@ class myMenuItemHeader extends myMenuItem
     			return false;
     		}
     	}
-    	else if (d==0)	// up
+    	else if (d==(editorView.hasTouchScreen?1:0))	// up
     	{
 	    	if (fState==106/*f_batteryHighEdit*/)
 	    	{
@@ -8516,7 +8585,7 @@ class myMenuItemHeader extends myMenuItem
 			    return !editorView.headerMoveBarAlertAtMax();
 	    	}
     	}
-    	else if (d==1)	// down
+    	else if (d==(editorView.hasTouchScreen?0:1))	// down
     	{
 	    	if (fState==106/*f_batteryHighEdit*/)
 	    	{
