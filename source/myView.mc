@@ -5029,7 +5029,7 @@ class myView
 					}
 					
 					gfxData[indexCurField+4] += gfxData[index+10];	// total width
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5]);		// store max ascent & descent in field
+					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
