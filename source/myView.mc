@@ -5128,24 +5128,24 @@ class myView
 						//	break;
 						//}
 					
-						case 1:		// steps
-						case 2:		// floors
-						case 10:	// intensity
-						case 11:	// smart intensity
+						case 1/*ring_steps*/:		// steps
+						case 2/*ring_floors*/:		// floors
+						case 10/*ring_intensity*/:	// intensity
+						case 11/*ring_smartintensity*/:	// smart intensity
 						{
 							var val;
 							var goal;
-							if (eDisplay==2)
+							if (eDisplay==2/*ring_floors*/)
 							{
 								val = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbed) : 0);
 								goal = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbedGoal) : 0);
 							}
-							else if (eDisplay==9 || eDisplay==10)
+							else if (eDisplay==10/*ring_intensity*/ || eDisplay==11/*ring_smartintensity*/)
 							{
 								val = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
 								goal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
 
-								if (eDisplay==10)	// smart
+								if (eDisplay==11/*ring_smartintensity*/)	// smart
 								{
 									goal = ((goal * dayNumberOfWeek) / 7);
 								}
@@ -5178,22 +5178,22 @@ class myView
 							break;
 						}
 
-				   		case 3:		// battery percentage
+				   		case 3/*ring_battery*/:		// battery percentage
 				   		{
 							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - alignedAdjust;
 							break;
 				   		}
 				   		
-						case 4:		// minutes
+						case 4/*ring_minute*/:		// minutes
 						{
 			    			fillEnd = (minute * drawRange)/60 - alignedAdjust;
 							break;
 						}
 						
-						case 5:		// hours
-						case 6:		// 2nd time zone hours
+						case 5/*ring_hour*/:		// hours
+						case 6/*ring_2ndtime*/:		// 2nd time zone hours
 						{
-							var useHour = ((eDisplay==3) ? hour : hour2nd);  
+							var useHour = ((eDisplay==6/*ring_2ndtime*/) ? hour2nd : hour);  
 					        if (deviceSettings.is24Hour)
 					        {
 				        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
@@ -5206,18 +5206,18 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 7:		// sunrise & sunset now top
-				   		case 8:		// sunrise & sunset midnight top
-				   		case 9:		// sunrise & sunset noon top
+				   		case 7/*ring_sunnow*/:			// sunrise & sunset now top
+				   		case 8/*ring_sunmidnight*/:		// sunrise & sunset midnight top
+				   		case 9/*ring_sunnoon*/:			// sunrise & sunset noon top
 				   		{
 							calculateSun(dateInfoShort);
 
 							var timeOffsetInMinutes = 0;	// midnight top
-							if (eDisplay==6)				// now top
+							if (eDisplay==7/*ring_sunnow*/)				// now top
 							{
 								timeOffsetInMinutes = timeNowInMinutesToday;
 							}
-							else if (eDisplay==8)			// noon top
+							else if (eDisplay==9/*ring_sunnoon*/)			// noon top
 							{
 								timeOffsetInMinutes = 12*60;
 							}
@@ -5228,7 +5228,7 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 12:	// heart rate
+				   		case 12/*ring_heartrate*/:	// heart rate
 				   		{
 							calculateHeartRate(minute, second);
 							if (heartDisplayLatest!=null)
@@ -5238,7 +5238,7 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 0:		// plain color
+				   		case 0/*ring_plaincolor*/:		// plain color
 				   		default:
 						{
 							break;
