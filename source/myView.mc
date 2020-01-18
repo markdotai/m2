@@ -1260,7 +1260,7 @@ class myView
 			applicationProperties.setValue("PS", profileTimeString(startTime, (profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0, (profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0));
 			applicationProperties.setValue("PE", profileTimeString(endTime, (profileFlags&0x04/*PROFILE_END_SUNRISE*/)!=0, (profileFlags&0x08/*PROFILE_END_SUNSET*/)!=0));
 
-			applicationProperties.setValue("35", (profileTimeData[profileIndex*6 + 5] >= 0) ? (profileTimeData[profileIndex*6 + 5] + 1) : "");		// glance profile
+			applicationProperties.setValue("35", (profileTimeData[profileIndex*6 + 5] >= 0) ? profileTimeData[profileIndex*6 + 5] : 0);		// glance profile
 
 			applicationProperties.setValue("PB", ((profileFlags&0x10/*PROFILE_BLOCK_MASK*/)!=0));
 			applicationProperties.setValue("PR", profileTimeData[profileIndex*6 + 4]);		
@@ -1289,10 +1289,10 @@ class myView
 
 			var startTime = propertiesGetTime("PS");
 			var endTime = propertiesGetTime("PE");
-			profileTimeData[profileIndex*6 + 0] = startTime[1];		// start time
-			profileTimeData[profileIndex*6 + 1] = endTime[1];		// end time
+			profileTimeData[profileIndex*6 + 0] = startTime[1];		// start time 0-1440
+			profileTimeData[profileIndex*6 + 1] = endTime[1];		// end time 0-1440
 			
-			profileTimeData[profileIndex*6 + 5] = propertiesGetNumber("35") - 1;	// glance profile
+			profileTimeData[profileIndex*6 + 5] = getMinMax(propertiesGetNumber("35"), 0, 99);	// glance profile
 
 			var profileFlags = ((startTime[0] & 0x03) | ((endTime[0] & 0x03) << 2));
 			if (propertiesGetBoolean("PB"))
@@ -2007,9 +2007,9 @@ class myView
 		{
 			if (profileGlance<0)
 			{
-				if (profileActive>=0 && profileActive<PROFILE_NUM_USER && profileTimeData[profileActive*6 + 5]>=0 && profileTimeData[profileActive*6 + 5]<(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+				if (profileActive>=0 && profileActive<PROFILE_NUM_USER && profileTimeData[profileActive*6 + 5]>0 && profileTimeData[profileActive*6 + 5]<=(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
 				{
-					doActivate = profileTimeData[profileActive*6 + 5];
+					doActivate = profileTimeData[profileActive*6 + 5]-1;
 					profileGlanceReturn = profileActive;	// return to this profile after glance 
 				}
 			}
@@ -2920,7 +2920,7 @@ class myView
 	//const PROFILE_BLOCK_MASK = 0x10;			// block random
 
 	(:m2face)
-	var profileTimeData = new[PROFILE_NUM_USER*6];
+	var profileTimeData = new[PROFILE_NUM_USER*6];	// 144
 	
 	(:m2face)
 	function loadProfileTimeData()
@@ -2935,7 +2935,7 @@ class myView
 	(:m2face)
 	function saveProfileTimeData()
 	{
-		var tempCharArray = new[PROFILE_NUM_USER*6*2];
+		var tempCharArray = new[PROFILE_NUM_USER*6*2];	// 288
 		valEncodeArray(profileTimeData, PROFILE_NUM_USER*6, tempCharArray, PROFILE_NUM_USER*6*2);
 		
 		applicationProperties.setValue("sd", StringUtil.charArrayToString(tempCharArray));
@@ -3029,7 +3029,7 @@ class myView
 		var c;
 		if (v<10)
 		{
-			c = 48+v;
+			c = ((v<0) ? 48 : (48+v));
 		}
 		else if (v<36)
 		{
@@ -3037,7 +3037,7 @@ class myView
 		}
 		else //if (v<62)
 		{
-			c = 97-36+v;
+			c = ((v<62) ? (97-36+v) : (97-36+61));
 		}
 		
 		return c.toChar();
@@ -3056,15 +3056,15 @@ class myView
 		var v = c.toNumber();
 		if (v>=97)
 		{
-			v -= (97-36);
+			v = ((v>(97-36+61)) ? 61 : (v-(97-36)));
 		}
 		else if (v>=65)
 		{
-			v -= (65-10);
+			v = v-(65-10);
 		}
 		else //if (v>=48)
 		{
-			v -= 48;
+			v = ((v>48) ? (v-48) : 0);
 		}
 		
 		return v;
@@ -5831,7 +5831,7 @@ class myView
 						colFilled = colUnfilled;
 						colValue = colUnfilled;
 					}
-		
+
 					//var outerSizeHalf = getOuterSizeHalf(arrayResource);
 					var outerSizeHalf = arrayResource[61];
 					var bufferXMin = bufferX - outerSizeHalf;
