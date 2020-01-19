@@ -3140,10 +3140,24 @@ class myView
 		// A = 65
 		// a = 97
 
+//		var c;
+//		if (v<10)
+//		{
+//			c = ((v<0) ? 48 : (48+v));
+//		}
+//		else if (v<36)
+//		{
+//			c = 65-10+v;
+//		}
+//		else //if (v<62)
+//		{
+//			c = ((v<62) ? (97-36+v) : (97-36+61));
+//		}
+		
 		var c;
 		if (v<10)
 		{
-			c = ((v<0) ? 48 : (48+v));
+			c = 48+v;
 		}
 		else if (v<36)
 		{
@@ -3151,9 +3165,9 @@ class myView
 		}
 		else //if (v<62)
 		{
-			c = ((v<62) ? (97-36+v) : (97-36+61));
+			c = 97-36+v;
 		}
-		
+
 		return c.toChar();
 	}		
 	
@@ -3167,20 +3181,34 @@ class myView
 		// A = 65
 		// a = 97
 
+//		var v = c.toNumber();
+//		if (v>=97)
+//		{
+//			v = ((v>(97-36+61)) ? 61 : (v-(97-36)));
+//		}
+//		else if (v>=65)
+//		{
+//			v = v-(65-10);
+//		}
+//		else //if (v>=48)
+//		{
+//			v = ((v>48) ? (v-48) : 0);
+//		}
+		
 		var v = c.toNumber();
 		if (v>=97)
 		{
-			v = ((v>(97-36+61)) ? 61 : (v-(97-36)));
+			v -= (97-36);
 		}
 		else if (v>=65)
 		{
-			v = v-(65-10);
+			v -= (65-10);
 		}
 		else //if (v>=48)
 		{
-			v = ((v>48) ? (v-48) : 0);
+			v -= 48;
 		}
-		
+	
 		return v;
 	}		
 	
@@ -3314,6 +3342,8 @@ class myView
 
 		gfxNum = 0;
 
+//System.println("start");
+
 		for (var index=0; index<charArraySize && !gotError; )
 		{
 			var id = 0;
@@ -3349,10 +3379,12 @@ class myView
 				if (i==0)
 				{
 					id = (v & 0xFF);
+//System.println("id=" + id);
 										
 					//itemSize = gfxSize(id);		// total item size in gfxData array
 					if (id<0 || id>=10/*GFX_SIZE_NUM*/)
 					{
+//System.println("error1");
 						gotError = true;
 						break; 
 					}
@@ -3363,6 +3395,7 @@ class myView
 
 					if (itemSize<=0)
 					{
+//System.println("error2");
 						gotError = true;
 						break; 
 					}
