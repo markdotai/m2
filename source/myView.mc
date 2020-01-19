@@ -113,55 +113,6 @@ class myView
 	var bufferX = 0;
 	var bufferY = 0;
 	
-//	function getBooleanFromArray(pArray, p)
-//	{
-//		var v = false;
-//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && (pArray[p] instanceof Boolean))
-//		{
-//			v = pArray[p];
-//		}
-//		return v;
-//	}
-	
-//	function getNumberFromArray(pArray, p)
-//	{
-//		var v = 0;
-//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null) && !(pArray[p] instanceof Boolean))
-//		{
-//			v = pArray[p].toNumber();
-//			if (v == null)
-//			{
-//				v = 0;
-//			}
-//		}
-//		return v;
-//	}
-		
-//	function getColorIndexFromArray(pArray, p, minV)
-//	{
-//		return getMinMax(getNumberFromArray(pArray, p), minV, 63);
-//	}
-
-//	function getColorFromArray(pArray, p, minV)
-//	{				
-//		return getColor64(getColorIndexFromArray(pArray, p, minV));
-//	}
-
-//	function getStringFromArray(pArray, p)
-//	{	
-//		var v = "";
-//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null))
-//		{
-//			v = pArray[p].toString();
-//		}
-//		return v;
-//	}
-	
-//	function getCharArrayFromArray(pArray, p)
-//	{	
-//		return getStringFromArray(p).toCharArray();
-//	}
-
 	var hasDoNotDisturb;
 	var hasLTE;
 	var hasElevationHistory;
@@ -837,29 +788,13 @@ class myView
 //		return v;
 //	}
 
-	function propertiesGetBoolean(p)
+	function getSafeBoolean(v)
 	{
-		// this test code for null works fine
-		//var test1=null;
-		//var test1=5;
-		//var test1=1.754;
-		//var test1="a";
-		//var test2=(test1?1:2);
-		//System.println("test2=" + test2);
-
-		//return (applicationProperties.getValue(p) ? true : false);	got some crashes on real watch on this line? Error: Unexpected Type Error
-		
-		var v = applicationProperties.getValue(p);
-		if ((v == null) || !(v instanceof Boolean))
-		{
-			v = false;
-		}
-		return v;
+		return (((v == null) || !(v instanceof Boolean)) ? false : v);
 	}
-	
-	function propertiesGetNumber(p)
+
+	function getSafeNumber(v)
 	{
-		var v = applicationProperties.getValue(p);
 		if ((v == null) || (v instanceof Boolean))
 		{
 			v = 0;
@@ -874,10 +809,9 @@ class myView
 		}
 		return v;
 	}
-	
-	function propertiesGetFloat(p)
+
+	function getSafeFloat(v)
 	{
-		var v = applicationProperties.getValue(p);
 		if ((v == null) || (v instanceof Boolean) || (v instanceof Char) || (v instanceof Symbol))
 		{
 			v = 0.0;
@@ -893,9 +827,8 @@ class myView
 		return v;
 	}
 	
-	function propertiesGetString(p)
-	{	
-		var v = applicationProperties.getValue(p);
+	function getSafeString(v)
+	{
 		if (v == null)
 		{
 			v = "";
@@ -905,6 +838,108 @@ class myView
 			v = v.toString();
 		}
 		return v;
+	}
+	
+	function getBooleanFromArray(pArray, p)
+	{
+		return ((p>=0 && p<pArray.size()) ? getSafeBoolean(pArray[p]) : false);
+	}
+	
+	function getNumberFromArray(pArray, p)
+	{
+		return ((p>=0 && p<pArray.size()) ? getSafeNumber(pArray[p]) : 0);
+	}
+		
+	function getFloatFromArray(pArray, p)
+	{
+		return ((p>=0 && p<pArray.size()) ? getSafeFloat(pArray[p]) : 0.0);
+	}
+
+//	function getColorIndexFromArray(pArray, p, minV)
+//	{
+//		return getMinMax(getNumberFromArray(pArray, p), minV, 63);
+//	}
+
+//	function getColorFromArray(pArray, p, minV)
+//	{				
+//		return getColor64(getColorIndexFromArray(pArray, p, minV));
+//	}
+
+//	function getStringFromArray(pArray, p)
+//	{	
+//		var v = "";
+//		if ((p>=0) && (p<pArray.size()) && (pArray[p]!=null))
+//		{
+//			v = pArray[p].toString();
+//		}
+//		return v;
+//	}
+	
+//	function getCharArrayFromArray(pArray, p)
+//	{	
+//		return getStringFromArray(p).toCharArray();
+//	}
+
+	function propertiesGetBoolean(p)
+	{
+		// this test code for null works fine
+		//var test1=null;
+		//var test1=5;
+		//var test1=1.754;
+		//var test1="a";
+		//var test2=(test1?1:2);
+		//System.println("test2=" + test2);
+
+		//return (applicationProperties.getValue(p) ? true : false);	got some crashes on real watch on this line? Error: Unexpected Type Error
+		
+		var v = null;
+		try
+		{
+			v = applicationProperties.getValue(p);
+		}
+		catch (e)
+		{
+		}
+		return getSafeBoolean(v);
+	}
+	
+	function propertiesGetNumber(p)
+	{
+		var v = null;
+		try
+		{
+			v = applicationProperties.getValue(p);
+		}
+		catch (e)
+		{
+		}
+		return getSafeNumber(v);
+	}
+
+//	function propertiesGetFloat(p)
+//	{
+//		var v = null;
+//		try
+//		{
+//			v = applicationProperties.getValue(p);
+//		}
+//		catch (e)
+//		{
+//		}
+//		return getSafeFloat(v);
+//	}
+	
+	function propertiesGetString(p)
+	{	
+		var v = null;
+		try
+		{
+			v = applicationProperties.getValue(p);
+		}
+		catch (e)
+		{
+		}
+		return getSafeString(v);
 	}
 	
 	function propertiesGetCharArray(p)
@@ -1114,13 +1149,10 @@ class myView
 		initHeartSamples(timeNowValue);
 
 		// remember which profile was active and also any profileDelayEnd value
+		// and all the profile times
 		loadMemoryData(timeNowValue);
 		
 //System.println("Timer loadmem=" + (System.getTimer()-timeStamp) + "ms");
-
-		loadProfileTimeData();		// load profile times
-		
-//System.println("Timer loadprof=" + (System.getTimer()-timeStamp) + "ms");
 
 		//gfxDemo();
     }
@@ -1348,7 +1380,7 @@ class myView
 			s = null;
 
 			getProfileTimeDataFromPropertiesFaceOrApp(profileNumber);
-			saveProfileTimeData();		// remember new values
+			saveMemoryData();		// remember new values
 		}
 	}
 	
@@ -1380,7 +1412,7 @@ class myView
 			applicationProperties.setValue("PN", profileActive+1);		// set the profile number
 
 			getProfileTimeDataFromPropertiesFaceOrApp(profileActive);
-			saveProfileTimeData();		// remember new values
+			saveMemoryData();		// remember new values
 		}
 		else
 		{
@@ -2821,90 +2853,6 @@ class myView
 		return t;
 	}
 
-	// want to save:
-	// profile active + end time
-	// profile random + end time
-	// demo profile + end time
-	// position: latitude (double), longitude (double), altitude (float)
-	//
-	// save as separate properties? (string, number, float, boolean)
-	(:m2face)
-	function loadMemoryData(timeNowValue)
-	{
-		positionGot = propertiesGetBoolean("pg");
-		positionLatitude = propertiesGetFloat("la"); 
-		positionLongitude = propertiesGetFloat("lo");
-		positionAltitude = propertiesGetFloat("al");
-
-		var profileNumber;
-		var profileEnd;
-
-		profileNumber = propertiesGetNumber("ap");
-		profileEnd = propertiesGetNumber("ae");
-		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
-		{
-			profileActive = profileNumber;
-			// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
-			profileDelayEnd = ((profileEnd <= (timeNowValue + (2+1)*60)) ? profileEnd : 0);
-		}
-
-		profileNumber = propertiesGetNumber("rp");
-		profileEnd = propertiesGetNumber("re");
-		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
-		{
-			profileRandom = profileNumber;
-			// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
-			profileRandomEnd = ((profileEnd <= (timeNowValue + (20+1)*60)) ? profileEnd : 0);
-		}
-
-		demoProfilesOn = propertiesGetBoolean("do");
-		profileNumber = propertiesGetNumber("dp");
-		profileEnd = propertiesGetNumber("de");
-		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
-		{
-			demoProfilesCurrentProfile = profileNumber;
-			// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
-			demoProfilesCurrentEnd = ((profileEnd <= (timeNowValue + (5+1)*60)) ? profileEnd : 0);
-		}
-	}
-	
-	(:m2face)
-	function saveMemoryData()
-	{
-		applicationProperties.setValue("pg", positionGot);
-		applicationProperties.setValue("la", positionLatitude);
-		applicationProperties.setValue("lo", positionLongitude);
-		applicationProperties.setValue("al", positionAltitude);
-
-		applicationProperties.setValue("ap", profileActive);
-		applicationProperties.setValue("ae", profileDelayEnd);
-
-		applicationProperties.setValue("rp", profileRandom);
-		applicationProperties.setValue("re", profileRandomEnd);
-
-		applicationProperties.setValue("do", demoProfilesOn);
-		applicationProperties.setValue("dp", demoProfilesCurrentProfile);
-		applicationProperties.setValue("de", demoProfilesCurrentEnd);
-	}
-
-	(:m2app)
-	function loadMemoryData(timeNowValue)
-	{
-		positionGot = propertiesGetBoolean("pg");
-		positionLatitude = propertiesGetFloat("la"); 
-		positionLongitude = propertiesGetFloat("lo");
-		positionAltitude = propertiesGetFloat("al");
-	}
-	
-	(:m2app)
-	function saveMemoryData()
-	{
-		applicationProperties.setValue("pg", positionGot);
-		applicationProperties.setValue("la", positionLatitude);
-		applicationProperties.setValue("lo", positionLongitude);
-		applicationProperties.setValue("al", positionAltitude);
-	}
-	
 	// Time is stored as hour*60 + minutes - this has a maximum of 24*60 = 1,440 = 0x5A0 (11 bits 0x7FF)
 	// start time (0-1440)
 	// end time (0-1440)
@@ -2920,35 +2868,201 @@ class myView
 	//const PROFILE_BLOCK_MASK = 0x10;			// block random
 
 	(:m2face)
-	var profileTimeData = new[PROFILE_NUM_USER*6];	// 144
+	var profileTimeData;
+	
+	// face memory data format:
+	//
+	// 0 number x PROFILE_NUM_USER*6 = profileTimeData array
+	//
+	// 1 boolean = positionGot
+	// 2 float = positionLatitude  
+	// 3 float = positionLongitude  
+	// 4 float = positionAltitude
+	//  
+	// 5 number = profileActive
+	// 6 number = profileDelayEnd
+	//
+	// 7 number = profileRandom
+	// 8 number = profileRandomEnd
+	//
+	// 9 boolean = demoProfilesOn
+	// 10 number = demoProfilesCurrentProfile
+	// 11 number = demoProfilesCurrentEnd
+	//
+	// 12 number = honesty count (or -1 if disabled)
+	//
+	(:m2face)
+	function loadMemoryData(timeNowValue)
+	{
+		var memData = applicationStorage.getValue(0);
+		if (memData!=null && (memData instanceof Array))
+		{
+			if (memData.size()>1)
+			{
+				profileTimeData = memData[0];
+			}
+			
+			positionGot = getBooleanFromArray(memData, 1);
+			positionLatitude = getFloatFromArray(memData, 2);
+			positionLongitude = getFloatFromArray(memData, 3);
+			positionAltitude = getFloatFromArray(memData, 4);
+
+			var profileNumber;
+			var profileEnd;
+	
+			profileNumber = getNumberFromArray(memData, 5);
+			profileEnd = getNumberFromArray(memData, 6);
+			if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+			{
+				profileActive = profileNumber;
+				// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
+				profileDelayEnd = ((profileEnd <= (timeNowValue + (2+1)*60)) ? profileEnd : 0);
+			}
+	
+			profileNumber = getNumberFromArray(memData, 7);
+			profileEnd = getNumberFromArray(memData, 8);
+			if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+			{
+				profileRandom = profileNumber;
+				// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
+				profileRandomEnd = ((profileEnd <= (timeNowValue + (20+1)*60)) ? profileEnd : 0);
+			}
+	
+			demoProfilesOn = getBooleanFromArray(memData, 9);
+			profileNumber = getNumberFromArray(memData, 10);
+			profileEnd = getNumberFromArray(memData, 11);
+			if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+			{
+				demoProfilesCurrentProfile = profileNumber;
+				// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
+				demoProfilesCurrentEnd = ((profileEnd <= (timeNowValue + (5+1)*60)) ? profileEnd : 0);
+			}
+		}
+
+		if (profileTimeData==null || !(profileTimeData instanceof Array) || profileTimeData.size()!=(PROFILE_NUM_USER*6))
+		{
+			profileTimeData = new[PROFILE_NUM_USER*6];	// 144
+			for (var i=0; i<(PROFILE_NUM_USER*6); i++)
+			{
+				profileTimeData[i] = 0;
+			}
+		}
+
+//		var charArray = propertiesGetCharArray("sd");
+//		valDecodeArray(profileTimeData, PROFILE_NUM_USER*6, charArray, charArray.size());
+//		//System.println("profileTimeData=" + profileTimeData.toString());
+	
+//		positionGot = propertiesGetBoolean("pg");
+//		positionLatitude = propertiesGetFloat("la"); 
+//		positionLongitude = propertiesGetFloat("lo");
+//		positionAltitude = propertiesGetFloat("al");
+//
+//		var profileNumber;
+//		var profileEnd;
+//
+//		profileNumber = propertiesGetNumber("ap");
+//		profileEnd = propertiesGetNumber("ae");
+//		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+//		{
+//			profileActive = profileNumber;
+//			// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
+//			profileDelayEnd = ((profileEnd <= (timeNowValue + (2+1)*60)) ? profileEnd : 0);
+//		}
+//
+//		profileNumber = propertiesGetNumber("rp");
+//		profileEnd = propertiesGetNumber("re");
+//		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+//		{
+//			profileRandom = profileNumber;
+//			// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
+//			profileRandomEnd = ((profileEnd <= (timeNowValue + (20+1)*60)) ? profileEnd : 0);
+//		}
+//
+//		demoProfilesOn = propertiesGetBoolean("do");
+//		profileNumber = propertiesGetNumber("dp");
+//		profileEnd = propertiesGetNumber("de");
+//		if (profileNumber>=0 && profileNumber<PROFILE_NUM_USER+PROFILE_NUM_PRESET)
+//		{
+//			demoProfilesCurrentProfile = profileNumber;
+//			// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
+//			demoProfilesCurrentEnd = ((profileEnd <= (timeNowValue + (5+1)*60)) ? profileEnd : 0);
+//		}
+	}
 	
 	(:m2face)
-	function loadProfileTimeData()
+	function saveMemoryData()
 	{
-		var charArray = propertiesGetCharArray("sd");
+		var memData = [
+			profileTimeData,
+			positionGot,
+			positionLatitude,
+			positionLongitude,
+			positionAltitude,
+			profileActive,
+			profileDelayEnd,
+			profileRandom,
+			profileRandomEnd,
+			demoProfilesOn,
+			demoProfilesCurrentProfile,
+			demoProfilesCurrentEnd,
+			-1,
+		];
+		applicationStorage.setValue(0, memData);
 
-		valDecodeArray(profileTimeData, PROFILE_NUM_USER*6, charArray, charArray.size());
+//		var tempCharArray = new[PROFILE_NUM_USER*6*2];	// 288
+//		valEncodeArray(profileTimeData, PROFILE_NUM_USER*6, tempCharArray, PROFILE_NUM_USER*6*2);
+//		applicationProperties.setValue("sd", StringUtil.charArrayToString(tempCharArray));
 
-		//System.println("profileTimeData=" + profileTimeData.toString());
+//		applicationProperties.setValue("pg", positionGot);
+//		applicationProperties.setValue("la", positionLatitude);
+//		applicationProperties.setValue("lo", positionLongitude);
+//		applicationProperties.setValue("al", positionAltitude);
+//
+//		applicationProperties.setValue("ap", profileActive);
+//		applicationProperties.setValue("ae", profileDelayEnd);
+//
+//		applicationProperties.setValue("rp", profileRandom);
+//		applicationProperties.setValue("re", profileRandomEnd);
+//
+//		applicationProperties.setValue("do", demoProfilesOn);
+//		applicationProperties.setValue("dp", demoProfilesCurrentProfile);
+//		applicationProperties.setValue("de", demoProfilesCurrentEnd);
 	}
-	
-	(:m2face)
-	function saveProfileTimeData()
-	{
-		var tempCharArray = new[PROFILE_NUM_USER*6*2];	// 288
-		valEncodeArray(profileTimeData, PROFILE_NUM_USER*6, tempCharArray, PROFILE_NUM_USER*6*2);
-		
-		applicationProperties.setValue("sd", StringUtil.charArrayToString(tempCharArray));
-	}
+
+	// app memory data format
+	// boolean = positionGot
+	// float = positionLatitude  
+	// float = positionLongitude  
+	// float = positionAltitude  
 
 	(:m2app)
-	function loadProfileTimeData()
+	function loadMemoryData(timeNowValue)
 	{
+		var memData = applicationStorage.getValue(0);
+		if (memData!=null && (memData instanceof Array))
+		{
+			positionGot = getBooleanFromArray(memData, 0);
+			positionLatitude = getFloatFromArray(memData, 1);
+			positionLongitude = getFloatFromArray(memData, 2);
+			positionAltitude = getFloatFromArray(memData, 3);
+		}
+	
+//		positionGot = propertiesGetBoolean("pg");
+//		positionLatitude = propertiesGetFloat("la"); 
+//		positionLongitude = propertiesGetFloat("lo");
+//		positionAltitude = propertiesGetFloat("al");
 	}
 	
 	(:m2app)
-	function saveProfileTimeData()
+	function saveMemoryData()
 	{
+		var memData = [positionGot, positionLatitude, positionLongitude, positionAltitude];
+		applicationStorage.setValue(0, memData);
+
+//		applicationProperties.setValue("pg", positionGot);
+//		applicationProperties.setValue("la", positionLatitude);
+//		applicationProperties.setValue("lo", positionLongitude);
+//		applicationProperties.setValue("al", positionAltitude);
 	}
 	
 /*
@@ -3070,47 +3184,47 @@ class myView
 		return v;
 	}		
 	
-	(:m2face)
-	function valEncodeArray(arr, arrSize, charArray, charArraySize)
-	{
-		for (var i=0; i<arrSize; i++)
-		{
-			// 0-9 a-z A-Z
-			// 10 +26 +26 =62
-			// 62*62=3844, so 0-3843
-			
-			var val = arr[i];
-			if (val==null)
-			{
-				val = 0;
-			}
-			
-			var v0 = val/62;
-			var v1 = val%62;
-			
-			charArray[i*2] = valEncodeChar(v0);
-			charArray[i*2 + 1] = valEncodeChar(v1);
-		}
-	}
+//	(:m2face)
+//	function valEncodeArray(arr, arrSize, charArray, charArraySize)
+//	{
+//		for (var i=0; i<arrSize; i++)
+//		{
+//			// 0-9 a-z A-Z
+//			// 10 +26 +26 =62
+//			// 62*62=3844, so 0-3843
+//			
+//			var val = arr[i];
+//			if (val==null)
+//			{
+//				val = 0;
+//			}
+//			
+//			var v0 = val/62;
+//			var v1 = val%62;
+//			
+//			charArray[i*2] = valEncodeChar(v0);
+//			charArray[i*2 + 1] = valEncodeChar(v1);
+//		}
+//	}
 
-	(:m2face)
-	function valDecodeArray(arr, arrSize, charArray, charArraySize)
-	{
-		for (var i=0; i<arrSize; i++)
-		{
-			var v0 = 0;
-			var v1 = 0;
-			
-			var i2 = i*2;
-			if (i2 < charArraySize-1)
-			{
-				v0 = valDecodeChar(charArray[i2]);
-				v1 = valDecodeChar(charArray[i2+1]);
-			}
-			
-			arr[i] = v0*62 + v1;
-		}
-	}
+//	(:m2face)
+//	function valDecodeArray(arr, arrSize, charArray, charArraySize)
+//	{
+//		for (var i=0; i<arrSize; i++)
+//		{
+//			var v0 = 0;
+//			var v1 = 0;
+//			
+//			var i2 = i*2;
+//			if (i2 < charArraySize-1)
+//			{
+//				v0 = valDecodeChar(charArray[i2]);
+//				v1 = valDecodeChar(charArray[i2+1]);
+//			}
+//			
+//			arr[i] = v0*62 + v1;
+//		}
+//	}
 
 	(:m2app)
 	function gfxToCharArray()

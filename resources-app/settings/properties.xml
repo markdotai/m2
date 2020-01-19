@@ -4,9 +4,4 @@
 
     <property id="PM" type="number">0</property>			<!-- profile management -->
     <property id="PN" type="number">1</property>			<!-- profile number -->
-
-    <property id="pg" type="boolean">false</property>		<!-- position got -->
-    <property id="lo" type="float">0</property>				<!-- longitude -->
-    <property id="la" type="float">0</property>				<!-- latitude -->
-    <property id="al" type="float">0</property>				<!-- altitude -->
 </properties>
