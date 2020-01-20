@@ -1390,7 +1390,7 @@ class myView
 		s = null;
 		gfxFromCharArray(charArray);
 	}
-	
+
 	function handleSettingsChanged(second)
 	{
 		var demoProfilesOnPrev = demoProfilesOn;
@@ -6819,7 +6819,21 @@ class myEditorView extends myView
 	
 	// off, 1 bar, all bars
 	var memoryDisplayMode = 1;
+	
+	function handleSettingsChanged(second)
+	{
+    	myView.handleSettingsChanged(second);
 
+		// when loading new gfx from settings, then should reset the menu to be at global settings	
+		menuFieldGfx = 0;
+		menuElementGfx = 0;
+		if (menuItem==null || !(menuItem instanceof myMenuItemSaveLoadProfile))
+		{
+			menuItem = null;
+			menuItem = new myMenuItemFieldSelect();
+		}
+	}
+	
     function onUpdate(dc)
     {
     	if (reloadDynamicResources)
@@ -6857,16 +6871,7 @@ class myEditorView extends myView
     }
 
 	function gfxAddDynamicResources(fontIndex)
-	{
-		// when loading new gfx, then should reset the menu to be at global settings	
-		menuFieldGfx = 0;
-		menuElementGfx = 0;
-		if (menuItem==null || !(menuItem instanceof myMenuItemSaveLoadProfile))
-		{
-			menuItem = null;
-			menuItem = new myMenuItemFieldSelect();
-		}
-		
+	{		
 		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here so similar to gfxOnUpdate
 		{
 			gfxData[0+5] = getMinMax(gfxData[0+5], COLOR_FOREGROUND+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuColor
