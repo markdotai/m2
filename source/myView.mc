@@ -4604,15 +4604,31 @@ class myView
 
 					var charArray;
 					var largeType = gfxData[index+1/*large_type*/];
-					if (largeType==0)
-					{
-						charArray = formatHourForDisplayString(hour, deviceSettings.is24Hour, false).toCharArray();
-					}
-					else if (largeType==1)
-					{
-						charArray = minute.format("%02d").toCharArray();
-					}
-					else //if (largeType==2)
+					
+					//0,		<!-- BIG_HOUR -->
+					//3,		<!-- BIG_HOUR_0 -->
+					//1,		<!-- BIG_MINUTE -->					
+					//2,		<!-- BIG_COLON -->
+					//4,		<!-- BIG_HOUR_1ST -->
+					//5,		<!-- BIG_HOUR_2ND -->
+					//6,		<!-- BIG_HOUR_0_1ST -->
+					//7,		<!-- BIG_HOUR_0_2ND -->
+					//8,		<!-- BIG_MINUTE_1ST -->
+					//9			<!-- BIG_MINUTE_2ND -->
+					//10,		<!-- BIG_HOUR_12 -->
+					//11,		<!-- BIG_HOUR_12_1ST -->
+					//12,		<!-- BIG_HOUR_12_2ND -->
+					//13,		<!-- BIG_HOUR_12_0 -->
+					//14,		<!-- BIG_HOUR_12_0_1ST -->
+					//15,		<!-- BIG_HOUR_12_0_2ND -->
+					//16,		<!-- BIG_HOUR_24 -->
+					//17,		<!-- BIG_HOUR_24_1ST -->
+					//18,		<!-- BIG_HOUR_24_2ND -->
+					//19,		<!-- BIG_HOUR_24_0 -->
+					//20,		<!-- BIG_HOUR_24_0_1ST -->
+					//21		<!-- BIG_HOUR_24_0_2ND -->
+
+					if (largeType==2/*BIG_COLON*/)
 					{
 						var r = (gfxData[index+2/*large_font*/] & 0xFF);
 					 	if (r<10)	// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts)
@@ -4628,28 +4644,95 @@ class myView
 							charArray = ":".toCharArray();
 					 	}
 					}
+					else if (largeType==1/*BIG_MINUTE*/ || largeType==8/*BIG_MINUTE_1ST*/ || largeType==9/*BIG_MINUTE_2ND*/)
+					{
+						charArray = minute.format("%02d").toCharArray();
+						
+						if (largeType!=1/*BIG_MINUTE*/)
+						{
+							charArray = charArray.slice(largeType-8/*BIG_MINUTE_1ST*/, largeType-8/*BIG_MINUTE_1ST*/+1);
+						}
+					}
+					else // hours
+					{
+						//0,		<!-- BIG_HOUR -->
+						//3,		<!-- BIG_HOUR_0 -->
+						//4,		<!-- BIG_HOUR_1ST -->
+						//5,		<!-- BIG_HOUR_2ND -->
+						//6,		<!-- BIG_HOUR_0_1ST -->
+						//7,		<!-- BIG_HOUR_0_2ND -->
+
+						//10,		<!-- BIG_HOUR_12 -->
+						//11,		<!-- BIG_HOUR_12_1ST -->
+						//12,		<!-- BIG_HOUR_12_2ND -->
+						//13,		<!-- BIG_HOUR_12_0 -->
+						//14,		<!-- BIG_HOUR_12_0_1ST -->
+						//15,		<!-- BIG_HOUR_12_0_2ND -->
+						//16,		<!-- BIG_HOUR_24 -->
+						//17,		<!-- BIG_HOUR_24_1ST -->
+						//18,		<!-- BIG_HOUR_24_2ND -->
+						//19,		<!-- BIG_HOUR_24_0 -->
+						//20,		<!-- BIG_HOUR_24_0_1ST -->
+						//21		<!-- BIG_HOUR_24_0_2ND -->
+
+						var addLeadingZero = (largeType==3/*BIG_HOUR_0*/);
+						var is24Hour = deviceSettings.is24Hour;
+						var digit = -1;
+						
+						if (largeType>=4)
+						{
+							if (largeType>=10)
+							{
+								var tempType = largeType-10; 
+								addLeadingZero = ((tempType%6)>=3);
+								is24Hour = (tempType>=6);
+								digit = (tempType%3) - 1;
+							}
+							else
+							{
+								addLeadingZero = (largeType==6/*BIG_HOUR_0_1ST*/ || largeType==7/*BIG_HOUR_0_2ND*/);
+								digit = ((largeType-4)%2);
+							}
+						}
+						
+						
+						charArray = formatHourForDisplayString(hour, is24Hour, addLeadingZero).toCharArray();
+						
+						if (digit>=0)
+						{
+							digit -= (2-charArray.size());
+							if (digit>=0)
+							{
+								charArray = charArray.slice(digit, digit+1);
+							}
+							else
+							{
+								charArray = [];
+							}
+						}
+					}
 					
 					var charArraySize = charArray.size();
-					var charArrayIndex = 0;
 
-					for (var j=0; j<=2; j+=2)
+					for (var charArrayIndex=0; charArrayIndex<2; charArrayIndex++)
 					{
+						var j = charArrayIndex*2; 
 						var indexWidthJ = index+5+j; 
 					
-						if (j==0 && charArraySize==1)	// if only 1 character then store it in the 2nd slot
+						if (charArrayIndex>=charArraySize)
 						{
-							//gfxData[index+3] = 0;	// string 0
+							//gfxData[indexWidthJ-1] = 0;	// string 0
 							gfxData[indexWidthJ] = 0;	// width 0
 							continue;
 						}
 						
 						var c = charArray[charArrayIndex];
-						var cNum = c.toNumber();
-						charArrayIndex++;
+
 						gfxData[indexWidthJ-1] = c;	// string 0 or 1
 						gfxData[indexWidthJ] = dc.getTextWidthInPixels(c.toString(), dynamicResource);	// width 0 or 1
 						gfxData[indexCurField+4] += gfxData[indexWidthJ];	// total width
 						
+//						var cNum = c.toNumber();
 //						if (indexPrevLargeWidth>=0 && prevLargeFontKern>=0 && fontTypeKern>=0)
 //						{
 //							var k = getKern(prevLargeNumber - 48/*APPCHAR_0*/, cNum - 48/*APPCHAR_0*/, prevLargeFontKern, fontTypeKern, narrowKern);
@@ -5597,27 +5680,48 @@ class myView
 
 //System.println("ascent=" + Graphics.getFontAscent(dynamicResource));
 					
-					if (gfxData[index+5]>0)	// width 1
+					for (var j=0; j<=2; j+=2)
 					{
-						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)		// check digit x overlaps buffer
+						var indexWidthJ = index+5+j; 
+
+						if (gfxData[indexWidthJ]>0)	// width
 						{
-							// align bottom of text
-				       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
-//	dc.setColor(getColor64FromGfx(gfxData[index+1]), Graphics.COLOR_BLUE);
-			        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+4].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
-						}
-													
-		        		fieldX += gfxData[index+5];
-		        	}
-
-					if (fieldX<=dcWidth && (fieldX+gfxData[index+7])>=0)		// check digit x overlaps buffer
-					{
-			       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
-		        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+6].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+							if (fieldX<=dcWidth && (fieldX+gfxData[indexWidthJ])>=0)		// check digit x overlaps buffer
+							{
+								// align bottom of text
+					       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
+								//dc.setColor(getColor64FromGfx(gfxData[index+1]), Graphics.COLOR_BLUE);
+				        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[indexWidthJ-1].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+							}
+														
+			        		fieldX += gfxData[indexWidthJ];
+			        	}
 					}
-
-		        	fieldX += gfxData[index+7];
-
+					
+//					if (gfxData[index+5]>0)	// width 1
+//					{
+//						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)		// check digit x overlaps buffer
+//						{
+//							// align bottom of text
+//				       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
+//							//dc.setColor(getColor64FromGfx(gfxData[index+1]), Graphics.COLOR_BLUE);
+//			        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+4].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+//						}
+//													
+//		        		fieldX += gfxData[index+5];
+//		        	}
+//
+//					if (gfxData[index+7]>0)	// width 2
+//					{
+//						if (fieldX<=dcWidth && (fieldX+gfxData[index+7])>=0)		// check digit x overlaps buffer
+//						{
+//				       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
+//			        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[index+6].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+//						}
+//	
+//			        	fieldX += gfxData[index+7];
+//					}
+					
 					break;
 				}
 				
@@ -6827,6 +6931,8 @@ class myEditorView extends myView
 		// when loading new gfx from settings, then should reset the menu to be at global settings	
 		menuFieldGfx = 0;
 		menuElementGfx = 0;
+		endColorEditing();	// also end any color editing that might have been active!
+		menuHide = false;
 		if (menuItem==null || !(menuItem instanceof myMenuItemSaveLoadProfile))
 		{
 			menuItem = null;
@@ -7490,7 +7596,7 @@ class myEditorView extends myView
 
 	function getLargeTypeName(eDisplay)
 	{
-		return safeStringFromJsonData(Rez.JsonData.id_largeTypeStrings, -1, eDisplay);
+		return safeStringFromJsonData(Rez.JsonData.id_largeTypeStrings, 0, eDisplay);
 	}
 
 	function getStringTypeName(eDisplay)
@@ -7771,15 +7877,15 @@ class myEditorView extends myView
 
 	function elementGetVisibility()
 	{
-		return ((gfxData[menuElementGfx] >> 8) & 0xFF);
+		return ((gfxData[menuElementGfx] >> 4) & 0x1F);
 	}
 
 	function elementVisibilityEditing(val)
 	{
 		val = (elementGetVisibility()+val+25/*STATUS_NUM*/)%25/*STATUS_NUM*/;
 
-		gfxData[menuElementGfx] &= ~(0xFF << 8);
-		gfxData[menuElementGfx] |= ((val & 0xFF) << 8);
+		gfxData[menuElementGfx] &= ~(0x1F << 4);
+		gfxData[menuElementGfx] |= ((val & 0x1F) << 4);
 	}
 
 	function elementSwap(prevElement, nextElement)
@@ -7850,12 +7956,37 @@ class myEditorView extends myView
 		return gfxData[menuElementGfx+1];
 	}
 		
-	function largeTypeEditing(val)
-	{
-		gfxData[menuElementGfx+1] = (largeGetType()+val+3)%3;
-		reloadDynamicResources = true;
-	}
+//	function largeTypeEditing(val)
+//	{
+//		gfxData[menuElementGfx+1] = (largeGetType()+val+3)%3;
+//		reloadDynamicResources = true;
+//	}
 		
+    function largeTypeEditing(val)
+    {
+    	var newType = 0;
+    
+		var tempArray = WatchUi.loadResource(Rez.JsonData.id_largeTypeStrings);
+    	if (tempArray!=null)
+    	{
+	    	tempArray = tempArray[1];
+		    	
+	    	var index = tempArray.indexOf(largeGetType());
+	    	if (index>=0)
+	    	{
+	    		index = (index+val+tempArray.size())%tempArray.size();
+				newType = tempArray[index];
+	    	}
+	    	else if (tempArray.size()>0)
+	    	{
+				newType = tempArray[0];
+	    	}
+		}
+		
+		gfxData[menuElementGfx+1] = newType;
+		reloadDynamicResources = true;
+    }
+    
 	function largeColorEditing(val)
 	{
 		gfxSubtractValModuloInPlace(menuElementGfx+3/*large_color*/, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
@@ -8650,6 +8781,10 @@ class myMenuItemSaveLoadProfile extends myMenuItem
     		}
     		else
     		{
+				// when loading new gfx from menu, then some stuff needs resetting:	
+				editorView.menuFieldGfx = 0;
+				editorView.menuElementGfx = 0;
+				
 				editorView.appWantsToLoadProfile = profileIndex;
     		}
     	}
