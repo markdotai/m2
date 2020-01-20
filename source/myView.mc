@@ -7962,16 +7962,16 @@ class myEditorView extends myView
 //		reloadDynamicResources = true;
 //	}
 		
-    function largeTypeEditing(val)
+    function largeTypeEditingValue(val, idArrayValue)
     {
-    	var newType = 0;
+    	var newType = idArrayValue;
     
 		var tempArray = WatchUi.loadResource(Rez.JsonData.id_largeTypeStrings);
     	if (tempArray!=null)
     	{
 	    	tempArray = tempArray[1];
 		    	
-	    	var index = tempArray.indexOf(largeGetType());
+	    	var index = tempArray.indexOf(idArrayValue);
 	    	if (index>=0)
 	    	{
 	    		index = (index+val+tempArray.size())%tempArray.size();
@@ -7983,7 +7983,12 @@ class myEditorView extends myView
 	    	}
 		}
 		
-		gfxData[menuElementGfx+1] = newType;
+		return newType;
+    }
+    
+    function largeTypeEditing(val)
+    {
+		gfxData[menuElementGfx+1] = largeTypeEditingValue(val, largeGetType());
 		reloadDynamicResources = true;
     }
     
@@ -9941,7 +9946,8 @@ class myMenuItemElementAdd extends myMenuItem
     	}
     	else if (fState==10/*s_largeEdit*/)
     	{
-    		idArrayValue = (idArrayValue+val+3)%3;
+    		//idArrayValue = (idArrayValue+val+3)%3;
+    		idArrayValue = editorView.largeTypeEditingValue(val, idArrayValue);
     	}
 		else if (fState<=15/*s_valueEdit*/)
 		{
@@ -9977,7 +9983,8 @@ class myMenuItemElementAdd extends myMenuItem
 		}
 		else if (fState==1/*s_timeLarge*/)
 		{
-			idArrayValue = 0;
+			//idArrayValue = 0;	// this is just the hour
+    		idArrayValue = editorView.largeTypeEditingValue(0, 0);
 			fState = 10/*s_largeEdit*/;
 		}
 		else if (fState<=6/*s_value*/)
