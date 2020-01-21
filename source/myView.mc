@@ -36,6 +36,8 @@ class myView
 //	}
 
 	var isEditor = false;
+	
+	var isTurkish = false;
 
 	const PROFILE_NUM_USER = 24;		// number of user profiles
 	//const PROFILE_NUM_PRESET = 17;		// number of preset profiles (in the jsondata resource)
@@ -615,7 +617,6 @@ class myView
         
         //var bitsSupported = [0, 134213665, 402653182, 0, 0, 0, 1028141746, 0, 67112976, 536870912, 83951626, 570425345];
         var bitsSize = bitsSupported.size();
-        
         var sArray = s.toUpper().toCharArray();		// upper case
         var sArraySize = sArray.size();
         for (var i=0; i<sArraySize; i++)
@@ -1077,6 +1078,10 @@ class myView
 
 		displaySize = dc.getWidth();
 		displayHalf = displaySize/2;
+
+		var tempStr = WatchUi.loadResource(Rez.Strings.Turkish);
+		isTurkish = (tempStr!=null && tempStr.length()>0);
+		tempStr = null;
 
 		// need to seed the random number generator?
 		//var clockTime = System.getClockTime();
@@ -4822,6 +4827,14 @@ class myView
 							//eStr = "A\u042d\u03b8\u05e9\u069b";			// test string for other languages (unsupported)
 							//eStr = ".A.";							// test the "." character
 
+							// Turkish for Tue = "Salı"
+							// Turkish for Jan = "ocak"
+							//eStr = "Salı";
+							//eStr = "Sal";
+							//var t1 = eStr.toUpper();		// ok
+							//var t2 = eStr.toCharArray();	// ok
+							//var t3 = t1.toCharArray();	// crash
+
 							if (isDynamicResourceSystemFont(resourceIndex))
 							{
 								// can display all diacritics
@@ -4838,7 +4851,7 @@ class myView
 							}
 							else
 							{
-								if (useUnsupportedFieldFont(eStr))
+								if (isTurkish || useUnsupportedFieldFont(eStr))
 								{
 									useUnsupportedFont = true;
 
@@ -4857,6 +4870,11 @@ class myView
 									checkDiacritics = true;
 									makeUpperCase = true;
 								}
+							}
+							
+							if (isTurkish)
+							{
+								makeUpperCase = false;
 							}
 							
 							//System.println("eStr=" + eStr + " useUnsupportedFont="+useUnsupportedFont);

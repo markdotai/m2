@@ -1,4 +1,7 @@
 <strings>
+
+    <string id="Turkish"></string>
+
     <string id="AppName">M2 Design</string>
 
     <string id="ExportProfileTitle">Profile Text (for current display)</string>
