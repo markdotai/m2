@@ -4,4 +4,6 @@
 
     <property id="PM" type="number">0</property>			<!-- profile management -->
     <property id="PN" type="number">1</property>			<!-- profile number -->
+
+    <property id="H2" type="boolean">false</property>		<!-- honesty 2 -->
 </properties>

@@ -137,6 +137,7 @@ class myView
 	var profileRandomEnd = 0;
 	var profileRandomLastMin = -1;		// last minute number that we did the random checks
 
+    (:m2face)
 	var honestyCheckbox = false;
 
 	var demoProfilesOn = false;
@@ -146,6 +147,9 @@ class myView
 	var demoProfilesCurrentEnd = 0;
 
 	var propSunAltitudeAdjust = false;
+	
+    (:m2face)
+	var propStatusUpdateRate = 15;
 
 	//enum
 	//{
@@ -1220,6 +1224,7 @@ class myView
 		demoProfilesLast = ((n[1]>(PROFILE_NUM_USER+PROFILE_NUM_PRESET)) ? (PROFILE_NUM_USER+PROFILE_NUM_PRESET) : n[1]) - 1;	// convert from user to code index
 
 		propSunAltitudeAdjust = propertiesGetBoolean("SA");
+		propStatusUpdateRate = getMinMax(propertiesGetNumber("SU"), 1, 60);
 	}
 	
     (:m2app)
@@ -1437,23 +1442,6 @@ class myView
     {
         // 12 or 24 hour, and check for adding a leading zero
         return (is24Hour ? h : (((h+11)%12) + 1)).format(addLeadingZero ? "%02d" : "%d"); 
-    }
-    
-    function getVisibilityStatus(visibilityStatus, eVisible, dateInfoShort)
-    {
-    	if (visibilityStatus[eVisible]==null)
-    	{
-	    	if (eVisible==21/*STATUS_SUNEVENT_RISE*/ || eVisible==22/*STATUS_SUNEVENT_SET*/)
-	    	{
-    			calculateSun(dateInfoShort);
-				if (sunTimes[7]!=null)
-				{
-    				visibilityStatus[eVisible] = ((eVisible==21/*STATUS_SUNEVENT_RISE*/) ? sunTimes[7] : !sunTimes[7]);
-    			}
-	    	}
-    	}
-    	
-    	return (visibilityStatus[eVisible]!=null && visibilityStatus[eVisible]);
     }
     
 //	function printMem(s)
@@ -1818,6 +1806,8 @@ class myView
     	sampleHeartRate(second, second!=lastPartialUpdateSec);
     
     	// check for some status icons changing dynamically
+    	// - see if the state has changed since the last call to onUpdate
+    	if ((second%propStatusUpdateRate)==0)
     	{
  			var deviceSettings = System.getDeviceSettings();	// 960 bytes, but uses less code memory
 	
@@ -4415,6 +4405,11 @@ class myView
 		return (((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) * drawRange) / (24*60) + segmentAdjust + drawRange)%drawRange;
 	}
 
+	function editorCheckGfxVisibility(index)
+	{
+		return true;
+	}
+
 	function gfxOnUpdate(dc, clockTime, timeNow)
 	{
         var hour = clockTime.hour;
@@ -4470,9 +4465,9 @@ class myView
 	    visibilityStatus[12/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
 	    var batteryLevel = systemStats.battery;
 	    visibilityStatus[14/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
-	    visibilityStatus[16/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
-	    visibilityStatus[15/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[12/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[14/*STATUS_BATTERY_LOW*/]);
-	    visibilityStatus[13/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[14/*STATUS_BATTERY_LOW*/];
+	    visibilityStatus[16/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
+	    visibilityStatus[15/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[16/*STATUS_BATTERY_LOW*/]);
+	    visibilityStatus[13/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[16/*STATUS_BATTERY_LOW*/];
 		// moveBarLevel 0 = not triggered
 		// moveBarLevel has range 1 to 5
 		// propFieldMoveAlarmTriggerTime has range 1 to 5
@@ -4514,24 +4509,34 @@ class myView
 			
 			if (eVisible>=0 && eVisible<25/*STATUS_NUM*/)
 			{
-				isVisible = visibilityStatus[eVisible];
-
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
-				if (eVisible==5/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==6/*STATUS_NOTIFICATIONS_NONE*/)
+				if (eVisible==7/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==8/*STATUS_NOTIFICATIONS_NONE*/)
 				{
 					fieldActiveNotificationsStatus = (notificationCount > 0);
 				} 
-				if (eVisible==7/*STATUS_PHONE_CONNECTED*/ || eVisible==8/*STATUS_PHONE_NOT*/)
+				else if (eVisible==9/*STATUS_PHONE_CONNECTED*/ || eVisible==10/*STATUS_PHONE_NOT*/)
 				{
 					fieldActivePhoneStatus = phoneConnected;
 				} 
-				if (eVisible==9/*STATUS_LTE_CONNECTED*/ || eVisible==10/*STATUS_LTE_NOT*/)
+				else if (eVisible==11/*STATUS_LTE_CONNECTED*/ || eVisible==12/*STATUS_LTE_NOT*/)
 				{
 					fieldActiveLTEStatus = lteState;
 				}
 
-				isVisible = getVisibilityStatus(visibilityStatus, eVisible, dateInfoShort);
+		    	if (visibilityStatus[eVisible]==null)
+		    	{
+			    	if (eVisible==23/*STATUS_SUNEVENT_RISE*/ || eVisible==24/*STATUS_SUNEVENT_SET*/)
+			    	{
+		    			calculateSun(dateInfoShort);
+						if (sunTimes[7]!=null)
+						{
+		    				visibilityStatus[eVisible] = ((eVisible==23/*STATUS_SUNEVENT_RISE*/) ? sunTimes[7] : !sunTimes[7]);
+		    			}
+			    	}
+		    	}
+		    	
+		    	isVisible = (visibilityStatus[eVisible]!=null && visibilityStatus[eVisible]);
 			}
 			
 			// remember visibility for this update
@@ -4542,6 +4547,11 @@ class myView
 			else
 			{
 				gfxData[index] &= ~0x10000;
+
+				if (isEditor)
+				{
+					isVisible = editorCheckGfxVisibility(index);
+				}
 			}
 			
 			switch(id)
@@ -6552,40 +6562,58 @@ class myEditorView extends myView
 		var f = -1;
 
 		// look for previous font in same field
-		for (var i=index; f<0; )
-		{
-			i = prevGfx(i);
-			if (i<0 || gfxIsField(i))
-			{
-				break;
-			}
-			
-			var id = getGfxId(i);
-			if (id==id1 || id==id2)
-			{
-				f = (gfxData[i+gfxOffset]&0xFF);
-			}
-		}
-		
-		// look for next font in same field
-		for (var i=index; f<0; )
+		for (var i=prevGfxField(index); i>=0; )		// start from beginning of field
 		{
 			i = nextGfx(i);
-			if (i<0 || gfxIsField(i))
+			if (i>=index)			// stop when get back to test element
 			{
 				break;
 			}
 			
+			// keep testing all elements so we end up getting the one previous to the test index
 			var id = getGfxId(i);
 			if (id==id1 || id==id2)
 			{
 				f = (gfxData[i+gfxOffset]&0xFF);
 			}
 		}
+
+//		// look for previous font in same field
+//		for (var i=index; f<0; )
+//		{
+//			i = prevGfx(i);
+//			if (i<0 || gfxIsField(i))
+//			{
+//				break;
+//			}
+//			
+//			var id = getGfxId(i);
+//			if (id==id1 || id==id2)
+//			{
+//				f = (gfxData[i+gfxOffset]&0xFF);
+//			}
+//		}
+		
+		// dont bother looking at next because its a waste of code - we always add new items at the end of the field
+//		// look for next font in same field
+//		for (var i=index; f<0; )
+//		{
+//			i = nextGfx(i);
+//			if (i<0 || gfxIsField(i))
+//			{
+//				break;
+//			}
+//			
+//			var id = getGfxId(i);
+//			if (id==id1 || id==id2)
+//			{
+//				f = (gfxData[i+gfxOffset]&0xFF);
+//			}
+//		}
 		
 		if (f<0)
 		{
-			// search for first large font in any field (that is not itself!!)
+			// search for first font in any field (that is not itself!!)
 			for (var i=0; lastFontArray[lastFontArrayIndex]<0; )
 			{
 				i = nextGfx(i);
@@ -6615,8 +6643,7 @@ class myEditorView extends myView
 
 	function gfxDelete(index)
 	{
-		var id = getGfxId(index);
-		var size = gfxSize(id);
+		var size = gfxSize(getGfxId(index));
 		for (var i=index+size; i<gfxNum; i++)
 		{
 			gfxData[i-size] = gfxData[i];
@@ -6626,8 +6653,7 @@ class myEditorView extends myView
 
 	function nextGfx(index)
 	{
-		var id = getGfxId(index);
-		var nextIndex = index + gfxSize(id);
+		var nextIndex = index + gfxSize(getGfxId(index));
 		return ((nextIndex<gfxNum) ? nextIndex : -1);
 	}
 
@@ -6643,8 +6669,7 @@ class myEditorView extends myView
 			
 			prevIndex = temp;
 
-			var id = getGfxId(temp);
-			temp += gfxSize(id);
+			temp += gfxSize(getGfxId(temp));
 		}
 		
 		return ((prevIndex<gfxNum) ? prevIndex : -1);
@@ -6706,7 +6731,7 @@ class myEditorView extends myView
 		var prevIndex = -1;
 		for (var temp=0; temp>=0; )
 		{
-			if (temp==index)
+			if (temp>=index)
 			{
 				break;
 			}
@@ -6989,6 +7014,48 @@ class myEditorView extends myView
 		return myView.gfxAddDynamicResources(fontIndex);
 	}
 	
+	function editorCheckGfxVisibility(index)
+	{
+		if ((gfxData[index]&0x10000)==0)	// not visible
+		{
+			if (index==menuElementGfx || index==menuFieldGfx)
+			{
+				gfxData[index] |= 0x10000; 	// make the element temporarily visible
+			}
+			else
+			{
+				// make sure the last element in a field is visible when selecting that field
+				// (if no other element in that field is visible)
+				// - we test the last one since only then have we calculated the visibility for all the other elements ...
+				if (menuElementGfx==0 && !gfxIsField(index))
+				{
+					var nextIndex = nextGfx(index);
+					if (nextIndex<0 || gfxIsField(nextIndex))
+					{
+						var tempIndex = prevGfxField(index);
+						for (;;)
+						{
+							tempIndex=nextGfx(tempIndex);
+							
+							if (tempIndex<0 || (gfxData[tempIndex]&0x10000)!=0 || tempIndex>index)
+							{
+								break;
+							}
+							
+							if (tempIndex==index)	// got here without finding anything else in field visible
+							{
+								gfxData[index] |= 0x10000; 	// make the element temporarily visible
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return ((gfxData[index]&0x10000)!=0); 
+	}
+
 	function gfxOnUpdate(dc, clockTime, timeNow)
 	{
 		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here as they are used early ...

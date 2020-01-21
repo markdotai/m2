@@ -20,4 +20,8 @@
         <settingConfig type="numeric" />
     </setting>
 
+    <setting propertyKey="@Properties.H2" title="@Strings.H2Title" helpUrl="http://bit.ly/m2_forum">
+        <settingConfig type="boolean" />
+    </setting>
+
 </settings>

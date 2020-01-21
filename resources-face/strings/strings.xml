@@ -23,7 +23,14 @@
 
 	<string id="SunAltitudeAdjustTitle">Sunrise/Sunset Altitude Adjustment</string>
 
-    <string id="HonestyTitle">Honesty Checkbox - YES, I have donated OR posted a photo and profile text for my design</string>
+	<string id="StatusUpdateTitle">Status Update Rate (seconds)</string>
+    <string id="Status1">1</string>
+    <string id="Status5">5</string>
+    <string id="Status15">15</string>
+    <string id="Status30">30</string>
+    <string id="Status60">60</string>
+
+    <string id="HonestyTitle">Honesty Checkbox - YES, I have donated OR posted a photo and profile text of my design to the forum</string>
     <string id="H2Title">Forum link</string>
 
 </strings>

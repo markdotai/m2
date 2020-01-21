@@ -56,11 +56,21 @@
         <settingConfig type="boolean" />
     </setting>
 
+    <setting propertyKey="@Properties.SU" title="@Strings.StatusUpdateTitle">
+        <settingConfig type="list">
+            <listEntry value="1">@Strings.Status1</listEntry>
+            <listEntry value="5">@Strings.Status5</listEntry>
+            <listEntry value="15">@Strings.Status15</listEntry>
+            <listEntry value="30">@Strings.Status30</listEntry>
+            <listEntry value="60">@Strings.Status60</listEntry>
+        </settingConfig>
+    </setting>
+
     <setting propertyKey="@Properties.H" title="@Strings.HonestyTitle" helpUrl="https://paypal.me/markdotai">
         <settingConfig type="boolean" />
     </setting>
 
-    <setting propertyKey="@Properties.H2" title="@Strings.H2Title" helpUrl="">
+    <setting propertyKey="@Properties.H2" title="@Strings.H2Title" helpUrl="http://bit.ly/m2_forum">
         <settingConfig type="boolean" />
     </setting>
 
