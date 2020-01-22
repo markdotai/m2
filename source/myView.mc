@@ -2590,6 +2590,15 @@ class myView
 		}
 	}
 
+	function getRestCalories(timeNowInMinutesToday, currentYear)
+	{
+		var userProfile = UserProfile.getProfile();
+		//var restCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
+		var restCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(currentYear-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
+		restCalories = ((restCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber();
+		return restCalories;  
+	}
+	
 	var positionGot = false;
 	var positionLatitude = 0.0;
 	var positionLongitude = 0.0;
@@ -5122,11 +5131,8 @@ class myView
 						case 49/*FIELD_ACTIVE_CALORIES*/:
 						case 61/*FIELD_RESTING_CALORIES*/:
 						{
-							var userProfile = UserProfile.getProfile();
-							//var nonActiveCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
-							var nonActiveCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
-							nonActiveCalories = ((nonActiveCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber(); 
-							var val = ((eDisplay==49/*FIELD_ACTIVE_CALORIES*/) ? (getNullCheckZero(activityMonitorInfo.calories) - nonActiveCalories) : nonActiveCalories);
+							var restCalories = getRestCalories(timeNowInMinutesToday, dateInfoMedium.year);
+							var val = ((eDisplay==49/*FIELD_ACTIVE_CALORIES*/) ? (getNullCheckZero(activityMonitorInfo.calories) - restCalories) : restCalories);
 							eStr = "" + ((val<0) ? "0" : val);
 							break;
 						}
@@ -5429,6 +5435,25 @@ class myView
 					var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
 					var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
 
+					// 0 RING_PLAIN_COLOR
+					// 1 RING_STEPS
+					// 2 RING_FLOORS
+					// 3 RING_BATTERY
+					// 4 RING_MINUTE
+					// 5 RING_HOUR
+					// 6 RING_2ND_TIME
+					// 7 RING_SUN_NOW
+					// 8 RING_SUN_MIDNIGHT
+					// 9 RING_SUN_NOON
+					// 10 RING_INTENSITY
+					// 11 RING_SMART_INTENSITY
+					// 12 RING_HEART
+					// 13 RING_ACTIVE_CALORIES
+					// 14 RING_HOUR_12
+					// 15 RING_HOUR_24
+					// 16 RING_2ND_TIME_12
+					// 17 RING_2ND_TIME_24
+					//
 					// Other things that could be displayed:
 					//
 			   		// day of week
@@ -5454,24 +5479,24 @@ class myView
 						//	break;
 						//}
 					
-						case 1/*ring_steps*/:		// steps
-						case 2/*ring_floors*/:		// floors
-						case 10/*ring_intensity*/:	// intensity
-						case 11/*ring_smartintensity*/:	// smart intensity
+						case 1/*RING_STEPS*/:		// steps
+						case 2/*RING_FLOORS*/:		// floors
+						case 10/*RING_INTENSITY*/:	// intensity
+						case 11/*RING_SMART_INTENSITY*/:	// smart intensity
 						{
 							var val;
 							var goal;
-							if (eDisplay==2/*ring_floors*/)
+							if (eDisplay==2/*RING_FLOORS*/)
 							{
 								val = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbed) : 0);
 								goal = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbedGoal) : 0);
 							}
-							else if (eDisplay==10/*ring_intensity*/ || eDisplay==11/*ring_smartintensity*/)
+							else if (eDisplay==10/*RING_INTENSITY*/ || eDisplay==11/*RING_SMART_INTENSITY*/)
 							{
 								val = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
 								goal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
 
-								if (eDisplay==11/*ring_smartintensity*/)	// smart
+								if (eDisplay==11/*RING_SMART_INTENSITY*/)	// smart
 								{
 									goal = ((goal * dayNumberOfWeek) / 7);
 								}
@@ -5504,23 +5529,28 @@ class myView
 							break;
 						}
 
-				   		case 3/*ring_battery*/:		// battery percentage
+				   		case 3/*RING_BATTERY*/:		// battery percentage
 				   		{
 							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - alignedAdjust;
 							break;
 				   		}
 				   		
-						case 4/*ring_minute*/:		// minutes
+						case 4/*RING_MINUTE*/:		// minutes
 						{
 			    			fillEnd = (minute * drawRange)/60 - alignedAdjust;
 							break;
 						}
 						
-						case 5/*ring_hour*/:		// hours
-						case 6/*ring_2ndtime*/:		// 2nd time zone hours
+						case 5/*RING_HOUR*/:		// hours
+						case 6/*RING_2ND_TIME*/:		// 2nd time zone hours
+						case 14/*RING_HOUR_12*/:
+						case 15/*RING_HOUR_24*/:
+						case 16/*RING_2ND_TIME_12*/:
+						case 17/*RING_2ND_TIME_24*/:
 						{
-							var useHour = ((eDisplay==6/*ring_2ndtime*/) ? hour2nd : hour);  
-					        if (deviceSettings.is24Hour)
+							var useHour = ((eDisplay==6/*RING_2ND_TIME*/ || eDisplay>=16/*RING_2ND_TIME_12*/) ? hour2nd : hour);
+							var is24Hour = ((eDisplay<=6/*RING_2ND_TIME*/) ? deviceSettings.is24Hour : ((eDisplay%2)==1));
+					        if (is24Hour)
 					        {
 				        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
 				        		fillEnd = ((useHour*60 + minute) * drawRange) / (24*60) - alignedAdjust;
@@ -5532,18 +5562,18 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 7/*ring_sunnow*/:			// sunrise & sunset now top
-				   		case 8/*ring_sunmidnight*/:		// sunrise & sunset midnight top
-				   		case 9/*ring_sunnoon*/:			// sunrise & sunset noon top
+				   		case 7/*RING_SUN_NOW*/:			// sunrise & sunset now top
+				   		case 8/*RING_SUN_MIDNIGHT*/:		// sunrise & sunset midnight top
+				   		case 9/*RING_SUN_NOON*/:			// sunrise & sunset noon top
 				   		{
 							calculateSun(dateInfoShort);
 
 							var timeOffsetInMinutes = 0;	// midnight top
-							if (eDisplay==7/*ring_sunnow*/)				// now top
+							if (eDisplay==7/*RING_SUN_NOW*/)				// now top
 							{
 								timeOffsetInMinutes = timeNowInMinutesToday;
 							}
-							else if (eDisplay==9/*ring_sunnoon*/)			// noon top
+							else if (eDisplay==9/*RING_SUN_NOON*/)			// noon top
 							{
 								timeOffsetInMinutes = 12*60;
 							}
@@ -5554,7 +5584,7 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 12/*ring_heartrate*/:	// heart rate
+				   		case 12/*RING_HEART*/:	// heart rate
 				   		{
 							calculateHeartRate(minute, second);
 							if (heartDisplayLatest!=null)
@@ -5564,7 +5594,19 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 0/*ring_plaincolor*/:		// plain color
+						case 13/*RING_ACTIVE_CALORIES*/:
+						{
+							var restCalories = getRestCalories(timeNowInMinutesToday, dateInfoMedium.year);
+							var totalCalories = getNullCheckZero(activityMonitorInfo.calories);
+							var activeCalories = totalCalories - restCalories;
+							if (totalCalories>0 && activeCalories>0)
+							{
+								fillEnd = (activeCalories * drawRange) / totalCalories - alignedAdjust;
+							}
+							break;
+						}
+
+				   		case 0/*RING_PLAIN_COLOR*/:		// plain color
 				   		default:
 						{
 							break;
@@ -8097,14 +8139,14 @@ class myEditorView extends myView
 //		reloadDynamicResources = true;
 //	}
 		
-    function largeTypeEditingValue(val, idArrayValue)
+    function arrayTypeEditingValue(val, idArrayValue, rezId, rezArrayIndex)
     {
     	var newType = idArrayValue;
     
-		var tempArray = WatchUi.loadResource(Rez.JsonData.id_largeTypeStrings);
+		var tempArray = WatchUi.loadResource(rezId);
     	if (tempArray!=null)
     	{
-	    	tempArray = tempArray[1];
+	    	tempArray = tempArray[rezArrayIndex];
 		    	
 	    	var index = tempArray.indexOf(idArrayValue);
 	    	if (index>=0)
@@ -8119,6 +8161,11 @@ class myEditorView extends myView
 		}
 		
 		return newType;
+    }
+    
+    function largeTypeEditingValue(val, idArrayValue)
+    {
+    	return arrayTypeEditingValue(val, idArrayValue, Rez.JsonData.id_largeTypeStrings, 1);
     }
     
     function largeTypeEditing(val)
@@ -8156,29 +8203,9 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 		
-    function stringTypeEditing(val, idArray, idArrayValue)
+    function stringTypeEditing(val, idArrayValue, idArray)
     {
-		var tempArray = WatchUi.loadResource(Rez.JsonData.id_addStringArrays);
-    	if (tempArray!=null)
-    	{
-    		if (idArray>=0 && idArray<tempArray.size())
-    		{
-		    	tempArray = tempArray[idArray];
-		    	
-		    	var index = tempArray.indexOf(idArrayValue);
-		    	if (index>=0)
-		    	{
-		    		index = (index+val+tempArray.size())%tempArray.size();
-					return tempArray[index];
-		    	}
-		    	else if (tempArray.size()>0)
-		    	{
-					return tempArray[0];
-		    	}
-		    }		
-		}
-		
-		return 0;
+    	return arrayTypeEditingValue(val, idArrayValue, Rez.JsonData.id_addStringArrays, idArray);
     }
     
 	function stringColorEditing(val)
@@ -8350,10 +8377,11 @@ class myEditorView extends myView
 
 	function ringTypeEditing(val)
 	{
-		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 13)%13;
+		//var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 14)%14;
+    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 2);
 		gfxData[menuFieldGfx+1] &= ~0x3F; 
 		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
-	}
+    }
 	
 	function ringGetDirectionAnti()
 	{
@@ -9570,6 +9598,7 @@ class myMenuItemElementEdit extends myMenuItem
 	var fNumCustom;
 
 	var idArray;
+	var editingArrayValue;
 	var idArrayValue;
 
     function initialize(id)
@@ -9606,7 +9635,8 @@ class myMenuItemElementEdit extends myMenuItem
     	}
     	
     	idArray = -1;
-    	idArrayValue = -1;
+    	editingArrayValue = false;
+    	idArrayValue = 0;
     }
     
     function getString()
@@ -9631,7 +9661,7 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==3 && fState==numTop)	// string type
 		{
-			if (idArrayValue<0)
+			if (!editingArrayValue)
 			{
     			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 2, idArray);
 			}
@@ -9697,13 +9727,13 @@ class myMenuItemElementEdit extends myMenuItem
     		{
 		    	if (fState==numTop)
 		    	{
-		    		if (idArrayValue<0)
+		    		if (!editingArrayValue)
 		    		{
 		    			idArray = (idArray+val+5)%5;
 		    		}
 		    		else
 		    		{
-			    		idArrayValue = editorView.stringTypeEditing(val, idArray, idArrayValue);
+			    		idArrayValue = editorView.stringTypeEditing(val, idArrayValue, idArray);
 			    		editorView.stringSetType(idArrayValue);
 		    		}
 		    	}
@@ -9794,7 +9824,7 @@ class myMenuItemElementEdit extends myMenuItem
     				if (idArray<0)
     				{
 		    			idArray = 0;
-			    		idArrayValue = -1;
+			    		editingArrayValue = false;
 			    	}
     			}
 		    	else if (fState==numTop+2)
@@ -9852,9 +9882,10 @@ class myMenuItemElementEdit extends myMenuItem
 		    }
     		else if (fId==3)	// string
     		{
-    			if (idArrayValue<0)
+    			if (!editingArrayValue)
     			{
-	    			idArrayValue = editorView.stringTypeEditing(0, idArray, editorView.stringGetType());	// set initial value
+    				editingArrayValue = true;
+	    			idArrayValue = editorView.stringTypeEditing(0, editorView.stringGetType(), idArray);	// set initial value
 	    			editorView.stringSetType(idArrayValue);
 	    		}
 	    		else
@@ -9883,9 +9914,9 @@ class myMenuItemElementEdit extends myMenuItem
 			{
 	    		if (fId==3)	// string
 	    		{
-	    			if (idArrayValue>=0)
+	    			if (editingArrayValue)
 	    			{
-		    			idArrayValue = -1;
+		    			editingArrayValue = false;
    						return null;		// keep fState==numTop
 	    			}
 	    			else
@@ -10066,7 +10097,7 @@ class myMenuItemElementAdd extends myMenuItem
     	}
 		else if (fState<=15/*s_valueEdit*/)
 		{
-    		idArrayValue = editorView.stringTypeEditing(val, idArray, idArrayValue);
+    		idArrayValue = editorView.stringTypeEditing(val, idArrayValue, idArray);
     	}
 		else if (fState==16/*s_iconEdit*/)
 		{
@@ -10105,7 +10136,7 @@ class myMenuItemElementAdd extends myMenuItem
 		else if (fState<=6/*s_value*/)
 		{
 			idArray = fState-2;
-    		idArrayValue = editorView.stringTypeEditing(0, idArray, 0);		// first value in sub array
+    		idArrayValue = editorView.stringTypeEditing(0, 0, idArray);		// first value in sub array
 			fState += 9;
 		}
 		else if (fState==7/*s_icon*/)

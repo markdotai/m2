@@ -140,7 +140,7 @@
 			"active calories",
 			"intensity\nminutes",
 			"intensity goal",
-			"smart goal",
+			"smart intensity\ngoal",
 			"distance",
 			"mi/km (units)",
 			"pressure",
@@ -625,13 +625,39 @@
 		   		"battery",
 				"minutes",
 				"hours",
-				"2nd time hours",
+				"2nd time\nhours",
 		   		"sun (now\n= start)",
 		   		"sun (midnight\n= start)",
 		   		"sun (noon\n= start)",
 				"intensity\nminutes",
 				"smart intensity\nminutes",
-		   		"heart rate"
+		   		"heart rate",
+		   		"active calories",
+				"hours 12",
+				"hours 24",
+				"2nd time\nhours 12",
+				"2nd time\nhours 24"
+			],
+			
+			[
+				0,		<!-- RING_PLAIN_COLOR -->
+				1,		<!-- RING_STEPS -->
+				2,		<!-- RING_FLOORS -->
+				3,		<!-- RING_BATTERY -->
+				4,		<!-- RING_MINUTE -->
+				5,		<!-- RING_HOUR -->
+				14,		<!-- RING_HOUR_12 -->
+				15,		<!-- RING_HOUR_24 -->
+				6,		<!-- RING_2ND_TIME -->
+				16,		<!-- RING_2ND_TIME_12 -->
+				17,		<!-- RING_2ND_TIME_24 -->
+				7,		<!-- RING_SUN_NOW -->
+				8,		<!-- RING_SUN_MIDNIGHT -->
+				9,		<!-- RING_SUN_NOON -->
+				10,		<!-- RING_INTENSITY -->
+				11,		<!-- RING_SMART_INTENSITY -->
+				12,		<!-- RING_HEART -->
+				13		<!-- RING_ACTIVE_CALORIES -->
 			]
 		]
 	</jsonData>
@@ -680,7 +706,12 @@
 	   		"ring (sun noon)", 
 			"ring (intensity)",
 			"ring (smart\nintensity)",
-	   		"ring (HR)"
+	   		"ring (HR)",
+	   		"ring (calories)",
+			"ring (hours\n12)",
+			"ring (hours\n24)",
+			"ring (2nd time\n12)",
+			"ring (2nd time\n24)"
 		]
 	</jsonData>
 			
