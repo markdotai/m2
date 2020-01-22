@@ -1694,36 +1694,39 @@ class myView
 	
 		    	for (var i=secondsIndex+1; i<60; i++)
 		    	{
-		    		//var x = getOuterX(dynamicPositions, i);		// calling these functions is a lot more expensive in partial update watchface diagnostics
-		    		//var y = getOuterY(dynamicPositions, i);
-					var xyVal = dynamicPositions[i];
-					var x = (xyVal & 0xFFFF);
-					var y = ((xyVal>>16) & 0xFFFF);
-		    		
-		    		// stop at second which can't fit inside buffer
-		    		if ((x-xMin)>r || (xMax-x)>r || (y-yMin)>r || (yMax-y)>r)
-		    		{
-		    			break;
-		    		}
-		    		
-		    		// remember new max limits
-		    		if (x<xMin)
-		    		{
-		    			xMin = x;
-		    		}
-		    		else if (x>xMax)
-		    		{
-		    			xMax = x;
-		    		}
-		    		
-		    		if (y<yMin)
-		    		{
-		    			yMin = y;
-		    		}
-		    		else if (y>yMax)
-		    		{
-		    			yMax = y;
-		    		}
+        			if (propSecondColorIndexArray[i]!=(COLOR_NOTSET+2/*COLOR_SAVE*/))	// if second is visible
+        			{
+			    		//var x = getOuterX(dynamicPositions, i);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+			    		//var y = getOuterY(dynamicPositions, i);
+						var xyVal = dynamicPositions[i];
+						var x = (xyVal & 0xFFFF);
+						var y = ((xyVal>>16) & 0xFFFF);
+			    		
+			    		// stop at second which can't fit inside buffer
+			    		if ((x-xMin)>r || (xMax-x)>r || (y-yMin)>r || (yMax-y)>r)
+			    		{
+			    			break;
+			    		}
+			    		
+			    		// remember new max limits
+			    		if (x<xMin)
+			    		{
+			    			xMin = x;
+			    		}
+			    		else if (x>xMax)
+			    		{
+			    			xMax = x;
+			    		}
+			    		
+			    		if (y<yMin)
+			    		{
+			    			yMin = y;
+			    		}
+			    		else if (y>yMax)
+			    		{
+			    			yMax = y;
+			    		}
+			    	}
 		    	}
 		    
 		    	// shift buffer to the outside as much as possible while still fitting valid seconds
@@ -1869,7 +1872,8 @@ class myView
 				clearIndex = -1;
 			}
 
-	        if (clearIndex>=0)
+			// clear the previous second (if it was drawn in the first place)
+	        if (clearIndex>=0 && propSecondColorIndexArray[clearIndex]!=(COLOR_NOTSET+2/*COLOR_SAVE*/))
 	        {
 				var bufferBitmap = getDynamicResource(propSecondBufferIndex);
 		        if (bufferBitmap!=null)
@@ -1913,9 +1917,12 @@ class myView
 			// now draw the correct second
 			if (!refreshAlternateClearing)
 			{
-        		var s = (propSecondAligned ? secondsIndex : (secondsIndex+59)%60); 
-    			setSecondClip(dc, s);
-   				drawSecond(dc, s, s);
+        		var s = (propSecondAligned ? secondsIndex : (secondsIndex+59)%60);
+        		if (propSecondColorIndexArray[s]!=(COLOR_NOTSET+2/*COLOR_SAVE*/))
+        		{
+	    			setSecondClip(dc, s);
+	   				drawSecond(dc, s, s);
+	   			}
 			}
 		}
     }
@@ -1955,28 +1962,30 @@ class myView
 			    // 	dc.setColor(-1/*COLOR_TRANSPARENT*/, Graphics.COLOR_RED);
 			    // 	dc.clear();
 			    //}
-	    	
-				var col = getColor64FromGfx(propSecondColorIndexArray[index]);
-		
-		        if (curCol != col)
-		        {
-		        	curCol = col;
-		       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
-		       	}
-		       	//dc.setColor(col, Graphics.COLOR_RED);	// show background of whole font character
-		       	//dc.setColor(getColor64FromGfx(2/*COLOR_SAVE*/+4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 
-	    		//var x = getOuterX(dynamicPositions, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
-	    		//var y = getOuterY(dynamicPositions, index);
-				var xyVal = dynamicPositions[index];
-				var x = (xyVal & 0xFFFF);
-				var y = ((xyVal>>16) & 0xFFFF);
+				var col = getColor64FromGfx(propSecondColorIndexArray[index]);
+				if (col!=COLOR_NOTSET)	// if not set then don't draw anything!
+				{
+			        if (curCol != col)
+			        {
+			        	curCol = col;
+			       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
+			       	}
+			       	//dc.setColor(col, Graphics.COLOR_RED);	// show background of whole font character
+			       	//dc.setColor(getColor64FromGfx(2/*COLOR_SAVE*/+4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 	
-		       	//var s = characterString.substring(index+9, index+10);
-				//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
-				//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
-				// need to draw 1 pixel higher than expected ...
-	        	dc.drawText(x-secondsSizeHalf, y-secondsSizeHalf-1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+		    		//var x = getOuterX(dynamicPositions, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+		    		//var y = getOuterY(dynamicPositions, index);
+					var xyVal = dynamicPositions[index];
+					var x = (xyVal & 0xFFFF);
+					var y = ((xyVal>>16) & 0xFFFF);
+		
+			       	//var s = characterString.substring(index+9, index+10);
+					//var s = StringUtil.charArrayToString([(index + SECONDS_FIRST_CHAR_ID).toChar()]);
+					//var s = (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString();
+					// need to draw 1 pixel higher than expected ...
+		        	dc.drawText(x-secondsSizeHalf, y-secondsSizeHalf-1, dynamicResource, (index + 21/*SECONDS_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+		        }
 			}
 		}
     }
@@ -4703,7 +4712,7 @@ class myView
 								is24Hour = (tempType>=6);
 								digit = (tempType%3) - 1;
 							}
-							else
+							else	// 4, 5, 6, 7
 							{
 								addLeadingZero = (largeType==6/*BIG_HOUR_0_1ST*/ || largeType==7/*BIG_HOUR_0_2ND*/);
 								digit = ((largeType-4)%2);
@@ -8417,15 +8426,7 @@ class myEditorView extends myView
 	
 	function secondsColorEditing(n, val)
 	{
-		if (n==0)	/* base color */
-		{
-			gfxSubtractValModuloInPlace(menuFieldGfx+2, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
-		}
-		else		/* optional override colors */
-		{
-			gfxSubtractValModuloInPlace(menuFieldGfx+2+n, val, 0, 65);		// 0 to 65
-		}
-
+		gfxSubtractValModuloInPlace(menuFieldGfx+2+n, val, 0, 65);		// 0 to 65
 		buildSecondsColorArray(menuFieldGfx);
 	}
 }
