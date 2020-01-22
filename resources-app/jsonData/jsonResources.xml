@@ -696,6 +696,8 @@
 				"color (15s)",
 				"color (0s)",
 				"visibility",
+				"move earlier",
+				"move later",
 				"delete seconds"
 			],
 					

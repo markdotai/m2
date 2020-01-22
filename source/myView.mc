@@ -10573,24 +10573,26 @@ class myMenuItemSeconds extends myMenuItem
 {
 //	enum
 //	{
-//		s_font,
-//		s_refresh,
-//		s_color,
-//		s_color5,
-//		s_color10,
-//		s_color15,
-//		s_color0,
-//		s_vis,
-//		s_delete,
+//		s_font,		0
+//		s_refresh,	1
+//		s_color,	2
+//		s_color5,	3
+//		s_color10,	4
+//		s_color15,	5
+//		s_color0,	6
+//		s_vis,		7
+//		s_earlier,	8
+//		s_later,	9
+//		s_delete,	10
 //
-//		s_fontEdit,
-//		s_refreshEdit,
-//		s_colorEdit,
-//		s_color5Edit,
-//		s_color10Edit,
-//		s_color15Edit,
-//		s_color0Edit,
-//		s_visEdit,
+//		s_fontEdit,		100
+//		s_refreshEdit,	101
+//		s_colorEdit,	102
+//		s_color5Edit,	103
+//		s_color10Edit,	104
+//		s_color15Edit,	105
+//		s_color0Edit,	106
+//		s_visEdit,		107
 //	}
 
 	var fState;
@@ -10604,19 +10606,19 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-    	if (fState==9/*s_fontEdit*/)
+    	if (fState==100/*s_fontEdit*/)
     	{
 			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings2, -1, editorView.secondsGetFont());
     	}
-    	else if (fState==10/*s_refreshEdit*/)
+    	else if (fState==101/*s_refreshEdit*/)
     	{
 			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, editorView.secondsGetRefresh());
     	}
-    	else if (fState==16/*s_visEdit*/)
+    	else if (fState==107/*s_visEdit*/)
     	{
     		return editorView.fieldVisibilityString();
     	}
- 		else if (fState<=8/*s_delete*/)
+ 		else if (fState<100/*s_fontEdit*/)
  		{
  			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 0, fState);
  		}
@@ -10629,30 +10631,30 @@ class myMenuItemSeconds extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<9/*s_fontEdit*/);
+    	return (d!=3 || fState<100/*s_fontEdit*/);
     }
 
     function onEditing(val)
     {
-    	if (fState<=8/*s_delete*/)
+    	if (fState<100/*s_fontEdit*/)
     	{
-    		fState = (fState+val+9)%9;
+    		fState = (fState+val+11)%11;
     	}
-    	else if (fState==9/*s_fontEdit*/)
+    	else if (fState==100/*s_fontEdit*/)
     	{
     		editorView.secondsFontEditing(val);
     	}
-    	else if (fState==10/*s_refreshEdit*/)
+    	else if (fState==101/*s_refreshEdit*/)
     	{
     		editorView.secondsRefreshEditing(val);
     	}
-    	else if (fState==16/*s_visEdit*/)
+    	else if (fState==107/*s_visEdit*/)
     	{
     		editorView.fieldVisibilityEditing(val);
     	}
     	else
     	{
-    		editorView.secondsColorEditing(fState-11/*s_colorEdit*/, val);
+    		editorView.secondsColorEditing(fState-102/*s_colorEdit*/, val);
     	}
     	
     	return null;
@@ -10672,14 +10674,22 @@ class myMenuItemSeconds extends myMenuItem
     {
     	if (fState<=7/*s_vis*/)
     	{
-    		fState += 9;
+    		fState += 100;
 
-	    	if (fState>=11/*s_colorEdit*/ && fState<=15/*s_color0Edit*/)
+	    	if (fState>=102/*s_colorEdit*/ && fState<=106/*s_color0Edit*/)
 	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+fState+2-11/*s_colorEdit*/);
+	    		editorView.startColorEditing(editorView.menuFieldGfx+fState+2-102/*s_colorEdit*/);
 	    	}
     	}
-    	else if (fState==8/*s_delete*/)
+    	else if (fState==8/*s_earlier*/)
+    	{
+    		editorView.fieldEarlier();
+    	}
+    	else if (fState==9/*s_later*/)
+    	{
+    		editorView.fieldLater();
+    	}
+    	else if (fState==10/*s_delete*/)
     	{
     		editorView.fieldDelete();
     		return new myMenuItemFieldSelect();
@@ -10690,18 +10700,18 @@ class myMenuItemSeconds extends myMenuItem
     
     function onBack()
     {
-    	if (fState<=8/*s_delete*/)
+    	if (fState>=100)
     	{
-    		return new myMenuItemFieldSelect();
-    	}
-    	else
-    	{
-	    	//if (fState>=11/*s_colorEdit*/ && fState<=15/*s_color0Edit*/)
+	    	//if (fState>=102/*s_colorEdit*/ && fState<=106/*s_color0Edit*/)
 	    	//{
 	    		editorView.endColorEditing();
 	    	//}
 
-    		fState -= 9;
+    		fState -= 100;
+    	}
+    	else
+    	{
+    		return new myMenuItemFieldSelect();
     	}
 
    		return null;
