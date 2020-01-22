@@ -86,6 +86,7 @@ class myView
     var propFieldFontUnsupported = 1;	// 0=xtiny to 4=large
 
     var propSecondIndicatorOn = false;
+    var propSecondGfxIndex = -1;
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
     var propSecondRefreshStyle = 0;
     var propSecondAligned = true;
@@ -3634,6 +3635,14 @@ class myView
 //	    	System.println("" + i + " = " + (prevMem-curMem) + " (" + ((prevMem-curMem+49)/50) + ")");
 //	    	prevMem = curMem;
 		}
+		
+		// build the seconds color array only after the seconds refresh has been set and the position array has been loaded
+		if (propSecondGfxIndex>=0)
+		{
+			var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
+			propSecondAligned = (dynamicPositions==null || outerAlignedToSeconds(dynamicPositions));
+			buildSecondsColorArray(propSecondGfxIndex);
+		}
     }
     
 	function getDynamicResource(i)
@@ -3936,6 +3945,8 @@ class myView
 		
 		dynResMem50 = 0;
 		dynResMemFailed = false;
+		
+		propSecondGfxIndex = -1;
     	
 		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here so similar to gfxOnUpdate
 		{
@@ -4137,7 +4148,7 @@ class myView
 				
 				case 9:	// seconds
 				{
-					buildSecondsColorArray(index);
+					propSecondGfxIndex = index;
 					
 					var r = (gfxData[index+1] & 0x00FF);	// font
 				 	if (r<0 || r>=25/*SECONDFONT_UNUSED*/)
@@ -4365,6 +4376,8 @@ class myView
     	var secondColorIndex15 = gfxData[index+5];
     	var secondColorIndex0 = gfxData[index+6];
     	
+    	var ringAdjustIndex = (propSecondAligned ? 0 : 59);
+    	
     	for (var i=0; i<60; i++)
     	{
 			var col;
@@ -4390,7 +4403,7 @@ class myView
 	        	col = secondColorIndex;		// second color
 	        }
 	        
-	        propSecondColorIndexArray[i] = col;
+	        propSecondColorIndexArray[(i+ringAdjustIndex)%60] = col;
 	    }
 
 		//this test code now works out exactly the same size as the original above!
@@ -5592,9 +5605,6 @@ class myView
 				case 9:	// seconds
 				{
 			    	propSecondIndicatorOn = isVisible;
-
-					var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
-					propSecondAligned = (dynamicPositions==null || outerAlignedToSeconds(dynamicPositions));
 					break;
 				}
 			}
