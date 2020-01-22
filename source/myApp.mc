@@ -191,12 +191,6 @@ class myAppDelegate extends WatchUi.BehaviorDelegate
     	return mainView.onMenu();
     }
 
-    function onBack()	// tap right bottom
-    {
-    	// return false here to exit the app
-    	return mainView.onBack();
-    }
-
     function onNextPage()	// tap left bottom
     {
     	return mainView.onNextPage();
@@ -210,6 +204,12 @@ class myAppDelegate extends WatchUi.BehaviorDelegate
     function onSelect()		// tap right top
     {
     	return mainView.onSelect();
+    }
+
+    function onBack()	// tap right bottom
+    {
+    	// return false here to exit the app
+    	return mainView.onBack();
     }
 
     //function onNextMode()
@@ -230,38 +230,38 @@ class myAppDelegate extends WatchUi.BehaviorDelegate
     //    return true;
     //}
 
-    function onKey(keyEvent) 	// a physical button has been pressed and released. 
-    {
-    	return mainView.onKey(keyEvent);
-    }
+//    function onKey(keyEvent) 	// a physical button has been pressed and released. 
+//    {
+//    	return mainView.onKey(keyEvent);
+//    }
     
-    function onKeyPressed(keyEvent) 	// a physical button has been pressed down. 
-    {
-    	return mainView.onKeyPressed(keyEvent);
-    }
+//    function onKeyPressed(keyEvent) 	// a physical button has been pressed down. 
+//    {
+//    	return mainView.onKeyPressed(keyEvent);
+//    }
     
-    function onKeyReleased(keyEvent) 	// a physical button has been released. 
-    {
-    	return mainView.onKeyReleased(keyEvent);
-    }
+//    function onKeyReleased(keyEvent) 	// a physical button has been released. 
+//    {
+//    	return mainView.onKeyReleased(keyEvent);
+//    }
         
-    function onTap(clickEvent)		// a screen tap event has occurred. 
-    {
-    	return mainView.onTap(clickEvent);
-    }
+//    function onTap(clickEvent)		// a screen tap event has occurred. 
+//    {
+//    	return mainView.onTap(clickEvent);
+//    }
 
-    function onHold(clickEvent)		// a touch screen hold event has occurred. 
-    {
-    	return mainView.onHold(clickEvent);
-    }
+//    function onHold(clickEvent)		// a touch screen hold event has occurred. 
+//    {
+//    	return mainView.onHold(clickEvent);
+//    }
     
-    function onRelease(clickEvent) 		// a touch screen release event has occurred. 
-    {
-    	return mainView.onRelease(clickEvent);
-    }
+//    function onRelease(clickEvent) 		// a touch screen release event has occurred. 
+//    {
+//    	return mainView.onRelease(clickEvent);
+//    }
     
-    function onSwipe(swipeEvent) 	// a touch screen swipe event has occurred. 
-    {
-    	return mainView.onSwipe(swipeEvent);
-    }    
+//    function onSwipe(swipeEvent) 	// a touch screen swipe event has occurred. 
+//    {
+//    	return mainView.onSwipe(swipeEvent);
+//    }    
 }

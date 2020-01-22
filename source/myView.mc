@@ -4829,8 +4829,10 @@ class myView
 
 							// Turkish for Tue = "Salı"
 							// Turkish for Jan = "ocak"
-							//eStr = "Salı";
-							//eStr = "Sal";
+							//eStr = "Salı";		// crash
+							//eStr = "Sal";			// ok
+							//eStr = "Çarşamba";	// ok 
+							//eStr = "şubat";		// ok
 							//var t1 = eStr.toUpper();		// ok
 							//var t2 = eStr.toCharArray();	// ok
 							//var t3 = t1.toCharArray();	// crash
@@ -6763,18 +6765,24 @@ class myEditorView extends myView
 
     function onMenu()	// hold left middle button
     {   
-    	WatchUi.requestUpdate();
+		menuHide = !menuHide;
 
+    	WatchUi.requestUpdate();
+    	
         return true;
     }
 
     function onNextPage()	// tap left bottom
     {
-    	var newMenuItem = menuItem.onNext();
-    	if (newMenuItem!=null)
+    	if (!menuHide)
     	{
-    		menuItem = newMenuItem;
-    	}
+	    	var newMenuItem = menuItem.onNext();
+	    	if (newMenuItem!=null)
+	    	{
+	    		menuItem = newMenuItem;
+	    	}
+		}
+		menuHide = false;
 
     	WatchUi.requestUpdate();
 
@@ -6783,12 +6791,16 @@ class myEditorView extends myView
 
     function onPreviousPage()	// tap left middle
     {
-    	var newMenuItem = menuItem.onPrevious();
-    	if (newMenuItem!=null)
+    	if (!menuHide)
     	{
-    		menuItem = newMenuItem;
-    	}
-    
+	    	var newMenuItem = menuItem.onPrevious();
+	    	if (newMenuItem!=null)
+	    	{
+	    		menuItem = newMenuItem;
+	    	}
+		}    
+		menuHide = false;
+
     	WatchUi.requestUpdate();
     
         return true;
@@ -6796,14 +6808,23 @@ class myEditorView extends myView
 
     function onSelect()		// tap right top
     {
-		switchColorEditingMode();	// do this before menu handles select so that we don't change when first start editing a color
-
-    	var newMenuItem = menuItem.onSelect();
-    	if (newMenuItem!=null)
+    	if (!menuHide)
     	{
-    		menuItem = newMenuItem;
-    	}
-
+			switchColorEditingMode();	// do this before menu handles select so that we don't change when first start editing a color
+	
+	    	var newMenuItem = menuItem.onSelect();
+	    	if (newMenuItem!=null)
+	    	{
+	    		menuItem = newMenuItem;
+	    	}
+		}
+		else
+		{
+			// for select this needs to be in an else switch
+			// - in order to handle selecting the "menu hide" menu option!
+			menuHide = false;
+		}
+		
     	WatchUi.requestUpdate();
     
         return true;
@@ -6811,103 +6832,110 @@ class myEditorView extends myView
 
     function onBack()	// tap right bottom
     {
-    	var newMenuItem = menuItem.onBack();
-    	if (newMenuItem!=null)
+    	if (!menuHide)
     	{
-    		menuItem = newMenuItem;
-
-			if (menuItem.exitApp())
+	    	var newMenuItem = menuItem.onBack();
+	    	if (newMenuItem!=null)
 	    	{
-	   			return false;	// return false here to exit the app
+	    		menuItem = newMenuItem;
+	
+				if (menuItem.exitApp())
+		    	{
+		   			return false;	// return false here to exit the app
+		    	}
 	    	}
-    	}
-
+		}
+		menuHide = false;
+		
     	WatchUi.requestUpdate();
     
         return true;
     }
 
-    function onKey(keyEvent) 	// a physical button has been pressed and released. 
-    {
-		//keyEvent.getKey();
-		//KEY_POWER = power key
-		//KEY_LIGHT = light key
-		//KEY_ZIN = zoom in key
-		//KEY_ZOUT = zoom out key
-		//KEY_ENTER = enter key
-		//KEY_ESC = escape key
-		//KEY_FIND = find key
-		//KEY_MENU = menu key
-		//KEY_DOWN = down key
-		//KEY_DOWN_LEFT = down left key
-		//KEY_DOWN_RIGHT = down right key
-		//KEY_LEFT = left key
-		//KEY_RIGHT = right key
-		//KEY_UP = up key
-		//KEY_UP_LEFT = up left key
-		//KEY_UP_RIGHT = up right key
-
-		//keyEvent.getType();
-		//PRESS_TYPE_DOWN = key is pressed down
-		//PRESS_TYPE_UP = key is released
-		//PRESS_TYPE_ACTION = key's action is performed
+//    function onKey(keyEvent) 	// a physical button has been pressed and released. 
+//    {
+////System.println("onKey=" + keyEvent.getKey());
+//		//keyEvent.getKey();
+//		//KEY_POWER = power key
+//		//KEY_LIGHT = light key
+//		//KEY_ZIN = zoom in key
+//		//KEY_ZOUT = zoom out key
+//		//KEY_ENTER = enter key (select button)
+//		//KEY_ESC = escape key
+//		//KEY_FIND = find key
+//		//KEY_MENU = menu key
+//		//KEY_DOWN = down key
+//		//KEY_DOWN_LEFT = down left key
+//		//KEY_DOWN_RIGHT = down right key
+//		//KEY_LEFT = left key
+//		//KEY_RIGHT = right key
+//		//KEY_UP = up key
+//		//KEY_UP_LEFT = up left key
+//		//KEY_UP_RIGHT = up right key
+//
+//		//keyEvent.getType();
+//		//PRESS_TYPE_DOWN = key is pressed down
+//		//PRESS_TYPE_UP = key is released
+//		//PRESS_TYPE_ACTION = key's action is performed
+//    
+//    	return false;
+//    }
     
-    	return false;
-    }
+//    function onKeyPressed(keyEvent) 	// a physical button has been pressed down. 
+//    {
+//System.println("onKeyPressed=" + keyEvent.getKey());
+//    	return false;
+//    }
     
-    function onKeyPressed(keyEvent) 	// a physical button has been pressed down. 
-    {
-    	return false;
-    }
-    
-    function onKeyReleased(keyEvent) 	// a physical button has been released. 
-    {
-    	return false;
-    }
+//    function onKeyReleased(keyEvent) 	// a physical button has been released. 
+//    {
+//System.println("onKeyReleased=" + keyEvent.getKey());
+//    	return false;
+//    }
         
-    function onTap(clickEvent)		// a screen tap event has occurred. 
-    {
-    	//clickEvent.getCoordinates();
-    	//clickEvent.getType();
-    	//CLICK_TYPE_TAP = tap on the screen
-		//CLICK_TYPE_HOLD = press and hold on the screen
-		//CLICK_TYPE_RELEASE = release of a hold on the screen
+//    function onTap(clickEvent)		// a screen tap event has occurred. 
+//    {
+//    	//clickEvent.getCoordinates();
+//    	//clickEvent.getType();
+//    	//CLICK_TYPE_TAP = tap on the screen
+//		//CLICK_TYPE_HOLD = press and hold on the screen
+//		//CLICK_TYPE_RELEASE = release of a hold on the screen
+//
+//    	return false;
+//    }
 
-    	return false;
-    }
-
-    function onHold(clickEvent)		// a touch screen hold event has occurred. 
-    {
-    	//clickEvent.getCoordinates();
-    	//clickEvent.getType();
-    	//CLICK_TYPE_TAP = tap on the screen
-		//CLICK_TYPE_HOLD = press and hold on the screen
-		//CLICK_TYPE_RELEASE = release of a hold on the screen
-
-    	return false;
-    }
+//    function onHold(clickEvent)		// a touch screen hold event has occurred. 
+//    {
+//    	//clickEvent.getCoordinates();
+//    	//clickEvent.getType();
+//    	//CLICK_TYPE_TAP = tap on the screen
+//		//CLICK_TYPE_HOLD = press and hold on the screen
+//		//CLICK_TYPE_RELEASE = release of a hold on the screen
+//
+//    	return false;
+//    }
     
-    function onRelease(clickEvent) 		// a touch screen release event has occurred. 
-    {
-    	//clickEvent.getCoordinates();
-    	//clickEvent.getType();
-    	//CLICK_TYPE_TAP = tap on the screen
-		//CLICK_TYPE_HOLD = press and hold on the screen
-		//CLICK_TYPE_RELEASE = release of a hold on the screen
-
-    	return false;
-    }
+//    function onRelease(clickEvent) 		// a touch screen release event has occurred. 
+//    {
+//    	//clickEvent.getCoordinates();
+//    	//clickEvent.getType();
+//    	//CLICK_TYPE_TAP = tap on the screen
+//		//CLICK_TYPE_HOLD = press and hold on the screen
+//		//CLICK_TYPE_RELEASE = release of a hold on the screen
+//
+//    	return false;
+//    }
     
-    function onSwipe(swipeEvent) 	// a touch screen swipe event has occurred. 
-    {
-    	//swipeEvent.getDirection();
- 		//SWIPE_UP = swipe in the upward direction
-		//SWIPE_RIGHT = swipe towards the right
-		//SWIPE_DOWN = swipe in the downward direction
-		//SWIPE_LEFT = swipe towards the left
-    	
-    	return false;
-    }    
+//    function onSwipe(swipeEvent) 	// a touch screen swipe event has occurred. 
+//    {
+//    	//swipeEvent.getDirection();
+// 		//SWIPE_UP = swipe in the upward direction
+//		//SWIPE_RIGHT = swipe towards the right
+//		//SWIPE_DOWN = swipe in the downward direction
+//		//SWIPE_LEFT = swipe towards the left
+//    	
+//    	return false;
+//    }    
 
 	const MAX_PROFILE_STRING_LENGTH = 255*2;
 
@@ -7003,19 +7031,22 @@ class myEditorView extends myView
 
 		//drawAbc(dc);
 
-    	if (isColorEditing() && (colorEditingMode>=1 && colorEditingMode<=3))
+    	if (!menuHide)
 		{
-    		drawColorGrid(dc);
-    	}
-    	
-    	if (!menuHide && (!isColorEditing() || (colorEditingMode<=1)))
-		{
-	    	var x = (displaySize*25)/240;
-	    	var y = (displaySize*menuY)/240;
-	
-	    	drawMenu(dc, x, y);    	// then draw any menus on top
+	    	if (isColorEditing() && (colorEditingMode>=1 && colorEditingMode<=3))
+			{
+	    		drawColorGrid(dc);
+	    	}
 	    	
-	    	drawMemory(dc, x, y);	// draw a memory indicator
+	    	if (!isColorEditing() || (colorEditingMode<=1))
+			{
+		    	var x = (displaySize*25)/240;
+		    	var y = (displaySize*menuY)/240;
+		
+		    	drawMenu(dc, x, y);    	// then draw any menus on top
+		    	
+		    	drawMemory(dc, x, y);	// draw a memory indicator
+			}
 		}
     }
 
@@ -7328,7 +7359,7 @@ class myEditorView extends myView
 
 	function gfxFieldHighlight(dc, index, x, y, w, h)
 	{
-		if (index==menuFieldGfx)
+		if (!menuHide && index==menuFieldGfx)
 		{
 			// only highlight the field itself when selecting fields (at the top level of menu)
 			if ((getGfxId(menuFieldGfx)==1 && menuElementGfx==0) ||		// field
@@ -7379,7 +7410,7 @@ class myEditorView extends myView
 		
 	function gfxElementHighlight(dc, index, x, y)
 	{
-		if (index==menuElementGfx && propElementHighlight!=COLOR_NOTSET)
+		if (!menuHide && index==menuElementGfx && propElementHighlight!=COLOR_NOTSET)
 		{
 			// moved calculation of width & height just into the editor to save code on the watchface
 			var w = 1;
@@ -8977,7 +9008,6 @@ class myMenuItemHeader extends myMenuItem
 //		f_fontSystemCaseEdit,	110
 //		f_fontUnsupportedEdit,	111
 //		f_memoryDisplayEdit,	112
-//		f_menuHideEdit,			113
 //	}
 
 	var fState;
@@ -9141,11 +9171,6 @@ class myMenuItemHeader extends myMenuItem
     	{
     		editorView.memoryDisplayMode = (editorView.memoryDisplayMode + val + 3)%3;
     	}
-    	else if (fState==113/*f_menuHideEdit*/)
-    	{
-			editorView.menuHide = false;
-			fState -= 100;
-    	}
     	
     	return null;
     }
@@ -9164,22 +9189,20 @@ class myMenuItemHeader extends myMenuItem
     {
 		if (fState<100)
 		{
-			if (fState>=0/*f_background*/ && fState<=5/*f_ElementHighlight*/)
-			{
-				editorView.startColorEditing(editorView.menuFieldGfx+3+fState);
-			}
-	    	else if (fState==13/*f_menuHide*/)
+	    	if (fState==13/*f_menuHide*/)
 	    	{
-				editorView.menuHide = true;
+				editorView.menuHide = !editorView.menuHide;
 			}
-		
-			fState += 100;
+			else
+			{
+				if (fState>=0/*f_background*/ && fState<=5/*f_ElementHighlight*/)
+				{
+					editorView.startColorEditing(editorView.menuFieldGfx+3+fState);
+				}
+			
+				fState += 100;
+			}
 		}
-    	else if (fState==113/*f_menuHideEdit*/)
-    	{
-			editorView.menuHide = false;
-			fState -= 100;
-    	}
     	
     	return null;
     }
@@ -9196,10 +9219,6 @@ class myMenuItemHeader extends myMenuItem
    			//{
 				editorView.endColorEditing();
    			//}
-	    	//else if (fState==17/*f_menuHideEdit*/)
-	    	//{
-				editorView.menuHide = false;
-			//}
 
    			fState -= 100;
    		}
