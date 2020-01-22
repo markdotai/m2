@@ -2246,7 +2246,7 @@ class myView
 	}
 	
 	var dayWeekYearCalculatedDay = [-1, -1, -1];	// dayOfYear, ISO, Calendar
-	var dayOfYear;		// the day number of the year (0-364)
+	var dayOfYear;		// the day number of the year (1-365)
 	var ISOWeek;		// in ISO format the first week of the year always includes the first Thursday
 	var ISOYear;
 	var CalendarWeek;	// in Calendar format the first week of the year always includes 1st Jan
@@ -5351,15 +5351,18 @@ class myView
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
 					// moveBarNum goes from 1 to 5
-					for (var i=0; i<5; i++)
-					{
-						var barIsOn = (i < gfxData[index+9]);
-						var s = (barIsOn ? "1" : "0");
-						var w = dc.getTextWidthInPixels(s, dynamicResource);
-
-						gfxData[index+10] += w + ((i<4) ? -5 : 0);
-					}
+					//for (var i=0; i<5; i++)
+					//{
+					//	var barIsOn = (i < gfxData[index+9]);
+					//	var s = (barIsOn ? "1" : "0");
+					//	var w = dc.getTextWidthInPixels(s, dynamicResource);
+					//
+					//	gfxData[index+10] += w + ((i<4) ? -5 : 0);
+					//}
 					
+					// since "1" and "0" chars in movebar are the same width we can do it cheaper:
+					gfxData[index+10] = dc.getTextWidthInPixels("1", dynamicResource)*5 - (5*4);
+
 					gfxData[indexCurField+4] += gfxData[index+10];	// total width
 					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
@@ -5453,22 +5456,21 @@ class myView
 					// 15 RING_HOUR_24
 					// 16 RING_2ND_TIME_12
 					// 17 RING_2ND_TIME_24
+					// 18 RING_DAY_OF_WEEK
+			   		// 19 RING_DAY_OF_MONTH
+			   		// 20 RING_DAY_OF_YEAR
+			   		// 21 RING_MONTH_OF_YEAR
+			   		// 22 RING_NOTIFICATIONS
+			   		// 23 RING_MOVEBAR
 					//
 					// Other things that could be displayed:
 					//
-			   		// day of week
-			   		// day of month
-			   		// day of year
-			   		// month
+			   		// week ISO
+			   		// week calendar
 			   		//
-			   		// notifications count
-			   		// movebar
-			   		// daily active calories (filled) out of total calories so far
 			   		// weekly active calories compared to previous weeks
 			   		// smart training performance/load
 			   		//
-			   		// week ISO
-			   		// week calendar
 			   		// pressure	870-1084mb, standard at sea level is 1013, 300 on top of Everest, normal range is 1016+-34
 			   		// temperature -50 to +50 ?
 				   		
@@ -5541,6 +5543,46 @@ class myView
 							break;
 						}
 						
+						case 18/*RING_DAY_OF_WEEK*/:
+						{
+							fillEnd = (dayNumberOfWeek * drawRange)/7 - alignedAdjust;	// dayNumberOfWeek is 1-7
+							break;
+						}
+						
+				   		case 19/*RING_DAY_OF_MONTH*/:
+						{
+							fillEnd = dateInfoMedium.day - alignedAdjust;
+							break;
+						}
+
+				   		case 20/*RING_DAY_OF_YEAR*/:
+						{
+							calculateDayWeekYearData(0, firstDayOfWeek, dateInfoMedium);
+							fillEnd = (dayOfYear * drawRange)/365 - alignedAdjust;		// dayOfYear 1-365
+							break;
+						}
+
+				   		case 21/*RING_MONTH_OF_YEAR*/:
+						{
+							fillEnd = (dateInfoShort.month * drawRange)/12 - alignedAdjust;
+							break;
+						}
+
+				   		case 22/*RING_NOTIFICATIONS*/:
+						{
+							fieldActiveNotificationsCount = deviceSettings.notificationCount; 
+							fillEnd = fieldActiveNotificationsCount - 1;
+							break;
+						}
+
+				   		case 23/*RING_MOVEBAR*/:
+						{
+							// moveBarLevel 0 = not triggered
+							// moveBarLevel has range 1 to 5
+							fillEnd = (activityMonitorMoveBarLevel * drawRange)/5 - 1;
+							break;
+						}
+
 						case 5/*RING_HOUR*/:		// hours
 						case 6/*RING_2ND_TIME*/:		// 2nd time zone hours
 						case 14/*RING_HOUR_12*/:
@@ -5945,18 +5987,17 @@ class myView
 					// moveBarLevel 0 = not triggered
 					// moveBarLevel has range 1 to 5
 					// moveBarNum goes from 1 to 5
+					// since "1" and "0" chars in movebar are the same width just calculate once:
+					var w = dc.getTextWidthInPixels("1", dynamicResource);
 					for (var i=0; i<5; i++)
 					{
-						var barIsOn = (i < gfxData[index+9]);
-						var s = (barIsOn ? "1" : "0");
-						var w = dc.getTextWidthInPixels(s, dynamicResource);
-
 						if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
 						{ 
+							var barIsOn = (i < gfxData[index+9]);
 							var col = ((barIsOn || gfxData[index+8]==(COLOR_NOTSET+2/*COLOR_SAVE*/)) ? getColor64FromGfx(gfxData[index+3+i]) : getColor64FromGfx(gfxData[index+8]));
 							
 					        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(dateX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+			        		dc.drawText(dateX, dateY - 1, dynamicResource, (barIsOn?"1":"0"), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 						}
 						
 						dateX += w + ((i<4) ? -5 : 0);

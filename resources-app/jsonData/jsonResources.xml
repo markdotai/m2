@@ -636,7 +636,13 @@
 				"hours 12",
 				"hours 24",
 				"2nd time\nhours 12",
-				"2nd time\nhours 24"
+				"2nd time\nhours 24",
+				"day of week",
+				"day of month",
+				"day of year",
+				"month",
+				"notifications\n(count)",
+				"movebar"				
 			],
 			
 			[
@@ -657,7 +663,13 @@
 				10,		<!-- RING_INTENSITY -->
 				11,		<!-- RING_SMART_INTENSITY -->
 				12,		<!-- RING_HEART -->
-				13		<!-- RING_ACTIVE_CALORIES -->
+				13,		<!-- RING_ACTIVE_CALORIES -->
+				18,		<!-- RING_DAY_OF_WEEK -->
+				19,		<!-- RING_DAY_OF_MONTH -->
+				20,		<!-- RING_DAY_OF_YEAR -->
+				21,		<!-- RING_MONTH_OF_YEAR -->
+				22,		<!-- RING_NOTIFICATIONS -->
+				23		<!-- RING_MOVEBAR -->
 			]
 		]
 	</jsonData>
@@ -711,7 +723,13 @@
 			"ring (hours\n12)",
 			"ring (hours\n24)",
 			"ring (2nd time\n12)",
-			"ring (2nd time\n24)"
+			"ring (2nd time\n24)",
+			"ring (day of\nweek)",
+			"ring (day of\nmonth)",
+			"ring (day of\nyear)",
+			"ring (month)",
+			"ring\n(notifications)",
+			"ring (movebar)"				
 		]
 	</jsonData>
 			
