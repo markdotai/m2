@@ -1176,17 +1176,17 @@ class myView
 
     // Called when this View is brought to the foreground.
     // Restore the state of this View and prepare it to be shown. This includes loading resources into memory.
-    function onShow()
-    {
-        //System.println("onShow");
-    }
+//    function onShow()
+//    {
+//        //System.println("onShow");
+//    }
 
     // Called when this View is removed from the screen (including the app ending).
     // Save the state of this View here. This includes freeing resources from memory.
-    function onHide()
-    {
-        //System.println("onHide");
-	}
+//    function onHide()
+//    {
+//        //System.println("onHide");
+//	}
 
     // The user has just looked at their watch. Timers and animations may be started here.
     (:m2face)
@@ -1202,8 +1202,11 @@ class myView
     function onEnterSleep()
     {
         //System.println("Sleep");
-        glanceActive = false;			// on only
-        WatchUi.requestUpdate();
+        if (glanceActive)
+        {
+	        glanceActive = false;			// on only
+	        WatchUi.requestUpdate();
+	    }
     }
 
 	// Called by app when settings are changed by user
@@ -1397,6 +1400,10 @@ class myView
 	{
 		// load the Gfx from our property strings
 		var s = propertiesGetString("EP") + propertiesGetString("EP2");
+
+//		// hyper
+//		s = "01YW2552Vy11WDPO1011WlVv03VV2VV4L0G3N213Ve2Vm4R0Vw1WjWI020Vj522Vj121Vj19dXO00Vf01WjYB03Va2Vp4I0Vq1WlVe03Vr213Xw213N213Vt213Xy211WlO0ZT001111101WlXZ036213N213XD213N213D213N213X7211WlXt03Vf21";
+
 		var charArray = s.toCharArray();
 		s = null;
 		gfxFromCharArray(charArray);
@@ -1455,6 +1462,12 @@ class myView
 //		var stats = System.getSystemStats();
 //		System.println("free=" + stats.freeMemory + " " + s);
 //	}
+  
+//	var hyperNum = -2;
+//	var hyperHadPartial = false;
+//
+//  	var hyperSec = 0;
+//  	var hyperLeave = false;
     
     // Update the view
     function onUpdate(dc)
@@ -1479,6 +1492,23 @@ class myView
 		var doLoadDynamicResources = false;
 
         //View.onUpdate(dc);        // Call the parent onUpdate function to redraw the layout
+
+//hyperNum++;
+//
+//hyperLeave = false;
+//if (hyperHadPartial && !glanceActive) 
+//{
+//	if (second!=0 && ((second-hyperSec+60)%60)<=1)
+//	{
+//		hyperLeave = true;
+//	}
+//}
+//hyperSec = second;
+//
+//if (hyperLeave)
+//{
+//	return;
+//}
 
 		//System.println("update rest sec=" + second);
 
@@ -1589,6 +1619,11 @@ class myView
 
         lastPartialUpdateSec = second;
 		bufferPositionCounter = -1;		// clear any background buffer being known
+
+//if (hyperNum<0)
+//{
+//	return;
+//}
 
 		// draw the seconds indicator to the screen
 		if (propSecondIndicatorOn && doDrawGfx)
@@ -1807,6 +1842,17 @@ class myView
     (:m2face)
     function onPartialUpdate(dc)
     {
+//    	hyperHadPartial = true;
+//    	if (hyperNum<0)
+//    	{
+//        	WatchUi.requestUpdate();
+//    		return;
+//    	}
+//    	else if (hyperLeave)
+//    	{
+//    		return;
+//    	}
+
     	var clockTime = System.getClockTime();
     	updateTimeNowValue = Time.now().value();
     	var minute = clockTime.min;
@@ -6072,6 +6118,11 @@ class myView
 					{
 						break;
 					}
+
+//if (hyperNum<0)
+//{
+//	break;
+//}
 
 					var resourceIndex = ((gfxData[index+2/*ring_font*/] >> 16) & 0xFF);
 					var dynamicResource = getDynamicResource(resourceIndex);

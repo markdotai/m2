@@ -21,7 +21,7 @@ class myApp extends Application.AppBase
 
 		if (null != mainView)
 		{
-			mainView.onStop();
+			mainView.sharedView.onStop();
 		}
     }
 
@@ -61,7 +61,7 @@ class myApp extends Application.AppBase
 
 		if (null != mainView)
 		{
-			mainView.onSettingsChanged();
+			mainView.sharedView.onSettingsChanged();
 		}
     }
 }
@@ -83,20 +83,20 @@ class myFaceView extends WatchUi.WatchFace
     	sharedView.onLayout(dc);
     }
 
-    function onStop()
-    {
-    	sharedView.onStop();
-    }
+//    function onStop()
+//    {
+//    	sharedView.onStop();
+//    }
 
-    function onShow()
-    {
-    	sharedView.onShow();
-    }
+//    function onShow()
+//    {
+//    	sharedView.onShow();
+//    }
 
-    function onHide()
-    {
-    	sharedView.onHide();
-    }
+//    function onHide()
+//    {
+//    	sharedView.onHide();
+//    }
 
     function onExitSleep()
     {
@@ -108,10 +108,10 @@ class myFaceView extends WatchUi.WatchFace
     	sharedView.onEnterSleep();
     }
 
-    function onSettingsChanged()
-    {
-    	sharedView.onSettingsChanged();
-    }
+//    function onSettingsChanged()
+//    {
+//    	sharedView.onSettingsChanged();
+//    }
 
     function onUpdate(dc)
     {
@@ -143,25 +143,25 @@ class myAppView extends WatchUi.View
     	sharedView.onLayout(dc);
     }
 
-    function onStop()
-    {
-    	sharedView.onStop();
-    }
+//    function onStop()
+//    {
+//    	sharedView.onStop();
+//    }
 
-    function onShow()
-    {
-    	sharedView.onShow();
-    }
+//    function onShow()
+//    {
+//    	sharedView.onShow();
+//    }
 
-    function onHide()
-    {
-    	sharedView.onHide();
-    }
+//    function onHide()
+//    {
+//    	sharedView.onHide();
+//    }
 
-    function onSettingsChanged()
-    {
-    	sharedView.onSettingsChanged();
-    }
+//    function onSettingsChanged()
+//    {
+//    	sharedView.onSettingsChanged();
+//    }
 
     function onUpdate(dc)
     {
