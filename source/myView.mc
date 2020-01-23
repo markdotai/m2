@@ -1285,8 +1285,10 @@ class myView
 	{
 		if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
 		{
+			var ptdIndex = profileIndex*6;
+		
 			// set the profile properties from our profile times array			
-			var days = profileTimeData[profileIndex*6 + 2];		
+			var days = profileTimeData[ptdIndex + 2];		
 			var daysNumber = 0;
 			for (var i=0; i<7; i++)
 			{
@@ -1298,16 +1300,16 @@ class myView
 			}
 			applicationProperties.setValue("PD", daysNumber);
 	
-			var startTime = profileTimeData[profileIndex*6 + 0];
-			var endTime = profileTimeData[profileIndex*6 + 1];
-			var profileFlags = profileTimeData[profileIndex*6 + 3];
+			var startTime = profileTimeData[ptdIndex + 0];
+			var endTime = profileTimeData[ptdIndex + 1];
+			var profileFlags = profileTimeData[ptdIndex + 3];
 			applicationProperties.setValue("PS", profileTimeString(startTime, (profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0, (profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0));
 			applicationProperties.setValue("PE", profileTimeString(endTime, (profileFlags&0x04/*PROFILE_END_SUNRISE*/)!=0, (profileFlags&0x08/*PROFILE_END_SUNSET*/)!=0));
 
-			applicationProperties.setValue("35", (profileTimeData[profileIndex*6 + 5] >= 0) ? profileTimeData[profileIndex*6 + 5] : 0);		// glance profile
+			applicationProperties.setValue("35", (profileTimeData[ptdIndex + 5] >= 0) ? profileTimeData[ptdIndex + 5] : 0);		// glance profile
 
 			applicationProperties.setValue("PB", ((profileFlags&0x10/*PROFILE_BLOCK_MASK*/)!=0));
-			applicationProperties.setValue("PR", profileTimeData[profileIndex*6 + 4]);		
+			applicationProperties.setValue("PR", profileTimeData[ptdIndex + 4]);		
 		}
 	}
 
@@ -1316,6 +1318,8 @@ class myView
 	{
 		if (profileIndex>=0 && profileIndex<PROFILE_NUM_USER)	// not for private or preset profiles
 		{
+			var ptdIndex = profileIndex*6;
+
 			// calculate activate times from properties
 			var days = 0;
 			var daysNumber = propertiesGetNumber("PD");
@@ -1329,23 +1333,23 @@ class myView
 					days |= (0x1<<(d-1));					
 				}
 			}
-			profileTimeData[profileIndex*6 + 2] = days;
+			profileTimeData[ptdIndex + 2] = days;
 
 			var startTime = propertiesGetTime("PS");
 			var endTime = propertiesGetTime("PE");
-			profileTimeData[profileIndex*6 + 0] = startTime[1];		// start time 0-1440
-			profileTimeData[profileIndex*6 + 1] = endTime[1];		// end time 0-1440
+			profileTimeData[ptdIndex + 0] = startTime[1];		// start time 0-1440
+			profileTimeData[ptdIndex + 1] = endTime[1];		// end time 0-1440
 			
-			profileTimeData[profileIndex*6 + 5] = getMinMax(propertiesGetNumber("35"), 0, 99);	// glance profile
+			profileTimeData[ptdIndex + 5] = getMinMax(propertiesGetNumber("35"), 0, 99);	// glance profile
 
 			var profileFlags = ((startTime[0] & 0x03) | ((endTime[0] & 0x03) << 2));
 			if (propertiesGetBoolean("PB"))
 			{
 				profileFlags |= 0x10/*PROFILE_BLOCK_MASK*/;
 			}
-			profileTimeData[profileIndex*6 + 3] = profileFlags;
+			profileTimeData[ptdIndex + 3] = profileFlags;
 
-			profileTimeData[profileIndex*6 + 4] = getMinMax(propertiesGetNumber("PR"), 0, 0xFF/*PROFILE_EVENTS_MASK*/);
+			profileTimeData[ptdIndex + 4] = getMinMax(propertiesGetNumber("PR"), 0, 0xFF/*PROFILE_EVENTS_MASK*/);
 		}
 	}
 	
@@ -2105,10 +2109,14 @@ class myView
 		{
 			if (profileGlance<0)
 			{
-				if (profileActive>=0 && profileActive<PROFILE_NUM_USER && profileTimeData[profileActive*6 + 5]>0 && profileTimeData[profileActive*6 + 5]<=(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+				if (profileActive>=0 && profileActive<PROFILE_NUM_USER)
 				{
-					doActivate = profileTimeData[profileActive*6 + 5]-1;
-					profileGlanceReturn = profileActive;	// return to this profile after glance 
+					var profileActiveGlanceProfile = profileTimeData[profileActive*6 + 5];
+					if (profileActiveGlanceProfile>0 && profileActiveGlanceProfile<=(PROFILE_NUM_USER+PROFILE_NUM_PRESET))
+					{
+						doActivate = profileActiveGlanceProfile-1;
+						profileGlanceReturn = profileActive;	// return to this profile after glance 
+					}
 				}
 			}
 			else
@@ -2143,21 +2151,23 @@ class myView
 			
 			for (var i=0; i<PROFILE_NUM_USER; i++)
 			{
+				var ptdIIndex = i*6;
 				if (autoActivate<0)	// not found a profile to activate yet
 				{
-					var startTime = profileTimeData[i*6 + 0];
-					var endTime = profileTimeData[i*6 + 1];
+					var startTime = profileTimeData[ptdIIndex + 0];
+					var endTime = profileTimeData[ptdIIndex + 1];
 
-					// see if the start or end time uses sunrise/sunset					
-					if ((profileTimeData[i*6 + 3]&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/))!=0)
+					// see if the start or end time uses sunrise/sunset
+					var sunFlags = profileTimeData[ptdIIndex + 3];					
+					if ((sunFlags&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/))!=0)
 					{
 						calculateSun(dateInfoShort);
 						
-						startTime = getProfileSunTime(startTime, profileTimeData[i*6 + 3], 0);
-						endTime = getProfileSunTime(endTime, profileTimeData[i*6 + 3], 2);
+						startTime = getProfileSunTime(startTime, sunFlags, 0);
+						endTime = getProfileSunTime(endTime, sunFlags, 2);
 					}
 					
-					var dayFlags = profileTimeData[i*6 + 2];
+					var dayFlags = profileTimeData[ptdIIndex + 2];
 					if (startTime<endTime)		// Note: if 2 times are equal then go for 24 hours (e.g. by default both times are 0)
 					{
 						if (timeNowInMinutesToday>=startTime && timeNowInMinutesToday<endTime && (dayFlags&(0x01<<nowDayNumber))!=0)	// current day set?
@@ -2176,7 +2186,7 @@ class myView
 					}
 				}
 
-				var numEvents = profileTimeData[i*6 + 4];
+				var numEvents = profileTimeData[ptdIIndex + 4];
 				if (numEvents>0)
 				{
 					randomProfiles[randomNum] = i;
@@ -2284,6 +2294,7 @@ class myView
 		return doActivate;
 	}
 	
+	(:m2app)
 	var appWantsToLoadProfile = -1;
 	
 	(:m2app)
@@ -2944,7 +2955,7 @@ class myView
 
 	(:m2face)
 	var profileTimeData;
-	
+
 	// face memory data format:
 	//
 	// 0 number x PROFILE_NUM_USER*6 = profileTimeData array
@@ -2975,6 +2986,18 @@ class myView
 			if (memData.size()>1)
 			{
 				profileTimeData = memData[0];
+
+				// testing code to convert 6 number format to 2 number format to reduce size from 735 bytes
+				// this code uses up 270 bytes
+				//var temp = new[PROFILE_NUM_USER*2];
+				//for (var i=0; i<PROFILE_NUM_USER; i++)
+				//{
+				//	var i2 = i*2;
+				//	var i6 = i*6;
+				//	temp[i2+0] = (profileTimeData[i6+0]&0x7fff) | ((profileTimeData[i6+1]&0x7fff)<<16);
+				//	temp[i2+1] = (profileTimeData[i6+2]&0xff) | ((profileTimeData[i6+3]&0xff)<<8) | ((profileTimeData[i6+4]&0xff)<<16) | ((profileTimeData[i6+5]&0xff)<<24);
+				//}
+				//temp = null;
 			}
 			
 			positionGot = getBooleanFromArray(memData, 1);
@@ -3538,8 +3561,7 @@ class myView
 
 		if (gotError || gfxNum<gfxSize(0) || getGfxId(0)!=0)	// check no error and header gfx at start
 		{
-			gfxNum = 0; 
-			gfxAddHeader(gfxNum);	
+			gfxResetToHeader();	
 		}
 
 		//System.println("");
@@ -3563,56 +3585,27 @@ class myView
 		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id*2 + 1]);
 	}
 
-	function gfxInsert(index, id)
+	function gfxResetToHeader()
 	{
-		var size = gfxSize(id);
+		gfxData[0] = 0;		// id for header
+		gfxData[1] = GFX_VERSION;	// version
+		gfxData[2] = displaySize;	// watch display size
+		gfxData[3] = 0+2/*COLOR_SAVE*/;	// background color
+		gfxData[4] = 3+2/*COLOR_SAVE*/;	// foreground color
+		gfxData[5] = 3+2/*COLOR_SAVE*/;	// menu color
+		gfxData[6] = 0+2/*COLOR_SAVE*/;	// menu border
+		gfxData[7] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// field highlight
+		gfxData[8] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// element highlight
+		gfxData[9] = 1;	// kerning on for large fonts
+    	gfxData[10] = 75;	// propBatteryHighPercentage, 0 to 100
+    	gfxData[11] = 25;	// propBatteryLowPercentage, 0 to 100
+		gfxData[12] = 24; // prop2ndTimeZoneOffset, 24==0 (0 to 48)
+		gfxData[13] = 1;	// propMoveBarAlertTriggerLevel, 1 to 5
+		gfxData[14] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
+		gfxData[15] = 1;	// propFieldFontUnsupported (0=xtiny to 4=large)
+		//gfxData[index+9] = 0;	// default field font
 
-		if (gfxNum+size > MAX_GFX_DATA)		// check enough space in gfxData for new item
-		{
-			index = -1;		// no space
-		}
-		else
-		{
-			for (var i=gfxNum-1; i>=index; i--)
-			{
-				gfxData[i+size] = gfxData[i];
-			}
-			
-			gfxData[index] = id;
-			for (var i=index+1; i<index+size; i++)
-			{
-				gfxData[i] = 0;
-			}
-			
-			gfxNum += size;
-		}
-		
-		return index;	// return successful index we inserted at (or -1 if no space)
-	}
-
-	function gfxAddHeader(index)
-	{
-		index = gfxInsert(index, 0);
-		if (index>=0)
-		{
-			gfxData[index+1] = GFX_VERSION;	// version
-			gfxData[index+2] = displaySize;	// watch display size
-			gfxData[index+3] = 0+2/*COLOR_SAVE*/;	// background color
-			gfxData[index+4] = 3+2/*COLOR_SAVE*/;	// foreground color
-			gfxData[index+5] = 3+2/*COLOR_SAVE*/;	// menu color
-			gfxData[index+6] = 0+2/*COLOR_SAVE*/;	// menu border
-			gfxData[index+7] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// field highlight
-			gfxData[index+8] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// element highlight
-			gfxData[index+9] = 1;	// kerning on for large fonts
-	    	gfxData[index+10] = 75;	// propBatteryHighPercentage, 0 to 100
-	    	gfxData[index+11] = 25;	// propBatteryLowPercentage, 0 to 100
-			gfxData[index+12] = 24; // prop2ndTimeZoneOffset, 24==0 (0 to 48)
-    		gfxData[index+13] = 1;	// propMoveBarAlertTriggerLevel, 1 to 5
-    		gfxData[index+14] = 0; 	// propFieldFontSystemCase (0=any, 1=upper, 2=lower)
-    		gfxData[index+15] = 1;	// propFieldFontUnsupported (0=xtiny to 4=large)
-			//gfxData[index+9] = 0;	// default field font
-		}
-		return index;
+		gfxNum = gfxSize(0);		// 16 
 	}
 
 	// seconds, ring, hour, minute, icon, field
@@ -6571,6 +6564,33 @@ class myEditorView extends myView
 		return temp;
 	}
 
+	function gfxInsert(index, id)
+	{
+		var size = gfxSize(id);
+
+		if (gfxNum+size > MAX_GFX_DATA)		// check enough space in gfxData for new item
+		{
+			index = -1;		// no space
+		}
+		else
+		{
+			for (var i=gfxNum-1; i>=index; i--)
+			{
+				gfxData[i+size] = gfxData[i];
+			}
+			
+			gfxData[index] = id;
+			for (var i=index+1; i<index+size; i++)
+			{
+				gfxData[i] = 0;
+			}
+			
+			gfxNum += size;
+		}
+		
+		return index;	// return successful index we inserted at (or -1 if no space)
+	}
+
 	function gfxAddField(index)
 	{
 		index = gfxInsert(index, 1);
@@ -8055,8 +8075,7 @@ class myEditorView extends myView
 		}
 		else
 		{
-			gfxNum = 0; 
-			gfxAddHeader(gfxNum);	
+			gfxResetToHeader();	
 		}
 		
 		reloadDynamicResources = true;
