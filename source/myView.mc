@@ -1951,12 +1951,29 @@ class myView
 						var nextIndex = (clearIndex+1)%60; 
 						drawSecond(dc, nextIndex, nextIndex);
 			
-						// in this mode we also always draw the indicator at 0
-						// - so check if that needs redrawing too after erasing the indicator at 1
-						if (propSecondAligned && clearIndex==1)
+						// In this mode we also always draw the indicator at 0s (propSecondAligned)
+						// Or for !propSecondAligned then also need to check the previous one when start clearing
+						// - so check if that needs redrawing too after erasing the indicator at 1s
+						if (secondsIndex==1)
 						{
-							drawSecond(dc, 0, 0);
+							var prevIndex = (clearIndex+59)%60; 
+							drawSecond(dc, prevIndex, prevIndex);
 						}
+						
+//						if (propSecondAligned)
+//						{
+//							if (clearIndex==1)
+//							{
+//								drawSecond(dc, 0, 0);
+//							}
+//						}
+//						else
+//						{
+//							if (clearIndex==0)
+//							{
+//								drawSecond(dc, 59, 59);
+//							}
+//						}
 					}
 		       	}
 			}

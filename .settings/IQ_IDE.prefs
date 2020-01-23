@@ -1,4 +1,4 @@
 eclipse.preferences.version=1
 project_compiler_options=
-project_jungle=monkey-app.jungle
-project_manifest=manifest-app.xml
+project_jungle=monkey-face.jungle
+project_manifest=manifest-face.xml
