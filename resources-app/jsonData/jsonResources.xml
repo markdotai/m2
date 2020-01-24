@@ -149,7 +149,8 @@
 			"ft/m (units)",
 			"temperature",
 			"F/C (units)",
-			"rest calories"
+			"rest calories",
+			"second"
 		]
 	</jsonData>
 		
@@ -453,6 +454,7 @@
 			[
 				1,		<!-- FIELD_HOUR -->
 				2,		<!-- FIELD_MINUTE -->
+				62,		<!-- FIELD_SECONDS -->
 				26,		<!-- FIELD_SEPARATOR_COLON -->
 				147,	<!-- FIELD_AM --> <!-- 19|0x80 -->
 				148,	<!-- FIELD_PM --> <!-- 20|0x80 -->

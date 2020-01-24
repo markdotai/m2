@@ -76,7 +76,7 @@ class myView
 	//var propMenuBorder = 0x000000;	// menu border editor only
 	//var propFieldHighlight = 0xFFFFFF;	editor only
 	//var propElementHighlight = 0xFFFFFF;	editor only
-	var propKerningOn = true;
+	var propKerningOn = false;
     var propBatteryHighPercentage = 75;
 	var propBatteryLowPercentage = 25;
 	var prop2ndTimeZoneOffset = 0;
@@ -85,15 +85,28 @@ class myView
     var propFieldFontSystemCase = 0;	// 0, 1, 2
     var propFieldFontUnsupported = 1;	// 0=xtiny to 4=large
 
+	// for seconds indicator & text:
     var propSecondIndicatorOn = false;
     var propSecondGfxIndex = -1;
+	var propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
+	
+	//const BUFFER_SIZE = 62;
+	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
+	var bufferX = 0;
+	var bufferY = 0;
+	
+	// just for seconds text:
+    var propSecondTextMode = false;
+	var bufferW = 0;
+	var bufferH = 0;
+
+	// just for seconds indicator:
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
     var propSecondRefreshStyle = 0;
     var propSecondAligned = true;
 	var propSecondColorIndexArray = new[60]b;
 	var propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
-	var propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
-	
+
 	//enum
 	//{
 	//	REFRESH_EVERY_SECOND = 0,
@@ -109,11 +122,6 @@ class myView
 	//const SECONDS_SIZE_HALF = 8;
 	//!const SECONDS_CENTRE_OFFSET = SCREEN_CENTRE_X - SECONDS_SIZE_HALF;
 
-	//const BUFFER_SIZE = 62;
-	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
-	var bufferX = 0;
-	var bufferY = 0;
-	
 	var hasDoNotDisturb;
 	var hasLTE;
 	var hasElevationHistory;
@@ -1571,7 +1579,7 @@ class myView
 //{
 //	System.println("Timer load0=" + (System.getTimer()-timeStamp) + "ms");
 //}
-			loadDynamicResources();
+			loadDynamicResources(dc);
 
 //if (showTimer)
 //{
@@ -1629,9 +1637,9 @@ class myView
 //	return;
 //}
 
-		// draw the seconds indicator to the screen
-		if (propSecondIndicatorOn && doDrawGfx)
+		if (propSecondIndicatorOn && !propSecondTextMode && doDrawGfx)
 		{
+			// draw the seconds indicator to the screen
         	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
         	{
         		var s = (propSecondAligned ? second : (second+59)%60); 
@@ -1701,7 +1709,7 @@ class myView
 	}
 
     (:m2face)
-	function drawBuffer(secondsIndex, dc)
+	function drawBufferForSeconds(secondsIndex, dc)
 	{
 		var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 		if (dynamicPositions!=null)		// sometimes onPartialUpdate is called between onSettingsChanged and onUpdate - so this resource could be null
@@ -1881,23 +1889,62 @@ class myView
     
 		if (propSecondIndicatorOn)
 		{ 
-	 		// it seems as though occasionally onPartialUpdate can skip a second
-	 		// so check whether that has happened, and within the same minute since last full update
-	 		// - but only for certain refresh styles
-	 		//
-	 		// But there is also a strange case when exiting high power mode where lastPartialUpdateSec may already be set to the current second 
-    		if ((propSecondRefreshStyle==1/*REFRESH_EVERY_MINUTE*/) || (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/))
-    		{
-		 		var prevSec = ((second+59)%60);
-		 		if (prevSec<second && second!=lastPartialUpdateSec)		// check earlier second in same minute
-		 		{
-		 			doPartialUpdateSec(dc, prevSec, minute);
-		 		}
-			}
+	    	if (propSecondTextMode)
+	    	{
+				var bufferBitmap = getDynamicResource(propSecondBufferIndex);
+		        if (bufferBitmap!=null)
+		        {
+					if (bufferPositionCounter<0)	// if no buffer yet
+					{
+		    			bufferPositionCounter++;
+						drawBackgroundToDc(null);	// and draw the background into the buffer
+					}
+	
+					// draw the text
+					var dynamicResource = getDynamicResourceFromGfx(propSecondGfxIndex+2/*string_font*/);							
+					if (dynamicResource!=null)
+					{
+				        dc.setColor(getColor64FromGfx(gfxData[propSecondGfxIndex+3/*string_color*/]), -1/*COLOR_TRANSPARENT*/);
+		
+						// draw the background				
+		   				dc.setClip(bufferX, bufferY, bufferW, bufferH);
+						dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+						//
+						// draw both digits:
+						var s = second.format("%02d");
+		        		dc.drawText(bufferX, bufferY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
 
-	 		// do the partial update for this current second
-	 		doPartialUpdateSec(dc, second, minute);
-	 		lastPartialUpdateSec = second;	// set after calling doPartialUpdateSec
+						// drawing just 1 digit is 5% cheaper only 7100 -> 6700 (and 26600->22100)
+						// draw the background				
+		   				//dc.setClip(bufferX + bufferW/2, bufferY, bufferW/2, bufferH);
+						//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+						//
+						// draw just 2nd digit:
+						//var s = "" + (second%10);
+		        		//dc.drawText(bufferX + bufferW/2, bufferY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
+					}
+				}
+			}
+			else
+			{
+		 		// it seems as though occasionally onPartialUpdate can skip a second
+		 		// so check whether that has happened, and within the same minute since last full update
+		 		// - but only for certain refresh styles
+		 		//
+		 		// But there is also a strange case when exiting high power mode where lastPartialUpdateSec may already be set to the current second 
+	    		if ((propSecondRefreshStyle==1/*REFRESH_EVERY_MINUTE*/) || (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/))
+	    		{
+			 		var prevSec = ((second+59)%60);
+			 		if (prevSec<second && second!=lastPartialUpdateSec)		// check earlier second in same minute
+			 		{
+			 			doPartialUpdateSec(dc, prevSec, minute);
+			 		}
+				}
+	
+		 		// do the partial update for this current second
+		 		doPartialUpdateSec(dc, second, minute);
+		 		lastPartialUpdateSec = second;	// set after calling doPartialUpdateSec
+		 	}
         }
     }
 
@@ -1929,7 +1976,7 @@ class myView
 				var bufferBitmap = getDynamicResource(propSecondBufferIndex);
 		        if (bufferBitmap!=null)
 		        {
-					drawBuffer(clearIndex, dc);
+					drawBufferForSeconds(clearIndex, dc);
 	
 					// copy from the offscreen buffer over the second indicator
 	    			setSecondClip(dc, clearIndex);
@@ -3585,6 +3632,7 @@ class myView
 		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id*2 + 1]);
 	}
 
+	// gfxAddHeader
 	function gfxResetToHeader()
 	{
 		gfxData[0] = 0;		// id for header
@@ -3596,7 +3644,7 @@ class myView
 		gfxData[6] = 0+2/*COLOR_SAVE*/;	// menu border
 		gfxData[7] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// field highlight
 		gfxData[8] = COLOR_FOREGROUND+2/*COLOR_SAVE*/;	// element highlight
-		gfxData[9] = 1;	// kerning on for large fonts
+		gfxData[9] = 1;	// kerning off for large fonts
     	gfxData[10] = 75;	// propBatteryHighPercentage, 0 to 100
     	gfxData[11] = 25;	// propBatteryLowPercentage, 0 to 100
 		gfxData[12] = 24; // prop2ndTimeZoneOffset, 24==0 (0 to 48)
@@ -3676,7 +3724,7 @@ class myView
 		propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
     }
 
-    function loadDynamicResources()
+    function loadDynamicResources(dc)
     {
 //		var prevMem = System.getSystemStats().freeMemory; 
 //		System.println("loadDynamicResources free=" + prevMem);
@@ -3689,11 +3737,29 @@ class myView
 		        // If this device supports BufferedBitmap, allocate the buffer for what's behind the seconds indicator 
 		        //if (Toybox.Graphics has :BufferedBitmap)
 				// This full color buffer is needed because anti-aliased fonts cannot be drawn into a buffer with a reduced color palette
-				dynResResource[i] = new Graphics.BufferedBitmap({:width=>62/*BUFFER_SIZE*/, :height=>62/*BUFFER_SIZE*/});
+
+				if (propSecondTextMode)
+				{
+					var dynamicResource = getDynamicResourceFromGfx(propSecondGfxIndex+2/*string_font*/);
+					if (dynamicResource!=null)
+					{
+						bufferW = dc.getTextWidthInPixels("0", dynamicResource)*2;		// w
+						bufferH = dc.getFontAscent(dynamicResource);						// h
+						dynResResource[i] = new Graphics.BufferedBitmap({:width=>bufferW, :height=>bufferH});
+					}
+					else
+					{
+						dynResResource[i] = null;
+					}
+				}
+				else
+				{	
+					dynResResource[i] = new Graphics.BufferedBitmap({:width=>62/*BUFFER_SIZE*/, :height=>62/*BUFFER_SIZE*/});
+				}
 			}
 			else
 			{
-				dynResResource[i] = (isDynamicResourceSystemFont(i) ? r : WatchUi.loadResource(r));
+				dynResResource[i] = (isDynamicResourceSystemFont(r) ? r : WatchUi.loadResource(r));
 			}
 
 //	    	var curMem = System.getSystemStats().freeMemory; 
@@ -3702,7 +3768,7 @@ class myView
 		}
 		
 		// build the seconds color array only after the seconds refresh has been set and the position array has been loaded
-		if (propSecondGfxIndex>=0)
+		if (propSecondGfxIndex>=0 && !propSecondTextMode)
 		{
 			var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
 			propSecondAligned = (dynamicPositions==null || outerAlignedToSeconds(dynamicPositions));
@@ -3715,6 +3781,12 @@ class myView
 		return ((i<dynResNum) ? dynResResource[i] : null);
 	}
 
+	function getDynamicResourceFromGfx(gfxIndex)
+	{
+		var resourceIndex = ((gfxData[gfxIndex] >> 16) & 0xFF);
+		return ((resourceIndex<dynResNum) ? dynResResource[resourceIndex] : null);
+	}
+
 //	function getDynamicResourceAscent(i)
 //	{
 //		return ((i<dynResNum) ? Graphics.getFontAscent(dynResResource[i]) : 0);
@@ -3725,47 +3797,42 @@ class myView
 //		return ((i<dynResNum) ? Graphics.getFontDescent(dynResResource[i]) : 0);
 //	}
 
-	function updateFieldMaxAscentDescentResource(val, i)
+	function updateFieldMaxAscentDescentResource(gfxIndex, font)
 	{
-		if (i>=0 && i<dynResNum)
+		var ascent = Graphics.getFontAscent(font);
+		var descent = Graphics.getFontDescent(font);
+
+		// limit the size of system number fonts (as they can be way off compared to real number sizes)
+		if ((font instanceof Number) && font>=Graphics.FONT_SYSTEM_NUMBER_MILD && font<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT)
 		{
-			var ascent = Graphics.getFontAscent(dynResResource[i]);
-			var descent = Graphics.getFontDescent(dynResResource[i]);
-
-			// limit the size of system number fonts (as they can be way off compared to real number sizes)
-			if (dynResList[i]>=Graphics.FONT_SYSTEM_NUMBER_MILD && dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT)
+			if (ascent>systemNumberMaxAscent)
 			{
-				if (ascent>systemNumberMaxAscent)
-				{
-					ascent = systemNumberMaxAscent;
-				}
-
-				if (descent>0)
-				{
-					descent = 0;
-				}
+				ascent = systemNumberMaxAscent;
 			}
 
-			val = updateFieldMaxAscentDescent(val, ascent, descent);
+			if (descent>0)
+			{
+				descent = 0;
+			}
 		}
-		
-		return val;
+
+		updateFieldMaxAscentDescent(gfxIndex, ascent, descent);
 	}
 
-	function updateFieldMaxAscentDescent(val, ascent, descent)
+	function updateFieldMaxAscentDescent(gfxIndex, ascent, descent)
 	{
-		var a = (val&0xFF);
-		var d = ((val&0xFF00) >> 8);
+		var a = (gfxData[gfxIndex]&0xFF);
+		var d = ((gfxData[gfxIndex]&0xFF00) >> 8);
 		
 		a = getMinMax(ascent, a, displaySize);	// max ascent
 		d = getMinMax(descent, d, displaySize);	// max descent
 					
-		return ((a&0xFF) | ((d&0xFF) << 8));
+		gfxData[gfxIndex] = ((a&0xFF) | ((d&0xFF) << 8));
 	}
 
-    function isDynamicResourceSystemFont(i)
+    function isDynamicResourceSystemFont(font)
     {
-    	return ((i<dynResNum) && (dynResList[i]<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
+    	return ((font!=null) && (font instanceof Number) && (font>=0) && (font<=Graphics.FONT_SYSTEM_NUMBER_THAI_HOT));
     }
 
 	function gfxScalePositionSize(index, origSize)
@@ -3934,10 +4001,11 @@ class myView
 		
 		if (fontIndex>=0)
 		{
-			var resourceIndex = addDynamicResource(fontList[fontIndex], dynResSizeArray[fontIndex]);
-			if (resourceIndex>=0 && resourceIndex<dynResNum && dynResResource[resourceIndex]==null && isDynamicResourceSystemFont(resourceIndex))
+			var fontId = fontList[fontIndex];
+			var resourceIndex = addDynamicResource(fontId, dynResSizeArray[fontIndex]);
+			if (resourceIndex>=0 && resourceIndex<dynResNum && dynResResource[resourceIndex]==null && isDynamicResourceSystemFont(fontId))
 			{
-				dynResResource[resourceIndex] = fontList[fontIndex];
+				dynResResource[resourceIndex] = fontId;
 			}
 			return resourceIndex;
 		}
@@ -4094,6 +4162,14 @@ class myView
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
+					var eDisplay = (gfxData[index+1] & 0x7F);	// 0x80 is for useNumFont
+					if (eDisplay==62/*FIELD_SECOND*/)
+					{
+						propSecondTextMode = true;
+						propSecondGfxIndex = index;
+						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 84);
+					}
+					
 					break;
 				}
 				
@@ -4107,7 +4183,6 @@ class myView
 				 	}
 				 	var fontListIndex = r + 93;
 					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
-					
 					gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					break;
@@ -4122,7 +4197,6 @@ class myView
 //				 	}
 //				 	var fontListIndex = r + 93;
 //					var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
-//					
 //					gfxData[index+2/*movebar_font*/] = r | ((resourceIndex & 0xFF) << 16);
 //
 //					break;
@@ -4213,6 +4287,7 @@ class myView
 				
 				case 9:	// seconds
 				{
+					propSecondTextMode = false;
 					propSecondGfxIndex = index;
 					
 					var r = (gfxData[index+1] & 0x00FF);	// font
@@ -4517,7 +4592,7 @@ class myView
 			//propMenuBorder = getColor64FromGfx(gfxData[0+6]);			editor only
 			//propFieldHighlight = getColor64FromGfx(gfxData[0+7]);		editor only
 			//propElementHighlight = getColor64FromGfx(gfxData[0+8]);	editor only
-			propKerningOn = (gfxData[0+9]!=0);
+			propKerningOn = (gfxData[0+9]==0);
 			propBatteryHighPercentage = gfxData[0+10];		// 0 to 100
 			propBatteryLowPercentage = gfxData[0+11];		// 0 to 100
 			prop2ndTimeZoneOffset = gfxData[0+12] - 24;		// 24==0 (0 to 48)
@@ -4676,8 +4751,7 @@ class myView
 						break;
 					}
 					
-					var resourceIndex = ((gfxData[index+2/*large_font*/] >> 16) & 0xFF);
-					var dynamicResource = getDynamicResource(resourceIndex);
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*large_font*/);
 					if (dynamicResource==null)
 					{
 						gfxData[index+5] = 0;	// width 0
@@ -4865,7 +4939,7 @@ class myView
 //						}
 					}
 
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
+					updateFieldMaxAscentDescentResource(indexCurField+5, dynamicResource);		// store max ascent & descent in field
 					
 					break;
 				}
@@ -4877,7 +4951,15 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
+					gfxData[index+4] = 0;	// string start
+					gfxData[index+5] = 0;	// string end
+					gfxData[index+6] = 0;	// width
+
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*string_font*/);
+					if (dynamicResource==null)
+					{
+						break;
+					}
 
 					var eStr = null;
 					var eDisplay = (gfxData[index+1] & 0x7F);	// 0x80 is for useNumFont
@@ -4905,6 +4987,16 @@ class myView
 							break;
 						}
 	
+						case 62/*FIELD_SECOND*/:		// second
+					    {
+							eStr = second.format("%02d");
+							if (propSecondTextMode)
+							{
+								propSecondIndicatorOn = true;
+							}
+							break;
+						}
+	
 						case 3/*FIELD_DAY_NAME*/:		// day name
 						case 9/*FIELD_MONTH_NAME*/:		// month name
 					    {
@@ -4924,7 +5016,7 @@ class myView
 							//var t2 = eStr.toCharArray();	// ok
 							//var t3 = t1.toCharArray();	// crash
 
-							if (isDynamicResourceSystemFont(resourceIndex))
+							if (isDynamicResourceSystemFont(dynamicResource))
 							{
 								// can display all diacritics
 								// can display upper & lower case
@@ -5222,7 +5314,7 @@ class myView
 						case 54/*FIELD_DISTANCE_UNITS*/:
 						{
 							eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
-							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
+							makeUpperCase = !isDynamicResourceSystemFont(dynamicResource);
 							break;
 						}
 
@@ -5246,7 +5338,7 @@ class myView
 						case 56/*FIELD_PRESSURE_UNITS*/:
 						{
 							eStr = "mb"; 	// mbar
-							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
+							makeUpperCase = !isDynamicResourceSystemFont(dynamicResource);
 							break;
 						}
 
@@ -5260,7 +5352,7 @@ class myView
 						case 58/*FIELD_ALTITUDE_UNITS*/:
 						{
 							eStr = ((deviceSettings.elevationUnits==System.UNIT_STATUTE) ? "ft" : "m");
-							makeUpperCase = !isDynamicResourceSystemFont(resourceIndex);
+							makeUpperCase = !isDynamicResourceSystemFont(dynamicResource);
 							break;
 						}
 
@@ -5290,31 +5382,24 @@ class myView
 					
 					if (eStr != null)
 					{
-						if (makeUpperCase)
-						{
-							eStr = eStr.toUpper();
-						}
-
-						var sLen = gfxCharArrayLen;
-						var eLen;
-						
 						if (useUnsupportedFont)
 						{
-							resourceIndex = gfxAddDynamicResources(0/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
+							var resourceIndex = gfxAddDynamicResources(0/*APPFONT_SYSTEM_XTINY*/ + propFieldFontUnsupported);
 							gfxData[index+2/*string_font*/] &= ~0x00FF0000;
 							gfxData[index+2/*string_font*/] |= ((resourceIndex & 0xFF) << 16);
+							dynamicResource = getDynamicResource(resourceIndex);
 						}
 
-						var dynamicResource = getDynamicResource(resourceIndex);
-
-						if (dynamicResource==null)
+						if (dynamicResource!=null)
 						{
-							gfxData[index+4] = sLen;
-							gfxData[index+5] = sLen;
-							gfxData[index+6] = 0;
-						}
-						else
-						{
+							if (makeUpperCase)
+							{
+								eStr = eStr.toUpper();
+							}
+	
+							var sLen = gfxCharArrayLen;
+							var eLen;
+							
 							if (checkDiacritics)
 							{
 								eLen = addStringToCharArrayWithDiacritics(eStr, gfxCharArray, sLen, MAX_GFX_CHARS);
@@ -5335,15 +5420,9 @@ class myView
 							gfxData[index+5] = eLen;	// string end
 							gfxData[index+6] = dc.getTextWidthInPixels(eStr, dynamicResource);
 							gfxData[indexCurField+4] += gfxData[index+6];	// total width
-							gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
+							updateFieldMaxAscentDescentResource(indexCurField+5, dynamicResource);		// store max ascent & descent in field
 							//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 						}					
-					}
-					else
-					{
-						gfxData[index+4] = 0;	// string start
-						gfxData[index+5] = 0;	// string end
-						gfxData[index+6] = 0;	// width
 					}
 					
 					break;
@@ -5370,8 +5449,7 @@ class myView
 						//var charArray = [(e - FIELD_SHAPE_CIRCLE + ICONS_FIRST_CHAR_ID).toChar()];
 						var c = (eDisplay + 65/*ICONS_FIRST_CHAR_ID*/).toChar();
 
-						var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
-						var dynamicResource = getDynamicResource(resourceIndex);
+						var dynamicResource = getDynamicResourceFromGfx(index+2/*icon_font*/);
 						if (dynamicResource==null)
 						{
 							break;
@@ -5380,7 +5458,7 @@ class myView
 						gfxData[index+4] = c;	// char
 						gfxData[index+5] = dc.getTextWidthInPixels(c.toString(), dynamicResource);
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
-						gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
+						updateFieldMaxAscentDescentResource(indexCurField+5, dynamicResource);		// store max ascent & descent in field
 						//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 				    }
 
@@ -5397,8 +5475,7 @@ class myView
 					gfxData[index+9] = activityMonitorMoveBarLevel;	// level
 					gfxData[index+10] = 0;	// width
 
-					var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
-					var dynamicResource = getDynamicResource(resourceIndex);
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*movebar_font*/);
 					if (dynamicResource==null)
 					{
 						break;
@@ -5420,7 +5497,7 @@ class myView
 					gfxData[index+10] = dc.getTextWidthInPixels("1", dynamicResource)*5 - (5*4);
 
 					gfxData[indexCurField+4] += gfxData[index+10];	// total width
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescentResource(gfxData[indexCurField+5], resourceIndex);		// store max ascent & descent in field
+					updateFieldMaxAscentDescentResource(indexCurField+5, dynamicResource);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
@@ -5441,7 +5518,7 @@ class myView
 
 					gfxData[index+4] = (axesSide ? 55 : 51);	// width
 					gfxData[indexCurField+4] += gfxData[index+4];	// total width					
-					gfxData[indexCurField+5] = updateFieldMaxAscentDescent(gfxData[indexCurField+5], 21/*heartChartHeight*/, 0);		// store max ascent & descent in field
+					updateFieldMaxAscentDescent(indexCurField+5, 21/*heartChartHeight*/, 0);		// store max ascent & descent in field
 					//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
 
 					break;
@@ -5744,7 +5821,10 @@ class myView
 				
 				case 9:	// seconds
 				{
-			    	propSecondIndicatorOn = isVisible;
+					if (!propSecondTextMode)
+					{
+			    		propSecondIndicatorOn = isVisible;
+			    	}
 					break;
 				}
 			}
@@ -5842,8 +5922,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2/*large_font*/] >> 16) & 0xFF);
-					var dynamicResource = getDynamicResource(resourceIndex);
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*large_font*/);
 					
 					var timeY = fieldYStart;
 					if (dynamicResource != null)
@@ -5927,8 +6006,7 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+6])>=0)	// check element x overlaps buffer
 						{ 
-							var resourceIndex = ((gfxData[index+2/*string_font*/] >> 16) & 0xFF);
-							var dynamicResource = getDynamicResource(resourceIndex);							
+							var dynamicResource = getDynamicResourceFromGfx(index+2/*string_font*/);							
 
 							var dateY = fieldYStart;
 							if (dynamicResource!=null)
@@ -5946,9 +6024,23 @@ class myView
 								break;
 							}
 
-					        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), -1/*COLOR_TRANSPARENT*/);
-
 							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+
+							/*FIELD_SECOND*/
+							if (propSecondGfxIndex==index)
+							{
+								if (toBuffer)
+								{
+									// don't draw to buffer
+		        					fieldX += gfxData[index+6];
+		        					break;
+								}
+
+								bufferX = fieldX;		// x
+								bufferY = dateY;		// y
+							}
+
+					        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), -1/*COLOR_TRANSPARENT*/);
 			        		dc.drawText(fieldX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
 
 							if ((gfxData[index+2/*string_font*/]&0x80000000)!=0)		// diacritics flag
@@ -5984,8 +6076,7 @@ class myView
 					{
 						if (fieldX<=dcWidth && (fieldX+gfxData[index+5])>=0)	// check element x overlaps buffer
 						{ 
-							var resourceIndex = ((gfxData[index+2/*icon_font*/] >> 16) & 0xFF);
-							var dynamicResource = getDynamicResource(resourceIndex);
+							var dynamicResource = getDynamicResourceFromGfx(index+2/*icon_font*/);
 
 							var dateY = fieldYStart;
 							if (dynamicResource!=null)
@@ -6020,8 +6111,7 @@ class myView
 						break;
 					}
 
-					var resourceIndex = ((gfxData[index+2/*movebar_font*/] >> 16) & 0xFF);
-					var dynamicResource = getDynamicResource(resourceIndex);
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*movebar_font*/);
 
 					var dateX = fieldX;
 					var dateY = fieldYStart;
@@ -6134,8 +6224,7 @@ class myView
 //	break;
 //}
 
-					var resourceIndex = ((gfxData[index+2/*ring_font*/] >> 16) & 0xFF);
-					var dynamicResource = getDynamicResource(resourceIndex);
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*ring_font*/);
 					var arrayResource = getDynamicResource(gfxData[index+9]);					
 					if (dynamicResource==null || arrayResource==null)
 					{
@@ -7131,6 +7220,7 @@ class myEditorView extends myView
 
 	var lastProfileStringLength = 0;
 	
+	(:m2app)
 	function getUsedProfileStringLength()
 	{
 		return lastProfileStringLength.toFloat()/MAX_PROFILE_STRING_LENGTH; 
@@ -7591,10 +7681,9 @@ class myEditorView extends myView
 		}
 	}
 
-	function getResourceFontHeight(i)
+	function getResourceFontHeightFromGfx(gfxIndex)
 	{
-		var resourceIndex = ((gfxData[i] >> 16) & 0xFF);
-		var dynamicResource = getDynamicResource(resourceIndex);
+		var dynamicResource = getDynamicResourceFromGfx(gfxIndex);
 		return ((dynamicResource!=null) ? Graphics.getFontHeight(dynamicResource) : 1);
 	}
 		
@@ -7609,22 +7698,22 @@ class myEditorView extends myView
 			if (id==2)		// large (hour, minute, colon)
 			{
 				w = gfxData[index+5]+gfxData[index+7];
-				h = getResourceFontHeight(index+2/*large_font*/);
+				h = getResourceFontHeightFromGfx(index+2/*large_font*/);
 			}
 			else if (id==3)		// string
 			{
 				w = gfxData[index+6];
-				h = getResourceFontHeight(index+2/*string_font*/);
+				h = getResourceFontHeightFromGfx(index+2/*string_font*/);
 			}
 			else if (id==4)		// icon
 			{
 				w = gfxData[index+5];
-				h = getResourceFontHeight(index+2/*icon_font*/);
+				h = getResourceFontHeightFromGfx(index+2/*icon_font*/);
 			}
 			else if (id==5)		// movebar
 			{
 				w = gfxData[index+10];
-				h = getResourceFontHeight(index+2/*movebar_font*/);
+				h = getResourceFontHeightFromGfx(index+2/*movebar_font*/);
 			}
 			else if (id==6)		// chart
 			{
@@ -8173,6 +8262,7 @@ class myEditorView extends myView
 	function headerFontUnsupportedEditing(val)
 	{
 		gfxSubtractValModuloInPlace(menuFieldGfx+15, val, 0, 4);		// 0 to 4
+		reloadDynamicResources = true;
 	}
 	
 	function elementVisibilityString()
