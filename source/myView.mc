@@ -7691,29 +7691,35 @@ class myEditorView extends myView
 	{
 		if (!menuHide && index==menuElementGfx && propElementHighlight!=COLOR_NOTSET)
 		{
-			// moved calculation of width & height just into the editor to save code on the watchface
+			// calculation of width & height is just done by the editor to save code on the watchface
 			var w = 1;
 			var h = 1;
 			var id = getGfxId(index);
-			if (id==2)		// large (hour, minute, colon)
+			if (id>=2 && id<=5)
 			{
-				w = gfxData[index+5]+gfxData[index+7];
-				h = getResourceFontHeightFromGfx(index+2/*large_font*/);
-			}
-			else if (id==3)		// string
-			{
-				w = gfxData[index+6];
-				h = getResourceFontHeightFromGfx(index+2/*string_font*/);
-			}
-			else if (id==4)		// icon
-			{
-				w = gfxData[index+5];
-				h = getResourceFontHeightFromGfx(index+2/*icon_font*/);
-			}
-			else if (id==5)		// movebar
-			{
-				w = gfxData[index+10];
-				h = getResourceFontHeightFromGfx(index+2/*movebar_font*/);
+				if (id==2)		// large (hour, minute, colon)
+				{
+					w = gfxData[index+5]+gfxData[index+7];
+					//h = getResourceFontHeightFromGfx(index+2/*large_font*/);
+				}
+				else if (id==3)		// string
+				{
+					w = gfxData[index+6];
+					//h = getResourceFontHeightFromGfx(index+2/*string_font*/);
+				}
+				else if (id==4)		// icon
+				{
+					w = gfxData[index+5];
+					//h = getResourceFontHeightFromGfx(index+2/*icon_font*/);
+				}
+				else if (id==5)		// movebar
+				{
+					w = gfxData[index+10];
+					//h = getResourceFontHeightFromGfx(index+2/*movebar_font*/);
+				}
+				
+				// one call since they are all the same offset
+				h = getResourceFontHeightFromGfx(index+2/*large_font*/);	//2/*string_font*/ 2/*icon_font*/ 2/*movebar_font*/
 			}
 			else if (id==6)		// chart
 			{
