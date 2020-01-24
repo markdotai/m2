@@ -48,13 +48,17 @@
 				"hour24 (2nd)",
 				"hour24 0#",
 				"hour24 0# (1st)",
-				"hour24 0# (2nd)"
+				"hour24 0# (2nd)",
+				"second (cheap)",
+				"second (true)"
 			],
 
 			[
 				0,		<!-- BIG_HOUR -->
 				3,		<!-- BIG_HOUR_0 -->
 				1,		<!-- BIG_MINUTE -->
+				22,		<!-- BIG_SECOND_CHEAP -->
+				23,		<!-- BIG_SECOND_TRUE -->
 				2,		<!-- BIG_COLON -->
 				4,		<!-- BIG_HOUR_1ST -->
 				5,		<!-- BIG_HOUR_2ND -->
@@ -150,7 +154,8 @@
 			"temperature",
 			"F/C (units)",
 			"rest calories",
-			"second"
+			"second\n(1Hz cheap)",
+			"second\n(1Hz true)"
 		]
 	</jsonData>
 		
@@ -454,7 +459,8 @@
 			[
 				1,		<!-- FIELD_HOUR -->
 				2,		<!-- FIELD_MINUTE -->
-				62,		<!-- FIELD_SECONDS -->
+				62,		<!-- FIELD_SECOND_CHEAP -->
+				63,		<!-- FIELD_SECOND_TRUE -->
 				26,		<!-- FIELD_SEPARATOR_COLON -->
 				147,	<!-- FIELD_AM --> <!-- 19|0x80 -->
 				148,	<!-- FIELD_PM --> <!-- 20|0x80 -->

@@ -91,16 +91,16 @@ class myView
 	var propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
 	
 	//const BUFFER_SIZE = 62;
-	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
 	var bufferX = 0;
 	var bufferY = 0;
 	
 	// just for seconds text:
-    var propSecondTextMode = false;
+    var propSecondTextMode = 0;		// 0=off, 1=cheap, 2=true
 	var bufferW = 0;
 	var bufferH = 0;
 
 	// just for seconds indicator:
+	var bufferPositionCounter = -1;	// ensures buffer will get updated first time
 	var propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
     var propSecondRefreshStyle = 0;
     var propSecondAligned = true;
@@ -1637,32 +1637,43 @@ class myView
 //	return;
 //}
 
-		if (propSecondIndicatorOn && !propSecondTextMode && doDrawGfx)
+		if (propSecondIndicatorOn && doDrawGfx)
 		{
-			// draw the seconds indicator to the screen
-        	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
-        	{
-        		var s = (propSecondAligned ? second : (second+59)%60); 
-   				drawSecond(dc, s, s);
-    		}
-    		else if ((propSecondRefreshStyle==1/*REFRESH_EVERY_MINUTE*/) || (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==0))
-    		{
-    			// draw all the seconds up to this point in the minute
-				drawSecond(dc, 0, propSecondAligned ? second : (second-1));
-    		}
-    		else if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==1)
+			if (propSecondTextMode!=0)
 			{
-				if (propSecondAligned)
+				var bufferBitmap = getDynamicResource(propSecondBufferIndex);
+		        if (bufferBitmap!=null)
+		        {
+					drawBackgroundToDc(null);	// and draw the background into the buffer
+				}
+			}
+			else
+			{
+				// draw the seconds indicator to the screen
+	        	if (propSecondRefreshStyle==0/*REFRESH_EVERY_SECOND*/)
+	        	{
+	        		var s = (propSecondAligned ? second : (second+59)%60); 
+	   				drawSecond(dc, s, s);
+	    		}
+	    		else if ((propSecondRefreshStyle==1/*REFRESH_EVERY_MINUTE*/) || (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==0))
+	    		{
+	    			// draw all the seconds up to this point in the minute
+					drawSecond(dc, 0, propSecondAligned ? second : (second-1));
+	    		}
+	    		else if (propSecondRefreshStyle==2/*REFRESH_ALTERNATE_MINUTES*/ && (minute%2)==1)
 				{
-					// always draw indicator at 0 in this mode
-					// (it covers up frame slowdown when drawing all the rest of the seconds coming next ...)
-   					drawSecond(dc, 0, 0);
-
-   				}
-
-    			// draw all the seconds after this point in the minute
-   				drawSecond(dc, propSecondAligned ? (second+1) : second, 59);
-    		}
+					if (propSecondAligned)
+					{
+						// always draw indicator at 0 in this mode
+						// (it covers up frame slowdown when drawing all the rest of the seconds coming next ...)
+	   					drawSecond(dc, 0, 0);
+	
+	   				}
+	
+	    			// draw all the seconds after this point in the minute
+	   				drawSecond(dc, propSecondAligned ? (second+1) : second, 59);
+	    		}
+	    	}
 		}
     }
 
@@ -1889,40 +1900,39 @@ class myView
     
 		if (propSecondIndicatorOn)
 		{ 
-	    	if (propSecondTextMode)
+	    	if (propSecondTextMode!=0)
 	    	{
+				var s;
+				var offset;
+				
+				if ((lastPartialUpdateSec/10) != (second/10))	// if 1st digit changes
+				{
+					s = second.format("%02d");	// draw both digits:
+					offset = 0;
+				}
+				else
+				{
+					// drawing just 1 digit is 5% cheaper only 7100 -> 6700 (and 26600->22100)
+					s = "" + (second%10);	// draw just 2nd digit:
+					offset = bufferW/2;
+				}
+	    		
+   				dc.setClip(bufferX + offset, bufferY, bufferW - offset, bufferH);
+
+				// draw the background (buffer only exists for FIELD_SECOND_TRUE)		
 				var bufferBitmap = getDynamicResource(propSecondBufferIndex);
 		        if (bufferBitmap!=null)
 		        {
-					if (bufferPositionCounter<0)	// if no buffer yet
-					{
-		    			bufferPositionCounter++;
-						drawBackgroundToDc(null);	// and draw the background into the buffer
-					}
-	
-					// draw the text
-					var dynamicResource = getDynamicResourceFromGfx(propSecondGfxIndex+2/*string_font*/);							
-					if (dynamicResource!=null)
-					{
-				        dc.setColor(getColor64FromGfx(gfxData[propSecondGfxIndex+3/*string_color*/]), -1/*COLOR_TRANSPARENT*/);
-		
-						// draw the background				
-		   				dc.setClip(bufferX, bufferY, bufferW, bufferH);
-						dc.drawBitmap(bufferX, bufferY, bufferBitmap);
-						//
-						// draw both digits:
-						var s = second.format("%02d");
-		        		dc.drawText(bufferX, bufferY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
-
-						// drawing just 1 digit is 5% cheaper only 7100 -> 6700 (and 26600->22100)
-						// draw the background				
-		   				//dc.setClip(bufferX + bufferW/2, bufferY, bufferW/2, bufferH);
-						//dc.drawBitmap(bufferX, bufferY, bufferBitmap);
-						//
-						// draw just 2nd digit:
-						//var s = "" + (second%10);
-		        		//dc.drawText(bufferX + bufferW/2, bufferY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
-					}
+					dc.drawBitmap(bufferX, bufferY, bufferBitmap);
+				}
+				
+				// draw the text
+				var dynamicResource = getDynamicResourceFromGfx(propSecondGfxIndex+2/*string_font*/);	// also 2/*large_font*/ is the same luckily
+				if (dynamicResource!=null)
+				{
+					// also 3/*large_color*/ is the same luckily
+			        dc.setColor(getColor64FromGfx(gfxData[propSecondGfxIndex+3/*string_color*/]), (bufferBitmap==null) ? propBackgroundColor : -1/*COLOR_TRANSPARENT*/);	
+	        		dc.drawText(bufferX + offset, bufferY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
 				}
 			}
 			else
@@ -1943,9 +1953,10 @@ class myView
 	
 		 		// do the partial update for this current second
 		 		doPartialUpdateSec(dc, second, minute);
-		 		lastPartialUpdateSec = second;	// set after calling doPartialUpdateSec
 		 	}
         }
+
+ 		lastPartialUpdateSec = second;	// set after calling doPartialUpdateSec
     }
 
     (:m2face)
@@ -3722,6 +3733,7 @@ class myView
 		propSecondResourceIndex = MAX_DYNAMIC_RESOURCES;
 		propSecondPositionsIndex = MAX_DYNAMIC_RESOURCES;
 		propSecondBufferIndex = MAX_DYNAMIC_RESOURCES;
+		propSecondGfxIndex = -1;
     }
 
     function loadDynamicResources(dc)
@@ -3729,6 +3741,8 @@ class myView
 //		var prevMem = System.getSystemStats().freeMemory; 
 //		System.println("loadDynamicResources free=" + prevMem);
     
+    	var propSecondTextBufferIndex = -1;
+    	
 		for (var i=0; i<dynResNum; i++)
 		{
 			var r = dynResList[i];
@@ -3738,19 +3752,9 @@ class myView
 		        //if (Toybox.Graphics has :BufferedBitmap)
 				// This full color buffer is needed because anti-aliased fonts cannot be drawn into a buffer with a reduced color palette
 
-				if (propSecondTextMode)
+				if (propSecondTextMode!=0)
 				{
-					var dynamicResource = getDynamicResourceFromGfx(propSecondGfxIndex+2/*string_font*/);
-					if (dynamicResource!=null)
-					{
-						bufferW = dc.getTextWidthInPixels("0", dynamicResource)*2;		// w
-						bufferH = dc.getFontAscent(dynamicResource);						// h
-						dynResResource[i] = new Graphics.BufferedBitmap({:width=>bufferW, :height=>bufferH});
-					}
-					else
-					{
-						dynResResource[i] = null;
-					}
+					propSecondTextBufferIndex = i; 
 				}
 				else
 				{	
@@ -3767,12 +3771,42 @@ class myView
 //	    	prevMem = curMem;
 		}
 		
-		// build the seconds color array only after the seconds refresh has been set and the position array has been loaded
-		if (propSecondGfxIndex>=0 && !propSecondTextMode)
+		if (propSecondGfxIndex>=0)
 		{
-			var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
-			propSecondAligned = (dynamicPositions==null || outerAlignedToSeconds(dynamicPositions));
-			buildSecondsColorArray(propSecondGfxIndex);
+			if (propSecondTextMode!=0)
+			{
+				var dynamicResource = getDynamicResourceFromGfx(propSecondGfxIndex+2/*string_font*/);	// also 2/*large_font*/ is the same luckily
+				if (dynamicResource!=null)
+				{
+					bufferW = dc.getTextWidthInPixels("0", dynamicResource)*2;		// w
+					bufferH = dc.getFontAscent(dynamicResource);					// h
+				
+					// allocate the buffer, which depends on the size of font used
+					if (propSecondTextBufferIndex>=0)
+					{
+						// seems to be approximately width * height + 200 bytes
+						// then round up to nearest 50 block
+						var m = (bufferW*bufferH + 200 + 49)/50;
+						if ((dynResMem50+m)<=MAX_DYNAMIC_MEM)
+						{
+							dynResMem50 += m;
+							dynResResource[propSecondTextBufferIndex] = new Graphics.BufferedBitmap({:width=>bufferW, :height=>bufferH});
+						}
+						else
+						{
+							dynResMemFailed = true;
+						}
+					}
+				}
+			}
+			else
+			{
+				// seconds indicator
+				// build the seconds color array only after the seconds refresh has been set and the position array has been loaded
+				var dynamicPositions = getDynamicResource(propSecondPositionsIndex);
+				propSecondAligned = (dynamicPositions==null || outerAlignedToSeconds(dynamicPositions));
+				buildSecondsColorArray(propSecondGfxIndex);
+			}
 		}
     }
     
@@ -4147,6 +4181,18 @@ class myView
 				 	var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 					gfxData[index+2/*large_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
+					var largeType = gfxData[index+1/*large_type*/];
+					if (largeType==22/*BIG_SECOND_CHEAP*/ || largeType==23/*BIG_SECOND_TRUE*/)
+					{
+						propSecondTextMode = largeType-22+1;		// 0=off, 1=cheap, 2=true
+						propSecondGfxIndex = index;
+						
+						if (propSecondTextMode==2)	// true
+						{
+							propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 0);
+						}
+					}
+
 					break;
 				}
 
@@ -4163,11 +4209,15 @@ class myView
 					gfxData[index+2/*string_font*/] = r | ((resourceIndex & 0xFF) << 16);
 
 					var eDisplay = (gfxData[index+1] & 0x7F);	// 0x80 is for useNumFont
-					if (eDisplay==62/*FIELD_SECOND*/)
+					if (eDisplay==62/*FIELD_SECOND_CHEAP*/ || eDisplay==63/*FIELD_SECOND_TRUE*/)
 					{
-						propSecondTextMode = true;
+						propSecondTextMode = eDisplay-62+1;		// 0=off, 1=cheap, 2=true
 						propSecondGfxIndex = index;
-						propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 84);
+						
+						if (propSecondTextMode==2)	// true
+						{
+							propSecondBufferIndex = addDynamicResource(BUFFER_RESOURCE, 0);
+						}
 					}
 					
 					break;
@@ -4287,7 +4337,7 @@ class myView
 				
 				case 9:	// seconds
 				{
-					propSecondTextMode = false;
+					propSecondTextMode = 0;
 					propSecondGfxIndex = index;
 					
 					var r = (gfxData[index+1] & 0x00FF);	// font
@@ -4829,6 +4879,15 @@ class myView
 							charArray = charArray.slice(largeType-8/*BIG_MINUTE_1ST*/, largeType-8/*BIG_MINUTE_1ST*/+1);
 						}
 					}
+					else if (largeType==22/*BIG_SECOND_CHEAP*/ || largeType==23/*BIG_SECOND_TRUE*/)
+					{
+						charArray = second.format("%02d").toCharArray();
+						
+						if (propSecondGfxIndex==index)
+						{
+							propSecondIndicatorOn = true;
+						}
+					}
 					else // hours
 					{
 						//0,		<!-- BIG_HOUR -->
@@ -4987,10 +5046,11 @@ class myView
 							break;
 						}
 	
-						case 62/*FIELD_SECOND*/:		// second
+						case 62/*FIELD_SECOND_CHEAP*/:		// second
+						case 63/*FIELD_SECOND_TRUE*/:		// second
 					    {
 							eStr = second.format("%02d");
-							if (propSecondTextMode)
+							if (propSecondGfxIndex==index)
 							{
 								propSecondIndicatorOn = true;
 							}
@@ -5821,10 +5881,10 @@ class myView
 				
 				case 9:	// seconds
 				{
-					if (!propSecondTextMode)
+					if (propSecondGfxIndex==index)
 					{
-			    		propSecondIndicatorOn = isVisible;
-			    	}
+						propSecondIndicatorOn = isVisible;
+					}
 					break;
 				}
 			}
@@ -5948,6 +6008,27 @@ class myView
 
 //System.println("ascent=" + Graphics.getFontAscent(dynamicResource));
 					
+					var bgColor = -1/*COLOR_TRANSPARENT*/;
+
+					// /*BIG_SECOND_CHEAP*/ or /*BIG_SECOND_TRUE*/  
+					if (propSecondGfxIndex==index)
+					{
+						if (toBuffer)
+						{
+							// don't draw to buffer
+        					fieldX += gfxData[index+5]+gfxData[index+7];
+        					break;
+						}
+
+						bufferX = fieldX;		// x
+						bufferY = timeY;		// y
+						
+						if (propSecondTextMode==1)	// cheap
+						{
+							bgColor = propBackgroundColor;
+						}
+					}
+
 					for (var j=0; j<=2; j+=2)
 					{
 						var indexWidthJ = index+5+j; 
@@ -5957,7 +6038,7 @@ class myView
 							if (fieldX<=dcWidth && (fieldX+gfxData[indexWidthJ])>=0)		// check digit x overlaps buffer
 							{
 								// align bottom of text
-					       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), -1/*COLOR_TRANSPARENT*/);
+					       		dc.setColor(getColor64FromGfx(gfxData[index+3/*large_color*/]), bgColor);
 								//dc.setColor(getColor64FromGfx(gfxData[index+1]), Graphics.COLOR_BLUE);
 				        		dc.drawText(fieldX, timeY - 1, dynamicResource, gfxData[indexWidthJ-1].toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
 							}
@@ -6024,9 +6105,9 @@ class myView
 								break;
 							}
 
-							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+							var bgColor = -1/*COLOR_TRANSPARENT*/;
 
-							/*FIELD_SECOND*/
+							// /*FIELD_SECOND_CHEAP*/ or /*FIELD_SECOND_TRUE*/  
 							if (propSecondGfxIndex==index)
 							{
 								if (toBuffer)
@@ -6038,9 +6119,16 @@ class myView
 
 								bufferX = fieldX;		// x
 								bufferY = dateY;		// y
+								
+								if (propSecondTextMode==1)	// cheap
+								{
+									bgColor = propBackgroundColor;
+								}
 							}
 
-					        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), -1/*COLOR_TRANSPARENT*/);
+							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+
+					        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), bgColor);
 			        		dc.drawText(fieldX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
 
 							if ((gfxData[index+2/*string_font*/]&0x80000000)!=0)		// diacritics flag
