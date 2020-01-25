@@ -4235,8 +4235,6 @@ class myView
 			 	var fontListIndex = r + 93;
 				var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
 				gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
-
-				break;
 			}
 //			else if (id==5)		// movebar
 //			{
@@ -5879,448 +5877,431 @@ class myView
 				if (!isVisible)
 				{
 					fieldDraw = false;
-					break;
 				}
-
-				var totalWidth = gfxData[index+4];
-
-				var fieldXStart = gfxData[index+1] - dcX; // + gfxData[index+5];	// add x adjustment
-				fieldYStart = displaySize - gfxData[index+2] - dcY;
-		
-				if (gfxData[index+3]==0)	// centre justification
+				else
 				{
-					fieldXStart -= totalWidth/2;
-				}
-				else if (gfxData[index+3]==2)	// right justification
-				{
-					fieldXStart -= totalWidth;
-				}
-				//else if (gfxData[index+3]==1)	// left justification
-				//{
-				//	// ok as is
-				//}
-		
-				var fieldAscent = (gfxData[index+5] & 0xFF);
-				var fieldDescent = ((gfxData[index+5] & 0xFF00) >> 8);
-		
-				fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-fieldAscent)<=dcHeight && (fieldYStart+fieldDescent)>=0));
-		
-				fieldX = fieldXStart;
+					var totalWidth = gfxData[index+4];
+	
+					var fieldXStart = gfxData[index+1] - dcX; // + gfxData[index+5];	// add x adjustment
+					fieldYStart = displaySize - gfxData[index+2] - dcY;
+			
+					if (gfxData[index+3]==0)	// centre justification
+					{
+						fieldXStart -= totalWidth/2;
+					}
+					else if (gfxData[index+3]==2)	// right justification
+					{
+						fieldXStart -= totalWidth;
+					}
+					//else if (gfxData[index+3]==1)	// left justification
+					//{
+					//	// ok as is
+					//}
+			
+					var fieldAscent = (gfxData[index+5] & 0xFF);
+					var fieldDescent = ((gfxData[index+5] & 0xFF00) >> 8);
+			
+					fieldDraw = ((fieldXStart<=dcWidth && (fieldXStart+totalWidth)>=0 && (fieldYStart-fieldAscent)<=dcHeight && (fieldYStart+fieldDescent)>=0));
+			
+					fieldX = fieldXStart;
+	
+					if (isEditor)
+					{
+						gfxFieldHighlight(dc, index, fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
+					}
 
-				if (isEditor)
-				{
-					gfxFieldHighlight(dc, index, fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
+					//	dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+					//	dc.fillRectangle(fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
 				}
-
-//	dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
-//	dc.fillRectangle(fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
 			}
 			else if (id>=2 && id<=5)
 			{
-				if (!(fieldDraw && isVisible))
+				if (fieldDraw && isVisible)
 				{
-					break;
-				}
-
-				var thisWidth = 0;
-				
-				if (id==2 || id==3)
-				{
-					thisWidth = gfxData[index+6];
-				}
-				else if (id==4)
-				{
-					thisWidth = gfxData[index+5];
-				}
-				else if (id==5)
-				{
-					thisWidth = gfxData[index+10];
-				}
-
-				if (fieldX<=dcWidth && (fieldX+thisWidth)>=0)	// check element x overlaps buffer
-				{ 
-					var dynamicResource = getDynamicResourceFromGfx(index+2/*string_font*/);		// 2/*icon_font*/ 2/*movebar_font*/				
-
-					var dateY = fieldYStart;
-					if (dynamicResource!=null)
-					{
-						dateY -= Graphics.getFontAscent(dynamicResource);		// subtract ascent
-					}
-				
-					if (isEditor)
-					{
-						gfxElementHighlight(dc, index, fieldX, dateY);
-					}
-
-					if (dynamicResource==null)
-					{
-						break;
-					}
+					var thisWidth = 0;
 					
-					if (id==2 || id==3)		// large or string
+					if (id==2 || id==3)
 					{
-						var sLen = gfxData[index+4];
-						var eLen = gfxData[index+5];
-						if (eLen > sLen)
+						thisWidth = gfxData[index+6];
+					}
+					else if (id==4)
+					{
+						thisWidth = gfxData[index+5];
+					}
+					else if (id==5)
+					{
+						thisWidth = gfxData[index+10];
+					}
+	
+					if (fieldX<=dcWidth && (fieldX+thisWidth)>=0)	// check element x overlaps buffer
+					{ 
+						var dynamicResource = getDynamicResourceFromGfx(index+2/*string_font*/);		// 2/*icon_font*/ 2/*movebar_font*/				
+	
+						var dateY = fieldYStart;
+						if (dynamicResource!=null)
 						{
-							//	// font ascent & font height are all over the place with system fonts on different watches
-							//	// - have to hard code some values for each font and for each watch?
-							//	dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
-							//	dc.fillRectangle(fieldX, timeY, gfxData[index+4]+gfxData[index+6], Graphics.getFontHeight(dynamicResource));
-							
-							//System.println("ascent=" + Graphics.getFontAscent(dynamicResource));
-
-							var bgColor = -1/*COLOR_TRANSPARENT*/;
+							dateY -= Graphics.getFontAscent(dynamicResource);		// subtract ascent
+						}
+					
+						if (isEditor)
+						{
+							gfxElementHighlight(dc, index, fieldX, dateY);
+						}
 	
-							// /*BIG_SECOND_CHEAP*/ or /*BIG_SECOND_TRUE*/  
-							// /*FIELD_SECOND_CHEAP*/ or /*FIELD_SECOND_TRUE*/  
-							if (propSecondGfxIndex==index)
+						if (dynamicResource!=null)
+						{
+							if (id==2 || id==3)		// large or string
 							{
-								if (toBuffer)
+								var sLen = gfxData[index+4];
+								var eLen = gfxData[index+5];
+								if (eLen > sLen)
 								{
-									// don't draw to buffer
-		        					fieldX += gfxData[index+6];
-		        					break;
-								}
-	
-								bufferX = fieldX;		// x
-								bufferY = dateY;		// y
-								
-								if (propSecondTextMode==1)	// cheap
-								{
-									bgColor = propBackgroundColor;
-								}
-							}
-	
-							var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
-	
-					        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), bgColor);
-			        		dc.drawText(fieldX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
-	
-							if ((gfxData[index+2/*string_font*/]&0x80000000)!=0)		// diacritics flag
-							{
-								var num = eLen - sLen;
-								for (var i=0; i<num; i++)
-								{
-									var c = gfxCharArray[eLen+i];
-									if (c!=0)
+									//	// font ascent & font height are all over the place with system fonts on different watches
+									//	// - have to hard code some values for each font and for each watch?
+									//	dc.setColor(Graphics.COLOR_RED, -1/*COLOR_TRANSPARENT*/);
+									//	dc.fillRectangle(fieldX, timeY, gfxData[index+4]+gfxData[index+6], Graphics.getFontHeight(dynamicResource));
+									
+									//System.println("ascent=" + Graphics.getFontAscent(dynamicResource));
+		
+									var bgColor = -1/*COLOR_TRANSPARENT*/;
+			
+									// /*BIG_SECOND_CHEAP*/ or /*BIG_SECOND_TRUE*/  
+									// /*FIELD_SECOND_CHEAP*/ or /*FIELD_SECOND_TRUE*/  
+									if (!toBuffer || propSecondGfxIndex!=index)		// don't draw seconds to buffer
 									{
-										var w = ((i>0) ? dc.getTextWidthInPixels(s.substring(0, i), dynamicResource) : 0); 
-										dc.drawText(fieldX + w, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+										if (propSecondGfxIndex==index)
+										{
+											bufferX = fieldX;		// x
+											bufferY = dateY;		// y
+											
+											if (propSecondTextMode==1)	// cheap
+											{
+												bgColor = propBackgroundColor;
+											}
+										}
+				
+										var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+				
+								        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), bgColor);
+						        		dc.drawText(fieldX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
+				
+										if ((gfxData[index+2/*string_font*/]&0x80000000)!=0)		// diacritics flag
+										{
+											var num = eLen - sLen;
+											for (var i=0; i<num; i++)
+											{
+												var c = gfxCharArray[eLen+i];
+												if (c!=0)
+												{
+													var w = ((i>0) ? dc.getTextWidthInPixels(s.substring(0, i), dynamicResource) : 0); 
+													dc.drawText(fieldX + w, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+												}
+											}
+										}
 									}
+								}	
+							}
+							else if (id==4)		// icon
+							{
+								var c = gfxData[index+4];
+								if (c > 0)
+								{
+							        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
+					        		dc.drawText(fieldX, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+					        	}
+							}
+							else if (id==5)		// movebar
+							{
+								// moveBarLevel 0 = not triggered
+								// moveBarLevel has range 1 to 5
+								// moveBarNum goes from 1 to 5
+								// since "1" and "0" chars in movebar are the same width just calculate once:
+								var dateX = fieldX;
+								var w = dc.getTextWidthInPixels("1", dynamicResource);
+								for (var i=0; i<5; i++)
+								{
+									if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
+									{ 
+										var barIsOn = (i < gfxData[index+9]);
+										var col = ((barIsOn || gfxData[index+8]==(-2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/)) ? getColor64FromGfx(gfxData[index+3+i]) : getColor64FromGfx(gfxData[index+8]));
+										
+								        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
+						        		dc.drawText(dateX, dateY - 1, dynamicResource, (barIsOn?"1":"0"), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
+									}
+									
+									dateX += w + ((i<4) ? -5 : 0);
 								}
 							}
-						}	
-					}
-					else if (id==4)		// icon
-					{
-						var c = gfxData[index+4];
-						if (c > 0)
-						{
-					        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
-			        		dc.drawText(fieldX, dateY - 1, dynamicResource, c.toString(), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
-			        	}
-					}
-					else if (id==5)		// movebar
-					{
-						// moveBarLevel 0 = not triggered
-						// moveBarLevel has range 1 to 5
-						// moveBarNum goes from 1 to 5
-						// since "1" and "0" chars in movebar are the same width just calculate once:
-						var dateX = fieldX;
-						var w = dc.getTextWidthInPixels("1", dynamicResource);
-						for (var i=0; i<5; i++)
-						{
-							if (dateX<=dcWidth && (dateX+w)>=0)		// check element x overlaps buffer
-							{ 
-								var barIsOn = (i < gfxData[index+9]);
-								var col = ((barIsOn || gfxData[index+8]==(-2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/)) ? getColor64FromGfx(gfxData[index+3+i]) : getColor64FromGfx(gfxData[index+8]));
-								
-						        dc.setColor(col, -1/*COLOR_TRANSPARENT*/);
-				        		dc.drawText(dateX, dateY - 1, dynamicResource, (barIsOn?"1":"0"), 2/*TEXT_JUSTIFY_LEFT*/);	// need to draw 1 pixel higher than expected ...
-							}
-							
-							dateX += w + ((i<4) ? -5 : 0);
 						}
 					}
-				}
-
-	        	fieldX += thisWidth;
+	
+		        	fieldX += thisWidth;
+		        }
 			}
 			else if (id==6)		// chart
 			{
-				if (!(fieldDraw && isVisible))
+				if (fieldDraw && isVisible)
 				{
-					break;
-				}
-
-				if (isEditor)
-				{
-					gfxElementHighlight(dc, index, fieldX, fieldYStart-21/*heartChartHeight*/);
-				}
-
-				if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)	// check element x overlaps buffer
-				{
-					var axesSide = ((gfxData[index+1]&0x01)!=0);
-					var axesBottom = ((gfxData[index+1]&0x02)!=0);
-
-					drawHeartChart(dc, fieldX, fieldYStart, getColor64FromGfx(gfxData[index+2]), getColor64FromGfx(gfxData[index+3]), axesSide, axesBottom);		// draw heart rate chart
-				}
-
-	        	fieldX += gfxData[index+4];
+					if (isEditor)
+					{
+						gfxElementHighlight(dc, index, fieldX, fieldYStart-21/*heartChartHeight*/);
+					}
+	
+					if (fieldX<=dcWidth && (fieldX+gfxData[index+4])>=0)	// check element x overlaps buffer
+					{
+						var axesSide = ((gfxData[index+1]&0x01)!=0);
+						var axesBottom = ((gfxData[index+1]&0x02)!=0);
+	
+						drawHeartChart(dc, fieldX, fieldYStart, getColor64FromGfx(gfxData[index+2]), getColor64FromGfx(gfxData[index+3]), axesSide, axesBottom);		// draw heart rate chart
+					}
+	
+		        	fieldX += gfxData[index+4];
+		        }
 			}
 			else if (id==7)		// rectangle
 			{
-				if (!isVisible)
+				if (isVisible)
 				{
-					break;
-				}
-
-				var w = gfxData[index+6/*rect_w*/];
-				var h = gfxData[index+7/*rect_h*/];
-				var x = gfxData[index+4/*rect_x*/] - dcX - w/2;
-				var y = displaySize - gfxData[index+5/*rect_y*/] - dcY - h/2;
-
-				if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
-				{
-					//var dataType = gfxData[index+1/*rect_type*/];
-					//var colUnfilled = getColor64FromGfx(gfxData[index+3/*rect_unfilled*/]);
-
-					var colFilled = getColor64FromGfx(gfxData[index+2/*rect_filled*/]);
-					if (colFilled!=-2/*COLOR_NOTSET*/)
+					var w = gfxData[index+6/*rect_w*/];
+					var h = gfxData[index+7/*rect_h*/];
+					var x = gfxData[index+4/*rect_x*/] - dcX - w/2;
+					var y = displaySize - gfxData[index+5/*rect_y*/] - dcY - h/2;
+	
+					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
-				        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
-						dc.fillRectangle(x, y, w, h);
+						//var dataType = gfxData[index+1/*rect_type*/];
+						//var colUnfilled = getColor64FromGfx(gfxData[index+3/*rect_unfilled*/]);
+	
+						var colFilled = getColor64FromGfx(gfxData[index+2/*rect_filled*/]);
+						if (colFilled!=-2/*COLOR_NOTSET*/)
+						{
+					        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+							dc.fillRectangle(x, y, w, h);
+						}
 					}
-				}
-
-				if (isEditor)
-				{
-					gfxFieldHighlight(dc, index, x, y, w, h);
+	
+					if (isEditor)
+					{
+						gfxFieldHighlight(dc, index, x, y, w, h);
+					}
 				}
 			}
 			else if (id==8)	// ring
 			{
-				if (!isVisible)
+				if (isVisible)
 				{
-					break;
-				}
-
-//if (hyperNum<0)
-//{
-//	break;
-//}
-
-				var dynamicResource = getDynamicResourceFromGfx(index+2/*ring_font*/);
-				var arrayResource = getDynamicResource(gfxData[index+9]);					
-				if (dynamicResource==null || arrayResource==null)
-				{
-					break;
-				}
-
-				var drawStart = gfxData[index+3];	// 0-59
-				var drawEnd = gfxData[index+4];		// 0-59
-
-				var fillStart = (gfxData[index+8]&0xFF);
-				var fillEnd = ((gfxData[index+8]>>8)&0xFF);
-				var noFill = ((gfxData[index+8]&0x10000)!=0);
-				var fillValue = fillEnd;
-
-				var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
-				if (eDirAnti)	// swap start & end for clockwise drawing
-				{
-					var temp = drawStart;
-					drawStart = drawEnd;
-					drawEnd = temp;
-					
-					// this makes it look odd when then adjust start or end - so removed it
-					// if full circle
-					//if (outerAlignedToSeconds(arrayResource) && drawStart==((drawEnd+1)%60))
-					//{
-					//	// shift clockwise one
-					//	fillStart = ((fillStart+1)%60);
-					//	fillEnd = ((fillEnd+1)%60);
-					//}
-
-					fillValue = fillStart;
-				}
-				
-				var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
-
-//				//var outerSizeHalf = getOuterSizeHalf(arrayResource);
-//				var outerSizeHalf = arrayResource[61];
-//				var bufferXMin = bufferX - outerSizeHalf;
-//				var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
-//				var bufferYMin = bufferY - outerSizeHalf;
-//				var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
-
-				var jStart = 0;
-				var jRange = 59;	// all segments
-				
-				// Calculate the segment range which is inside the buffer area (as best we can while being cheap)
-				// - check for quarter & half segments
-				if (toBuffer)
-				{
-					jRange = 16;
-					if (bufferX>=displayHalf)
-					{
-						if (bufferY>=displayHalf)
-						{
-							jStart = 14;
-						}
-						else if ((bufferY+62/*BUFFER_SIZE*/)<=displayHalf)
-						{
-							jStart = 59;
-						}
-						else
-						{
-							jStart = 7;
-						}
-					}
-					else if ((bufferX+62/*BUFFER_SIZE*/)<=displayHalf)
-					{
-						if (bufferY>=displayHalf)
-						{
-							jStart = 29;
-						}
-						else if ((bufferY+62/*BUFFER_SIZE*/)<=displayHalf)
-						{
-							jStart = 44;
-						}
-						else
-						{
-							jStart = 37;
-						}
-					}
-					else
-					{
-						if (bufferY<=displayHalf)
-						{
-							jStart = 52;
-						}
-						else
-						{
-							jStart = 22;
-						}
-					}
-				}
-				
-//System.println("drawStart=" + drawStart + " drawEnd=" + drawEnd);
-//System.println("jStart=" + jStart + " jRange=" + jRange);
-
-				var loopStart;
-				var loopEnd;
-				var testStart;
-				var testRange;
-
-				// want to iterate through whichever is the smaller range - jRange or drawRange
-				if (drawRange < jRange)
-				{
-					loopStart = drawStart;
-					loopEnd = drawStart + drawRange; 
-					testStart = jStart;
-					testRange = jRange; 
-				}
-				else
-				{
-					loopStart = jStart;
-					loopEnd = jStart + jRange; 
-					testStart = drawStart;
-					testRange = drawRange; 
-				}
-				
-				// do a check that at least some of the visible segments are inside the buffer range
-				// the start or end of the shorter range MUST be inside the larger range 
-				if (!((loopStart-testStart+60)%60<=testRange || (loopEnd-testStart+60)%60<=testRange))
-				{
-					break; 
-				}
-
-				var colFilled = getColor64FromGfx(gfxData[index+5]);
-				var colValue = getColor64FromGfx(gfxData[index+6]);
-				if (colValue==-2/*COLOR_NOTSET*/)
-				{
-					colValue = colFilled;
-				}
-				var colUnfilled = getColor64FromGfx(gfxData[index+7]);
-				
-				if (noFill)
-				{
-					colFilled = colUnfilled;
-					colValue = colUnfilled;
-				}
-
-				//var outerSizeHalf = getOuterSizeHalf(arrayResource);
-				var outerSizeHalf = arrayResource[61];
-				var bufferXMin = bufferX - outerSizeHalf;
-				var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
-				var bufferYMin = bufferY - outerSizeHalf;
-				var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
-
-				var xOffset = -dcX - outerSizeHalf;
-				var yOffset = -dcY - outerSizeHalf - 1;		// need to draw 1 pixel higher than expected ...
-				var curCol = -2/*COLOR_NOTSET*/;
-		
-				// draw the correct segments
-				for (var j=loopStart; j<=loopEnd; j++)
-				{
-					var index = j%60;
-					
-					//var outerX = getOuterX(arrayResource, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
-					//var outerY = getOuterY(arrayResource, index);
-					var xyVal = arrayResource[index];
-					var outerX = (xyVal & 0xFFFF);
-					var outerY = ((xyVal>>16) & 0xFFFF);
-
-					// don't draw if not inside buffer
-					// don't draw segments outside the other range we are testing
-					//var testOffset = (index-testStart+60)%60;
-					//if (testOffset>testRange)
-					if ((toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY)) ||
-						(((index-testStart+60)%60)>testRange))
-					{
-						continue; 
-					}
-							
-					var indexCol;
-					if (index==fillValue)
-					{
-						indexCol = colValue;
-					}
-					else if (fillStart<=fillEnd)
-					{
-						indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
-					}
-					else
-					{
-						indexCol = ((index>=fillStart || index<=fillEnd) ? colFilled : colUnfilled); 
-					}
-
-					if (indexCol != -2/*COLOR_NOTSET*/)	// don't draw the segment if no color is set
-					{
-						if (curCol!=indexCol)
-						{
-							curCol = indexCol;
-		       				dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
-		       			}
+	//if (hyperNum<0)
+	//{
+	//	break;
+	//}
 	
-						// test fill whole background of each character
-		       			//dc.setColor(Graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
-			        	//dc.fillRectangle(xOffset + outerX, yOffset + outerY + 1, 16, 16);
-		       			//dc.setColor(curCol, Graphics.COLOR_BLUE);
-		       				
-						//var s = characterString.substring(index, index+1);
-						//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
-						//var s = (index + 21/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
-			        	dc.drawText(xOffset + outerX, yOffset + outerY, dynamicResource, (index + 21/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
-			        }
-				}
-
-				// test draw a line at top of display - so 0 really is the top visible pixel
-		    	//dc.setClip(displayHalf, getOuterY(arrayResource,0)-8, 10, 1);
-			    //dc.setColor(-1/*COLOR_TRANSPARENT*/, Graphics.COLOR_RED);
-		        //dc.clear();
-		    	//dc.clearClip();
+					var dynamicResource = getDynamicResourceFromGfx(index+2/*ring_font*/);
+					var arrayResource = getDynamicResource(gfxData[index+9]);					
+					if (dynamicResource!=null && arrayResource!=null)
+					{
+						var drawStart = gfxData[index+3];	// 0-59
+						var drawEnd = gfxData[index+4];		// 0-59
+		
+						var fillStart = (gfxData[index+8]&0xFF);
+						var fillEnd = ((gfxData[index+8]>>8)&0xFF);
+						var noFill = ((gfxData[index+8]&0x10000)!=0);
+						var fillValue = fillEnd;
+		
+						var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
+						if (eDirAnti)	// swap start & end for clockwise drawing
+						{
+							var temp = drawStart;
+							drawStart = drawEnd;
+							drawEnd = temp;
+							
+							// this makes it look odd when then adjust start or end - so removed it
+							// if full circle
+							//if (outerAlignedToSeconds(arrayResource) && drawStart==((drawEnd+1)%60))
+							//{
+							//	// shift clockwise one
+							//	fillStart = ((fillStart+1)%60);
+							//	fillEnd = ((fillEnd+1)%60);
+							//}
+		
+							fillValue = fillStart;
+						}
+						
+						var drawRange = (drawEnd - drawStart + 60)%60;	// 0-59
+		
+		//				//var outerSizeHalf = getOuterSizeHalf(arrayResource);
+		//				var outerSizeHalf = arrayResource[61];
+		//				var bufferXMin = bufferX - outerSizeHalf;
+		//				var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
+		//				var bufferYMin = bufferY - outerSizeHalf;
+		//				var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
+		
+						var jStart = 0;
+						var jRange = 59;	// all segments
+						
+						// Calculate the segment range which is inside the buffer area (as best we can while being cheap)
+						// - check for quarter & half segments
+						if (toBuffer)
+						{
+							jRange = 16;
+							if (bufferX>=displayHalf)
+							{
+								if (bufferY>=displayHalf)
+								{
+									jStart = 14;
+								}
+								else if ((bufferY+62/*BUFFER_SIZE*/)<=displayHalf)
+								{
+									jStart = 59;
+								}
+								else
+								{
+									jStart = 7;
+								}
+							}
+							else if ((bufferX+62/*BUFFER_SIZE*/)<=displayHalf)
+							{
+								if (bufferY>=displayHalf)
+								{
+									jStart = 29;
+								}
+								else if ((bufferY+62/*BUFFER_SIZE*/)<=displayHalf)
+								{
+									jStart = 44;
+								}
+								else
+								{
+									jStart = 37;
+								}
+							}
+							else
+							{
+								if (bufferY<=displayHalf)
+								{
+									jStart = 52;
+								}
+								else
+								{
+									jStart = 22;
+								}
+							}
+						}
+						
+		//System.println("drawStart=" + drawStart + " drawEnd=" + drawEnd);
+		//System.println("jStart=" + jStart + " jRange=" + jRange);
+		
+						var loopStart;
+						var loopEnd;
+						var testStart;
+						var testRange;
+		
+						// want to iterate through whichever is the smaller range - jRange or drawRange
+						if (drawRange < jRange)
+						{
+							loopStart = drawStart;
+							loopEnd = drawStart + drawRange; 
+							testStart = jStart;
+							testRange = jRange; 
+						}
+						else
+						{
+							loopStart = jStart;
+							loopEnd = jStart + jRange; 
+							testStart = drawStart;
+							testRange = drawRange; 
+						}
+						
+						// do a check that at least some of the visible segments are inside the buffer range
+						// the start or end of the shorter range MUST be inside the larger range 
+						if ((loopStart-testStart+60)%60<=testRange || (loopEnd-testStart+60)%60<=testRange)
+						{
+							var colFilled = getColor64FromGfx(gfxData[index+5]);
+							var colValue = getColor64FromGfx(gfxData[index+6]);
+							if (colValue==-2/*COLOR_NOTSET*/)
+							{
+								colValue = colFilled;
+							}
+							var colUnfilled = getColor64FromGfx(gfxData[index+7]);
+							
+							if (noFill)
+							{
+								colFilled = colUnfilled;
+								colValue = colUnfilled;
+							}
+			
+							//var outerSizeHalf = getOuterSizeHalf(arrayResource);
+							var outerSizeHalf = arrayResource[61];
+							var bufferXMin = bufferX - outerSizeHalf;
+							var bufferXMax = bufferX + outerSizeHalf + 62/*BUFFER_SIZE*/;
+							var bufferYMin = bufferY - outerSizeHalf;
+							var bufferYMax = bufferY + outerSizeHalf + 62/*BUFFER_SIZE*/;
+			
+							var xOffset = -dcX - outerSizeHalf;
+							var yOffset = -dcY - outerSizeHalf - 1;		// need to draw 1 pixel higher than expected ...
+							var curCol = -2/*COLOR_NOTSET*/;
+					
+							// draw the correct segments
+							for (var j=loopStart; j<=loopEnd; j++)
+							{
+								var index = j%60;
+								
+								//var outerX = getOuterX(arrayResource, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
+								//var outerY = getOuterY(arrayResource, index);
+								var xyVal = arrayResource[index];
+								var outerX = (xyVal & 0xFFFF);
+								var outerY = ((xyVal>>16) & 0xFFFF);
+			
+								// don't draw if not inside buffer
+								// don't draw segments outside the other range we are testing
+								//var testOffset = (index-testStart+60)%60;
+								//if (testOffset>testRange)
+								if ((toBuffer && (bufferXMin>outerX || bufferXMax<outerX || bufferYMin>outerY || bufferYMax<outerY)) ||
+									(((index-testStart+60)%60)>testRange))
+								{
+									continue; 
+								}
+										
+								var indexCol;
+								if (index==fillValue)
+								{
+									indexCol = colValue;
+								}
+								else if (fillStart<=fillEnd)
+								{
+									indexCol = ((index>=fillStart && index<=fillEnd) ? colFilled : colUnfilled); 
+								}
+								else
+								{
+									indexCol = ((index>=fillStart || index<=fillEnd) ? colFilled : colUnfilled); 
+								}
+			
+								if (indexCol != -2/*COLOR_NOTSET*/)	// don't draw the segment if no color is set
+								{
+									if (curCol!=indexCol)
+									{
+										curCol = indexCol;
+					       				dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);
+					       			}
+				
+									// test fill whole background of each character
+					       			//dc.setColor(Graphics.COLOR_DK_BLUE, -1/*COLOR_TRANSPARENT*/);
+						        	//dc.fillRectangle(xOffset + outerX, yOffset + outerY + 1, 16, 16);
+					       			//dc.setColor(curCol, Graphics.COLOR_BLUE);
+					       				
+									//var s = characterString.substring(index, index+1);
+									//var s = StringUtil.charArrayToString([(index + OUTER_FIRST_CHAR_ID).toChar()]);
+									//var s = (index + 21/*OUTER_FIRST_CHAR_ID*/).toChar().toString();
+						        	dc.drawText(xOffset + outerX, yOffset + outerY, dynamicResource, (index + 21/*OUTER_FIRST_CHAR_ID*/).toChar().toString(), 2/*TEXT_JUSTIFY_LEFT*/);
+						        }
+							}
+			
+							// test draw a line at top of display - so 0 really is the top visible pixel
+					    	//dc.setClip(displayHalf, getOuterY(arrayResource,0)-8, 10, 1);
+						    //dc.setColor(-1/*COLOR_TRANSPARENT*/, Graphics.COLOR_RED);
+					        //dc.clear();
+					    	//dc.clearClip();
+					    }
+				    }
+			    }
 			}
 //			else if (id==9)	// seconds
 //			{

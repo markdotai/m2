@@ -50,6 +50,10 @@ project.manifest = manifest-app.xml
 
 
 
+
+
+
+
 #m2app jungle file
 
 base.resourcePath = $(base.resourcePath);resources-app
