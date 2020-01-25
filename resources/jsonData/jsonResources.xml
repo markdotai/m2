@@ -301,16 +301,29 @@
 
 			<!-- gfxSizeArray -->
 			[
-				16, 16,		<!-- header -->
-				6, 4,		<!-- field -->
-				7, 4,		<!-- large (hour, minute, colon) -->
-				7, 4,		<!-- string -->
-				6, 4,		<!-- icon -->
-				11, 9,		<!-- movebar -->
-				5, 4,		<!-- chart -->
-				9, 8,		<!-- rectangle -->
-				10, 8,		<!-- ring -->
-				8, 7  		<!-- seconds -->
+				<!-- Sizes in gfxData --> 
+				16,		<!-- header -->
+				6,		<!-- field -->
+				7,		<!-- large (hour, minute, colon) -->
+				7,		<!-- string -->
+				6,		<!-- icon -->
+				11,		<!-- movebar -->
+				5,		<!-- chart -->
+				9,		<!-- rectangle -->
+				10,		<!-- ring -->
+				8, 		<!-- seconds -->
+
+				<!-- Sizes when saved --> 
+				16,		<!-- header -->
+				4,		<!-- field -->
+				4,		<!-- large (hour, minute, colon) -->
+				4,		<!-- string -->
+				4,		<!-- icon -->
+				9,		<!-- movebar -->
+				4,		<!-- chart -->
+				8,		<!-- rectangle -->
+				8,		<!-- ring -->
+				7  		<!-- seconds -->
 			],
 			
 			<!-- ================== -->

@@ -305,7 +305,7 @@ class myView
 		{
 			return ((i==-1/*COLOR_FOREGROUND*/) ? propForegroundColor : -2/*COLOR_NOTSET*/); 
 		}
-	
+
 		// 0x00 = 000, 0x01 = 005, 0x02 = 00A, 0x03 = 00F
 		// 0x04 = 050, 0x05 = 055, 0x06 = 05A, 0x07 = 05F
 		// 0x08 = 0A0, 0x09 = 0A5, 0x0A = 0AA, 0x0B = 0AF
@@ -3473,7 +3473,7 @@ class myView
 			{
 				break;
 			}
-			var saveSize =  gfxSizeArray[id*2 + 1];	// cheaper with no function call in loop
+			var saveSize =  gfxSizeArray[id + 10/*GFX_SIZE_NUM*/];	// cheaper with no function call in loop
 			for (var i=0; i<saveSize; i++)
 			{
 				var val = gfxData[index+i] & 0xFFFF;
@@ -3521,7 +3521,7 @@ class myView
 				//{
 				//	break;
 				//}
-				index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
+				index += gfxSizeArray[id]; 	// cheaper with no function call in loop
 			}
 			else
 			{
@@ -3602,10 +3602,10 @@ class myView
 						gotError = true;
 						break; 
 					}
-					itemSize = gfxSizeArray[id*2]; 	// cheaper with no function call in loop
+					itemSize = gfxSizeArray[id]; 	// cheaper with no function call in loop
 					
 					//saveSize = gfxSizeSave(id);	// number of bytes to read from saved data
-					saveSize = gfxSizeArray[id*2 + 1];	// cheaper with no function call in loop
+					saveSize = gfxSizeArray[id + 10/*GFX_SIZE_NUM*/];	// cheaper with no function call in loop
 
 					if (itemSize<=0)
 					{
@@ -3647,12 +3647,12 @@ class myView
 
 	function gfxSize(id)
 	{
-		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id*2]); 
+		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id]); 
 	}
 
 	function gfxSizeSave(id)
 	{
-		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id*2 + 1]);
+		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id + 10/*GFX_SIZE_NUM*/]);
 	}
 
 	// gfxAddHeader
@@ -4410,7 +4410,7 @@ class myView
 			{
 				break;
 			}
-			index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
+			index += gfxSizeArray[id]; 	// cheaper with no function call in loop
 		}
 		
 		return null;
@@ -5840,7 +5840,7 @@ class myView
 			{
 				break;
 			}
-			index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
+			index += gfxSizeArray[id]; 	// cheaper with no function call in loop
 		}
 	}
 	
@@ -6312,7 +6312,7 @@ class myView
 			{
 				break;
 			}
-			index += gfxSizeArray[id*2]; 	// cheaper with no function call in loop
+			index += gfxSizeArray[id]; 	// cheaper with no function call in loop
 		}
 	}
 }
