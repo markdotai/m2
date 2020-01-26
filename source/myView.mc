@@ -3007,6 +3007,43 @@ class myView
 		return t;
 	}
 
+	// 0==sunrise, 1==sunset, 2==next sun event
+	function getSunDisplayString(sunType, dateInfoShort, wantMinutes, is24Hour, addLeadingZero)
+	{	
+		calculateSun(dateInfoShort);
+
+		var t = null;
+		if (sunType==2)			// next sun event?
+		{
+			t = sunTimes[6];	// null or time of next sun event
+		}
+		else
+		{
+			// sunrise or sunset today
+			t = ((sunType==0) ? sunTimes[0] : sunTimes[1]);
+		}
+												
+		var eStr;
+		if (t!=null)
+		{
+			t += 24*60;		// add 24 hours to make sure it is a positive number (if sunrise was before midnight ...) 
+			if (wantMinutes)
+			{
+				eStr = (t%60).format("%02d");		// minutes
+			}
+			else
+			{
+				eStr = formatHourForDisplayString((t/60)%24, is24Hour, addLeadingZero);		// hours
+			}
+		}
+		else
+		{
+			eStr = "--";
+		}
+		
+		return eStr;
+	}
+	
 	// Time is stored as hour*60 + minutes - this has a maximum of 24*60 = 1,440 = 0x5A0 (11 bits 0x7FF)
 	// start time (0-1440)
 	// end time (0-1440)
@@ -4969,18 +5006,58 @@ class myView
 							}
 						}
 					}
+					else if (eDisplay>=64 && eDisplay<=88)		// string (time advanced)
+					{
+						//64 "hour12",
+						//65 "hour24",
+						//66 "hour 0#",
+						//67 "hour12 0#",
+						//68 "hour24 0#",
+						//69 "2nd hour12",
+						//70 "2nd hour24",
+						//71 "2nd hour 0#",
+						//72 "2nd hour12 0#",
+						//73 "2nd hour24 0#",
+						//74 "sunrise hour12",
+						//75 "sunrise hour24",
+						//76 "sunrise hour 0#",
+						//77 "sunrise hour12 0#",
+						//78 "sunrise hour24 0#",
+						//79 "sunset hour12",
+						//80 "sunset hour24",
+						//81 "sunset hour 0#",
+						//82 "sunset hour12 0#",
+						//83 "sunset hour24 0#",
+						//84 "next sun event\nhour12",
+						//85 "next sun event\nhour24",
+						//86 "next sun event\nhour 0#",
+						//87 "next sun event\nhour12 0#",
+						//88 "next sun event\nhour24 0#"
+
+						var eTemp = eDisplay - 64/*FIELD_HOUR_12*/;
+					
+						var eTempMod5 = (eTemp%5);
+						var is24Hour = ((eTempMod5==1) || (eTempMod5==4) || ((eTempMod5==2) && deviceSettings.is24Hour));
+						var addLeadingZero = (eTempMod5>=2);
+												
+						var eTempDiv5 = (eTemp/5);
+						if (eTempDiv5<=1)	// 0=hour or 1=2nd time
+						{
+							eStr = formatHourForDisplayString((eTempDiv5==1) ? hour2nd : hour, is24Hour, addLeadingZero);
+						}
+						else	// 2,3,4=sun stuff
+						{
+							eStr = getSunDisplayString(eTempDiv5-2, dateInfoShort, false, is24Hour, addLeadingZero);
+						}
+					}
 					else		// string
 					{
-						//if (eDisplay>=80 && eDisplay<110)
-						//{
-						//	// time (advanced)
-						//}
-					
 						switch(eDisplay)	// type of string
 						{
 							case 1/*FIELD_HOUR*/:			// hour
-						    {
-								eStr = formatHourForDisplayString(hour, deviceSettings.is24Hour, false);
+							case 47/*FIELD_2ND_HOUR*/:
+							{
+								eStr = formatHourForDisplayString((eDisplay==47) ? hour2nd : hour, deviceSettings.is24Hour, false);
 								//eStr = ".1,";							// test the "." character
 								break;
 							}
@@ -5002,6 +5079,18 @@ class myView
 								break;
 							}
 		
+							case 41/*FIELD_SUNRISE_HOUR*/:
+							case 42/*FIELD_SUNRISE_MINUTE*/:
+							case 43/*FIELD_SUNSET_HOUR*/:
+							case 44/*FIELD_SUNSET_MINUTE*/:
+							case 45/*FIELD_SUNEVENT_HOUR*/:
+							case 46/*FIELD_SUNEVENT_MINUTE*/:
+							{
+								var eTemp = eDisplay-41/*FIELD_SUNRISE_HOUR*/;
+								eStr = getSunDisplayString(eTemp/2, dateInfoShort, (eTemp%2)==1, deviceSettings.is24Hour, false);
+								break;
+							}
+	
 							case 3/*FIELD_DAY_NAME*/:		// day name
 							case 9/*FIELD_MONTH_NAME*/:		// month name
 						    {
@@ -5226,52 +5315,6 @@ class myView
 								var heartVal = (eDisplay==40/*FIELD_HEART_LATEST*/) ? heartDisplayLatest : 
 											((eDisplay==37/*FIELD_HEART_MIN*/) ? heartDisplayMin : ((eDisplay==38/*FIELD_HEART_MAX*/) ? heartDisplayMax : heartDisplayAverage));
 								eStr = (heartVal!=null) ? heartVal.format("%d") : "--";
-								break;
-							}
-	
-							case 41/*FIELD_SUNRISE_HOUR*/:
-							case 42/*FIELD_SUNRISE_MINUTE*/:
-							case 43/*FIELD_SUNSET_HOUR*/:
-							case 44/*FIELD_SUNSET_MINUTE*/:
-							case 45/*FIELD_SUNEVENT_HOUR*/:
-							case 46/*FIELD_SUNEVENT_MINUTE*/:
-							{
-								calculateSun(dateInfoShort);
-	
-								var t = null;
-								if (eDisplay>=45/*FIELD_SUNEVENT_HOUR*/)	// next sun event?
-								{
-									t = sunTimes[6];	// null or time of next sun event
-								}
-								else
-								{
-									// sunrise or sunset today
-									t = ((eDisplay<=42/*FIELD_SUNRISE_MINUTE*/) ? sunTimes[0] : sunTimes[1]);
-								}
-																		
-								if (t!=null)
-								{
-									t += 24*60;		// add 24 hours to make sure it is a positive number (if sunrise was before midnight ...) 
-									if ((eDisplay-41/*FIELD_SUNRISE_HOUR*/)%2==1)
-									{
-										eStr = (t%60).format("%02d");		// minutes
-									}
-									else
-									{
-										eStr = formatHourForDisplayString((t/60)%24, deviceSettings.is24Hour, false);	// hours
-									}
-								}
-								else
-								{
-									eStr = "--";
-								}
-								
-								break;
-							}
-	
-							case 47/*FIELD_2ND_HOUR*/:
-							{
-								eStr = formatHourForDisplayString(hour2nd, deviceSettings.is24Hour, false);	// hours
 								break;
 							}
 	
@@ -5728,7 +5771,7 @@ class myView
 						case 16/*RING_2ND_TIME_12*/:
 						case 17/*RING_2ND_TIME_24*/:
 						{
-							var useHour = ((eDisplay==6/*RING_2ND_TIME*/ || eDisplay>=16/*RING_2ND_TIME_12*/) ? hour2nd : hour);
+							var useHour = ((eDisplay==6/*RING_2ND_TIME*/ || eDisplay>=16/*RING_2ND_TIME_12*/ /*>= test also handles 24 hour */ /*RING_2ND_TIME_24*/) ? hour2nd : hour);
 							var is24Hour = ((eDisplay<=6/*RING_2ND_TIME*/) ? deviceSettings.is24Hour : ((eDisplay%2)==1));
 					        if (is24Hour)
 					        {
@@ -7620,7 +7663,7 @@ class myEditorView extends myView
 	{
 		var colorNum = ((getColorGfxIndex>=0) ? gfxData[getColorGfxIndex] : 0);
 
-		return safeStringFromJsonDataMulti(Rez.JsonData.id_colorStrings, Rez.JsonData.id_colorStrings2, Rez.JsonData.id_colorStrings3, colorNum);
+		return safeStringFromJsonDataMulti(Rez.JsonData.id_colorStrings, Rez.JsonData.id_colorStrings2, Rez.JsonData.id_colorStrings3, null, colorNum);
 	}
 
 ////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
@@ -7743,13 +7786,13 @@ class myEditorView extends myView
 	}
 
 	// split the string resource into multiple chunks to save memory ...
-	function safeStringFromJsonDataMulti(r1, r2, r3, index)
+	function safeStringFromJsonDataMulti(r1, r2, r3, r4, index)
 	{
 		if (index>=0)
 		{
-			for (var i=0; i<=2; i++)
+			for (var i=0; i<=3; i++)
 			{
-				var r = ((i==0)? r1 : ((i==1) ? r2 : r3));
+				var r = ((i==0)? r1 : ((i==1) ? r2 : ((i==2) ? r3 : r4)));
 				if (r!=null)
 				{
 					var tempArray = WatchUi.loadResource(r);
@@ -7795,7 +7838,7 @@ class myEditorView extends myView
 
 	function getStringTypeName(eDisplay)
 	{
-		return safeStringFromJsonDataMulti(Rez.JsonData.id_stringTypeStrings, Rez.JsonData.id_stringTypeStrings2, Rez.JsonData.id_stringTypeStrings3, (eDisplay&0x7F)-1);
+		return safeStringFromJsonDataMulti(Rez.JsonData.id_stringTypeStrings, Rez.JsonData.id_stringTypeStrings2, Rez.JsonData.id_stringTypeStrings3, Rez.JsonData.id_stringTypeStrings4, (eDisplay&0x7F)-1);
 	}
 
 	function getVisibilityString(vis)
@@ -9677,7 +9720,7 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==2 && fState==numTop+1)	// large font
 		{
-			return editorView.safeStringFromJsonDataMulti(Rez.JsonData.id_editElementLargeFontStrings, Rez.JsonData.id_editElementLargeFontStrings2, null, editorView.stringGetFont());
+			return editorView.safeStringFromJsonDataMulti(Rez.JsonData.id_editElementLargeFontStrings, Rez.JsonData.id_editElementLargeFontStrings2, null, null, editorView.stringGetFont());
 	    }
 		else if (fId==3 && fState==numTop)	// string type
 		{

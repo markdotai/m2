@@ -156,6 +156,35 @@
 			"rest calories",
 			"second\n(1Hz cheap)",
 			"second\n(1Hz true)"
+		]	
+	</jsonData>
+	<jsonData id="id_stringTypeStrings4">
+		[
+			"hour12",
+			"hour24",
+			"hour 0#",
+			"hour12 0#",
+			"hour24 0#",
+			"2nd hour12",
+			"2nd hour24",
+			"2nd hour 0#",
+			"2nd hour12 0#",
+			"2nd hour24 0#",
+			"sunrise hour12",
+			"sunrise hour24",
+			"sunrise hour 0#",
+			"sunrise\nhour12 0#",
+			"sunrise\nhour24 0#",
+			"sunset hour12",
+			"sunset hour24",
+			"sunset hour 0#",
+			"sunset\nhour12 0#",
+			"sunset\nhour24 0#",
+			"next sun event\nhour12",
+			"next sun event\nhour24",
+			"next sun event\nhour 0#",
+			"next sun event\nhour12 0#",
+			"next sun event\nhour24 0#"
 		]
 	</jsonData>
 		
@@ -477,7 +506,40 @@
 
 			<!-- advancedIds -->
 			[
-				1		<!-- FIELD_HOUR -->
+				1,		<!-- FIELD_HOUR -->
+				64,		<!-- FIELD_HOUR_12 -->
+				65,		<!-- FIELD_HOUR_24 -->
+				66,		<!-- FIELD_HOUR_0 -->
+				67,		<!-- FIELD_HOUR_12_0 -->
+				68,		<!-- FIELD_HOUR_24_0 -->
+				
+				47,		<!-- FIELD_2ND_HOUR -->
+				69,		<!-- FIELD_2ND_12 -->
+				70,		<!-- FIELD_2ND_24 -->
+				71,		<!-- FIELD_2ND_0 -->
+				72,		<!-- FIELD_2ND_12_0 -->
+				73,		<!-- FIELD_2ND_24_0 -->
+				
+				41,		<!-- FIELD_SUNRISE_HOUR -->
+				74,		<!-- FIELD_SUNRISE_12 -->
+				75,		<!-- FIELD_SUNRISE_24 -->
+				76,		<!-- FIELD_SUNRISE_0 -->
+				77,		<!-- FIELD_SUNRISE_12_0 -->
+				78,		<!-- FIELD_SUNRISE_24_0 -->
+				
+				43,		<!-- FIELD_SUNSET_HOUR -->
+				79,		<!-- FIELD_SUNSET_12 -->
+				80,		<!-- FIELD_SUNSET_24 -->
+				81,		<!-- FIELD_SUNSET_0 -->
+				82,		<!-- FIELD_SUNSET_12_0 -->
+				83,		<!-- FIELD_SUNSET_24_0 -->
+				
+				45,		<!-- FIELD_SUNEVENT_HOUR -->
+				84,		<!-- FIELD_SUNEVENT_12 -->
+				85,		<!-- FIELD_SUNEVENT_24 -->
+				86,		<!-- FIELD_SUNEVENT_0 -->
+				87,		<!-- FIELD_SUNEVENT_12_0 -->
+				88		<!-- FIELD_SUNEVENT_24_0 -->
 			],
 
 			<!-- separatorIds -->
