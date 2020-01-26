@@ -439,10 +439,10 @@ class myView
 		return (v<min) ? min : ((v>max) ? max : v);
 	}
 
-	function getMin(a, b)
-	{
-		return (a<b) ? a : b;
-	}
+//	function getMin(a, b)
+//	{
+//		return (a<b) ? a : b;
+//	}
 
 	function getMax(a, b)
 	{
@@ -2090,7 +2090,7 @@ class myView
 			//var secondsSizeHalf = getOuterSizeHalf(dynamicPositions);
 			var secondsSizeHalf = dynamicPositions[61];
 
-	    	var curCol = -2/*COLOR_NOTSET*/;
+	    	var curCol64 = -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/;
 	    	for (var index=startIndex; index<=endIndex; index++)
 	    	{
 	    		// show second clip region
@@ -2100,15 +2100,14 @@ class myView
 			    // 	dc.clear();
 			    //}
 
-				var col = getColor64FromGfx(propSecondColorIndexArray[index]);
-				if (col!=-2/*COLOR_NOTSET*/)	// if not set then don't draw anything!
+				if (propSecondColorIndexArray[index] != (-2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/))	// if not set then don't draw anything!
 				{
-			        if (curCol != col)
+			        if (curCol64 != propSecondColorIndexArray[index])
 			        {
-			        	curCol = col;
-			       		dc.setColor(curCol, -1/*COLOR_TRANSPARENT*/);	// seconds color
+						curCol64 = propSecondColorIndexArray[index];
+			       		dc.setColor(getColor64FromGfx(curCol64), -1/*COLOR_TRANSPARENT*/);	// seconds color
 			       	}
-			       	//dc.setColor(col, Graphics.COLOR_RED);	// show background of whole font character
+			       	//dc.setColor(getColor64FromGfx(curCol64), Graphics.COLOR_RED);	// show background of whole font character
 			       	//dc.setColor(getColor64FromGfx(2/*COLOR_SAVE*/+4+42+(index*4)%12), -1/*COLOR_TRANSPARENT*/);
 	
 		    		//var x = getOuterX(dynamicPositions, index);		// calling these functions is a lot more expensive in partial update watchface diagnostics
