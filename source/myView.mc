@@ -1547,7 +1547,7 @@ class myView
 			releaseDynamicResources();						// also done in onSettingsChanged()
 			doLoadDynamicResources = true;
 			
-			handleSettingsChanged(second);		// save/load/export/import etc
+			handleSettingsChanged(second);		// save/load etc
 
 //if (showTimer)
 //{
@@ -3663,8 +3663,8 @@ class myView
 		gfxData[2] = displaySize;	// watch display size
 		gfxData[3] = 0+2/*COLOR_SAVE*/;	// background color
 		gfxData[4] = 3+2/*COLOR_SAVE*/;	// foreground color
-		gfxData[5] = 3+2/*COLOR_SAVE*/;	// menu color
-		gfxData[6] = 0+2/*COLOR_SAVE*/;	// menu border
+		gfxData[5] = 0+2/*COLOR_SAVE*/;	// menu color
+		gfxData[6] = 3+2/*COLOR_SAVE*/;	// menu border
 		gfxData[7] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// field highlight
 		gfxData[8] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// element highlight
 		gfxData[9] = 1;	// kerning off for large fonts
@@ -7038,7 +7038,6 @@ class myEditorView extends myView
 
 	var lastProfileStringLength = 0;
 	
-	(:m2app)
 	function getUsedProfileStringLength()
 	{
 		return lastProfileStringLength.toFloat()/510/*MAX_PROFILE_STRING_LENGTH*/; 
