@@ -155,16 +155,16 @@
 			"F/C (units)",
 			"rest calories",
 			"second\n(1Hz cheap)",
-			"second\n(1Hz true)"
-		]	
-	</jsonData>
-	<jsonData id="id_stringTypeStrings4">
-		[
+			"second\n(1Hz true)",
 			"hour12",
 			"hour24",
 			"hour 0#",
 			"hour12 0#",
-			"hour24 0#",
+			"hour24 0#"
+		]	
+	</jsonData>
+	<jsonData id="id_stringTypeStrings4">
+		[
 			"2nd hour12",
 			"2nd hour24",
 			"2nd hour 0#",
@@ -184,7 +184,8 @@
 			"next sun event\nhour24",
 			"next sun event\nhour 0#",
 			"next sun event\nhour12 0#",
-			"next sun event\nhour24 0#"
+			"next sun event\nhour24 0#",
+			"2nd time minute"
 		]
 	</jsonData>
 		
@@ -250,7 +251,8 @@
 			"element\nhighlight",
 			"battery high",
 			"battery low",
-			"2nd time zone\nUTC offset",
+			"2nd time hour\nUTC offset",
+			"2nd time minute\nUTC offset",
 			"movebar alert\nlevel",
 			"system fonts\ncase override",
 			"replacement\nfont for names",
@@ -496,6 +498,7 @@
 				149,	<!-- FIELD_A --> <!-- 21|0x80 -->
 				150,	<!-- FIELD_P --> <!-- 22|0x80 -->
 				47,		<!-- FIELD_2ND_HOUR -->
+				89,		<!-- FIELD_2ND_MINUTE -->
 				41,		<!-- FIELD_SUNRISE_HOUR -->
 				42,		<!-- FIELD_SUNRISE_MINUTE -->
 				43,		<!-- FIELD_SUNSET_HOUR -->
@@ -712,7 +715,8 @@
 				"day of year",
 				"month",
 				"notifications\n(count)",
-				"movebar"				
+				"movebar",
+				"2nd time\nminutes"
 			],
 			
 			[
@@ -724,9 +728,10 @@
 				5,		<!-- RING_HOUR -->
 				14,		<!-- RING_HOUR_12 -->
 				15,		<!-- RING_HOUR_24 -->
-				6,		<!-- RING_2ND_TIME -->
-				16,		<!-- RING_2ND_TIME_12 -->
-				17,		<!-- RING_2ND_TIME_24 -->
+				24,		<!-- RING_2ND_MINUTE -->
+				6,		<!-- RING_2ND_HOUR -->
+				16,		<!-- RING_2ND_HOUR_12 -->
+				17,		<!-- RING_2ND_HOUR_24 -->
 				7,		<!-- RING_SUN_NOW -->
 				8,		<!-- RING_SUN_MIDNIGHT -->
 				9,		<!-- RING_SUN_NOON -->
@@ -782,7 +787,7 @@
 	   		"ring (battery)",
 			"ring (mins)",
 			"ring (hours)",
-			"ring (2nd time)",
+			"ring (2nd\ntime hours)",
 	   		"ring (sun now)",
 	   		"ring (sun\nmidnight)",
 	   		"ring (sun noon)", 
@@ -799,7 +804,8 @@
 			"ring (day of\nyear)",
 			"ring (month)",
 			"ring\n(notifications)",
-			"ring (movebar)"				
+			"ring (movebar)",
+			"ring (2nd\ntime minutes)"
 		]
 	</jsonData>
 			
