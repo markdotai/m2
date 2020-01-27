@@ -31,7 +31,7 @@ char id=85   x=195   y=18    width=12    height=12    xoffset=1     yoffset=5   
 char id=86   x=208   y=18    width=12    height=12    xoffset=1     yoffset=5     xadvance=14    page=0  chnl=15
 char id=87   x=221   y=17    width=12    height=12    xoffset=1     yoffset=5     xadvance=14    page=0  chnl=15
 char id=88   x=234   y=17    width=12    height=12    xoffset=1     yoffset=5     xadvance=14    page=0  chnl=15
-char id=89   x=0     y=34    width=12    height=12    xoffset=1     yoffset=5     xadvance=14    page=0  chnl=15
+char id=89   x=0     y=34    width=11    height=12    xoffset=1     yoffset=5     xadvance=13    page=0  chnl=15
 char id=90   x=13    y=34    width=12    height=12    xoffset=1     yoffset=5     xadvance=14    page=0  chnl=15
 
 char id=216  x=65    y=31    width=12    height=12    xoffset=1     yoffset=5     xadvance=14    page=0  chnl=15
