@@ -184,7 +184,32 @@
 			"next sun event\nhour24",
 			"next sun event\nhour 0#",
 			"next sun event\nhour12 0#",
-			"next sun event\nhour24 0#",
+			"next sun event\nhour24 0#"
+		]
+	</jsonData>
+	<jsonData id="id_stringTypeStrings5">
+		[
+			"dawn hour12",
+			"dawn hour24",
+			"dawn hour 0#",
+			"dawn\nhour12 0#",
+			"dawn\nhour24 0#",
+			"dusk hour12",
+			"dusk hour24",
+			"dusk hour 0#",
+			"dusk\nhour12 0#",
+			"dusk\nhour24 0#",
+			"next dawn/dusk\nhour12",
+			"next dawn/dusk\nhour24",
+			"next dawn/dusk\nhour 0#",
+			"next dawn/dusk\nhour12 0#",
+			"next dawn/dusk\nhour24 0#",
+			"dawn hour",
+			"dawn minute",
+			"dusk hour",
+			"dusk minute",
+			"next dawn/dusk\nhour",
+			"next dawn/dusk\nminute",
 			"2nd time minute"
 		]
 	</jsonData>
@@ -208,7 +233,11 @@
 		    "battery\nhigh/medium",
 		    "battery high",
 		    "battery\nmedium",
-		    "battery low",
+		    "battery low"
+		]
+	</jsonData>
+	<jsonData id="id_visibilityStrings2">
+		[
 		    "movebar alert\ntriggered",
 		    "movebar alert\nnot triggered",
 		    "AM",
@@ -216,7 +245,9 @@
 		    "2nd time AM",
 		    "2nd time PM",
 		    "next sun event\n= rise",
-		    "next sun event\n= set"
+		    "next sun event\n= set",
+		    "next dawn/dusk\n= light",
+		    "next dawn/dusk\n= dark"
 		]
 	</jsonData>
 		
@@ -498,13 +529,19 @@
 				149,	<!-- FIELD_A --> <!-- 21|0x80 -->
 				150,	<!-- FIELD_P --> <!-- 22|0x80 -->
 				47,		<!-- FIELD_2ND_HOUR -->
-				89,		<!-- FIELD_2ND_MINUTE -->
+				110,	<!-- FIELD_2ND_MINUTE -->
 				41,		<!-- FIELD_SUNRISE_HOUR -->
 				42,		<!-- FIELD_SUNRISE_MINUTE -->
 				43,		<!-- FIELD_SUNSET_HOUR -->
 				44,		<!-- FIELD_SUNSET_MINUTE -->
 				45,		<!-- FIELD_SUNEVENT_HOUR -->
-				46		<!-- FIELD_SUNEVENT_MINUTE -->
+				46,		<!-- FIELD_SUNEVENT_MINUTE -->
+				104,	<!-- FIELD_DAWN_HOUR -->
+				105,	<!-- FIELD_DAWN_MINUTE -->
+				106,	<!-- FIELD_DUSK_HOUR -->
+				107,	<!-- FIELD_DUSK_MINUTE -->
+				108,	<!-- FIELD_DAWNDUSK_HOUR -->
+				109		<!-- FIELD_DAWNDUSK_MINUTE -->
 			],
 
 			<!-- advancedIds -->
@@ -542,7 +579,28 @@
 				85,		<!-- FIELD_SUNEVENT_24 -->
 				86,		<!-- FIELD_SUNEVENT_0 -->
 				87,		<!-- FIELD_SUNEVENT_12_0 -->
-				88		<!-- FIELD_SUNEVENT_24_0 -->
+				88,		<!-- FIELD_SUNEVENT_24_0 -->
+
+				104,	<!-- FIELD_DAWN_HOUR -->
+				89,		<!-- FIELD_DAWN_12 -->
+				90,		<!-- FIELD_DAWN_24 -->
+				91,		<!-- FIELD_DAWN_0 -->
+				92,		<!-- FIELD_DAWN_12_0 -->
+				93,		<!-- FIELD_DAWN_24_0 -->
+				
+				106,	<!-- FIELD_DUSK_HOUR -->
+				94,		<!-- FIELD_DUSK_12 -->
+				95,		<!-- FIELD_DUSK_24 -->
+				96,		<!-- FIELD_DUSK_0 -->
+				97,		<!-- FIELD_DUSK_12_0 -->
+				98,		<!-- FIELD_DUSK_24_0 -->
+				
+				108,	<!-- FIELD_DAWNDUSK_HOUR -->
+				99,		<!-- FIELD_DAWNDUSK_12 -->
+				100,	<!-- FIELD_DAWNDUSK_24 -->
+				101,	<!-- FIELD_DAWNDUSK_0 -->
+				102,	<!-- FIELD_DAWNDUSK_12_0 -->
+				103		<!-- FIELD_DAWNDUSK_24_0 -->
 			],
 
 			<!-- separatorIds -->
@@ -681,16 +739,16 @@
 			[
 				"clockwise",
 				"anticlockwise"
+			],
+
+			[
+				"no limit",
+				"100%"
 			]
 		]
 	</jsonData>
 	<jsonData id="id_ringStrings2">
 		[
-			[
-				"no limit",
-				"100%"
-			],
-			
 			[
 		   		"plain color",
 				"steps",
@@ -699,9 +757,9 @@
 				"minutes",
 				"hours",
 				"2nd time\nhours",
-		   		"sun (now\n= start)",
-		   		"sun (midnight\n= start)",
-		   		"sun (noon\n= start)",
+		   		"sunrise/set\n(now=start)",
+		   		"sunrise/set\n(midnight=start)",
+		   		"sunrise/set\n(noon=start)",
 				"intensity\nminutes",
 				"smart intensity\nminutes",
 		   		"heart rate",
@@ -716,7 +774,10 @@
 				"month",
 				"notifications\n(count)",
 				"movebar",
-				"2nd time\nminutes"
+				"2nd time\nminutes",
+		   		"dawn/dusk\n(now=start)",
+		   		"dawn/dusk\n(midnight=start)",
+		   		"dawn/dusk\n(noon=start)"
 			],
 			
 			[
@@ -735,6 +796,9 @@
 				7,		<!-- RING_SUN_NOW -->
 				8,		<!-- RING_SUN_MIDNIGHT -->
 				9,		<!-- RING_SUN_NOON -->
+				25,		<!-- RING_DAWNDUSK_NOW -->
+				26,		<!-- RING_DAWNDUSK_MIDNIGHT -->
+				27,		<!-- RING_DAWNDUSK_NOON -->
 				10,		<!-- RING_INTENSITY -->
 				11,		<!-- RING_SMART_INTENSITY -->
 				12,		<!-- RING_HEART -->
@@ -788,9 +852,9 @@
 			"ring (mins)",
 			"ring (hours)",
 			"ring (2nd\ntime hours)",
-	   		"ring (sun now)",
-	   		"ring (sun\nmidnight)",
-	   		"ring (sun noon)", 
+	   		"ring (sun)",
+	   		"ring (sun)",
+	   		"ring (sun)", 
 			"ring (intensity)",
 			"ring (smart\nintensity)",
 	   		"ring (HR)",
@@ -805,7 +869,10 @@
 			"ring (month)",
 			"ring\n(notifications)",
 			"ring (movebar)",
-			"ring (2nd\ntime minutes)"
+			"ring (2nd\ntime minutes)",
+	   		"ring (dawn)",
+	   		"ring (dawn)",
+	   		"ring (dawn)"
 		]
 	</jsonData>
 			

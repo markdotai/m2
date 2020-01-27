@@ -285,8 +285,10 @@ class myView
 	//	STATUS_2ND_PM = 22,
 	//	STATUS_SUNEVENT_RISE = 23,
 	//	STATUS_SUNEVENT_SET = 24,
+	//	STATUS_DAWNDUSK_LIGHT = 25,
+	//	STATUS_DAWNDUSK_DARK = 26,
 	//
-	//	STATUS_NUM = 25
+	//	STATUS_NUM = 27
 	//}
 		
 	var colorArray = new[64]b;
@@ -980,21 +982,34 @@ class myView
 
 		// look for "sunrise" and "sunset" at the start
 		var s = propertiesGetString(p).toUpper();
+		var l = 0;
 		if (s.find("SUNRISE")==0)
 		{
 			t[0] = 0x01/*PROFILE_START_SUNRISE*/;
-			s = s.substring(7, s.length());
+			l = 7;
 		}
 		else if (s.find("SUNSET")==0)
 		{
 			t[0] = 0x02/*PROFILE_START_SUNSET*/;
-			s = s.substring(6, s.length());
+			l = 6;
+		}
+		else if (s.find("DAWN")==0)
+		{
+			t[0] = 0x0100/*PROFILE_START_DAWN*/;
+			l = 4;
+		}
+		else if (s.find("DUSK")==0)
+		{
+			t[0] = 0x0200/*PROFILE_START_DUSK*/;
+			l = 4;
 		}
 		else
 		{
 			t[0] = 0;
 			adjust = 0;
 		}
+
+		s = s.substring(l, s.length());
 
 		var charArray = s.toCharArray();
 		var charArraySize = charArray.size();
@@ -1272,14 +1287,38 @@ class myView
 		return ((profileIndex<24/*PROFILE_NUM_USER*/) ? applicationStorage.getValue("P" + profileIndex) : getPresetProfileString(profileIndex, 1));
 	}
 	
-	function profileTimeString(t, isSunrise, isSunset)
+	function profileTimeString(t, profileFlags)
 	{
 		var s = "";
 	
-		if (isSunrise || isSunset)
+		if ((profileFlags&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x0100/*PROFILE_START_DAWN*/|0x0200/*PROFILE_START_DUSK*/))!=0)
 		{
 			t -= 12*60;	// remove 12 hours added to make positive for storage
-			s = (isSunrise ? "Sunrise" : "Sunset");
+
+			//var k = (((profileFlags&0x02)/0x02) + 2*((profileFlags&0x0100)/0x0100) + 3*((profileFlags&0x0200)/0x0200))%4; 
+			//s = ["Sunrise", "Sunset", "Dawn", "Dusk"][k];
+
+			//s = ((profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0) ? "Sunrise" :
+			//	(((profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0) ? "Sunset" :
+			//	(((profileFlags&0x0100/*PROFILE_START_DAWN*/)!=0) ? "Dawn" : "Dusk"));
+
+			if ((profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0)
+			{
+				s = "Sunrise";
+			}
+			else if ((profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0)
+			{
+				s = "Sunset";
+			}
+			else if ((profileFlags&0x0100/*PROFILE_START_DAWN*/)!=0)
+			{
+				s = "Dawn";
+			}
+			else
+			{
+				s = "Dusk";
+			}
+			
 			if (t>=0)
 			{
 				s += "+";
@@ -1302,13 +1341,20 @@ class myView
 	(:m2face)		
 	function setProfilePropertiesFaceOrApp(profileIndex)
 	{
+		var daysNumber = 0;
+		var startTime = 0;
+		var endTime = 0;
+		var profileFlags = 0;
+		var glanceProfile = 0;
+		var blockRandom = false;
+		var randomEvents = 0;
+
 		if (profileIndex>=0 && profileIndex<24/*PROFILE_NUM_USER*/)	// not for private or preset profiles
 		{
 			var ptdIndex = profileIndex*6;
 		
 			// set the profile properties from our profile times array			
 			var days = profileTimeData[ptdIndex + 2];		
-			var daysNumber = 0;
 			for (var i=0; i<7; i++)
 			{
 				if ((days&(0x1<<i))!=0)
@@ -1317,19 +1363,21 @@ class myView
 					daysNumber += i+1;
 				}
 			}
-			applicationProperties.setValue("PD", daysNumber);
 	
-			var startTime = profileTimeData[ptdIndex + 0];
-			var endTime = profileTimeData[ptdIndex + 1];
-			var profileFlags = profileTimeData[ptdIndex + 3];
-			applicationProperties.setValue("PS", profileTimeString(startTime, (profileFlags&0x01/*PROFILE_START_SUNRISE*/)!=0, (profileFlags&0x02/*PROFILE_START_SUNSET*/)!=0));
-			applicationProperties.setValue("PE", profileTimeString(endTime, (profileFlags&0x04/*PROFILE_END_SUNRISE*/)!=0, (profileFlags&0x08/*PROFILE_END_SUNSET*/)!=0));
-
-			applicationProperties.setValue("35", (profileTimeData[ptdIndex + 5] >= 0) ? profileTimeData[ptdIndex + 5] : 0);		// glance profile
-
-			applicationProperties.setValue("PB", ((profileFlags&0x10/*PROFILE_BLOCK_MASK*/)!=0));
-			applicationProperties.setValue("PR", profileTimeData[ptdIndex + 4]);		
+			startTime = profileTimeData[ptdIndex + 0];
+			endTime = profileTimeData[ptdIndex + 1];
+			profileFlags = profileTimeData[ptdIndex + 3];
+			glanceProfile = ((profileTimeData[ptdIndex + 5] >= 0) ? profileTimeData[ptdIndex + 5] : 0);		// glance profile
+			blockRandom = ((profileFlags&0x10/*PROFILE_BLOCK_MASK*/)!=0);
+			randomEvents = profileTimeData[ptdIndex + 4];		
 		}
+
+		applicationProperties.setValue("PD", daysNumber);
+		applicationProperties.setValue("PS", profileTimeString(startTime, profileFlags));
+		applicationProperties.setValue("PE", profileTimeString(endTime, profileFlags>>2));
+		applicationProperties.setValue("35", glanceProfile);		// glance profile
+		applicationProperties.setValue("PB", blockRandom);
+		applicationProperties.setValue("PR", randomEvents);		
 	}
 
 	(:m2face)		
@@ -1361,7 +1409,7 @@ class myView
 			
 			profileTimeData[ptdIndex + 5] = getMinMax(propertiesGetNumber("35"), 0, 99);	// glance profile
 
-			var profileFlags = ((startTime[0] & 0x03) | ((endTime[0] & 0x03) << 2));
+			var profileFlags = startTime[0] | (endTime[0] << 2);
 			if (propertiesGetBoolean("PB"))
 			{
 				profileFlags |= 0x10/*PROFILE_BLOCK_MASK*/;
@@ -2126,11 +2174,9 @@ class myView
 		}
     }
 
-	function getProfileSunTime(time, t1, startEndShift)
+	function getProfileSunTime(time, t1)
 	{
-		t1 >>= startEndShift;
-		
-		if ((t1&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/))!=0)
+		if ((t1&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x0100/*PROFILE_START_DAWN*/|0x0200/*PROFILE_START_DUSK*/))!=0)
 		{
 			// remove the 12 hour offset used when it is saved to storage
 			// note we add this on rather than subtracting since we are doing modulo 24*60 later (and want the value to be positive)
@@ -2138,7 +2184,15 @@ class myView
 		
 			// riseSetIndex==0 is sunrise
 			// riseSetIndex==1 is sunset
-			var t = sunTimes[(t1&0x02/*PROFILE_START_SUNSET*/)/0x02/*PROFILE_START_SUNSET*/];
+			var t;
+			if (t1>=0x0100/*PROFILE_START_DAWN*/)
+			{
+				t = sunTimes[8 + ((t1&0x0200/*PROFILE_START_DUSK*/)/0x0200/*PROFILE_START_DUSK*/)];
+			}
+			else
+			{
+				t = sunTimes[(t1&0x02/*PROFILE_START_SUNSET*/)/0x02/*PROFILE_START_SUNSET*/];
+			}
 			//var t = sunTimes[((t1&PROFILE_START_SUNRISE)!=0) ? 0 : 1];
 
 			if (t!=null)
@@ -2227,12 +2281,13 @@ class myView
 
 					// see if the start or end time uses sunrise/sunset
 					var sunFlags = profileTimeData[ptdIIndex + 3];					
-					if ((sunFlags&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/))!=0)
+					if ((sunFlags&(0x01/*PROFILE_START_SUNRISE*/|0x02/*PROFILE_START_SUNSET*/|0x04/*PROFILE_END_SUNRISE*/|0x08/*PROFILE_END_SUNSET*/|
+								0x0100/*PROFILE_START_DAWN*/|0x0200/*PROFILE_START_DUSK*/|0x0400/*PROFILE_END_DAWN*/|0x0800/*PROFILE_END_DUSK*/))!=0)
 					{
 						calculateSun(dateInfoShort);
 						
-						startTime = getProfileSunTime(startTime, sunFlags, 0);
-						endTime = getProfileSunTime(endTime, sunFlags, 2);
+						startTime = getProfileSunTime(startTime, sunFlags);
+						endTime = getProfileSunTime(endTime, sunFlags>>2);
 					}
 					
 					var dayFlags = profileTimeData[ptdIIndex + 2];
@@ -2830,7 +2885,12 @@ class myView
 	// 0==sunrise today, 1==sunset today, 2==sun rises at all today?
 	// 3==sunrise tomorrow, 4==sunset tomorrow, 5==sun rises at all tomorrow?
 	// 6==next sunevent, 7==next sunevent is rise?
-	var sunTimes = new[8];		// hour*60 + minute
+	// 8==dawn today, 9==dusk today, 10==sun rises at all today?
+	// 11==dawn tomorrow, 12==dusk tomorrow, 13==sun rises at all tomorrow?
+	// 14==next dawn/dusk, 15==next dawn/dusk is rise?
+	var sunTimes = new[16];		// hour*60 + minute
+
+	// For astronomical twilight the sun centre is 18 degrees below the horizon (instead of 0.83 for sunrise)
 
 	// 1600 code bytes
 	function calculateSun(dateInfoShort)
@@ -2877,30 +2937,48 @@ class myView
 		}
 			
 		// calculate next sun event (on every call)
-		sunTimes[6] = null;				// assume don't know time of next sun event
-		sunTimes[7] = !sunTimes[2];		// and if the sun rises today then next event is sunset (or if it doesn't rise then sunset)
-		
 		var timeNowInMinutesToday = dateInfoShort.hour*60 + dateInfoShort.min;
-		if (sunTimes[0]!=null && timeNowInMinutesToday<sunTimes[0])	// before sunrise?
+		calculateSunNext(0, timeNowInMinutesToday);
+		calculateSunNext(8, timeNowInMinutesToday);
+
+		//System.println("sunTimes=" + sunTimes.toString());
+	}
+
+	function calculateSunNext(offset, timeNowInMinutesToday)
+	{
+		var sunNew6 = null;				// assume don't know time of next sun event
+		var sunNew7 = !sunTimes[offset+2];		// and if the sun rises today then next event is sunset (or if it doesn't rise then sunset)
+		
+		var sunTimes0 = sunTimes[offset/*+0*/]; 
+		if (sunTimes0!=null && timeNowInMinutesToday<sunTimes0)	// before sunrise?
 		{
-			sunTimes[6] = sunTimes[0];
-			sunTimes[7] = true;			// sunrise
+			sunNew6 = sunTimes0;
+			sunNew7 = true;			// sunrise
 		}
-		else if (sunTimes[1]!=null)		// sunset occurs today
+		else
 		{
-			if (timeNowInMinutesToday<sunTimes[1])		// before sunset?
+			var sunTimes1 = sunTimes[offset+1]; 
+			if (sunTimes1!=null)		// sunset occurs today
 			{
-				sunTimes[6] = sunTimes[1];
-				sunTimes[7] = false;	// sunset
-			}
-			else if (sunTimes[3]!=null && timeNowInMinutesToday<sunTimes[3])		// before sunrise tomorrow?
-			{
-				sunTimes[6] = sunTimes[3];
-				sunTimes[7] = true;		// sunrise
+				if (timeNowInMinutesToday<sunTimes1)		// before sunset?
+				{
+					sunNew6 = sunTimes1;
+					sunNew7 = false;	// sunset
+				}
+				else
+				{
+					var sunTimes3 = sunTimes[offset+3];
+					if (sunTimes3!=null && timeNowInMinutesToday<sunTimes3)		// before sunrise tomorrow?
+					{
+						sunNew6 = sunTimes3;
+						sunNew7 = true;		// sunrise
+					}
+				}
 			}
 		}
 
-		//System.println("sunTimes=" + sunTimes.toString());
+		sunTimes[offset+6] = sunNew6;
+		sunTimes[offset+7] = sunNew7;
 	}
 	
 	function calculateSunDay(dayOffset, nowDayOfWeek)
@@ -2942,49 +3020,56 @@ class myView
 		var latRadians = positionLatitude*toRadians;
 		//var w1 = Math.sin(-0.83*toRadians) - Math.sin(latRadians)*sinDeclination;
 		var altAdjust = ((sunCalculatedAltitude>0.0) ? ((2.076/60.0)*Math.sqrt(sunCalculatedAltitude)) : 0.0);
-		var w1 = Math.sin((-0.83 - altAdjust)*toRadians) - Math.sin(latRadians)*sinDeclination;		// with height adjust
+
 		var w2 = Math.cos(latRadians)*cosDeclination;
 
-		var cosW;
-		// w2 will always be tending to positive - since lat is either 90-delta or -90+delta
-		if (w2>0.0)
-		{
-			cosW = w1/w2;
-		}
-		else
-		{
-			// either permanent day or permanent night
-			// sign of w1 determines sign of cosW
-			cosW = ((w1<0.0) ? -2.0 : 2.0);
-		}
+		// days since jan1st2000NoonUTC
+		var jTransit = jStar + 0.0053*Math.sin(mRadians) - 0.0069*Math.sin(lambda*toRadians*2);
+		jTransit -= UTC2TT;		// convert back to UTC time
+			
+		//var durationTransit = gregorian.duration({:seconds => jTransit*24*60*60});
+		//var momentTransit = jan1st2000NoonUTC.add(durationTransit);
+		//printMoment(momentTransit, "momentTransit");
 		
-		var dayOffset3 = dayOffset*3;
-		if (cosW < -1.0 /*permanent day*/ || cosW > 1.0 /*permanent night*/)
+		for (var dd=0; dd<=8; dd+=8)
 		{
-			sunTimes[dayOffset3] = null;
-			sunTimes[dayOffset3 + 1] = null;
-			sunTimes[dayOffset3 + 2] = (cosW < -1.0);
-		}
-		else
-		{		
-			// days since jan1st2000NoonUTC
-			var jTransit = jStar + 0.0053*Math.sin(mRadians) - 0.0069*Math.sin(lambda*toRadians*2);
-			jTransit -= UTC2TT;		// convert back to UTC time
-				
-			//var durationTransit = gregorian.duration({:seconds => jTransit*24*60*60});
-			//var momentTransit = jan1st2000NoonUTC.add(durationTransit);
-			//printMoment(momentTransit, "momentTransit");
+			var dayOffset3 = dayOffset*3 + dd;
+			var sunHorizonAngle = ((dd==0) ? -0.83 : -18.0);	// -0.83 is the suns radius, -18.0 is the angle for astronomical twilight
 	
-			//var w = Math.acos(cosW);
-			//System.println("w=" + w + " cosW=" + cosW + " w1=" + w1 + " w2=" + w2);
-			var offsetFromTransit = Math.acos(cosW) / (toRadians*360);	// convert to degrees, then divide by 360 to get in range +-1
-
-			//printMoment(jan1st2000NoonUTC.add(gregorian.duration({:seconds => (jTransit - offsetFromTransit)*24*60*60})), "momentRise");
-			//printMoment(jan1st2000NoonUTC.add(gregorian.duration({:seconds => (jTransit + offsetFromTransit)*24*60*60})), "momentSet");
-
-			sunTimes[dayOffset3] = jTimeToHourMinute(jan1st2000NoonUTC, jTransit - offsetFromTransit, nowDayOfWeek);		// up to -0.5 day
-			sunTimes[dayOffset3 + 1] = jTimeToHourMinute(jan1st2000NoonUTC, jTransit + offsetFromTransit, nowDayOfWeek);		// up to +0.5 day
-			sunTimes[dayOffset3 + 2] = true;
+			var w1 = Math.sin((sunHorizonAngle - altAdjust)*toRadians) - Math.sin(latRadians)*sinDeclination;		// with height adjust
+	
+			var cosW;
+			// w2 will always be tending to positive - since lat is either 90-delta or -90+delta
+			if (w2>0.0)
+			{
+				cosW = w1/w2;
+			}
+			else
+			{
+				// either permanent day or permanent night
+				// sign of w1 determines sign of cosW
+				cosW = ((w1<0.0) ? -2.0 : 2.0);
+			}
+			
+			if (cosW < -1.0 /*permanent day*/ || cosW > 1.0 /*permanent night*/)
+			{
+				sunTimes[dayOffset3] = null;
+				sunTimes[dayOffset3 + 1] = null;
+				sunTimes[dayOffset3 + 2] = (cosW < -1.0);
+			}
+			else
+			{		
+				//var w = Math.acos(cosW);
+				//System.println("w=" + w + " cosW=" + cosW + " w1=" + w1 + " w2=" + w2);
+				var offsetFromTransit = Math.acos(cosW) / (toRadians*360);	// convert to degrees, then divide by 360 to get in range +-1
+	
+				//printMoment(jan1st2000NoonUTC.add(gregorian.duration({:seconds => (jTransit - offsetFromTransit)*24*60*60})), "momentRise");
+				//printMoment(jan1st2000NoonUTC.add(gregorian.duration({:seconds => (jTransit + offsetFromTransit)*24*60*60})), "momentSet");
+	
+				sunTimes[dayOffset3] = jTimeToHourMinute(jan1st2000NoonUTC, jTransit - offsetFromTransit, nowDayOfWeek);		// up to -0.5 day
+				sunTimes[dayOffset3 + 1] = jTimeToHourMinute(jan1st2000NoonUTC, jTransit + offsetFromTransit, nowDayOfWeek);		// up to +0.5 day
+				sunTimes[dayOffset3 + 2] = true;
+			}
 		}
 	}
 
@@ -3008,19 +3093,19 @@ class myView
 	}
 
 	// 0==sunrise, 1==sunset, 2==next sun event
-	function getSunDisplayString(sunType, dateInfoShort, wantMinutes, is24Hour, addLeadingZero)
+	function getSunDisplayString(sunType, dateInfoShort, wantMinutes, is24Hour, addLeadingZero, sunOffset)
 	{	
 		calculateSun(dateInfoShort);
 
 		var t = null;
 		if (sunType==2)			// next sun event?
 		{
-			t = sunTimes[6];	// null or time of next sun event
+			t = sunTimes[sunOffset+6];	// null or time of next sun event
 		}
 		else
 		{
 			// sunrise or sunset today
-			t = ((sunType==0) ? sunTimes[0] : sunTimes[1]);
+			t = ((sunType==0) ? sunTimes[sunOffset+0] : sunTimes[sunOffset+1]);
 		}
 												
 		var eStr;
@@ -3057,6 +3142,10 @@ class myView
 	//const PROFILE_END_SUNRISE = 0x04;
 	//const PROFILE_END_SUNSET = 0x08;
 	//const PROFILE_BLOCK_MASK = 0x10;			// block random
+	//const PROFILE_START_DAWN = 0x0100;
+	//const PROFILE_START_DUSK = 0x0200;
+	//const PROFILE_END_DAWN = 0x0400;
+	//const PROFILE_END_DUSK = 0x0800;
 
 	(:m2face)
 	var profileTimeData;
@@ -4226,7 +4315,7 @@ class myView
 			{ 
 				var r = (gfxData[index+2/*string_font*/] & 0xFF);
 				var fontListIndex;
-				var eDisplay = (gfxData[index+1] & 0x7F);	// 0x80 is for useNumFont
+				var eDisplay = (gfxData[index+1] & 0x7F);	// 0x80 is for useNumFont, 1/*large_type*/
 				var setSecondTextMode = -1;
 				
 				if (id==2)		// large
@@ -4238,7 +4327,7 @@ class myView
 				 	
 				 	if (r<46)	// custom font
 				 	{
-				 		if (gfxData[index+1/*string_type*/]==2)		// colon, 1/*large_type*/
+				 		if (eDisplay==2/*BIG_COLON*/)		// colon
 				 		{
 				 			fontListIndex = (r<10) ? (r/5 + 55) : ((r-10)/6 + 57);
 				 		}
@@ -4695,7 +4784,7 @@ class myView
 		var minute2nd = time2ndInMinutes%60;
 
 		// calculate fields to display
-		var visibilityStatus = new[25/*STATUS_NUM*/];
+		var visibilityStatus = new[27/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -4730,8 +4819,10 @@ class myView
 	    visibilityStatus[20/*STATUS_PM*/] = (hour >= 12);
 	    visibilityStatus[21/*STATUS_2ND_AM*/] = (hour2nd < 12);
 	    visibilityStatus[22/*STATUS_2ND_PM*/] = (hour2nd >= 12);
-	    visibilityStatus[23/*STATUS_SUNEVENT_RISE*/] = null;	// calculated on demand
-	    visibilityStatus[24/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
+	    //visibilityStatus[23/*STATUS_SUNEVENT_RISE*/] = null;		// calculated on demand
+	    //visibilityStatus[24/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
+	    //visibilityStatus[25/*STATUS_DAWNDUSK_LIGHT*/] = null;		// calculated on demand
+	    //visibilityStatus[26/*STATUS_DAWNDUSK_DARK*/] = null;		// calculated on demand
 
 		fieldActivePhoneStatus = null;
 		fieldActiveNotificationsStatus = null;
@@ -4757,7 +4848,7 @@ class myView
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<25/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<27/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -4776,12 +4867,14 @@ class myView
 
 		    	if (visibilityStatus[eVisible]==null)
 		    	{
-			    	if (eVisible==23/*STATUS_SUNEVENT_RISE*/ || eVisible==24/*STATUS_SUNEVENT_SET*/)
+			    	if (eVisible>=23/*STATUS_SUNEVENT_RISE*/ && eVisible<=26/*STATUS_DAWNDUSK_DARK*/)
 			    	{
 		    			calculateSun(dateInfoShort);
-						if (sunTimes[7]!=null)
+		    			
+		    			var sunTimes7 = sunTimes[(eVisible>=25/*STATUS_DAWNDUSK_LIGHT*/) ? (7+8) : (7+0)];
+						if (sunTimes7!=null)
 						{
-		    				visibilityStatus[eVisible] = ((eVisible==23/*STATUS_SUNEVENT_RISE*/) ? sunTimes[7] : !sunTimes[7]);
+		    				visibilityStatus[eVisible] = ((((eVisible-23/*STATUS_SUNEVENT_RISE*/)%2)==0) ? sunTimes7 : !sunTimes7);
 		    			}
 			    	}
 		    	}
@@ -5045,6 +5138,21 @@ class myView
 						//86 "next sun event\nhour 0#",
 						//87 "next sun event\nhour12 0#",
 						//88 "next sun event\nhour24 0#"
+						//89 "dawn hour12",
+						//90 "dawn hour24",
+						//91 "dawn hour 0#",
+						//92 "dawn hour12 0#",
+						//93 "dawn hour24 0#",
+						//94 "dusk hour12",
+						//95 "dusk hour24",
+						//96 "dusk hour 0#",
+						//97 "dusk hour12 0#",
+						//98 "dusk hour24 0#",
+						//99 "next dawn/dusk\nhour12",
+						//100 "next dawn/dusk\nhour24",
+						//101 "next dawn/dusk\nhour 0#",
+						//102 "next dawn/dusk\nhour12 0#",
+						//103 "next dawn/dusk\nhour24 0#"
 
 						var eTemp = eDisplay - 64/*FIELD_HOUR_12*/;
 					
@@ -5057,9 +5165,9 @@ class myView
 						{
 							eStr = formatHourForDisplayString((eTempDiv5==1) ? hour2nd : hour, is24Hour, addLeadingZero);
 						}
-						else	// 2,3,4=sun stuff
+						else	// 2,3,4=sun 5,6,7=dawn/dusk
 						{
-							eStr = getSunDisplayString(eTempDiv5-2, dateInfoShort, false, is24Hour, addLeadingZero);
+							eStr = getSunDisplayString((eTempDiv5-2)%3, dateInfoShort, false, is24Hour, addLeadingZero, (eTempDiv5>=5)?8:0);
 						}
 					}
 					else		// string
@@ -5075,9 +5183,9 @@ class myView
 							}
 		
 							case 2/*FIELD_MINUTE*/:			// minute
-							case 89/*FIELD_2ND_MINUTE*/:
+							case 110/*FIELD_2ND_MINUTE*/:
 						    {
-								eStr = ((eDisplay==89/*FIELD_2ND_MINUTE*/) ? minute2nd : minute).format("%02d");
+								eStr = ((eDisplay==110/*FIELD_2ND_MINUTE*/) ? minute2nd : minute).format("%02d");
 								break;
 							}
 
@@ -5091,16 +5199,33 @@ class myView
 								}
 								break;
 							}
-		
+
 							case 41/*FIELD_SUNRISE_HOUR*/:
 							case 42/*FIELD_SUNRISE_MINUTE*/:
 							case 43/*FIELD_SUNSET_HOUR*/:
 							case 44/*FIELD_SUNSET_MINUTE*/:
 							case 45/*FIELD_SUNEVENT_HOUR*/:
 							case 46/*FIELD_SUNEVENT_MINUTE*/:
+							case 104/*FIELD_DAWN_HOUR*/:
+							case 105/*FIELD_DAWN_MINUTE*/:
+							case 106/*FIELD_DUSK_HOUR*/:
+							case 107/*FIELD_DUSK_MINUTE*/:
+							case 108/*FIELD_DAWNDUSK_HOUR*/:
+							case 109/*FIELD_DAWNDUSK_MINUTE*/:
 							{
-								var eTemp = eDisplay-41/*FIELD_SUNRISE_HOUR*/;
-								eStr = getSunDisplayString(eTemp/2, dateInfoShort, (eTemp%2)==1, deviceSettings.is24Hour, false);
+								var eTemp = eDisplay;
+								var sunOffset = 0;
+								if (eTemp>=104/*FIELD_DAWN_HOUR*/)
+								{
+									eTemp -= 104/*FIELD_DAWN_HOUR*/;
+									sunOffset = 8;
+								}
+								else
+								{
+									eTemp -= 41/*FIELD_SUNRISE_HOUR*/;
+								}
+								
+								eStr = getSunDisplayString(eTemp/2, dateInfoShort, (eTemp%2)==1, deviceSettings.is24Hour, false, sunOffset);
 								break;
 							}
 	
@@ -5657,6 +5782,9 @@ class myView
 			   		// 22 RING_NOTIFICATIONS
 			   		// 23 RING_MOVEBAR
 					// 24 RING_2ND_MINUTE
+					// 25 RING_DAWNDUSK_NOW
+					// 26 RING_DAWNDUSK_MIDNIGHT
+					// 27 RING_DAWNDUSK_NOON
 					//
 					// Other things that could be displayed:
 					//
@@ -5800,11 +5928,21 @@ class myView
 							break;
 				   		}
 				   		
-				   		case 7/*RING_SUN_NOW*/:			// sunrise & sunset now top
+				   		case 7/*RING_SUN_NOW*/:				// sunrise & sunset now top
 				   		case 8/*RING_SUN_MIDNIGHT*/:		// sunrise & sunset midnight top
 				   		case 9/*RING_SUN_NOON*/:			// sunrise & sunset noon top
+				   		case 25/*RING_DAWNDUSK_NOW*/:			// dawn & dusk now top
+				   		case 26/*RING_DAWNDUSK_MIDNIGHT*/:		// dawn & dusk midnight top
+				   		case 27/*RING_DAWNDUSK_NOON*/:			// dawn & dusk noon top
 				   		{
 							calculateSun(dateInfoShort);
+
+							var sunOffset = 0;
+							if (eDisplay>=25/*RING_DAWNDUSK_NOW*/)
+							{
+								sunOffset = 8;
+								eDisplay -= (25/*RING_DAWNDUSK_NOW*/-7/*RING_SUN_NOW*/);
+							}
 
 							var timeOffsetInMinutes = 0;	// midnight top
 							if (eDisplay==7/*RING_SUN_NOW*/)				// now top
@@ -5816,8 +5954,8 @@ class myView
 								timeOffsetInMinutes = 12*60;
 							}
 
-							fillStart = getSunOuterFill(sunTimes[0], timeOffsetInMinutes, 0, drawRange);
-							fillEnd = getSunOuterFill(sunTimes[1], timeOffsetInMinutes, -1, drawRange);
+							fillStart = getSunOuterFill(sunTimes[sunOffset], timeOffsetInMinutes, 0, drawRange);
+							fillEnd = getSunOuterFill(sunTimes[sunOffset+1], timeOffsetInMinutes, -1, drawRange);
 
 							break;
 				   		}
@@ -7678,7 +7816,8 @@ class myEditorView extends myView
 	{
 		var colorNum = ((getColorGfxIndex>=0) ? gfxData[getColorGfxIndex] : 0);
 
-		return safeStringFromJsonDataMulti(Rez.JsonData.id_colorStrings, Rez.JsonData.id_colorStrings2, Rez.JsonData.id_colorStrings3, null, colorNum);
+		var rezArr = [Rez.JsonData.id_colorStrings, Rez.JsonData.id_colorStrings2, Rez.JsonData.id_colorStrings3];
+		return safeStringFromJsonDataMulti(rezArr, colorNum);
 	}
 
 ////	   		useDc.setColor(propTimeHourColor, -1/*COLOR_TRANSPARENT*/);
@@ -7801,23 +7940,19 @@ class myEditorView extends myView
 	}
 
 	// split the string resource into multiple chunks to save memory ...
-	function safeStringFromJsonDataMulti(r1, r2, r3, r4, index)
+	function safeStringFromJsonDataMulti(rezArr, index)
 	{
 		if (index>=0)
 		{
-			for (var i=0; i<=3; i++)
+			for (var i=0; i<rezArr.size(); i++)
 			{
-				var r = ((i==0)? r1 : ((i==1) ? r2 : ((i==2) ? r3 : r4)));
-				if (r!=null)
+				var tempArray = WatchUi.loadResource(rezArr[i]);
+				if (tempArray!=null && index<tempArray.size())
 				{
-					var tempArray = WatchUi.loadResource(r);
-					if (tempArray!=null && index<tempArray.size())
-					{
-						return tempArray[index];
-					}
-					index -= tempArray.size();
-					tempArray = null;
+					return tempArray[index];
 				}
+				index -= tempArray.size();
+				tempArray = null;
 			}
 		}
 				
@@ -7853,12 +7988,14 @@ class myEditorView extends myView
 
 	function getStringTypeName(eDisplay)
 	{
-		return safeStringFromJsonDataMulti(Rez.JsonData.id_stringTypeStrings, Rez.JsonData.id_stringTypeStrings2, Rez.JsonData.id_stringTypeStrings3, Rez.JsonData.id_stringTypeStrings4, (eDisplay&0x7F)-1);
+		var rezArr = [Rez.JsonData.id_stringTypeStrings, Rez.JsonData.id_stringTypeStrings2, Rez.JsonData.id_stringTypeStrings3, Rez.JsonData.id_stringTypeStrings4, Rez.JsonData.id_stringTypeStrings5];
+		return safeStringFromJsonDataMulti(rezArr, (eDisplay&0x7F)-1);
 	}
 
 	function getVisibilityString(vis)
 	{
-		return safeStringFromJsonData(Rez.JsonData.id_visibilityStrings, -1, vis);
+		var rezArr = [Rez.JsonData.id_visibilityStrings, Rez.JsonData.id_visibilityStrings2];
+		return safeStringFromJsonDataMulti(rezArr, vis);
 	}
 	
 	function fieldVisibilityString()
@@ -7873,7 +8010,7 @@ class myEditorView extends myView
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (fieldGetVisibility()+val+25/*STATUS_NUM*/)%25/*STATUS_NUM*/;
+		val = (fieldGetVisibility()+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
 
 		gfxData[menuFieldGfx] &= ~(0x1F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x1F) << 4);
@@ -8176,7 +8313,7 @@ class myEditorView extends myView
 
 	function elementVisibilityEditing(val)
 	{
-		val = (elementGetVisibility()+val+25/*STATUS_NUM*/)%25/*STATUS_NUM*/;
+		val = (elementGetVisibility()+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x1F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x1F) << 4);
@@ -8498,7 +8635,7 @@ class myEditorView extends myView
 	function ringTypeEditing(val)
 	{
 		//var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 14)%14;
-    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 2);
+    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 1);
 		gfxData[menuFieldGfx+1] &= ~0x3F; 
 		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
     }
@@ -9795,7 +9932,8 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==2 && fState==numTop+1)	// large font
 		{
-			return editorView.safeStringFromJsonDataMulti(Rez.JsonData.id_editElementLargeFontStrings, Rez.JsonData.id_editElementLargeFontStrings2, null, null, editorView.stringGetFont());
+			var rezArr = [Rez.JsonData.id_editElementLargeFontStrings, Rez.JsonData.id_editElementLargeFontStrings2];
+			return editorView.safeStringFromJsonDataMulti(rezArr, editorView.stringGetFont());
 	    }
 		else if (fId==3 && fState==numTop)	// string type
 		{
@@ -10595,7 +10733,7 @@ class myMenuItemRing extends myMenuItem
     {
     	if (fState==13/*r_typeEdit*/)
     	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 1, editorView.ringGetType());    		
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, editorView.ringGetType());    		
     	}
     	else if (fState==14/*r_fontEdit*/)
     	{
@@ -10607,7 +10745,7 @@ class myMenuItemRing extends myMenuItem
     	}
     	else if (fState==18/*r_limitEdit*/)
     	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, editorView.ringGetLimit100() ? 1 : 0);
+ 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, editorView.ringGetLimit100() ? 1 : 0);
     	}
     	else if (fState==22/*r_visEdit*/)
     	{
