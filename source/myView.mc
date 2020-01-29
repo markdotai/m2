@@ -78,6 +78,7 @@ class myView
 	//var propFieldHighlight = 0xFFFFFF;	editor only
 	//var propElementHighlight = 0xFFFFFF;	editor only
 	var propKerningOn = false;
+	var propDawnDuskMode = 1;		// 1==civil, 2==nautical, 3==astronomical 
     var propBatteryHighPercentage = 75;
 	var propBatteryLowPercentage = 25;
 	var prop2ndTimeZoneOffset = 0;		// in minutes
@@ -439,6 +440,12 @@ class myView
 	function getMinMax(v, min, max)
 	{
 		return (v<min) ? min : ((v>max) ? max : v);
+	}
+
+	function gfxMinMaxInPlace(index, min, max)
+	{
+		gfxData[index] = getMinMax(gfxData[index], min, max); 
+		return gfxData[index];
 	}
 
 //	function getMin(a, b)
@@ -3034,7 +3041,7 @@ class myView
 		for (var dd=0; dd<=8; dd+=8)
 		{
 			var dayOffset3 = dayOffset*3 + dd;
-			var sunHorizonAngle = ((dd==0) ? -0.83 : -18.0);	// -0.83 is the suns radius, -18.0 is the angle for astronomical twilight
+			var sunHorizonAngle = ((dd==0) ? -0.83 : (propDawnDuskMode*-6.0));	// -0.83 is the suns radius, -18.0 is the angle for astronomical twilight
 	
 			var w1 = Math.sin((sunHorizonAngle - altAdjust)*toRadians) - Math.sin(latRadians)*sinDeclination;		// with height adjust
 	
@@ -3792,7 +3799,7 @@ class myView
 		gfxData[6] = 3+2/*COLOR_SAVE*/;	// menu border
 		gfxData[7] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// field highlight
 		gfxData[8] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// element highlight
-		gfxData[9] = 1;	// kerning off for large fonts
+		gfxData[9] = 1;	// kerning off for large fonts (0x01) and dawn/dusk mode (0x06)
     	gfxData[10] = 75;	// propBatteryHighPercentage, 0 to 100
     	gfxData[11] = 25;	// propBatteryLowPercentage, 0 to 100
 		gfxData[12] = 24; 	// prop2ndTimeZoneOffset, 0x3F (0 to 48, 24==0), 0x1C (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
@@ -4257,44 +4264,27 @@ class myView
 			origSize = getMinMax(gfxData[0+2], 218, 280);	// displaysize stored in gfx
 			gfxData[0+2] = displaySize;	// everything will be updated to match the real displaysize of this watch
 
-			gfxData[0+3] = getMinMax(gfxData[0+3], 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propBackgroundColor
-			propBackgroundColor = getColor64FromGfx(gfxData[0+3]);
+			propBackgroundColor = getColor64FromGfx(gfxMinMaxInPlace(0+3, 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/));	// propBackgroundColor
+			propForegroundColor = getColor64FromGfx(gfxMinMaxInPlace(0+4, 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/));	// propForegroundColor
 
-			gfxData[0+4] = getMinMax(gfxData[0+4], 2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propForegroundColor
-			propForegroundColor = getColor64FromGfx(gfxData[0+4]);
+			// propMenuColor editor only
+			// propMenuBorder editor only
+			// propFieldHighlight editor only
+			// propElementHighlight editor only
 
-			//gfxData[0+5] = getMinMax(gfxData[0+5], -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuColor editor only
-			//propMenuColor = getColor64FromGfx(gfxData[0+5]);			editor only
-
-			//gfxData[0+6] = getMinMax(gfxData[0+6], -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuBorder editor only
-			//propMenuBorder = getColor64FromGfx(gfxData[0+6]);			editor only
-
-			//gfxData[0+7] = getMinMax(gfxData[0+7], -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propFieldHighlight editor only
-			//propFieldHighlight = getColor64FromGfx(gfxData[0+7]);		editor only
-
-			//gfxData[0+8] = getMinMax(gfxData[0+8], -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propElementHighlight editor only
-			//propElementHighlight = getColor64FromGfx(gfxData[0+8]);	editor only
-
-			gfxData[0+9] = getMinMax(gfxData[0+9], 0, 1);		// propKerningOn
-			propKerningOn = (gfxData[0+9]==0);
+			gfxMinMaxInPlace(0+9, 0, 8);		// propKerningOn (0x01) and dawn/dusk mode (0x06) 
+			propKerningOn = ((gfxData[0+9]&0x01)==0);
+			propDawnDuskMode = ((gfxData[0+9]&0x06)>>1)%3 + 1;		// 1, 2, 3
 			
-			gfxData[0+10] = getMinMax(gfxData[0+10], 0, 100);		// propBatteryHighPercentage, 0 to 100
-			propBatteryHighPercentage = gfxData[0+10];				// 0 to 100
+			propBatteryHighPercentage = gfxMinMaxInPlace(0+10, 0, 100);				// 0 to 100
+			propBatteryLowPercentage = gfxMinMaxInPlace(0+11, 0, 100);				// 0 to 100
 
-			gfxData[0+11] = getMinMax(gfxData[0+11], 0, 100);		// propBatteryLowPercentage, 0 to 100
-			propBatteryLowPercentage = gfxData[0+11];				// 0 to 100
-
-			gfxData[0+12] = getMinMax(gfxData[0+12], 0, 511);		// prop2ndTimeZoneOffset, 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+			gfxMinMaxInPlace(0+12, 0, 511);		// prop2ndTimeZoneOffset, 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
 			prop2ndTimeZoneOffset = ((gfxData[0+12]&0x03F)-24)*60 + (((((gfxData[0+12]&0x1C0)>>6)+4)%8)-4)*15;		// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
 
-			gfxData[0+13] = getMinMax(gfxData[0+13], 1, 5);			// propMoveBarAlertTriggerLevel, 1 to 5
-			propMoveBarAlertTriggerLevel = gfxData[0+13];			// 1 to 5
-
-			gfxData[0+14] = getMinMax(gfxData[0+14], 0, 2); 		// propFieldFontSystemCase, (0=any, 1=upper, 2=lower)
-			propFieldFontSystemCase = gfxData[0+14]; 				// (0=any, 1=upper, 2=lower)
-
-			gfxData[0+15] = getMinMax(gfxData[0+15], 0, 4);			// propFieldFontUnsupported, (0=xtiny to 4=large)
-			propFieldFontUnsupported = gfxData[0+15];				// (0=xtiny to 4=large)
+			propMoveBarAlertTriggerLevel = gfxMinMaxInPlace(0+13, 1, 5);			// 1 to 5
+			propFieldFontSystemCase = gfxMinMaxInPlace(0+14, 0, 2); 				// (0=any, 1=upper, 2=lower)
+			propFieldFontUnsupported = gfxMinMaxInPlace(0+15, 0, 4);				// (0=xtiny to 4=large)
 		}
 
 		for (var index=0; index<gfxNum; )
@@ -7346,10 +7336,10 @@ class myEditorView extends myView
 	{		
 		if (gfxNum>0 && getGfxId(0)==0)		// header - calculate values from this here so similar to gfxOnUpdate
 		{
-			gfxData[0+5] = getMinMax(gfxData[0+5], -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuColor
-			gfxData[0+6] = getMinMax(gfxData[0+6], -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuBorder
-			gfxData[0+7] = getMinMax(gfxData[0+7], -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propFieldHighlight
-			gfxData[0+8] = getMinMax(gfxData[0+8], -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propElementHighlight
+			gfxMinMaxInPlace(0+5, -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuColor
+			gfxMinMaxInPlace(0+6, -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propMenuBorder
+			gfxMinMaxInPlace(0+7, -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propFieldHighlight
+			gfxMinMaxInPlace(0+8, -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/, 63+2/*COLOR_SAVE*/);	// propElementHighlight
 		}
 		
 		return myView.gfxAddDynamicResources(fontIndex);
@@ -8199,6 +8189,15 @@ class myEditorView extends myView
 	function headerElementHighlightColorEditing(val)
 	{
 		gfxSubtractValModuloInPlace(menuFieldGfx+8, val, 0, 65);	// 0 to 65
+	}
+	
+	function headerDawnDuskModeEditing(val)
+	{
+		var newMode = (propDawnDuskMode-1-val+3)%3;		// 0, 1, 2
+		gfxData[0+9] &= ~0x06;		
+		gfxData[0+9] |= (newMode<<1);		
+		sunCalculatedDay = -1;
+		reloadDynamicResources = true;
 	}
 	
 	function headerBatteryEditing(n, val)
@@ -9287,10 +9286,11 @@ class myMenuItemHeader extends myMenuItem
 //		f_2ndTimeHour,		8
 //		f_2ndTimeMinute,	9
 //		f_moveBarAlert,		10
-//		f_fontSystemCase,	11
-//		f_fontUnsupported,	12
-//		f_memoryDisplay,	13
-//		f_menuhide,			14
+//		f_dawnDuskMode,		11
+//		f_fontSystemCase,	12
+//		f_fontUnsupported,	13
+//		f_memoryDisplay,	14
+//		f_menuhide,			15
 //
 //		f_backgroundEdit,		100
 //		f_foregroundEdit,		101
@@ -9303,9 +9303,10 @@ class myMenuItemHeader extends myMenuItem
 //		f_2ndTimeHourEdit,		108
 //		f_2ndTimeMinuteEdit,	109
 //		f_moveBarAlertEdit,		110
-//		f_fontSystemCaseEdit,	111
-//		f_fontUnsupportedEdit,	112
-//		f_memoryDisplayEdit,	113
+//		f_dawnDuskModeEdit,		111
+//		f_fontSystemCaseEdit,	112
+//		f_fontUnsupportedEdit,	113
+//		f_memoryDisplayEdit,	114
 //	}
 
 	var fState;
@@ -9339,15 +9340,19 @@ class myMenuItemHeader extends myMenuItem
     	{
     		return "" + editorView.propMoveBarAlertTriggerLevel;
     	}
-    	else if (fState==111/*f_fontSystemCaseEdit*/)
+    	else if (fState==111/*f_dawnDuskModeEdit*/)
+    	{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 3, editorView.propDawnDuskMode-1);
+    	}
+    	else if (fState==112/*f_fontSystemCaseEdit*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 0, editorView.propFieldFontSystemCase);
     	}
-    	else if (fState==112/*f_fontUnsupportedEdit*/)
+    	else if (fState==113/*f_fontUnsupportedEdit*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 1, editorView.propFieldFontUnsupported);
     	}
-    	else if (fState==113/*f_memoryDisplayEdit*/)
+    	else if (fState==114/*f_memoryDisplayEdit*/)
     	{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 2, editorView.memoryDisplayMode);
     	}
@@ -9427,7 +9432,7 @@ class myMenuItemHeader extends myMenuItem
     {
 		if (fState<100/*f_backgroundEdit*/)
 		{
-			fState = (fState+val+15)%15;
+			fState = (fState+val+16)%16;
 		}
     	else if (fState==100/*f_backgroundEdit*/)
     	{
@@ -9473,15 +9478,19 @@ class myMenuItemHeader extends myMenuItem
     	{
     		editorView.headerMoveBarAlertEditing(val);
     	}
-    	else if (fState==111/*f_fontSystemCaseEdit*/)
+    	else if (fState==111/*f_dawnDuskModeEdit*/)
+    	{
+    		editorView.headerDawnDuskModeEditing(val);
+    	}
+    	else if (fState==112/*f_fontSystemCaseEdit*/)
     	{
     		editorView.headerFontSystemCaseEditing(val);
     	}
-    	else if (fState==112/*f_fontUnsupportedEdit*/)
+    	else if (fState==113/*f_fontUnsupportedEdit*/)
     	{
     		editorView.headerFontUnsupportedEditing(val);
     	}
-    	else if (fState==113/*f_memoryDisplayEdit*/)
+    	else if (fState==114/*f_memoryDisplayEdit*/)
     	{
     		editorView.memoryDisplayMode = (editorView.memoryDisplayMode + val + 3)%3;
     	}
@@ -9503,7 +9512,7 @@ class myMenuItemHeader extends myMenuItem
     {
 		if (fState<100)
 		{
-	    	if (fState==14/*f_menuHide*/)
+	    	if (fState==15/*f_menuHide*/)
 	    	{
 				editorView.menuHide = !editorView.menuHide;
 			}

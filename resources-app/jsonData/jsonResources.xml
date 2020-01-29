@@ -246,8 +246,8 @@
 		    "2nd time PM",
 		    "next sun event\n= rise",
 		    "next sun event\n= set",
-		    "next dawn/dusk\n= light",
-		    "next dawn/dusk\n= dark"
+		    "next dawn/dusk\n= dawn",
+		    "next dawn/dusk\n= dusk"
 		]
 	</jsonData>
 		
@@ -285,6 +285,7 @@
 			"2nd time hour\nUTC offset",
 			"2nd time minute\nUTC offset",
 			"movebar alert\nlevel",
+			"dawn/dusk mode",
 			"system fonts\ncase override",
 			"replacement\nfont for names",
 			"memory display",
@@ -311,6 +312,12 @@
 				"off",
 				"one bar",
 				"all bars"
+			],
+
+			[
+				"civil",
+				"nautical",
+				"astronomical"
 			]
 		]
 	</jsonData>
