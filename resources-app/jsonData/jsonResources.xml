@@ -262,6 +262,19 @@
 		]
 	</jsonData>
 		
+	<!-- quick add -->
+	<jsonData id="id_quickAddStrings">
+		[
+			"time + colon",
+			"steps (text)",
+			"heart rate",
+			"battery\n(when low)",
+			"alarm\n(when set)",
+			"horizontal line",
+			"vertical line"
+		]
+	</jsonData>
+		
 	<!-- save load profile -->
 	<jsonData id="id_saveLoadStrings">
    		[

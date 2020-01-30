@@ -225,39 +225,39 @@ class myView
 	// ' = 96 = moon
 	// a = 97 = mountain
 	
-//	//	FIELD_SHAPE_CIRCLE = 41,
-//	//	//!FIELD_SHAPE_CIRCLE_SOLID = 42,
-//	//	//!FIELD_SHAPE_ROUNDED = 43,
-//	//	//!FIELD_SHAPE_ROUNDED_SOLID = 44,
-//	//	//!FIELD_SHAPE_SQUARE = 45,
-//	//	//!FIELD_SHAPE_SQUARE_SOLID = 46,
-//	//	//!FIELD_SHAPE_TRIANGLE = 47,
-//	//	//!FIELD_SHAPE_TRIANGLE_SOLID = 48,
-//	//	//!FIELD_SHAPE_DIAMOND = 49,
-//	//	//!FIELD_SHAPE_DIAMOND_SOLID = 50,
-//	//	//!FIELD_SHAPE_STAR = 51,
-//	//	//!FIELD_SHAPE_STAR_SOLID = 52,
-//	//	//!FIELD_SHAPE_ALARM = 53,
-//	//	//!FIELD_SHAPE_LOCK = 54,
-//	//	//!FIELD_SHAPE_PHONE = 55,
-//	//	//!FIELD_SHAPE_NOTIFICATION = 56,
-//	//	//!FIELD_SHAPE_FIGURE = 57,
-//	//	//!FIELD_SHAPE_BATTERY = 58,
-//	//	//!FIELD_SHAPE_BATTERY_SOLID = 59,
-//	//	//!FIELD_SHAPE_BED = 60,
-//	//	//!FIELD_SHAPE_FLOWER = 61,
-//	//	//!FIELD_SHAPE_FOOTSTEPS = 62,
-//	//	//!FIELD_SHAPE_NETWORK = 63,
-//	//	//!FIELD_SHAPE_STAIRS = 64,
-//	//	//!FIELD_SHAPE_PHONE_HANDSET = 65,
-//	//	//!FIELD_SHAPE_STOPWATCH = 66,
-//	//	//!FIELD_SHAPE_FIRE = 67,
-//	//	//!FIELD_SHAPE_HEART = 68,
-//	//	//!FIELD_SHAPE_SUNRISE = 69,
-//	//	//!FIELD_SHAPE_SUNSET = 70,
-//	//	//!FIELD_SHAPE_SUN = 71,
-//	//	//!FIELD_SHAPE_MOON = 72,
-//	//	//!FIELD_SHAPE_MOUNTAIN = 73,
+//	//	FIELD_SHAPE_CIRCLE = 0,
+//	//	//!FIELD_SHAPE_CIRCLE_SOLID = 1,
+//	//	//!FIELD_SHAPE_ROUNDED = 2,
+//	//	//!FIELD_SHAPE_ROUNDED_SOLID = 3,
+//	//	//!FIELD_SHAPE_SQUARE = 4,
+//	//	//!FIELD_SHAPE_SQUARE_SOLID = 5,
+//	//	//!FIELD_SHAPE_TRIANGLE = 6,
+//	//	//!FIELD_SHAPE_TRIANGLE_SOLID = 7,
+//	//	//!FIELD_SHAPE_DIAMOND = 8,
+//	//	//!FIELD_SHAPE_DIAMOND_SOLID = 9,
+//	//	//!FIELD_SHAPE_STAR = 10,
+//	//	//!FIELD_SHAPE_STAR_SOLID = 11,
+//	//	//!FIELD_SHAPE_ALARM = 12,
+//	//	//!FIELD_SHAPE_LOCK = 13,
+//	//	//!FIELD_SHAPE_PHONE = 14,
+//	//	//!FIELD_SHAPE_NOTIFICATION = 15,
+//	//	//!FIELD_SHAPE_FIGURE = 16,
+//	//	//!FIELD_SHAPE_BATTERY = 17,
+//	//	//!FIELD_SHAPE_BATTERY_SOLID = 18,
+//	//	//!FIELD_SHAPE_BED = 19,
+//	//	//!FIELD_SHAPE_FLOWER = 20,
+//	//	//!FIELD_SHAPE_FOOTSTEPS = 21,
+//	//	//!FIELD_SHAPE_NETWORK = 22,
+//	//	//!FIELD_SHAPE_STAIRS = 23,
+//	//	//!FIELD_SHAPE_PHONE_HANDSET = 24,
+//	//	//!FIELD_SHAPE_STOPWATCH = 25,
+//	//	//!FIELD_SHAPE_FIRE = 26,
+//	//	//!FIELD_SHAPE_HEART = 27,
+//	//	//!FIELD_SHAPE_SUNRISE = 28,
+//	//	//!FIELD_SHAPE_SUNSET = 29,
+//	//	//!FIELD_SHAPE_SUN = 30,
+//	//	//!FIELD_SHAPE_MOON = 31,
+//	//	//!FIELD_SHAPE_MOUNTAIN = 32,
 
 	//enum
 	//{
@@ -6724,7 +6724,10 @@ class myEditorView extends myView
 		if (index>=0)
 		{
 			gfxData[index+1] = dataType;		// type + useNumFont
-			gfxData[index+2/*string_font*/] = ((gfxType==2) ? getLastFontLarge(index) : getLastFontString(index));
+			//gfxData[index+2/*string_font*/] = ((gfxType==2) ? getLastFontLarge(index) : getLastFontString(index));
+			gfxData[index+2/*string_font*/] = ((gfxType==2) ? 
+						getLastFont(index, 2, -1, 2/*large_font*/, 25/*m regular*/, 0) : 		// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
+						getLastFont(index, 3, -1, 2/*string_font*/, 7/*m_regular*/, 1));		// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
 			gfxData[index+3/*string_color*/] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// color
 			// string start
 			// string end
@@ -6841,17 +6844,17 @@ class myEditorView extends myView
 		return index;
 	}
 
-	function getLastFontLarge(index)
-	{
-		// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
-		return getLastFont(index, 2, -1, 2/*large_font*/, 25/*m regular*/, 0);
-	}
+//	function getLastFontLarge(index)
+//	{
+//		// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
+//		return getLastFont(index, 2, -1, 2/*large_font*/, 25/*m regular*/, 0);
+//	}
 
-	function getLastFontString(index)
-	{
-		// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
-		return getLastFont(index, 3, -1, 2/*string_font*/, 7/*m_regular*/, 1);
-	}
+//	function getLastFontString(index)
+//	{
+//		// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
+//		return getLastFont(index, 3, -1, 2/*string_font*/, 7/*m_regular*/, 1);
+//	}
 	
 	function getLastFontIcon(index)
 	{
@@ -7367,19 +7370,22 @@ class myEditorView extends myView
 					if (nextIndex<0 || gfxIsField(nextIndex))
 					{
 						var tempIndex = prevGfxField(index);
-						for (;;)
+						if (tempIndex==menuFieldGfx)	// check in highlighted field
 						{
-							tempIndex=nextGfx(tempIndex);
-							
-							if (tempIndex<0 || (gfxData[tempIndex]&0x10000)!=0 || tempIndex>index)
+							for (;;)
 							{
-								break;
-							}
-							
-							if (tempIndex==index)	// got here without finding anything else in field visible
-							{
-								gfxData[index] |= 0x10000; 	// make the element temporarily visible
-								break;
+								tempIndex=nextGfx(tempIndex);
+								
+								if (tempIndex<0 || (gfxData[tempIndex]&0x10000)!=0 || tempIndex>index)
+								{
+									break;
+								}
+								
+								if (tempIndex==index)	// got here without finding anything else in field visible
+								{
+									gfxData[index] |= 0x10000; 	// make the element temporarily visible
+									break;
+								}
 							}
 						}
 					}
@@ -7669,16 +7675,18 @@ class myEditorView extends myView
 			}
 						
 			// make sure menu is at best position for editing this field
+			var avoidTop = (y<(displaySize*80)/240);
+			var avoidBottom = ((y+h)>(displaySize*160)/240);
 			if (isMenuAtTop())
 			{
-				if (y<(displaySize*80)/240)
+				if (avoidTop && !avoidBottom)
 				{
 					menuY = 200;	// move to bottom
 				}
 			}
 			else
 			{
-				if ((y+h)>(displaySize*160)/240)
+				if (avoidBottom & !avoidTop)
 				{
 					menuY = 50;		// move to top
 				}
@@ -7985,39 +7993,39 @@ class myEditorView extends myView
 		return safeStringFromJsonDataMulti(rezArr, (eDisplay&0x7F)-1);
 	}
 
-	function getVisibilityString(vis)
+	function getVisibilityString(gfxIndex)
 	{
 		var rezArr = [Rez.JsonData.id_visibilityStrings, Rez.JsonData.id_visibilityStrings2];
-		return safeStringFromJsonDataMulti(rezArr, vis);
+		return safeStringFromJsonDataMulti(rezArr, (gfxData[gfxIndex]>>4)&0x1F);
 	}
 	
 	function fieldVisibilityString()
 	{
-		return getVisibilityString(fieldGetVisibility());
+		return getVisibilityString(menuFieldGfx);
 	}
 
-	function fieldGetVisibility()
-	{
-		return ((gfxData[menuFieldGfx] >> 4) & 0x1F);
-	}
+//	function fieldGetVisibility()
+//	{
+//		return ((gfxData[menuFieldGfx] >> 4) & 0x1F);
+//	}
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (fieldGetVisibility()+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
+		val = (((gfxData[menuFieldGfx]>>4)&0x1F)+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
 
 		gfxData[menuFieldGfx] &= ~(0x1F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x1F) << 4);
 	}
 
-	function fieldPositionGetX()
-	{
-		return gfxData[menuFieldGfx+1];
-	}
+//	function fieldPositionGetX()
+//	{
+//		return gfxData[menuFieldGfx+1];
+//	}
 
-	function fieldPositionGetY()
-	{
-		return gfxData[menuFieldGfx+2];
-	}
+//	function fieldPositionGetY()
+//	{
+//		return gfxData[menuFieldGfx+2];
+//	}
 
 	function gfxSubtractVal(indexValue, val, min, max)
 	{
@@ -8040,18 +8048,6 @@ class myEditorView extends myView
 		gfxData[index] = gfxSubtractValModulo(gfxData[index], val, min, max);
 	}
 
-	function fieldPositionXEditing(val)
-	{
-		//gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, displaySize);
-		gfxSubtractValInPlace(menuFieldGfx+1, val, 0, displaySize);
-	}
-
-	function fieldPositionYEditing(val)
-	{
-		//gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
-		gfxSubtractValInPlace(menuFieldGfx+2, val, 0, displaySize);
-	}
-
 	function fieldPositionCentreX()
 	{
 		gfxData[menuFieldGfx+1] = displayHalf;
@@ -8063,16 +8059,83 @@ class myEditorView extends myView
 		gfxData[menuFieldGfx+2] = displayHalf - (fieldAscent+1)/2;	// subtract half the max ascent
 	}
 
-	function fieldGetAlignment()
+//	function fieldGetAlignment()
+//	{
+//		return gfxData[menuFieldGfx+3];
+//	}
+
+//	function fieldAlignmentEditing(val)
+//	{
+//		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
+//	}
+
+// save 40 bytes moving this function inline
+//	function fieldPositionXEditing(val)
+//	{
+//		//gfxData[menuFieldGfx+1] = getMinMax(gfxData[menuFieldGfx+1]-val, 0, displaySize);
+//		gfxSubtractValInPlace(menuFieldGfx+1, val, 0, displaySize);
+//	}
+
+//	function fieldPositionYEditing(val)
+//	{
+//		//gfxData[menuFieldGfx+2] = getMinMax(gfxData[menuFieldGfx+2]-val, 0, displaySize);
+//		gfxSubtractValInPlace(menuFieldGfx+2, val, 0, displaySize);
+//	}
+
+	function menuFieldEditGetString(fState)
 	{
-		return gfxData[menuFieldGfx+3];
+		if (fState==12/*f_xEdit*/)
+    	{
+    		//return "x=" + fieldPositionGetX();
+    		return "x=" + gfxData[menuFieldGfx+1];
+    	}
+		else if (fState==13/*f_yEdit*/)
+    	{
+    		//return "y=" + fieldPositionGetY();
+    		return "y=" + gfxData[menuFieldGfx+2];
+    	}
+    	else if (fState==14/*f_alignEdit*/)
+    	{
+    		//return safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, fieldGetAlignment());
+    		return safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, gfxData[menuFieldGfx+3]);
+    	}
+    	else if (fState==15/*f_visEdit*/)
+    	{
+    		return fieldVisibilityString();
+    	}
+    	else if (fState<=11/*f_tap*/)
+    	{
+    		return safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
+    	}
+    	else
+    	{
+    		return "editing...";	// for x & y position
+    	}
 	}
 
-	function fieldAlignmentEditing(val)
+	function menuFieldEditOnEditing(fState, val)
 	{
-		gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
+		if (fState==12/*f_xEdit*/)
+    	{
+    		//fieldPositionXEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+1, val, 0, displaySize);
+    	}
+		else if (fState==13/*f_yEdit*/)
+    	{
+    		//fieldPositionYEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+2, val, 0, displaySize);
+    	}
+		else if (fState==14/*f_alignEdit*/)
+    	{
+    		//fieldAlignmentEditing(val);
+			gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
+    	}
+		else if (fState==15/*f_visEdit*/)
+    	{
+    		fieldVisibilityEditing(val);
+    	}
 	}
-
+	
 	function fieldSwap(prevField, nextField)
 	{
 		var diff = nextField - prevField;
@@ -8303,19 +8366,19 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 	
-	function elementVisibilityString()
-	{
-		return getVisibilityString(elementGetVisibility());
-	}
+//	function elementVisibilityString()
+//	{
+//		return getVisibilityString(menuElementGfx);
+//	}
 
-	function elementGetVisibility()
-	{
-		return ((gfxData[menuElementGfx] >> 4) & 0x1F);
-	}
+//	function elementGetVisibility()
+//	{
+//		return ((gfxData[menuElementGfx] >> 4) & 0x1F);
+//	}
 
 	function elementVisibilityEditing(val)
 	{
-		val = (elementGetVisibility()+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x1F)+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x1F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x1F) << 4);
@@ -8754,14 +8817,19 @@ class myMenuItem extends Lang.Object
     	return false;
     }
 
-    function onNext()
+    function onEditing(val)
     {
     	return null;
     }
     
+    function onNext()
+    {
+   		return onEditing(1);
+    }
+    
     function onPrevious()
     {
-    	return null;
+   		return onEditing(-1);
     }
     
     function onSelect()
@@ -8955,16 +9023,6 @@ class myMenuItemFieldAdd extends myMenuItem
 		return null;
 	}
     
-    function onNext()
-    {
-		return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-		return onEditing(-1);
-    }
-    
     function onSelect()
     {   	
 		if (fState==0/*s_top*/)
@@ -9030,26 +9088,30 @@ class myMenuItemFieldAdd extends myMenuItem
 (:m2app)
 class myMenuItemQuickAdd extends myMenuItem
 {
-	//time
 	//time with colon
-	//date
 	//steps (text)
-	//steps (ring)
 	//heart rate (text)
 	//battery indicator
 	//alarm icon
-	//seconds indicator
-	//digital seconds
 	//horizontal line
 	//vertical line
+
+	var fState;
 
     function initialize()
     {
     	myMenuItem.initialize();
+    	
+    	fState = -1;
     }
     
     function getString()
     {
+    	if (fState>=0)
+    	{
+    		return editorView.safeStringFromJsonData(Rez.JsonData.id_quickAddStrings, -1, fState);
+    	}
+    	
     	return "quick add";
     }
     
@@ -9061,22 +9123,100 @@ class myMenuItemQuickAdd extends myMenuItem
 
     function onNext()
     {
-   		return new myMenuItemSaveLoadProfile(0);
+    	if (fState>=0)
+    	{
+    		fState = (fState+1)%7;
+    		return null;
+    	}
+    	else
+    	{
+   			return new myMenuItemSaveLoadProfile(0);
+    	}
     }
     
     function onPrevious()
     {
-   		return new myMenuItemFieldAdd();
+    	if (fState>=0)
+    	{
+    		fState = (fState-1+7)%7;
+    		return null;
+    	}
+    	else
+    	{
+   			return new myMenuItemFieldAdd();
+   		}
     }
     
     function onSelect()
     {
+    	if (fState>=0)
+    	{
+			var index = (fState==5 || fState==6) ? editorView.gfxAddRectangle(editorView.gfxNum) : editorView.gfxAddField(editorView.gfxNum);
+	    	if (index>=0)
+	    	{
+	    		editorView.menuFieldGfx = index;
+
+				if (fState==0)	// time + colon
+				{
+					editorView.gfxAddString(editorView.gfxNum, 2, 0/*BIG_HOUR*/);
+					editorView.gfxAddString(editorView.gfxNum, 2, 2/*BIG_COLON*/);
+					editorView.gfxAddString(editorView.gfxNum, 2, 1/*BIG_MINUTE*/);
+				}
+				else if (fState==1)	// steps text
+				{
+					editorView.gfxAddString(editorView.gfxNum, 3, 31/*FIELD_STEPSCOUNT*/);
+					editorView.gfxAddIcon(editorView.gfxNum, 21/*FIELD_SHAPE_FOOTSTEPS*/);
+				}
+				else if (fState==2)	// heart rate
+				{
+					editorView.gfxAddString(editorView.gfxNum, 3, 40/*FIELD_HEART_LATEST*/);
+					editorView.gfxAddIcon(editorView.gfxNum, 27/*FIELD_SHAPE_HEART*/);
+				}
+				else if (fState==3)	// battery (when low)
+				{
+					var elementIndex = editorView.gfxAddString(editorView.gfxNum, 3, 36/*FIELD_BATTERYPERCENTAGE*/);
+					editorView.gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
+					elementIndex = editorView.gfxAddIcon(editorView.gfxNum, 17/*FIELD_SHAPE_BATTERY*/);
+					editorView.gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
+				}
+				else if (fState==4)	// alarm (when set)
+				{
+					var elementIndex = editorView.gfxAddIcon(editorView.gfxNum, 12/*FIELD_SHAPE_ALARM*/);
+					editorView.gfxData[elementIndex] |= (5/*STATUS_ALARM_ON*/<<4);
+				}
+				else if (fState==5)	// horizontal line
+				{
+					editorView.gfxData[index+6/*rect_w*/] = 200;	// width
+					editorView.gfxData[index+7/*rect_h*/] = 1;		// height
+				}
+				else if (fState==6)	// vertical line
+				{
+					editorView.gfxData[index+6/*rect_w*/] = 1;		// width
+					editorView.gfxData[index+7/*rect_h*/] = 200;	// height
+				}
+			}
+
+   			fState = -1;
+    	}
+    	else
+    	{
+   			fState = 0;
+    	}
+
     	return null;
     }
     
     function onBack()
     {
-    	return new myMenuItemExitApp();
+    	if (fState>=0)
+    	{
+    		fState = -1;
+    		return null;
+    	}
+    	else
+    	{
+    		return new myMenuItemExitApp();
+    	}
     }
 }
 
@@ -9248,10 +9388,10 @@ class myMenuItemReset extends myMenuItem
     	return (d!=1);
     }
 
-    function onNext()
-    {
-    	return null;
-    }
+//    function onNext()
+//    {
+//    	return null;
+//    }
     
     function onPrevious()
     {
@@ -9501,16 +9641,6 @@ class myMenuItemHeader extends myMenuItem
     	return null;
     }
     
-    function onNext()
-    {
-   		return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-   		return onEditing(-1);
-    }
-    
     function onSelect()
     {
 		if (fState<100)
@@ -9591,30 +9721,31 @@ class myMenuItemFieldEdit extends myMenuItem
     
     function getString()
     {
-		if (fState==12/*f_xEdit*/)
-    	{
-    		return "x=" + editorView.fieldPositionGetX();
-    	}
-		else if (fState==13/*f_yEdit*/)
-    	{
-    		return "y=" + editorView.fieldPositionGetY();
-    	}
-    	else if (fState==14/*f_alignEdit*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, editorView.fieldGetAlignment());
-    	}
-    	else if (fState==15/*f_visEdit*/)
-    	{
-    		return editorView.fieldVisibilityString();
-    	}
-    	else if (fState<=11/*f_tap*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
-    	}
-    	else
-    	{
-    		return "editing...";	// for x & y position
-    	}
+//		if (fState==12/*f_xEdit*/)
+//    	{
+//    		return "x=" + editorView.fieldPositionGetX();
+//    	}
+//		else if (fState==13/*f_yEdit*/)
+//    	{
+//    		return "y=" + editorView.fieldPositionGetY();
+//    	}
+//    	else if (fState==14/*f_alignEdit*/)
+//    	{
+//    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, editorView.fieldGetAlignment());
+//    	}
+//    	else if (fState==15/*f_visEdit*/)
+//    	{
+//    		return editorView.fieldVisibilityString();
+//    	}
+//    	else if (fState<=11/*f_tap*/)
+//    	{
+//    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
+//    	}
+//    	else
+//    	{
+//    		return "editing...";	// for x & y position
+//    	}
+		return editorView.menuFieldEditGetString(fState);
     }
     
     // up=0 down=1 left=2 right=3
@@ -9634,34 +9765,31 @@ class myMenuItemFieldEdit extends myMenuItem
     		//fState = (fState+val+5-7)%5 + 7;
     		fState = (fState+val+4-7)%4 + 7;		// removed tap for now
     	}
-		else if (fState==12/*f_xEdit*/)
+    	else
     	{
-    		editorView.fieldPositionXEditing(val);
+			editorView.menuFieldEditOnEditing(fState, val);
     	}
-		else if (fState==13/*f_yEdit*/)
-    	{
-    		editorView.fieldPositionYEditing(val);
-    	}
-		else if (fState==14/*f_alignEdit*/)
-    	{
-    		editorView.fieldAlignmentEditing(val);
-    	}
-		else if (fState==15/*f_visEdit*/)
-    	{
-    		editorView.fieldVisibilityEditing(val);
-    	}
+//		else if (fState==12/*f_xEdit*/)
+//    	{
+//    		//editorView.fieldPositionXEditing(val);
+//			editorView.gfxSubtractValInPlace(editorView.menuFieldGfx+1, val, 0, editorView.displaySize);
+//    	}
+//		else if (fState==13/*f_yEdit*/)
+//    	{
+//    		//editorView.fieldPositionYEditing(val);
+//			editorView.gfxSubtractValInPlace(editorView.menuFieldGfx+2, val, 0, editorView.displaySize);
+//    	}
+//		else if (fState==14/*f_alignEdit*/)
+//    	{
+//    		//editorView.fieldAlignmentEditing(val);
+//			editorView.gfxData[editorView.menuFieldGfx+3] = (editorView.gfxData[editorView.menuFieldGfx+3]+val+3)%3;
+//    	}
+//		else if (fState==15/*f_visEdit*/)
+//    	{
+//    		editorView.fieldVisibilityEditing(val);
+//    	}
 
    		return null;
-    }
-    
-    function onNext()
-    {
-   		return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-   		return onEditing(-1);
     }
     
     function onSelect()
@@ -9895,31 +10023,35 @@ class myMenuItemElementEdit extends myMenuItem
     	fState = 0;
     	fId = id;
     	
-    	if (fId==2)	// large (hour, minute, colon)
-    	{
-    		fStringsIndex = 0;
-    		fNumCustom = 3;
-    	}
-    	else if (fId==3)	// string
-    	{
-    		fStringsIndex = 1;
-    		fNumCustom = 3;
-    	}
-    	else if (fId==4)	// icon
-    	{
-    		fStringsIndex = 2;
-    		fNumCustom = 3;
-    	}
-    	else if (fId==5)	// movebar
-    	{
-    		fStringsIndex = 3;
-    		fNumCustom = 7;
-    	}
-    	else if (fId==6)	// chart
-    	{
-    		fStringsIndex = 4;
-    		fNumCustom = 3;
-    	}
+    	//fStringsIndex = [0, 1, 2, 3, 4][fId-2];
+    	fStringsIndex = fId-2;
+		fNumCustom = [3, 3, 3, 7, 3][fId-2];
+    	
+//    	if (fId==2)	// large (hour, minute, colon)
+//    	{
+//    		fStringsIndex = 0;
+//    		fNumCustom = 3;
+//    	}
+//    	else if (fId==3)	// string
+//    	{
+//    		fStringsIndex = 1;
+//    		fNumCustom = 3;
+//    	}
+//    	else if (fId==4)	// icon
+//    	{
+//    		fStringsIndex = 2;
+//    		fNumCustom = 3;
+//    	}
+//    	else if (fId==5)	// movebar
+//    	{
+//    		fStringsIndex = 3;
+//    		fNumCustom = 7;
+//    	}
+//    	else if (fId==6)	// chart
+//    	{
+//    		fStringsIndex = 4;
+//    		fNumCustom = 3;
+//    	}
     	
     	idArray = -1;
     	editingArrayValue = false;
@@ -9932,7 +10064,8 @@ class myMenuItemElementEdit extends myMenuItem
 
     	if (fState==numTop+fNumCustom)
     	{
-    		return editorView.elementVisibilityString();
+    		//return editorView.elementVisibilityString();
+			return editorView.getVisibilityString(editorView.menuElementGfx);
     	}
     	else if (fState<numTop)
     	{
@@ -10078,16 +10211,6 @@ class myMenuItemElementEdit extends myMenuItem
 		}
 		    
    		return null;
-    }
-    
-    function onNext()
-    {
-    	return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-    	return onEditing(-1);
     }
     
     function onSelect()
@@ -10395,16 +10518,6 @@ class myMenuItemElementAdd extends myMenuItem
     	return null;
     }
     
-    function onNext()
-    {
-		return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-		return onEditing(-1);
-    }
-    
     function onSelect()
     {
     	var index = -1;
@@ -10627,16 +10740,6 @@ class myMenuItemRectangle extends myMenuItem
     	return null;
     }
     
-    function onNext()
-    {
-    	return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-    	return onEditing(-1);
-    }
-    
     function onSelect()
     {
     	if (fState==4/*r_position*/)
@@ -10829,16 +10932,6 @@ class myMenuItemRing extends myMenuItem
     	return null;
     }
     
-    function onNext()
-    {
-		return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-		return onEditing(-1);
-    }
-    
     function onSelect()
     {
     	if (fState<=9/*r_vis*/)
@@ -10977,16 +11070,6 @@ class myMenuItemSeconds extends myMenuItem
     	}
     	
     	return null;
-    }
-    
-    function onNext()
-    {
-   		return onEditing(1);
-    }
-    
-    function onPrevious()
-    {
-   		return onEditing(-1);
     }
     
     function onSelect()
