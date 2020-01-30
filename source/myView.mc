@@ -1125,6 +1125,9 @@ class myView
 		isTurkish = (tempStr!=null && tempStr.length()>0);
 		tempStr = null;
 
+		//tempStr = WatchUi.loadResource(Rez.Strings.AppName);
+		//System.println("appname=" + tempStr);
+
 		// need to seed the random number generator?
 		//var clockTime = System.getClockTime();
 		//var seed = clockTime.sec + clockTime.min*60 + clockTime.hour*(60*60) + System.getTimer();
