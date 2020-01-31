@@ -725,10 +725,6 @@
 			],
 			
 			[
-				"plain color"
-			],
-			
-			[
 				"right",
 				"left",
 				"up",
@@ -797,7 +793,9 @@
 				"2nd time\nminutes",
 		   		"dawn/dusk\n(now=start)",
 		   		"dawn/dusk\n(midnight=start)",
-		   		"dawn/dusk\n(noon=start)"
+		   		"dawn/dusk\n(noon=start)",
+		   		"dawn/dusk\n(now=middle)",
+		   		"sunrise/set\n(now=middle)"
 			],
 			
 			[
@@ -814,9 +812,11 @@
 				16,		<!-- RING_2ND_HOUR_12 -->
 				17,		<!-- RING_2ND_HOUR_24 -->
 				7,		<!-- RING_SUN_NOW -->
+				29,		<!-- RING_SUN_NOW_MID -->
 				8,		<!-- RING_SUN_MIDNIGHT -->
 				9,		<!-- RING_SUN_NOON -->
 				25,		<!-- RING_DAWNDUSK_NOW -->
+				28,		<!-- RING_DAWNDUSK_NOW_MID -->
 				26,		<!-- RING_DAWNDUSK_MIDNIGHT -->
 				27,		<!-- RING_DAWNDUSK_NOON -->
 				10,		<!-- RING_INTENSITY -->

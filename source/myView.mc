@@ -47,10 +47,6 @@ class myView
 	var displaySize = 240;
 	var displayHalf = 120;
 
-	var updateTimeNowValue;
-	var updateTimeTodayValue;
-	var updateTimeZoneOffset;
-
 	var firstUpdateSinceInitialize = true;
 
 	var settingsHaveChanged = false;
@@ -1532,10 +1528,10 @@ class myView
 		}
 	}
 		
-    function formatHourForDisplayString(h, is24Hour, addLeadingZero)
+    function formatHourForDisplayString(h, use24Hour, addLeadingZero)
     {
         // 12 or 24 hour, and check for adding a leading zero
-        return (is24Hour ? h : (((h+11)%12) + 1)).format(addLeadingZero ? "%02d" : "%d"); 
+        return (use24Hour ? h : (((h+11)%12) + 1)).format(addLeadingZero ? "%02d" : "%d"); 
     }
     
 //	function printMem(s)
@@ -2468,7 +2464,7 @@ class myView
 //		System.println(Lang.format(s + " UTC $1$-$2$-$3$ $4$:$5$:$6$", [ i.year.format("%4d"), i.month.format("%02d"), i.day.format("%02d"), i.hour.format("%02d"), i.min.format("%02d"), i.sec.format("%02d") ]));
 //	}
 	
-	function calculateDayWeekYearData(index, firstDayOfWeek, dateInfoMedium)
+	function calculateDayWeekYearData(index, dateInfoMedium)
 	{
 		// use noon for all these times to be safe when getting dateInfo
 	
@@ -2508,11 +2504,11 @@ class myView
 		// If first day of week is set to Sat then Jan 1 is in week 1 if Jan 1 is Sat, Sun, Mon, Tue, Wed, Thu
 	       					
 		var dateInfoStartOfYear = gregorian.info(startOfYearNoon, Time.FORMAT_SHORT);	// get date info for noon to be safe
- 		var numberInWeekOfJan1 = ((dateInfoStartOfYear.day_of_week - firstDayOfWeek + 7) % 7);	// 0-6
+ 		var numberInWeekOfJan1 = ((dateInfoStartOfYear.day_of_week - updateFirstDayOfWeek + 7) % 7);	// 0-6
 		var weeks = (days + numberInWeekOfJan1) / 7;
 		var year = dateInfoMedium.year;
 
-		var numberInWeekOfThu = ((gregorian.DAY_THURSDAY - firstDayOfWeek + 7) % 7);	// 0-6
+		var numberInWeekOfThu = ((gregorian.DAY_THURSDAY - updateFirstDayOfWeek + 7) % 7);	// 0-6
 		
 		if (index==1)
 		{
@@ -2542,7 +2538,7 @@ class myView
 			var startOfPrevYearNoon = gregorian.moment(tempYear).subtract(timeZoneOffsetDuration);
 			//var startOfPrevYearNoon = gregorian.moment({:year => prevYear, :month => 1, :day => 1, :hour => 12, :minute => 0, :second => 0}).subtract(timeZoneOffsetDuration);
 			var dateInfoStartOfPrevYear = gregorian.info(startOfPrevYearNoon, Time.FORMAT_SHORT);	// get date info for noon to be safe
-			var numberInWeekOfJan1PrevYear = ((dateInfoStartOfPrevYear.day_of_week - firstDayOfWeek + 7) % 7);	// 0-6
+			var numberInWeekOfJan1PrevYear = ((dateInfoStartOfPrevYear.day_of_week - updateFirstDayOfWeek + 7) % 7);	// 0-6
 			
 			var durationToJan1PrevYear = todayNoon.subtract(startOfPrevYearNoon);
 			var daysToJan1PrevYear = Math.round(durationToJan1PrevYear.value() / 86400.0).toNumber();
@@ -2568,7 +2564,7 @@ class myView
 			var startOfNextYearNoon = gregorian.moment(tempYear).subtract(timeZoneOffsetDuration);
 			//var startOfNextYearNoon = gregorian.moment({:year => nextYear, :month => 1, :day => 1, :hour => 12, :minute => 0, :second => 0}).subtract(timeZoneOffsetDuration);
 			var dateInfoStartOfNextYear = gregorian.info(startOfNextYearNoon, Time.FORMAT_SHORT);	// get date info for noon to be safe
-			var numberInWeekOfJan1NextYear = ((dateInfoStartOfNextYear.day_of_week - firstDayOfWeek + 7) % 7);	// 0-6
+			var numberInWeekOfJan1NextYear = ((dateInfoStartOfNextYear.day_of_week - updateFirstDayOfWeek + 7) % 7);	// 0-6
 			
 			var checkInFirstWeek;
 			
@@ -3103,7 +3099,7 @@ class myView
 	}
 
 	// 0==sunrise, 1==sunset, 2==next sun event
-	function getSunDisplayString(sunType, dateInfoShort, wantMinutes, is24Hour, addLeadingZero, sunOffset)
+	function getSunDisplayString(sunType, dateInfoShort, wantMinutes, use24Hour, addLeadingZero, sunOffset)
 	{	
 		calculateSun(dateInfoShort);
 
@@ -3128,7 +3124,7 @@ class myView
 			}
 			else
 			{
-				eStr = formatHourForDisplayString((t/60)%24, is24Hour, addLeadingZero);		// hours
+				eStr = formatHourForDisplayString((t/60)%24, use24Hour, addLeadingZero);		// hours
 			}
 		}
 		else
@@ -4747,13 +4743,28 @@ class myView
 	function getSunOuterFill(t, timeOffsetInMinutes, segmentAdjust, drawRange)
 	{
 		//return ((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) / 24 + segmentAdjust + 60)%60;
-		return (((((t!=null) ? t : 0) + 12 + 24*60 - timeOffsetInMinutes) * drawRange) / (24*60) + segmentAdjust + drawRange)%drawRange;
+		return (((((t!=null) ? t : 0) + 12 + 48*60 - timeOffsetInMinutes) * drawRange) / (24*60) + segmentAdjust + drawRange)%drawRange;
 	}
 
 	function editorCheckGfxVisibility(index)
 	{
 		return true;
 	}
+
+	function dayNumberOfWeek(dateInfoShort)
+	{
+		return (((dateInfoShort.day_of_week - updateFirstDayOfWeek + 7) % 7) + 1);		// 1-7
+	}
+
+	var updateTimeNowValue;
+	var updateTimeTodayValue;
+	var updateTimeZoneOffset;
+
+    var updateBatteryLevel;
+    var updateNotificationCount;
+    var updateFirstDayOfWeek;
+	var updateIs24Hour;
+	var updateTime2ndInMinutes;
 
 	function gfxOnUpdate(dc, clockTime, timeNow)
 	{
@@ -4762,50 +4773,56 @@ class myView
         var second = clockTime.sec;
         var timeNowInMinutesToday = hour*60 + minute;
 
+		//var systemStats = System.getSystemStats();				// 168 bytes, but uses less code memory
+		updateBatteryLevel = System.getSystemStats().battery;
+
+		//var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 48)%24;		// 2nd time zone
+        updateTime2ndInMinutes = (timeNowInMinutesToday - clockTime.timeZoneOffset/60 + prop2ndTimeZoneOffset + 2*1440)%1440;
+		var hour2nd = updateTime2ndInMinutes/60;
+
         var deviceSettings = System.getDeviceSettings();		// 960 bytes, but uses less code memory
+    	updateNotificationCount = deviceSettings.notificationCount;
+    	updateFirstDayOfWeek = deviceSettings.firstDayOfWeek;
+		updateIs24Hour = deviceSettings.is24Hour;
+	    var alarmCount = deviceSettings.alarmCount;
+	    var phoneConnected = deviceSettings.phoneConnected;
+        var doNotDisturb = deviceSettings.doNotDisturb;
+		var activityTrackingOn = deviceSettings.activityTrackingOn;
+		var distanceUnits = deviceSettings.distanceUnits;
+		var elevationUnits = deviceSettings.elevationUnits;
+		var temperatureUnits = deviceSettings.temperatureUnits;
+		deviceSettings = null;
+		
 		var activityMonitorInfo = ActivityMonitor.getInfo();  	// 560 bytes, but uses less code memory
-		var systemStats = System.getSystemStats();				// 168 bytes, but uses less code memory
-        var firstDayOfWeek = deviceSettings.firstDayOfWeek;
+		
 		var gregorian = Time.Gregorian;
 		var dateInfoShort = gregorian.info(timeNow, Time.FORMAT_SHORT);
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
-		var dayNumberOfWeek = (((dateInfoShort.day_of_week - firstDayOfWeek + 7) % 7) + 1);		// 1-7
 		
-		//var hour2nd = (hour - clockTime.timeZoneOffset/3600 + prop2ndTimeZoneOffset + 48)%24;		// 2nd time zone
-        var time2ndInMinutes = (timeNowInMinutesToday - clockTime.timeZoneOffset/60 + prop2ndTimeZoneOffset + 2*1440)%1440;
-		var hour2nd = time2ndInMinutes/60;
-		var minute2nd = time2ndInMinutes%60;
-
 		// calculate fields to display
 		var visibilityStatus = new[27/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
-	    visibilityStatus[3/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && deviceSettings.doNotDisturb);
-	    visibilityStatus[4/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !deviceSettings.doNotDisturb);
-	    var alarmCount = deviceSettings.alarmCount;
+	    visibilityStatus[3/*STATUS_DONOTDISTURB_ON*/] = (hasDoNotDisturb && doNotDisturb);
+	    visibilityStatus[4/*STATUS_DONOTDISTURB_OFF*/] = (hasDoNotDisturb && !doNotDisturb);
 	    visibilityStatus[5/*STATUS_ALARM_ON*/] = (alarmCount > 0);
 	    visibilityStatus[6/*STATUS_ALARM_OFF*/] = (alarmCount == 0);
-	    var notificationCount = deviceSettings.notificationCount;
-	    visibilityStatus[7/*STATUS_NOTIFICATIONS_PENDING*/] = (notificationCount > 0);
-	    visibilityStatus[8/*STATUS_NOTIFICATIONS_NONE*/] = (notificationCount == 0);
-	    var phoneConnected = deviceSettings.phoneConnected;
+	    visibilityStatus[7/*STATUS_NOTIFICATIONS_PENDING*/] = (updateNotificationCount > 0);
+	    visibilityStatus[8/*STATUS_NOTIFICATIONS_NONE*/] = (updateNotificationCount == 0);
 	    visibilityStatus[9/*STATUS_PHONE_CONNECTED*/] = phoneConnected;
 	    visibilityStatus[10/*STATUS_PHONE_NOT*/] = !phoneConnected;
 	    var lteState = lteConnected();
 	    visibilityStatus[11/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
 	    visibilityStatus[12/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
-	    var batteryLevel = systemStats.battery;
-	    visibilityStatus[14/*STATUS_BATTERY_HIGH*/] = (batteryLevel>=propBatteryHighPercentage);
-	    visibilityStatus[16/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && batteryLevel<=propBatteryLowPercentage);
+	    visibilityStatus[14/*STATUS_BATTERY_HIGH*/] = (updateBatteryLevel>=propBatteryHighPercentage);
+	    visibilityStatus[16/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && updateBatteryLevel<=propBatteryLowPercentage);
 	    visibilityStatus[15/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[16/*STATUS_BATTERY_LOW*/]);
 	    visibilityStatus[13/*STATUS_BATTERY_HIGHORMEDIUM*/] = !visibilityStatus[16/*STATUS_BATTERY_LOW*/];
 		// moveBarLevel 0 = not triggered
 		// moveBarLevel has range 1 to 5
 		// propFieldMoveAlarmTriggerTime has range 1 to 5
-		var activityTrackingOn = deviceSettings.activityTrackingOn;
-		var activityMonitorMoveBarLevel = getNullCheckZero(activityMonitorInfo.moveBarLevel);
-	    var moveBarAlertTriggered = (activityMonitorMoveBarLevel >= propMoveBarAlertTriggerLevel); 
+	    var moveBarAlertTriggered = (getNullCheckZero(activityMonitorInfo.moveBarLevel) >= propMoveBarAlertTriggerLevel); 
 	    visibilityStatus[17/*STATUS_MOVEBARALERT_TRIGGERED*/] = (activityTrackingOn && moveBarAlertTriggered);
 	    visibilityStatus[18/*STATUS_MOVEBARALERT_NOT*/] = (activityTrackingOn && !moveBarAlertTriggered);
 	    visibilityStatus[19/*STATUS_AM*/] = (hour < 12);
@@ -4847,7 +4864,7 @@ class myView
 				// So make sure to do these tests before the visibility test
 				if (eVisible==7/*STATUS_NOTIFICATIONS_PENDING*/ || eVisible==8/*STATUS_NOTIFICATIONS_NONE*/)
 				{
-					fieldActiveNotificationsStatus = (notificationCount > 0);
+					fieldActiveNotificationsStatus = (updateNotificationCount > 0);
 				} 
 				else if (eVisible==9/*STATUS_PHONE_CONNECTED*/ || eVisible==10/*STATUS_PHONE_NOT*/)
 				{
@@ -5068,7 +5085,7 @@ class myView
 							//21		<!-- BIG_HOUR_24_0_2ND -->
 	
 							var addLeadingZero = (eDisplay==3/*BIG_HOUR_0*/);
-							var is24Hour = deviceSettings.is24Hour;
+							var use24Hour = updateIs24Hour;
 							var digit = -1;
 							
 							if (eDisplay>=4)
@@ -5077,7 +5094,7 @@ class myView
 								{
 									var tempType = eDisplay-10; 
 									addLeadingZero = ((tempType%6)>=3);
-									is24Hour = (tempType>=6);
+									use24Hour = (tempType>=6);
 									digit = (tempType%3) - 1;
 								}
 								else	// 4, 5, 6, 7
@@ -5088,7 +5105,7 @@ class myView
 							}
 							
 							
-							eStr = formatHourForDisplayString(hour, is24Hour, addLeadingZero);
+							eStr = formatHourForDisplayString(hour, use24Hour, addLeadingZero);
 							
 							if (digit>=0)
 							{
@@ -5150,17 +5167,17 @@ class myView
 						var eTemp = eDisplay - 64/*FIELD_HOUR_12*/;
 					
 						var eTempMod5 = (eTemp%5);
-						var is24Hour = ((eTempMod5==1) || (eTempMod5==4) || ((eTempMod5==2) && deviceSettings.is24Hour));
+						var use24Hour = ((eTempMod5==1) || (eTempMod5==4) || ((eTempMod5==2) && updateIs24Hour));
 						var addLeadingZero = (eTempMod5>=2);
 												
 						var eTempDiv5 = (eTemp/5);
 						if (eTempDiv5<=1)	// 0=hour or 1=2nd time
 						{
-							eStr = formatHourForDisplayString((eTempDiv5==1) ? hour2nd : hour, is24Hour, addLeadingZero);
+							eStr = formatHourForDisplayString((eTempDiv5==1) ? hour2nd : hour, use24Hour, addLeadingZero);
 						}
 						else	// 2,3,4=sun 5,6,7=dawn/dusk
 						{
-							eStr = getSunDisplayString((eTempDiv5-2)%3, dateInfoShort, false, is24Hour, addLeadingZero, (eTempDiv5>=5)?8:0);
+							eStr = getSunDisplayString((eTempDiv5-2)%3, dateInfoShort, false, use24Hour, addLeadingZero, (eTempDiv5>=5)?8:0);
 						}
 					}
 					else		// string
@@ -5170,7 +5187,7 @@ class myView
 							case 1/*FIELD_HOUR*/:			// hour
 							case 47/*FIELD_2ND_HOUR*/:
 							{
-								eStr = formatHourForDisplayString((eDisplay==47/*FIELD_2ND_HOUR*/) ? hour2nd : hour, deviceSettings.is24Hour, false);
+								eStr = formatHourForDisplayString((eDisplay==47/*FIELD_2ND_HOUR*/) ? hour2nd : hour, updateIs24Hour, false);
 								//eStr = ".1,";							// test the "." character
 								break;
 							}
@@ -5178,7 +5195,7 @@ class myView
 							case 2/*FIELD_MINUTE*/:			// minute
 							case 110/*FIELD_2ND_MINUTE*/:
 						    {
-								eStr = ((eDisplay==110/*FIELD_2ND_MINUTE*/) ? minute2nd : minute).format("%02d");
+								eStr = ((eDisplay==110/*FIELD_2ND_MINUTE*/) ? (updateTime2ndInMinutes%60) : minute).format("%02d");
 								break;
 							}
 
@@ -5218,7 +5235,7 @@ class myView
 									eTemp -= 41/*FIELD_SUNRISE_HOUR*/;
 								}
 								
-								eStr = getSunDisplayString(eTemp/2, dateInfoShort, (eTemp%2)==1, deviceSettings.is24Hour, false, sunOffset);
+								eStr = getSunDisplayString(eTemp/2, dateInfoShort, (eTemp%2)==1, updateIs24Hour, false, sunOffset);
 								break;
 							}
 	
@@ -5290,7 +5307,7 @@ class myView
 	
 							case 4/*FIELD_DAY_OF_WEEK*/:			// day number of week
 						    {
-								eStr = "" + dayNumberOfWeek;	// 1-7
+								eStr = "" + dayNumberOfWeek(dateInfoShort);	// 1-7
 								break;
 							}
 		
@@ -5309,7 +5326,7 @@ class myView
 							case 7/*FIELD_DAY_OF_YEAR*/:				// day number of year
 							case 8/*FIELD_DAY_OF_YEAR_XXX*/:			// day number of year XXX
 							{
-								calculateDayWeekYearData(0, firstDayOfWeek, dateInfoMedium);
+								calculateDayWeekYearData(0, dateInfoMedium);
 	
 	    						eStr = dayOfYear.format((eDisplay == 7/*FIELD_DAY_OF_YEAR*/) ? "%d" : "%03d");        					
 	        					break;
@@ -5348,7 +5365,7 @@ class myView
 							case 14/*FIELD_WEEK_ISO_XX*/:			// week number of year XX
 							case 16/*FIELD_YEAR_ISO_WEEK_XXXX*/:
 							{
-								calculateDayWeekYearData(1, firstDayOfWeek, dateInfoMedium);							
+								calculateDayWeekYearData(1, dateInfoMedium);							
 	        					eStr = ((eDisplay==14/*FIELD_WEEK_ISO_XX*/) ? ISOWeek.format("%02d") : "" + ISOYear);
 	    						break;
 							}
@@ -5356,7 +5373,7 @@ class myView
 							case 17/*FIELD_WEEK_CALENDAR_XX*/:			// week number of year XX
 							case 18/*FIELD_YEAR_CALENDAR_WEEK_XXXX*/:
 							{
-								calculateDayWeekYearData(2, firstDayOfWeek, dateInfoMedium);							
+								calculateDayWeekYearData(2, dateInfoMedium);							
 							    eStr = ((eDisplay==17/*FIELD_WEEK_CALENDAR_XX*/) ? CalendarWeek.format("%02d") : "" + CalendarYear);
 								break;
 							}
@@ -5425,14 +5442,14 @@ class myView
 	
 							case 35/*FIELD_NOTIFICATIONSCOUNT*/:
 							{
-								fieldActiveNotificationsCount = deviceSettings.notificationCount; 
+								fieldActiveNotificationsCount = updateNotificationCount; 
 								eStr = "" + fieldActiveNotificationsCount;
 								break;
 							}
 							
 							case 36/*FIELD_BATTERYPERCENTAGE*/:
 							{
-								eStr = "" + systemStats.battery.toNumber();
+								eStr = "" + updateBatteryLevel.toNumber();
 								break;
 							}
 							
@@ -5478,21 +5495,21 @@ class myView
 	
 							case 52/*FIELD_SMART_GOAL*/:
 							{
-								eStr = "" + ((getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal) * dayNumberOfWeek) / 7);
+								eStr = "" + ((getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal) * dayNumberOfWeek(dateInfoShort)) / 7);
 								break;
 							}
 	
 							case 53/*FIELD_DISTANCE*/:
 							{
 								// convert cm to miles or km
-								var d = getNullCheckZero(activityMonitorInfo.distance) / ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? 160934.4 : 100000.0);
+								var d = getNullCheckZero(activityMonitorInfo.distance) / ((distanceUnits==System.UNIT_STATUTE) ? 160934.4 : 100000.0);
 								eStr = d.format("%.1f");
 								break;
 							}
 	
 							case 54/*FIELD_DISTANCE_UNITS*/:
 							{
-								eStr = ((deviceSettings.distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
+								eStr = ((distanceUnits==System.UNIT_STATUTE) ? "mi" : "km");
 								makeUpperCase = !isDynamicResourceSystemFont(dynamicResource);
 								break;
 							}
@@ -5524,13 +5541,13 @@ class myView
 							case 57/*FIELD_ALTITUDE*/:
 							{
 								// convert m to feet or m
-								eStr = ((deviceSettings.elevationUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
+								eStr = ((elevationUnits==System.UNIT_STATUTE) ? (positionAltitude*3.2808399) : positionAltitude).format("%d");
 								break;
 							}
 	
 							case 58/*FIELD_ALTITUDE_UNITS*/:
 							{
-								eStr = ((deviceSettings.elevationUnits==System.UNIT_STATUTE) ? "ft" : "m");
+								eStr = ((elevationUnits==System.UNIT_STATUTE) ? "ft" : "m");
 								makeUpperCase = !isDynamicResourceSystemFont(dynamicResource);
 								break;
 							}
@@ -5542,7 +5559,7 @@ class myView
 									var temperatureSample = SensorHistory.getTemperatureHistory({:period => 1}).next();
 									if (temperatureSample!=null && temperatureSample.data!=null)
 									{ 
-										eStr = (Math.round((deviceSettings.temperatureUnits==System.UNIT_STATUTE) ? (temperatureSample.data*1.8 + 32) : temperatureSample.data)).format("%d");
+										eStr = (Math.round((temperatureUnits==System.UNIT_STATUTE) ? (temperatureSample.data*1.8 + 32) : temperatureSample.data)).format("%d");
 									}
 									else
 									{
@@ -5554,7 +5571,7 @@ class myView
 							
 							case 60/*FIELD_TEMPERATURE_UNITS*/:
 							{
-								eStr = ((deviceSettings.temperatureUnits==System.UNIT_STATUTE) ? "F" : "C");
+								eStr = ((temperatureUnits==System.UNIT_STATUTE) ? "F" : "C");
 								break;
 							}
 						}
@@ -5651,7 +5668,7 @@ class myView
 						break;
 					}
 
-					gfxData[index+9] = activityMonitorMoveBarLevel;	// level
+					gfxData[index+9] = getNullCheckZero(activityMonitorInfo.moveBarLevel);	// level
 					gfxData[index+10] = 0;	// width
 
 					var dynamicResource = getDynamicResourceFromGfx(index+2/*movebar_font*/);
@@ -5710,6 +5727,15 @@ class myView
 						break;
 					}
 
+					var direction = ((gfxData[index+1/*rect_type*/]&0xC0)>>6);	// 0=right, 1=left, 2=up, 3=down 
+					var drawRange = gfxData[index + ((direction<=1) ? 6/*rect_w*/ : 7/*rect_h*/)];
+					
+					calcDataLimit100 = true;
+					calcDirAnti = -1;
+					calcSecond = second;
+					gfxData[index+8/*rect_fill*/] = calculateDataFillValues((gfxData[index+1/*rect_type*/] & 0x3F), 0, drawRange, 1,
+												minute, timeNowInMinutesToday, activityMonitorInfo, dateInfoShort, dateInfoMedium);
+					
 					break;
 				}
 				
@@ -5726,289 +5752,20 @@ class myView
 						break;
 					}
 
-					var alignedAdjust = (outerAlignedToSeconds(arrayResource) ? 0 : 1);
-
-					var eDisplay = (gfxData[index+1] & 0x3F);
-					var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
-					var eLimit100 = ((gfxData[index+1] & 0x80) != 0);
-
 					var drawStart = gfxData[index+3];	// 0-59
 					var drawEnd = gfxData[index+4];		// 0-59
 					
-					var drawRange;
-					if (eDirAnti)	// anticlockwise
-					{
-						drawRange = (drawStart - drawEnd + 60)%60 + 1;	// 1-60
-					}
-					else
-					{
-						drawRange = (drawEnd - drawStart + 60)%60 + 1;	// 1-60
-					}
-					
-					// calculate fill amounts from 0 to drawRange
-					var noFill = false;
-					var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
-					var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
+					var gfxDataIndex1 = gfxData[index+1];
+					var eDirAnti = ((gfxDataIndex1 & 0x40) != 0);	// false==clockwise
 
-					// 0 RING_PLAIN_COLOR
-					// 1 RING_STEPS
-					// 2 RING_FLOORS
-					// 3 RING_BATTERY
-					// 4 RING_MINUTE
-					// 5 RING_HOUR
-					// 6 RING_2ND_HOUR
-					// 7 RING_SUN_NOW
-					// 8 RING_SUN_MIDNIGHT
-					// 9 RING_SUN_NOON
-					// 10 RING_INTENSITY
-					// 11 RING_SMART_INTENSITY
-					// 12 RING_HEART
-					// 13 RING_ACTIVE_CALORIES
-					// 14 RING_HOUR_12
-					// 15 RING_HOUR_24
-					// 16 RING_2ND_HOUR_12
-					// 17 RING_2ND_HOUR_24
-					// 18 RING_DAY_OF_WEEK
-			   		// 19 RING_DAY_OF_MONTH
-			   		// 20 RING_DAY_OF_YEAR
-			   		// 21 RING_MONTH_OF_YEAR
-			   		// 22 RING_NOTIFICATIONS
-			   		// 23 RING_MOVEBAR
-					// 24 RING_2ND_MINUTE
-					// 25 RING_DAWNDUSK_NOW
-					// 26 RING_DAWNDUSK_MIDNIGHT
-					// 27 RING_DAWNDUSK_NOON
-					//
-					// Other things that could be displayed:
-					//
-			   		// week ISO
-			   		// week calendar
-			   		//
-			   		// weekly active calories compared to previous weeks
-			   		// smart training performance/load
-			   		//
-			   		// pressure	870-1084mb, standard at sea level is 1013, 300 on top of Everest, normal range is 1016+-34
-			   		// temperature -50 to +50 ?
-				   		
-					switch (eDisplay)
-					{
-						//case 0:		// solid color
-						//{
-						//	break;
-						//}
-					
-						case 1/*RING_STEPS*/:		// steps
-						case 2/*RING_FLOORS*/:		// floors
-						case 10/*RING_INTENSITY*/:	// intensity
-						case 11/*RING_SMART_INTENSITY*/:	// smart intensity
-						{
-							var val;
-							var goal;
-							if (eDisplay==2/*RING_FLOORS*/)
-							{
-								val = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbed) : 0);
-								goal = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbedGoal) : 0);
-							}
-							else if (eDisplay==10/*RING_INTENSITY*/ || eDisplay==11/*RING_SMART_INTENSITY*/)
-							{
-								val = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
-								goal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
+					var drawRange = ((eDirAnti ? (drawStart-drawEnd) : (drawEnd-drawStart)) + 60)%60 + 1;	// 1-60
+					//var eDisplay = (gfxDataIndex1 & 0x3F);
 
-								if (eDisplay==11/*RING_SMART_INTENSITY*/)	// smart
-								{
-									goal = ((goal * dayNumberOfWeek) / 7);
-								}
-							}
-							else
-							{
-								val = getNullCheckZero(activityMonitorInfo.steps);
-								goal = getNullCheckZero(activityMonitorInfo.stepGoal);
-							}
-							
-							fillEnd = ((goal>0) ? ((drawRange * val) / goal - alignedAdjust) : -1);
-							
-							if (fillEnd>=drawRange)
-							{
-								if (drawRange<60 || eLimit100)
-								{
-									fillEnd = drawRange;
-								}
-								else
-								{
-									fillEnd++;	// add that 1 back on again so multiples of goal correctly align at start 
-									
-									// once past val goal then use a different style - draw just two unfilled blocks moving around
-									//var multiple = val / goal;
-									fillStart = (fillEnd + (val/goal))%60;
-									fillEnd = (fillEnd + 59)%60;	// same as -1
-								}
-							}
-							
-							break;
-						}
-
-				   		case 3/*RING_BATTERY*/:		// battery percentage
-				   		{
-							fillEnd = (systemStats.battery * drawRange).toNumber() / 100 - alignedAdjust;
-							break;
-				   		}
-				   		
-						case 4/*RING_MINUTE*/:		// minutes
-						case 24/*RING_2ND_MINUTE*/:
-						{
-			    			fillEnd = (((eDisplay==24/*RING_2ND_MINUTE*/) ? minute2nd : minute) * drawRange)/60 - alignedAdjust;
-							break;
-						}
-						
-						case 18/*RING_DAY_OF_WEEK*/:
-						{
-							fillEnd = (dayNumberOfWeek * drawRange)/7 - alignedAdjust;	// dayNumberOfWeek is 1-7
-							break;
-						}
-						
-				   		case 19/*RING_DAY_OF_MONTH*/:
-						{
-							fillEnd = dateInfoMedium.day - alignedAdjust;
-							break;
-						}
-
-				   		case 20/*RING_DAY_OF_YEAR*/:
-						{
-							calculateDayWeekYearData(0, firstDayOfWeek, dateInfoMedium);
-							fillEnd = (dayOfYear * drawRange)/365 - alignedAdjust;		// dayOfYear 1-365
-							break;
-						}
-
-				   		case 21/*RING_MONTH_OF_YEAR*/:
-						{
-							fillEnd = (dateInfoShort.month * drawRange)/12 - alignedAdjust;
-							break;
-						}
-
-				   		case 22/*RING_NOTIFICATIONS*/:
-						{
-							fieldActiveNotificationsCount = deviceSettings.notificationCount; 
-							fillEnd = fieldActiveNotificationsCount - 1;
-							break;
-						}
-
-				   		case 23/*RING_MOVEBAR*/:
-						{
-							// moveBarLevel 0 = not triggered
-							// moveBarLevel has range 1 to 5
-							fillEnd = (activityMonitorMoveBarLevel * drawRange)/5 - 1;
-							break;
-						}
-
-						case 5/*RING_HOUR*/:		// hours
-						case 6/*RING_2ND_HOUR*/:		// 2nd time zone hours
-						case 14/*RING_HOUR_12*/:
-						case 15/*RING_HOUR_24*/:
-						case 16/*RING_2ND_HOUR_12*/:
-						case 17/*RING_2ND_HOUR_24*/:
-						{
-							var useTimeInMinutes = ((eDisplay==6/*RING_2ND_HOUR*/ || eDisplay>=16/*RING_2ND_HOUR_12*/ /*>= test also handles 24 hour */ /*RING_2ND_HOUR_24*/) ? time2ndInMinutes : timeNowInMinutesToday);
-							var is24Hour = ((eDisplay<=6/*RING_2ND_HOUR*/) ? deviceSettings.is24Hour : ((eDisplay%2)==1));
-					        if (is24Hour)
-					        {
-				        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
-				        		fillEnd = (useTimeInMinutes * drawRange) / (24*60) - alignedAdjust;
-					        }
-					        else        	// 12 hours
-					        {
-				        		fillEnd = ((useTimeInMinutes%(12*60)) * drawRange) / (12*60) - alignedAdjust;
-					        }
-							break;
-				   		}
-				   		
-				   		case 7/*RING_SUN_NOW*/:				// sunrise & sunset now top
-				   		case 8/*RING_SUN_MIDNIGHT*/:		// sunrise & sunset midnight top
-				   		case 9/*RING_SUN_NOON*/:			// sunrise & sunset noon top
-				   		case 25/*RING_DAWNDUSK_NOW*/:			// dawn & dusk now top
-				   		case 26/*RING_DAWNDUSK_MIDNIGHT*/:		// dawn & dusk midnight top
-				   		case 27/*RING_DAWNDUSK_NOON*/:			// dawn & dusk noon top
-				   		{
-							calculateSun(dateInfoShort);
-
-							var sunOffset = 0;
-							if (eDisplay>=25/*RING_DAWNDUSK_NOW*/)
-							{
-								sunOffset = 8;
-								eDisplay -= (25/*RING_DAWNDUSK_NOW*/-7/*RING_SUN_NOW*/);
-							}
-
-							var timeOffsetInMinutes = 0;	// midnight top
-							if (eDisplay==7/*RING_SUN_NOW*/)				// now top
-							{
-								timeOffsetInMinutes = timeNowInMinutesToday;
-							}
-							else if (eDisplay==9/*RING_SUN_NOON*/)			// noon top
-							{
-								timeOffsetInMinutes = 12*60;
-							}
-
-							fillStart = getSunOuterFill(sunTimes[sunOffset], timeOffsetInMinutes, 0, drawRange);
-							fillEnd = getSunOuterFill(sunTimes[sunOffset+1], timeOffsetInMinutes, -1, drawRange);
-
-							break;
-				   		}
-				   		
-				   		case 12/*RING_HEART*/:	// heart rate
-				   		{
-							calculateHeartRate(minute, second);
-							if (heartDisplayLatest!=null)
-							{
-								fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - alignedAdjust;
-							}
-							break;
-				   		}
-				   		
-						case 13/*RING_ACTIVE_CALORIES*/:
-						{
-							var restCalories = getRestCalories(timeNowInMinutesToday, dateInfoMedium.year);
-							var totalCalories = getNullCheckZero(activityMonitorInfo.calories);
-							var activeCalories = totalCalories - restCalories;
-							if (totalCalories>0 && activeCalories>0)
-							{
-								fillEnd = (activeCalories * drawRange) / totalCalories - alignedAdjust;
-							}
-							break;
-						}
-
-				   		case 0/*RING_PLAIN_COLOR*/:		// plain color
-				   		default:
-						{
-							break;
-						}
-					}
-					
-					if (fillEnd < 0)
-					{
-						noFill = true;
-						fillEnd = 0;
-					}
-					else if (fillEnd > drawRange-1)
-					{
-						fillEnd = drawRange-1;
-					}
-
-					// apply fill offsets from start point
-					if (eDirAnti)
-					{
-						fillStart = (drawStart - fillStart + 60) % 60;
-						fillEnd = (drawStart - fillEnd + 60) % 60;
-						
-						var temp = fillStart;
-						fillStart = fillEnd;
-						fillEnd = temp;
-					}
-					else
-					{
-						fillStart = (drawStart + fillStart) % 60;
-						fillEnd = (drawStart + fillEnd) % 60;
-					}
-
-					gfxData[index+8] = (fillStart & 0xFF) | ((fillEnd & 0xFF) << 8) | (noFill ? 0x10000 : 0);	// start fill, end fill and no fill flag
+					calcDataLimit100 = ((gfxDataIndex1 & 0x80) != 0);
+					calcDirAnti = (eDirAnti ? 1 : 0);
+					calcSecond = second;
+					gfxData[index+8] = calculateDataFillValues((gfxDataIndex1 & 0x3F), drawStart, drawRange, (outerAlignedToSeconds(arrayResource) ? 0 : 1),
+												minute, timeNowInMinutesToday, activityMonitorInfo, dateInfoShort, dateInfoMedium);
 
 					break;
 				}
@@ -6032,6 +5789,287 @@ class myView
 		}
 	}
 	
+	var calcDataLimit100;
+	var calcDirAnti;
+	var calcSecond;
+	function calculateDataFillValues(eDisplay, drawStart, drawRange, alignedAdjust, minute, timeNowInMinutesToday, activityMonitorInfo, dateInfoShort, dateInfoMedium)
+	{
+		// calculate fill amounts from 0 to drawRange
+		var noFill = false;
+		var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
+		var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
+
+		// 0 RING_PLAIN_COLOR
+		// 1 RING_STEPS
+		// 2 RING_FLOORS
+		// 3 RING_BATTERY
+		// 4 RING_MINUTE
+		// 5 RING_HOUR
+		// 6 RING_2ND_HOUR
+		// 7 RING_SUN_NOW
+		// 8 RING_SUN_MIDNIGHT
+		// 9 RING_SUN_NOON
+		// 10 RING_INTENSITY
+		// 11 RING_SMART_INTENSITY
+		// 12 RING_HEART
+		// 13 RING_ACTIVE_CALORIES
+		// 14 RING_HOUR_12
+		// 15 RING_HOUR_24
+		// 16 RING_2ND_HOUR_12
+		// 17 RING_2ND_HOUR_24
+		// 18 RING_DAY_OF_WEEK
+   		// 19 RING_DAY_OF_MONTH
+   		// 20 RING_DAY_OF_YEAR
+   		// 21 RING_MONTH_OF_YEAR
+   		// 22 RING_NOTIFICATIONS
+   		// 23 RING_MOVEBAR
+		// 24 RING_2ND_MINUTE
+		// 25 RING_DAWNDUSK_NOW
+		// 26 RING_DAWNDUSK_MIDNIGHT
+		// 27 RING_DAWNDUSK_NOON
+		//
+		// Other things that could be displayed:
+		//
+   		// week ISO
+   		// week calendar
+   		//
+   		// weekly active calories compared to previous weeks
+   		// smart training performance/load
+   		//
+   		// pressure	870-1084mb, standard at sea level is 1013, 300 on top of Everest, normal range is 1016+-34
+   		// temperature -50 to +50 ?
+	   		
+		switch (eDisplay)
+		{
+			//case 0:		// solid color
+			//{
+			//	break;
+			//}
+		
+			case 1/*RING_STEPS*/:		// steps
+			case 2/*RING_FLOORS*/:		// floors
+			case 10/*RING_INTENSITY*/:	// intensity
+			case 11/*RING_SMART_INTENSITY*/:	// smart intensity
+			{
+				var val;
+				var goal;
+				if (eDisplay==2/*RING_FLOORS*/)
+				{
+					val = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbed) : 0);
+					goal = (hasFloorsClimbed ? getNullCheckZero(activityMonitorInfo.floorsClimbedGoal) : 0);
+				}
+				else if (eDisplay==10/*RING_INTENSITY*/ || eDisplay==11/*RING_SMART_INTENSITY*/)
+				{
+					val = ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
+					goal = getNullCheckZero(activityMonitorInfo.activeMinutesWeekGoal);
+
+					if (eDisplay==11/*RING_SMART_INTENSITY*/)	// smart
+					{
+						goal = ((goal * dayNumberOfWeek(dateInfoShort)) / 7);
+					}
+				}
+				else
+				{
+					val = getNullCheckZero(activityMonitorInfo.steps);
+					goal = getNullCheckZero(activityMonitorInfo.stepGoal);
+				}
+				
+				fillEnd = ((goal>0) ? ((drawRange * val) / goal - alignedAdjust) : -1);
+				
+				if (fillEnd>=drawRange)
+				{
+					if (drawRange<60 || calcDataLimit100)
+					{
+						fillEnd = drawRange;
+					}
+					else
+					{
+						fillEnd++;	// add that 1 back on again so multiples of goal correctly align at start 
+						
+						// once past val goal then use a different style - draw just two unfilled blocks moving around
+						//var multiple = val / goal;
+						fillStart = (fillEnd + (val/goal))%60;
+						fillEnd = (fillEnd + 59)%60;	// same as -1
+					}
+				}
+				
+				break;
+			}
+
+	   		case 3/*RING_BATTERY*/:		// battery percentage
+	   		{
+				fillEnd = (updateBatteryLevel * drawRange).toNumber() / 100 - alignedAdjust;
+				break;
+	   		}
+	   		
+			case 4/*RING_MINUTE*/:		// minutes
+			case 24/*RING_2ND_MINUTE*/:
+			{
+    			fillEnd = (((eDisplay==24/*RING_2ND_MINUTE*/) ? (updateTime2ndInMinutes%60) : minute) * drawRange)/60 - alignedAdjust;
+				break;
+			}
+			
+			case 18/*RING_DAY_OF_WEEK*/:
+			{
+				fillEnd = (dayNumberOfWeek(dateInfoShort) * drawRange)/7 - alignedAdjust;	// dayNumberOfWeek is 1-7
+				break;
+			}
+			
+	   		case 19/*RING_DAY_OF_MONTH*/:
+			{
+				fillEnd = dateInfoMedium.day - alignedAdjust;
+				break;
+			}
+
+	   		case 20/*RING_DAY_OF_YEAR*/:
+			{
+				calculateDayWeekYearData(0, dateInfoMedium);
+				fillEnd = (dayOfYear * drawRange)/365 - alignedAdjust;		// dayOfYear 1-365
+				break;
+			}
+
+	   		case 21/*RING_MONTH_OF_YEAR*/:
+			{
+				fillEnd = (dateInfoShort.month * drawRange)/12 - alignedAdjust;
+				break;
+			}
+
+	   		case 22/*RING_NOTIFICATIONS*/:
+			{
+				fieldActiveNotificationsCount = updateNotificationCount; 
+				fillEnd = fieldActiveNotificationsCount - 1;
+				break;
+			}
+
+	   		case 23/*RING_MOVEBAR*/:
+			{
+				// moveBarLevel 0 = not triggered
+				// moveBarLevel has range 1 to 5
+				fillEnd = (getNullCheckZero(activityMonitorInfo.moveBarLevel) * drawRange)/5 - 1;
+				break;
+			}
+
+			case 5/*RING_HOUR*/:		// hours
+			case 6/*RING_2ND_HOUR*/:		// 2nd time zone hours
+			case 14/*RING_HOUR_12*/:
+			case 15/*RING_HOUR_24*/:
+			case 16/*RING_2ND_HOUR_12*/:
+			case 17/*RING_2ND_HOUR_24*/:
+			{
+				var useTimeInMinutes = ((eDisplay==6/*RING_2ND_HOUR*/ || eDisplay>=16/*RING_2ND_HOUR_12*/ /*>= test also handles 24 hour */ /*RING_2ND_HOUR_24*/) ? updateTime2ndInMinutes : timeNowInMinutesToday);
+				var use24Hour = ((eDisplay<=6/*RING_2ND_HOUR*/) ? updateIs24Hour : ((eDisplay%2)==1));
+		        if (use24Hour)
+		        {
+	        		//backgroundOuterFillEnd = ((hour*60 + minute) * 120) / (24 * 60);
+	        		fillEnd = (useTimeInMinutes * drawRange) / (24*60) - alignedAdjust;
+		        }
+		        else        	// 12 hours
+		        {
+	        		fillEnd = ((useTimeInMinutes%(12*60)) * drawRange) / (12*60) - alignedAdjust;
+		        }
+				break;
+	   		}
+	   		
+	   		case 7/*RING_SUN_NOW*/:				// sunrise & sunset now top
+	   		case 8/*RING_SUN_MIDNIGHT*/:		// sunrise & sunset midnight top
+	   		case 9/*RING_SUN_NOON*/:			// sunrise & sunset noon top
+	   		case 25/*RING_DAWNDUSK_NOW*/:			// dawn & dusk now top
+	   		case 26/*RING_DAWNDUSK_MIDNIGHT*/:		// dawn & dusk midnight top
+	   		case 27/*RING_DAWNDUSK_NOON*/:			// dawn & dusk noon top
+	   		case 28/*RING_DAWNDUSK_NOW_MID*/:		// dawn & dusk now middle
+	   		case 29/*RING_SUN_NOW_MID*/:			// sunrise & sunset now middle
+	   		{
+				calculateSun(dateInfoShort);
+
+				var sunOffset = 0;
+				if (eDisplay>=25/*RING_DAWNDUSK_NOW*/)
+				{
+					if (eDisplay==29/*RING_SUN_NOW_MID*/)
+					{
+						eDisplay = 10/*RING_SUN_NOW_MID*/;
+					}
+					else
+					{
+						sunOffset = 8;
+						eDisplay -= (25/*RING_DAWNDUSK_NOW*/-7/*RING_SUN_NOW*/);
+					}
+				}
+
+				var timeOffsetInMinutes = 0;	// midnight top
+				if (eDisplay==7/*RING_SUN_NOW*/ || eDisplay==10/*RING_SUN_NOW_MID*/)				// now top or now middle
+				{
+					timeOffsetInMinutes = timeNowInMinutesToday;
+				}
+				
+				if (eDisplay>=9/*RING_SUN_NOON*/)			// noon top or now middle
+				{
+					timeOffsetInMinutes += 12*60;
+				}
+
+				fillStart = getSunOuterFill(sunTimes[sunOffset], timeOffsetInMinutes, 0, drawRange);
+				fillEnd = getSunOuterFill(sunTimes[sunOffset+1], timeOffsetInMinutes, -1, drawRange);
+
+				break;
+	   		}
+	   		
+	   		case 12/*RING_HEART*/:	// heart rate
+	   		{
+				calculateHeartRate(minute, calcSecond);
+				if (heartDisplayLatest!=null)
+				{
+					fillEnd = getMinMax((heartDisplayLatest * drawRange) / heartMaxZone5, 0, drawRange) - alignedAdjust;
+				}
+				break;
+	   		}
+	   		
+			case 13/*RING_ACTIVE_CALORIES*/:
+			{
+				var restCalories = getRestCalories(timeNowInMinutesToday, dateInfoMedium.year);
+				var totalCalories = getNullCheckZero(activityMonitorInfo.calories);
+				var activeCalories = totalCalories - restCalories;
+				if (totalCalories>0 && activeCalories>0)
+				{
+					fillEnd = (activeCalories * drawRange) / totalCalories - alignedAdjust;
+				}
+				break;
+			}
+
+	   		case 0/*RING_PLAIN_COLOR*/:		// plain color
+	   		default:
+			{
+				break;
+			}
+		}
+		
+		if (fillEnd < 0)
+		{
+			noFill = true;
+			fillEnd = 0;
+		}
+		else if (fillEnd > drawRange-1)
+		{
+			fillEnd = drawRange-1;
+		}
+		
+		// apply fill offsets from start point for seconds drawing
+		if (calcDirAnti == 1)
+		{
+			fillStart = (drawStart - fillStart + 60) % 60;
+			fillEnd = (drawStart - fillEnd + 60) % 60;
+			
+			var temp = fillStart;
+			fillStart = fillEnd;
+			fillEnd = temp;
+		}
+		else if (calcDirAnti == 0)
+		{
+			fillStart = (drawStart + fillStart) % 60;
+			fillEnd = (drawStart + fillEnd) % 60;
+		}
+
+		return (fillStart & 0xFFF) | ((fillEnd & 0xFFF) << 12) | (noFill ? 0x1000000 : 0);	// start fill, end fill and no fill flag
+	}
+	
 	function gfxFieldHighlight(dc, index, x, y, w, h)
 	{
 	}
@@ -6040,6 +6078,21 @@ class myView
 	{
 	}
 	
+	function gfxDrawRectangle(dc, x, y, w, h, direction, start, end)
+	{
+		// direction: 0=right, 1=left, 2=up, 3=down
+
+		var len = end-start;
+		if (direction<=1)
+		{
+			dc.fillRectangle(x + ((direction==0) ? start : (w-end)), y, len, h);
+		}
+		else
+		{
+			dc.fillRectangle(x, y + ((direction==2) ? (h-end) : start), w, len);
+		}
+	}
+		
 	function gfxDrawBackground(dc, dcX, dcY, toBuffer)
 	{
 		var fieldDraw = false;
@@ -6257,14 +6310,54 @@ class myView
 	
 					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
-						//var dataType = gfxData[index+1/*rect_type*/];
-						//var colUnfilled = getColor64FromGfx(gfxData[index+3/*rect_unfilled*/]);
-	
+						var fillGfxData = gfxData[index+8/*rect_fill*/];
+						var fillStart = (fillGfxData&0xFFF);
+						var fillEnd = ((fillGfxData>>12)&0xFFF);
+						var noFill = ((fillGfxData&0x1000000)!=0);
+
+						var colUnfilled = getColor64FromGfx(gfxData[index+3/*rect_unfilled*/]);
 						var colFilled = getColor64FromGfx(gfxData[index+2/*rect_filled*/]);
+						if (noFill)
+						{
+							colFilled = colUnfilled;
+						}
+
+						if (fillStart>fillEnd)
+						{
+							var temp = fillStart;
+							fillStart = fillEnd+1;
+							fillEnd = temp-1;
+							
+							temp = colFilled;
+							colFilled = colUnfilled;
+							colUnfilled = temp;
+						}
+						
+						var direction = ((gfxData[index+1/*rect_type*/]&0xC0)>>6);	// 0=right, 1=left, 2=up, 3=down
+						
 						if (colFilled!=-2/*COLOR_NOTSET*/)
 						{
 					        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
-							dc.fillRectangle(x, y, w, h);
+							gfxDrawRectangle(dc, x, y, w, h, direction, fillStart, fillEnd+1);
+						}
+
+						if (colUnfilled!=-2/*COLOR_NOTSET*/)
+						{
+							var l = ((direction<=1) ? w : h);
+							if (fillStart>0 || fillEnd<l)
+							{
+						        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
+	
+								if (fillStart>0)
+								{
+									gfxDrawRectangle(dc, x, y, w, h, direction, 0, fillStart);
+								}
+								
+								if ((fillEnd+1)<l)
+								{
+									gfxDrawRectangle(dc, x, y, w, h, direction, fillEnd+1, l);
+								}
+							}
 						}
 					}
 	
@@ -6290,9 +6383,10 @@ class myView
 						var drawStart = gfxData[index+3];	// 0-59
 						var drawEnd = gfxData[index+4];		// 0-59
 		
-						var fillStart = (gfxData[index+8]&0xFF);
-						var fillEnd = ((gfxData[index+8]>>8)&0xFF);
-						var noFill = ((gfxData[index+8]&0x10000)!=0);
+						var fillGfxData = gfxData[index+8];
+						var fillStart = (fillGfxData&0xFFF);
+						var fillEnd = ((fillGfxData>>12)&0xFFF);
+						var noFill = ((fillGfxData&0x1000000)!=0);
 						var fillValue = fillEnd;
 		
 						var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
@@ -8960,11 +9054,11 @@ class myEditorView extends myView
 	{
     	if (fState==100/*r_typeEdit*/)
     	{
- 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 1, rectangleGetType());
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, rectangleGetType());
     	}
     	else if (fState==101/*r_directionEdit*/)
     	{
- 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 2, rectangleGetDirection());
+ 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 1, rectangleGetDirection());
     	}
     	else if (fState==105/*r_wEdit*/)
     	{
@@ -9005,16 +9099,17 @@ class myEditorView extends myView
     	if (fState==100/*r_typeEdit*/)
     	{
  			//rectangleTypeEditing(val);
-			var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 1)%1;
-			gfxData[menuFieldGfx+1] &= ~0x3F; 
-			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
+			//var eDisplay = (rectangleGetType() + val + 1)%1;
+	    	var eDisplay = arrayTypeEditingValue(val, rectangleGetType(), Rez.JsonData.id_ringStrings2, 1);
+			gfxData[menuFieldGfx+1] &= ~0x3F;
+			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F);
     	}
     	else if (fState==101/*r_directionEdit*/)
     	{
  			//rectangleDirectionEditing(val);
 			var temp = gfxSubtractValModulo(rectangleGetDirection(), val, 0, 3);
-			gfxData[menuFieldGfx+1] &= ~0xC0; 
-			gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0); 
+			gfxData[menuFieldGfx+1] &= ~0xC0;
+			gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0);
     	}
     	else if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
     	{
