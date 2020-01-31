@@ -8012,7 +8012,6 @@ class myEditorView extends myView
 	function fieldVisibilityEditing(val)
 	{
 		val = (((gfxData[menuFieldGfx]>>4)&0x1F)+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
-
 		gfxData[menuFieldGfx] &= ~(0x1F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x1F) << 4);
 	}
@@ -8225,46 +8224,105 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 
-	function headerBackgroundColorEditing(val)
+	function menuQuickAddOnSelect(fState)
 	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
-		reloadDynamicResources = true;
-	}
+    	if (fState>=0)
+    	{
+			var index = (fState==5 || fState==6) ? gfxAddRectangle(gfxNum) : gfxAddField(gfxNum);
+	    	if (index>=0)
+	    	{
+	    		menuFieldGfx = index;
+
+				if (fState==0)	// time + colon
+				{
+					gfxAddString(gfxNum, 2, 0/*BIG_HOUR*/);
+					gfxAddString(gfxNum, 2, 2/*BIG_COLON*/);
+					gfxAddString(gfxNum, 2, 1/*BIG_MINUTE*/);
+				}
+				else if (fState==1)	// steps text
+				{
+					gfxAddString(gfxNum, 3, 31/*FIELD_STEPSCOUNT*/);
+					gfxAddIcon(gfxNum, 21/*FIELD_SHAPE_FOOTSTEPS*/);
+				}
+				else if (fState==2)	// heart rate
+				{
+					gfxAddString(gfxNum, 3, 40/*FIELD_HEART_LATEST*/);
+					gfxAddIcon(gfxNum, 27/*FIELD_SHAPE_HEART*/);
+				}
+				else if (fState==3)	// battery (when low)
+				{
+					var elementIndex = gfxAddString(gfxNum, 3, 36/*FIELD_BATTERYPERCENTAGE*/);
+					gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
+					elementIndex = gfxAddIcon(gfxNum, 17/*FIELD_SHAPE_BATTERY*/);
+					gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
+				}
+				else if (fState==4)	// alarm (when set)
+				{
+					var elementIndex = gfxAddIcon(gfxNum, 12/*FIELD_SHAPE_ALARM*/);
+					gfxData[elementIndex] |= (5/*STATUS_ALARM_ON*/<<4);
+				}
+				else if (fState==5)	// horizontal line
+				{
+					gfxData[index+6/*rect_w*/] = 200;	// width
+					gfxData[index+7/*rect_h*/] = 1;		// height
+				}
+				else if (fState==6)	// vertical line
+				{
+					gfxData[index+6/*rect_w*/] = 1;		// width
+					gfxData[index+7/*rect_h*/] = 200;	// height
+				}
+			}
+
+   			fState = -1;
+    	}
+    	else
+    	{
+   			fState = 0;
+    	}
+    	
+    	return fState;
+    }
+    	
+//    function headerBackgroundColorEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
+//		reloadDynamicResources = true;
+//	}
 	
-	function headerForegroundColorEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
-		reloadDynamicResources = true;
-	}
+//	function headerForegroundColorEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
+//		reloadDynamicResources = true;
+//	}
 	
-	function headerMenuColorEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+5, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
-	}
+//	function headerMenuColorEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+5, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
+//	}
 	
-	function headerMenuBorderColorEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+6, val, 0, 65);	// 0 to 65
-	}
+//	function headerMenuBorderColorEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+6, val, 0, 65);	// 0 to 65
+//	}
 	
-	function headerFieldHighlightColorEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+7, val, 0, 65);	// 0 to 65
-	}
+//	function headerFieldHighlightColorEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+7, val, 0, 65);	// 0 to 65
+//	}
 	
-	function headerElementHighlightColorEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+8, val, 0, 65);	// 0 to 65
-	}
+//	function headerElementHighlightColorEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+8, val, 0, 65);	// 0 to 65
+//	}
 	
-	function headerDawnDuskModeEditing(val)
-	{
-		var newMode = (propDawnDuskMode-1-val+3)%3;		// 0, 1, 2
-		gfxData[0+9] &= ~0x06;		
-		gfxData[0+9] |= (newMode<<1);		
-		sunCalculatedDay = -1;
-		reloadDynamicResources = true;
-	}
+//	function headerDawnDuskModeEditing(val)
+//	{
+//		var newMode = (propDawnDuskMode-1-val+3)%3;		// 0, 1, 2
+//		gfxData[0+9] &= ~0x06;		
+//		gfxData[0+9] |= (newMode<<1);		
+//		sunCalculatedDay = -1;
+//		reloadDynamicResources = true;
+//	}
 	
 	function headerBatteryEditing(n, val)
 	{
@@ -8281,15 +8339,15 @@ class myEditorView extends myView
 		reloadDynamicResources = true;
 	}
 	
-	function headerBatteryAtMax(n)
-	{
-		return (gfxData[menuFieldGfx+10+n]>=100);	// 0 to 100
-	}
+//	function headerBatteryAtMax(n)
+//	{
+//		return (gfxData[menuFieldGfx+10+n]>=100);	// 0 to 100
+//	}
 	
-	function headerBatteryAtMin(n)
-	{
-		return (gfxData[menuFieldGfx+10+n]<=0);	// 0 to 100
-	}
+//	function headerBatteryAtMin(n)
+//	{
+//		return (gfxData[menuFieldGfx+10+n]<=0);	// 0 to 100
+//	}
 	
 	function header2ndTimeZoneGetHour()
 	{
@@ -8301,70 +8359,281 @@ class myEditorView extends myView
 		return (((((gfxData[menuFieldGfx+12]&0x1C0)>>6)+4)%8)-4)*15;		// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
 	}
 	
-	function header2ndTimeZoneEditingHour(val)
-	{
-		var newHour = gfxSubtractVal(header2ndTimeZoneGetHour(), val, -24, 24);
-		gfxData[menuFieldGfx+12] &= ~0x03F;
-		gfxData[menuFieldGfx+12] |= ((newHour+24)&0x03F);
-		reloadDynamicResources = true;
-	}
+//	function header2ndTimeZoneEditingHour(val)
+//	{
+//		var newHour = gfxSubtractVal(header2ndTimeZoneGetHour(), val, -24, 24);
+//		gfxData[menuFieldGfx+12] &= ~0x03F;
+//		gfxData[menuFieldGfx+12] |= ((newHour+24)&0x03F);
+//		reloadDynamicResources = true;
+//	}
 	
-	function header2ndTimeZoneEditingMinute(val)
-	{
-		var newMinute = gfxSubtractVal(header2ndTimeZoneGetMinute()/15, val, -3, 3);
-		newMinute = (newMinute+8)%8;
-		gfxData[menuFieldGfx+12] &= ~0x1C0;
-		gfxData[menuFieldGfx+12] |= ((newMinute<<6)&0x1C0);
-		reloadDynamicResources = true;
-	}
+//	function header2ndTimeZoneEditingMinute(val)
+//	{
+//		var newMinute = gfxSubtractVal(header2ndTimeZoneGetMinute()/15, val, -3, 3);
+//		newMinute = (newMinute+8)%8;
+//		gfxData[menuFieldGfx+12] &= ~0x1C0;
+//		gfxData[menuFieldGfx+12] |= ((newMinute<<6)&0x1C0);
+//		reloadDynamicResources = true;
+//	}
 	
-	function header2ndTimeHourAtMax()
-	{
-		return (header2ndTimeZoneGetHour()>=24);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
-	}
+//	function header2ndTimeHourAtMax()
+//	{
+//		return (header2ndTimeZoneGetHour()>=24);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+//	}
 	
-	function header2ndTimeHourAtMin()
-	{
-		return (header2ndTimeZoneGetHour()<=-24);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
-	}
+//	function header2ndTimeHourAtMin()
+//	{
+//		return (header2ndTimeZoneGetHour()<=-24);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+//	}
 	
-	function header2ndTimeMinuteAtMax()
-	{
-		return (header2ndTimeZoneGetMinute()>=45);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
-	}
+//	function header2ndTimeMinuteAtMax()
+//	{
+//		return (header2ndTimeZoneGetMinute()>=45);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+//	}
 	
-	function header2ndTimeMinuteAtMin()
-	{
-		return (header2ndTimeZoneGetMinute()<=-45);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
-	}
+//	function header2ndTimeMinuteAtMin()
+//	{
+//		return (header2ndTimeZoneGetMinute()<=-45);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+//	}
 	
-	function headerMoveBarAlertEditing(val)
-	{
-		gfxSubtractValInPlace(menuFieldGfx+13, val, 1, 5);		// 1 to 5
-		reloadDynamicResources = true;
-	}
+//	function headerMoveBarAlertEditing(val)
+//	{
+//		gfxSubtractValInPlace(menuFieldGfx+13, val, 1, 5);		// 1 to 5
+//		reloadDynamicResources = true;
+//	}
 	
-	function headerMoveBarAlertAtMax()
-	{
-		return (gfxData[menuFieldGfx+13]>=5);	// 1 to 5
-	}
+//	function headerMoveBarAlertAtMax()
+//	{
+//		return (gfxData[menuFieldGfx+13]>=5);	// 1 to 5
+//	}
 	
-	function headerMoveBarAlertAtMin()
-	{
-		return (gfxData[menuFieldGfx+13]<=1);	// 1 to 5
-	}
+//	function headerMoveBarAlertAtMin()
+//	{
+//		return (gfxData[menuFieldGfx+13]<=1);	// 1 to 5
+//	}
 	
-	function headerFontSystemCaseEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+14, val, 0, 2);		// 0 to 2
-		reloadDynamicResources = true;
-	}
+//	function headerFontSystemCaseEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+14, val, 0, 2);		// 0 to 2
+//		reloadDynamicResources = true;
+//	}
 	
-	function headerFontUnsupportedEditing(val)
+//	function headerFontUnsupportedEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+15, val, 0, 4);		// 0 to 4
+//		reloadDynamicResources = true;
+//	}
+	
+    function menuHeaderGetString(fState)
+    {
+    	if (fState==106/*f_batteryHighEdit*/)
+    	{
+    		return "" + propBatteryHighPercentage;
+    	}
+    	else if (fState==107/*f_batteryLowEdit*/)
+    	{
+    		return "" + propBatteryLowPercentage;
+    	}
+    	else if (fState==108/*f_2ndTimeHourEdit*/)
+    	{
+    		return "" + header2ndTimeZoneGetHour();
+    	}
+    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
+    	{
+    		return "" + header2ndTimeZoneGetMinute();
+    	}
+    	else if (fState==110/*f_moveBarAlertEdit*/)
+    	{
+    		return "" + propMoveBarAlertTriggerLevel;
+    	}
+    	else if (fState==111/*f_dawnDuskModeEdit*/)
+    	{
+    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 3, propDawnDuskMode-1);
+    	}
+    	else if (fState==112/*f_fontSystemCaseEdit*/)
+    	{
+    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 0, propFieldFontSystemCase);
+    	}
+    	else if (fState==113/*f_fontUnsupportedEdit*/)
+    	{
+    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 1, propFieldFontUnsupported);
+    	}
+    	else if (fState==114/*f_memoryDisplayEdit*/)
+    	{
+    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 2, memoryDisplayMode);
+    	}
+    	else if (fState<100/*f_backgroundEdit*/)
+    	{
+    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
+    	}
+    	//else
+    	//{
+    	//	return "editing...";
+    	//}
+
+   		return null;
+    }
+
+	function menuHeaderHasDirection(d, fState)
 	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+15, val, 0, 4);		// 0 to 4
-		reloadDynamicResources = true;
+    	if (d==3)	// right
+    	{
+    	 	if (fState>=100/*f_backgroundEdit*/)
+    	 	{
+    			return false;
+    		}
+    	}
+    	else if (d==(hasTouchScreen?1:0))	// up
+    	{
+	    	if (fState==106/*f_batteryHighEdit*/)
+	    	{
+			    //return !headerBatteryAtMax(0);
+			    return (gfxData[menuFieldGfx+10]<100);
+	    	}
+	    	else if (fState==107/*f_batteryLowEdit*/)
+	    	{
+			    //return !headerBatteryAtMax(1);
+			    return (gfxData[menuFieldGfx+10+1]<100);
+	    	}
+	    	else if (fState==108/*f_2ndTimeHourEdit*/)
+	    	{
+			    //return !header2ndTimeHourAtMax();
+				return (header2ndTimeZoneGetHour()<24);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+	    	}
+	    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
+	    	{
+			    //return !header2ndTimeMinuteAtMax();
+				return (header2ndTimeZoneGetMinute()<45);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+	    	}
+	    	else if (fState==110/*f_moveBarAlertEdit*/)
+	    	{
+			    //return !headerMoveBarAlertAtMax();
+				return (gfxData[menuFieldGfx+13]<5);	// 1 to 5
+	    	}
+    	}
+    	else if (d==(hasTouchScreen?0:1))	// down
+    	{
+	    	if (fState==106/*f_batteryHighEdit*/)
+	    	{
+			    //return !headerBatteryAtMin(0);
+				return (gfxData[menuFieldGfx+10]>0);	// 0 to 100
+	    	}
+	    	else if (fState==107/*f_batteryLowEdit*/)
+	    	{
+			    //return !headerBatteryAtMin(1);
+				return (gfxData[menuFieldGfx+10+1]>0);	// 0 to 100
+	    	}
+	    	else if (fState==108/*f_2ndTimeHourEdit*/)
+	    	{
+			    //return !header2ndTimeHourAtMin();
+				return (header2ndTimeZoneGetHour()>-24);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+	    	}
+	    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
+	    	{
+			    //return !header2ndTimeMinuteAtMin();
+				return (header2ndTimeZoneGetMinute()>-45);	// 0x3F (0 to 48, 24==0), 0x1C0 (0 to 6, 0==0, 1==15, 2==30, 3==45, 4==0, 5==-45, 6=-30, 7=-15 ((x+4)%8)-4)
+	    	}
+	    	else if (fState==110/*f_moveBarAlertEdit*/)
+	    	{
+			    //return !headerMoveBarAlertAtMin();
+				return (gfxData[menuFieldGfx+13]>1);	// 1 to 5
+	    	}
+    	}
+
+    	return true;
 	}
+
+	function menuHeaderOnEditing(val, fState)
+	{
+    	if (fState==100/*f_backgroundEdit*/)
+    	{
+    		//headerBackgroundColorEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==101/*f_foregroundEdit*/)
+    	{
+    		//headerForegroundColorEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 2/*COLOR_SAVE*/, 65);	// 2 to 65
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==102/*f_menuColorEdit*/)
+    	{
+    		//headerMenuColorEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+5, val, 1/*COLOR_ONE*/, 65);	// 1 to 65
+    	}
+    	else if (fState==103/*f_menuBorderEdit*/)
+    	{
+    		//headerMenuBorderColorEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+6, val, 0, 65);	// 0 to 65
+    	}
+    	else if (fState==104/*f_fieldHighlightEdit*/)
+    	{
+    		//headerFieldHighlightColorEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+7, val, 0, 65);	// 0 to 65
+    	}
+    	else if (fState==105/*f_ElementHighlightEdit*/)
+    	{
+    		//headerElementHighlightColorEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+8, val, 0, 65);	// 0 to 65
+    	}
+    	else if (fState==106/*f_batteryHighEdit*/)
+    	{
+    		headerBatteryEditing(0, val);
+    	}
+    	else if (fState==107/*f_batteryLowEdit*/)
+    	{
+    		headerBatteryEditing(1, val);
+    	}
+    	else if (fState==108/*f_2ndTimeHourEdit*/)
+    	{
+    		//header2ndTimeZoneEditingHour(val);
+			var newHour = gfxSubtractVal(header2ndTimeZoneGetHour(), val, -24, 24);
+			gfxData[menuFieldGfx+12] &= ~0x03F;
+			gfxData[menuFieldGfx+12] |= ((newHour+24)&0x03F);
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
+    	{
+    		//header2ndTimeZoneEditingMinute(val);
+			var newMinute = gfxSubtractVal(header2ndTimeZoneGetMinute()/15, val, -3, 3);
+			newMinute = (newMinute+8)%8;
+			gfxData[menuFieldGfx+12] &= ~0x1C0;
+			gfxData[menuFieldGfx+12] |= ((newMinute<<6)&0x1C0);
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==110/*f_moveBarAlertEdit*/)
+    	{
+    		//headerMoveBarAlertEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+13, val, 1, 5);		// 1 to 5
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==111/*f_dawnDuskModeEdit*/)
+    	{
+    		//headerDawnDuskModeEditing(val);
+			var newMode = (propDawnDuskMode-1-val+3)%3;		// 0, 1, 2
+			gfxData[0+9] &= ~0x06;		
+			gfxData[0+9] |= (newMode<<1);		
+			sunCalculatedDay = -1;
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==112/*f_fontSystemCaseEdit*/)
+    	{
+    		//headerFontSystemCaseEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+14, val, 0, 2);		// 0 to 2
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==113/*f_fontUnsupportedEdit*/)
+    	{
+    		//headerFontUnsupportedEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+15, val, 0, 4);		// 0 to 4
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==114/*f_memoryDisplayEdit*/)
+    	{
+    		memoryDisplayMode = (memoryDisplayMode + val + 3)%3;
+    	}
+   	}
 	
 //	function elementVisibilityString()
 //	{
@@ -8613,80 +8882,207 @@ class myEditorView extends myView
 		return (gfxData[menuFieldGfx+1]&0x3F);
 	}
 
-	function rectangleTypeEditing(val)
-	{
-		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 1)%1;
-		gfxData[menuFieldGfx+1] &= ~0x3F; 
-		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
-	}
+//	function rectangleTypeEditing(val)
+//	{
+//		var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 1)%1;
+//		gfxData[menuFieldGfx+1] &= ~0x3F; 
+//		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
+//	}
 	
 	function rectangleGetDirection()
 	{
 		return ((gfxData[menuFieldGfx+1]&0xC0)>>6); 
 	}
 	
-	function rectangleDirectionEditing(val)
+//	function rectangleDirectionEditing(val)
+//	{
+//		var temp = gfxSubtractValModulo(rectangleGetDirection(), val, 0, 3);
+//		gfxData[menuFieldGfx+1] &= ~0xC0; 
+//		gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0); 
+//	}
+
+//	function rectangleColorEditing(n, val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+2/*rect_filled*/+n, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65
+//	}
+
+//	function rectanglePositionGetX()
+//	{
+//		return gfxData[menuFieldGfx+4/*rect_x*/];
+//	}
+
+//	function rectanglePositionGetY()
+//	{
+//		return gfxData[menuFieldGfx+5/*rect_y*/];
+//	}
+
+//	function rectanglePositionXEditing(val)
+//	{
+//		gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val, 0, displaySize);
+//	}
+
+//	function rectanglePositionYEditing(val)
+//	{
+//		gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val, 0, displaySize);
+//	}
+
+//	function rectanglePositionCentreX()
+//	{
+//		gfxData[menuFieldGfx+4/*rect_x*/] = displayHalf;
+//	}
+
+//	function rectanglePositionCentreY()
+//	{
+//		gfxData[menuFieldGfx+5/*rect_y*/] = displayHalf;
+//	}
+
+//	function rectangleGetWidth()
+//	{
+//		return gfxData[menuFieldGfx+6/*rect_w*/];
+//	}
+
+//	function rectangleWidthEditing(val)
+//	{
+//		gfxSubtractValInPlace(menuFieldGfx+6/*rect_w*/, val, 1, displaySize);
+//	}
+
+//	function rectangleGetHeight()
+//	{
+//		return gfxData[menuFieldGfx+7/*rect_h*/];
+//	}
+
+//	function rectangleHeightEditing(val)
+//	{
+//		gfxSubtractValInPlace(menuFieldGfx+7/*rect_h*/, val, 1, displaySize);
+//	}
+
+	function menuRectangleGetString(fState)
 	{
-		var temp = gfxSubtractValModulo(rectangleGetDirection(), val, 0, 3);
-		gfxData[menuFieldGfx+1] &= ~0xC0; 
-		gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0); 
+    	if (fState==100/*r_typeEdit*/)
+    	{
+ 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 1, rectangleGetType());
+    	}
+    	else if (fState==101/*r_directionEdit*/)
+    	{
+ 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 2, rectangleGetDirection());
+    	}
+    	else if (fState==105/*r_wEdit*/)
+    	{
+    		//return "w=" + rectangleGetWidth();
+    		return "w=" + gfxData[menuFieldGfx+6/*rect_w*/];
+    	}
+    	else if (fState==106/*r_hEdit*/)
+    	{
+    		//return "h=" + rectangleGetHeight();
+    		return "h=" + gfxData[menuFieldGfx+7/*rect_h*/];
+    	}
+    	else if (fState==107/*r_visEdit*/)
+    	{
+    		return fieldVisibilityString();
+    	}
+    	else if (fState==111/*r_xEdit*/)
+    	{
+    		//return "x=" + rectanglePositionGetX();
+    		return "x=" + gfxData[menuFieldGfx+4/*rect_x*/];
+    	}
+    	else if (fState==112/*r_yEdit*/)
+    	{
+    		//return "y=" + rectanglePositionGetY();
+    		return "y=" + gfxData[menuFieldGfx+5/*rect_y*/];
+    	}
+		else if (fState<=15/*r_tap*/)
+		{
+ 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 0, fState);
+ 		}
+ 		else
+ 		{
+ 			return "editing...";	// for x, y, w, h
+ 		}
 	}
 
-	function rectangleColorEditing(n, val)
+	function menuRectangleOnEditing(val, fState)
 	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+2/*rect_filled*/+n, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65
+    	if (fState==100/*r_typeEdit*/)
+    	{
+ 			//rectangleTypeEditing(val);
+			var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 1)%1;
+			gfxData[menuFieldGfx+1] &= ~0x3F; 
+			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
+    	}
+    	else if (fState==101/*r_directionEdit*/)
+    	{
+ 			//rectangleDirectionEditing(val);
+			var temp = gfxSubtractValModulo(rectangleGetDirection(), val, 0, 3);
+			gfxData[menuFieldGfx+1] &= ~0xC0; 
+			gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0); 
+    	}
+    	else if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
+    	{
+    		//rectangleColorEditing(fState-102/*r_colorEdit*/, val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+fState-102/*r_colorEdit*/+2/*rect_filled*/, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65
+    	}
+    	else if (fState==105/*r_wEdit*/)
+    	{
+    		//rectangleWidthEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+6/*rect_w*/, val, 1, displaySize);
+    	}
+    	else if (fState==106/*r_hEdit*/)
+    	{
+    		//rectangleHeightEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+7/*rect_h*/, val, 1, displaySize);
+    	}
+    	else if (fState==107/*r_visEdit*/)
+    	{
+    		fieldVisibilityEditing(val);
+    	}
+    	else if (fState==111/*r_xEdit*/)
+    	{
+    		//rectanglePositionXEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val, 0, displaySize);
+    	}
+    	else if (fState==112/*r_yEdit*/)
+    	{
+    		//rectanglePositionYEditing(val);
+			gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val, 0, displaySize);
+    	}
 	}
-
-	function rectanglePositionGetX()
+	
+	function menuRectangleOnSelect(fState)
 	{
-		return gfxData[menuFieldGfx+4/*rect_x*/];
-	}
+    	if (fState==8/*r_earlier*/)
+    	{
+    		fieldEarlier();
+    	}
+    	else if (fState==9/*r_later*/)
+    	{
+    		fieldLater();
+    	}
+    	else if (fState==13/*r_xCentre*/)
+    	{
+    		//rectanglePositionCentreX();
+			gfxData[menuFieldGfx+4/*rect_x*/] = displayHalf;
+    	}
+    	else if (fState==14/*r_yCentre*/)
+    	{
+    		//rectanglePositionCentreY();
+			gfxData[menuFieldGfx+5/*rect_y*/] = displayHalf;
+    	}
+    	else if (fState==15/*r_tap*/)
+    	{
+    	}
+    	else if (fState<100)
+    	{
+   			fState += 100;
 
-	function rectanglePositionGetY()
-	{
-		return gfxData[menuFieldGfx+5/*rect_y*/];
+    		if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
+	    	{
+	    		startColorEditing(menuFieldGfx+fState-102/*r_colorEdit*/+2/*rect_filled*/);
+	    	}
+    	}
+    	
+    	return fState;
 	}
-
-	function rectanglePositionXEditing(val)
-	{
-		gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val, 0, displaySize);
-	}
-
-	function rectanglePositionYEditing(val)
-	{
-		gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val, 0, displaySize);
-	}
-
-	function rectanglePositionCentreX()
-	{
-		gfxData[menuFieldGfx+4/*rect_x*/] = displayHalf;
-	}
-
-	function rectanglePositionCentreY()
-	{
-		gfxData[menuFieldGfx+5/*rect_y*/] = displayHalf;
-	}
-
-	function rectangleGetWidth()
-	{
-		return gfxData[menuFieldGfx+6/*rect_w*/];
-	}
-
-	function rectangleWidthEditing(val)
-	{
-		gfxSubtractValInPlace(menuFieldGfx+6/*rect_w*/, val, 1, displaySize);
-	}
-
-	function rectangleGetHeight()
-	{
-		return gfxData[menuFieldGfx+7/*rect_h*/];
-	}
-
-	function rectangleHeightEditing(val)
-	{
-		gfxSubtractValInPlace(menuFieldGfx+7/*rect_h*/, val, 1, displaySize);
-	}
-
+	
 	function ringGetTypeFromGfxIndex(index)
 	{
 		return (gfxData[index+1]&0x3F);
@@ -8697,98 +9093,292 @@ class myEditorView extends myView
 		return (gfxData[menuFieldGfx+1]&0x3F);
 	}
 
-	function ringTypeEditing(val)
-	{
-		//var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 14)%14;
-    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 1);
-		gfxData[menuFieldGfx+1] &= ~0x3F; 
-		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
-    }
+//	function ringTypeEditing(val)
+//	{
+//		//var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 14)%14;
+//    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 1);
+//		gfxData[menuFieldGfx+1] &= ~0x3F; 
+//		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
+//    }
 	
-	function ringGetDirectionAnti()
-	{
-		return ((gfxData[menuFieldGfx+1]&0x40)!=0); 
-	}
+//	function ringGetDirectionAnti()
+//	{
+//		return ((gfxData[menuFieldGfx+1]&0x40)!=0); 
+//	}
 	
-	function ringDirectionEditing()
-	{
-		gfxData[menuFieldGfx+1] ^= 0x40;
-		
-		// swap start and end over too
-		var temp = gfxData[menuFieldGfx+3];
-		gfxData[menuFieldGfx+3] = gfxData[menuFieldGfx+4];
-		gfxData[menuFieldGfx+4] = temp;
-	}
+//	function ringDirectionEditing()
+//	{
+//		gfxData[menuFieldGfx+1] ^= 0x40;
+//		
+//		// swap start and end over too
+//		var temp = gfxData[menuFieldGfx+3];
+//		gfxData[menuFieldGfx+3] = gfxData[menuFieldGfx+4];
+//		gfxData[menuFieldGfx+4] = temp;
+//	}
 	
-	function ringGetLimit100()
-	{
-		return ((gfxData[menuFieldGfx+1]&0x80)!=0); 
-	}
+//	function ringGetLimit100()
+//	{
+//		return ((gfxData[menuFieldGfx+1]&0x80)!=0); 
+//	}
 	
-	function ringLimitEditing()
-	{
-		gfxData[menuFieldGfx+1] ^= 0x80;
-	}
+//	function ringLimitEditing()
+//	{
+//		gfxData[menuFieldGfx+1] ^= 0x80;
+//	}
 	
 	function ringGetFont()
 	{
 		return (gfxData[menuFieldGfx+2/*ring_font*/]&0xFF);
 	}
 	
-	function ringFontEditing(val)
+//	function ringFontEditing(val)
+//	{
+//		gfxData[menuFieldGfx+2/*ring_font*/] = (ringGetFont() - val + 25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/; 
+//		reloadDynamicResources = true;
+//	}
+	
+//	function ringStartEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 0, 59);
+//	}
+	
+//	function ringEndEditing(val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 0, 59);
+//	}
+	
+//	function ringColorEditing(n, val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+5+n, val, 0, 65);		// allow for COLOR_NOTSET (-2) so 0 to 65
+//	}
+	
+	function menuRingGetString(fState)
 	{
-		gfxData[menuFieldGfx+2/*ring_font*/] = (ringGetFont() - val + 25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/; 
-		reloadDynamicResources = true;
+    	if (fState==13/*r_typeEdit*/)
+    	{
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, ringGetType());    		
+    	}
+    	else if (fState==14/*r_fontEdit*/)
+    	{
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings3, -1, ringGetFont());    		
+    	}
+    	else if (fState==17/*r_directionEdit*/)
+    	{
+ 			//return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, ringGetDirectionAnti() ? 1 : 0);
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, ((gfxData[menuFieldGfx+1]&0x40)!=0) ? 1 : 0);
+    	}
+    	else if (fState==18/*r_limitEdit*/)
+    	{
+ 			//return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, ringGetLimit100() ? 1 : 0);
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, ((gfxData[menuFieldGfx+1]&0x80)!=0) ? 1 : 0);
+    	}
+    	else if (fState==22/*r_visEdit*/)
+    	{
+    		return fieldVisibilityString();
+    	}
+		else if (fState<=12/*r_delete*/)
+		{
+ 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 0, fState);
+		}
+		else
+		{
+			return "editing...";	// for font, start, end
+		}
+	}
+
+    function menuRingOnEditing(val, fState)
+    {
+       	if (fState==13/*r_typeEdit*/)
+    	{
+    		//ringTypeEditing(val);
+	    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 1);
+			gfxData[menuFieldGfx+1] &= ~0x3F; 
+			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
+    	}
+       	else if (fState==14/*r_fontEdit*/)
+    	{
+    		//ringFontEditing(val);
+			gfxData[menuFieldGfx+2/*ring_font*/] = (ringGetFont() - val + 25/*SECONDFONT_UNUSED*/)%25/*SECONDFONT_UNUSED*/; 
+			reloadDynamicResources = true;
+    	}
+       	else if (fState==15/*r_startEdit*/)
+    	{
+    		//ringStartEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 0, 59);
+    	}
+       	else if (fState==16/*r_endEdit*/)
+    	{
+    		//ringEndEditing(val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 0, 59);
+    	}
+       	else if (fState==17/*r_directionEdit*/)
+    	{
+    		//ringDirectionEditing();
+			gfxData[menuFieldGfx+1] ^= 0x40;
+			
+			// swap start and end over too
+			var temp = gfxData[menuFieldGfx+3];
+			gfxData[menuFieldGfx+3] = gfxData[menuFieldGfx+4];
+			gfxData[menuFieldGfx+4] = temp;
+    	}
+       	else if (fState==18/*r_limitEdit*/)
+    	{
+    		//ringLimitEditing();
+			gfxData[menuFieldGfx+1] ^= 0x80;
+    	}
+       	//else if (fState==19/*r_colorFilledEdit*/)
+    	//{
+    	//	ringColorEditing(0, val);
+    	//}
+       	//else if (fState==20/*r_colorValueEdit*/)
+    	//{
+    	//	ringColorEditing(1, val);
+    	//}
+       	//else if (fState==21/*r_colorUnfilledEdit*/)
+    	//{
+    	//	ringColorEditing(2, val);
+    	//}
+       	else if (fState>=19/*r_colorFilledEdit*/ && fState<=21/*r_colorUnfilledEdit*/)
+    	{
+			gfxSubtractValModuloInPlace(menuFieldGfx+fState-19/*r_colorFilledEdit*/+5, val, 0, 65);		// allow for COLOR_NOTSET (-2) so 0 to 65
+    	}
+       	else if (fState==22/*r_visEdit*/)
+    	{
+    		fieldVisibilityEditing(val);
+    	}
 	}
 	
-	function ringStartEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+3, val, 0, 59);
-	}
-	
-	function ringEndEditing(val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+4, val, 0, 59);
-	}
-	
-	function ringColorEditing(n, val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+5+n, val, 0, 65);		// allow for COLOR_NOTSET (-2) so 0 to 65
-	}
-	
+    function menuRingOnSelect(fState)
+    {
+       	if (fState>=19/*r_colorFilledEdit*/ && fState<=21/*r_colorUnfilledEdit*/)
+    	{
+    		startColorEditing(menuFieldGfx+fState-19/*r_colorFilledEdit*/+5);
+    	}
+    	else if (fState==10/*r_earlier*/)
+    	{
+    		fieldEarlier();
+    	}
+    	else if (fState==11/*r_later*/)
+    	{
+    		fieldLater();
+    	}
+    	else if (fState==12/*r_delete*/)
+    	{
+    		fieldDelete();
+    		return new myMenuItemFieldSelect();
+    	}
+
+    	return null;
+    }
+
 	function secondsGetFont()
 	{
 		return (gfxData[menuFieldGfx+1]&0xFF);
 	}
 	
-	function secondsFontEditing(val)
-	{
-		var temp = gfxSubtractValModulo(secondsGetFont(), val, 0, 25/*SECONDFONT_UNUSED*/-1);
-		
-		gfxData[menuFieldGfx+1] &= ~0x00FF; 
-		gfxData[menuFieldGfx+1] |= temp;
-		reloadDynamicResources = true;
-	}
+//	function secondsFontEditing(val)
+//	{
+//		var temp = gfxSubtractValModulo(secondsGetFont(), val, 0, 25/*SECONDFONT_UNUSED*/-1);
+//		gfxData[menuFieldGfx+1] &= ~0x00FF; 
+//		gfxData[menuFieldGfx+1] |= temp;
+//		reloadDynamicResources = true;
+//	}
 
 	function secondsGetRefresh()
 	{
 		return ((gfxData[menuFieldGfx+1]>>8) & 0x03);
 	}
 	
-	function secondsRefreshEditing(val)
+//	function secondsRefreshEditing(val)
+//	{
+//		var temp = (secondsGetRefresh() - val + 3)%3;
+//		gfxData[menuFieldGfx+1] &= ~(0x03 << 8);
+//		gfxData[menuFieldGfx+1] |= (temp<<8); 
+//		reloadDynamicResources = true;
+//	}
+	
+//	function secondsColorEditing(n, val)
+//	{
+//		gfxSubtractValModuloInPlace(menuFieldGfx+2+n, val, 0, 65);		// 0 to 65
+//		buildSecondsColorArray(menuFieldGfx);
+//	}
+
+	function menuSecondsGetString(fState)
 	{
-		var temp = (secondsGetRefresh() - val + 3)%3;
-		
-		gfxData[menuFieldGfx+1] &= ~(0x03 << 8);
-		gfxData[menuFieldGfx+1] |= (temp<<8); 
-		reloadDynamicResources = true;
+    	if (fState==100/*s_fontEdit*/)
+    	{
+			return safeStringFromJsonData(Rez.JsonData.id_secondsStrings2, -1, secondsGetFont());
+    	}
+    	else if (fState==101/*s_refreshEdit*/)
+    	{
+			return safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, secondsGetRefresh());
+    	}
+    	else if (fState==107/*s_visEdit*/)
+    	{
+    		return fieldVisibilityString();
+    	}
+ 		else if (fState<100/*s_fontEdit*/)
+ 		{
+ 			return safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 0, fState);
+ 		}
+ 		else
+ 		{
+ 			return "editing...";	// for font
+ 		}
+	}
+
+    function menuSecondsOnEditing(val, fState)
+    {
+    	if (fState==100/*s_fontEdit*/)
+    	{
+    		//secondsFontEditing(val);
+			var temp = gfxSubtractValModulo(secondsGetFont(), val, 0, 25/*SECONDFONT_UNUSED*/-1);
+			gfxData[menuFieldGfx+1] &= ~0x00FF; 
+			gfxData[menuFieldGfx+1] |= temp;
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==101/*s_refreshEdit*/)
+    	{
+    		//secondsRefreshEditing(val);
+			var temp = (secondsGetRefresh() - val + 3)%3;
+			gfxData[menuFieldGfx+1] &= ~(0x03 << 8);
+			gfxData[menuFieldGfx+1] |= (temp<<8); 
+			reloadDynamicResources = true;
+    	}
+    	else if (fState==107/*s_visEdit*/)
+    	{
+    		fieldVisibilityEditing(val);
+    	}
+    	else
+    	{
+    		//secondsColorEditing(fState-102/*s_colorEdit*/, val);
+			gfxSubtractValModuloInPlace(menuFieldGfx+fState-102/*s_colorEdit*/+2, val, 0, 65);		// 0 to 65
+			buildSecondsColorArray(menuFieldGfx);
+    	}
 	}
 	
-	function secondsColorEditing(n, val)
-	{
-		gfxSubtractValModuloInPlace(menuFieldGfx+2+n, val, 0, 65);		// 0 to 65
-		buildSecondsColorArray(menuFieldGfx);
-	}
+    function menuSecondsOnSelect(fState)
+    {
+    	if (fState>=102/*s_colorEdit*/ && fState<=106/*s_color0Edit*/)
+    	{
+    		startColorEditing(menuFieldGfx+fState+2-102/*s_colorEdit*/);
+    	}
+    	else if (fState==8/*s_earlier*/)
+    	{
+    		fieldEarlier();
+    	}
+    	else if (fState==9/*s_later*/)
+    	{
+    		fieldLater();
+    	}
+    	else if (fState==10/*s_delete*/)
+    	{
+    		fieldDelete();
+    		return new myMenuItemFieldSelect();
+    	}
+    	
+    	return null;
+    }
 }
 
 (:m2app)
@@ -9149,60 +9739,8 @@ class myMenuItemQuickAdd extends myMenuItem
     
     function onSelect()
     {
-    	if (fState>=0)
-    	{
-			var index = (fState==5 || fState==6) ? editorView.gfxAddRectangle(editorView.gfxNum) : editorView.gfxAddField(editorView.gfxNum);
-	    	if (index>=0)
-	    	{
-	    		editorView.menuFieldGfx = index;
-
-				if (fState==0)	// time + colon
-				{
-					editorView.gfxAddString(editorView.gfxNum, 2, 0/*BIG_HOUR*/);
-					editorView.gfxAddString(editorView.gfxNum, 2, 2/*BIG_COLON*/);
-					editorView.gfxAddString(editorView.gfxNum, 2, 1/*BIG_MINUTE*/);
-				}
-				else if (fState==1)	// steps text
-				{
-					editorView.gfxAddString(editorView.gfxNum, 3, 31/*FIELD_STEPSCOUNT*/);
-					editorView.gfxAddIcon(editorView.gfxNum, 21/*FIELD_SHAPE_FOOTSTEPS*/);
-				}
-				else if (fState==2)	// heart rate
-				{
-					editorView.gfxAddString(editorView.gfxNum, 3, 40/*FIELD_HEART_LATEST*/);
-					editorView.gfxAddIcon(editorView.gfxNum, 27/*FIELD_SHAPE_HEART*/);
-				}
-				else if (fState==3)	// battery (when low)
-				{
-					var elementIndex = editorView.gfxAddString(editorView.gfxNum, 3, 36/*FIELD_BATTERYPERCENTAGE*/);
-					editorView.gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
-					elementIndex = editorView.gfxAddIcon(editorView.gfxNum, 17/*FIELD_SHAPE_BATTERY*/);
-					editorView.gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
-				}
-				else if (fState==4)	// alarm (when set)
-				{
-					var elementIndex = editorView.gfxAddIcon(editorView.gfxNum, 12/*FIELD_SHAPE_ALARM*/);
-					editorView.gfxData[elementIndex] |= (5/*STATUS_ALARM_ON*/<<4);
-				}
-				else if (fState==5)	// horizontal line
-				{
-					editorView.gfxData[index+6/*rect_w*/] = 200;	// width
-					editorView.gfxData[index+7/*rect_h*/] = 1;		// height
-				}
-				else if (fState==6)	// vertical line
-				{
-					editorView.gfxData[index+6/*rect_w*/] = 1;		// width
-					editorView.gfxData[index+7/*rect_h*/] = 200;	// height
-				}
-			}
-
-   			fState = -1;
-    	}
-    	else
-    	{
-   			fState = 0;
-    	}
-
+    	fState = editorView.menuQuickAddOnSelect(fState);
+    
     	return null;
     }
     
@@ -9463,112 +10001,13 @@ class myMenuItemHeader extends myMenuItem
     
     function getString()
     {
-    	if (fState==106/*f_batteryHighEdit*/)
-    	{
-    		return "" + editorView.propBatteryHighPercentage;
-    	}
-    	else if (fState==107/*f_batteryLowEdit*/)
-    	{
-    		return "" + editorView.propBatteryLowPercentage;
-    	}
-    	else if (fState==108/*f_2ndTimeHourEdit*/)
-    	{
-    		return "" + editorView.header2ndTimeZoneGetHour();
-    	}
-    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
-    	{
-    		return "" + editorView.header2ndTimeZoneGetMinute();
-    	}
-    	else if (fState==110/*f_moveBarAlertEdit*/)
-    	{
-    		return "" + editorView.propMoveBarAlertTriggerLevel;
-    	}
-    	else if (fState==111/*f_dawnDuskModeEdit*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 3, editorView.propDawnDuskMode-1);
-    	}
-    	else if (fState==112/*f_fontSystemCaseEdit*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 0, editorView.propFieldFontSystemCase);
-    	}
-    	else if (fState==113/*f_fontUnsupportedEdit*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 1, editorView.propFieldFontUnsupported);
-    	}
-    	else if (fState==114/*f_memoryDisplayEdit*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 2, editorView.memoryDisplayMode);
-    	}
-    	else if (fState<100/*f_backgroundEdit*/)
-    	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
-    	}
-    	//else
-    	//{
-    	//	return "editing...";
-    	//}
-
-   		return null;
+		return editorView.menuHeaderGetString(fState);
     }
     
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	if (d==3)	// right
-    	{
-    	 	if (fState>=100/*f_backgroundEdit*/)
-    	 	{
-    			return false;
-    		}
-    	}
-    	else if (d==(editorView.hasTouchScreen?1:0))	// up
-    	{
-	    	if (fState==106/*f_batteryHighEdit*/)
-	    	{
-			    return !editorView.headerBatteryAtMax(0);
-	    	}
-	    	else if (fState==107/*f_batteryLowEdit*/)
-	    	{
-			    return !editorView.headerBatteryAtMax(1);
-	    	}
-	    	else if (fState==108/*f_2ndTimeHourEdit*/)
-	    	{
-			    return !editorView.header2ndTimeHourAtMax();
-	    	}
-	    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
-	    	{
-			    return !editorView.header2ndTimeMinuteAtMax();
-	    	}
-	    	else if (fState==110/*f_moveBarAlertEdit*/)
-	    	{
-			    return !editorView.headerMoveBarAlertAtMax();
-	    	}
-    	}
-    	else if (d==(editorView.hasTouchScreen?0:1))	// down
-    	{
-	    	if (fState==106/*f_batteryHighEdit*/)
-	    	{
-			    return !editorView.headerBatteryAtMin(0);
-	    	}
-	    	else if (fState==107/*f_batteryLowEdit*/)
-	    	{
-			    return !editorView.headerBatteryAtMin(1);
-	    	}
-	    	else if (fState==108/*f_2ndTimeHourEdit*/)
-	    	{
-			    return !editorView.header2ndTimeHourAtMin();
-	    	}
-	    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
-	    	{
-			    return !editorView.header2ndTimeMinuteAtMin();
-	    	}
-	    	else if (fState==110/*f_moveBarAlertEdit*/)
-	    	{
-			    return !editorView.headerMoveBarAlertAtMin();
-	    	}
-    	}
-
-    	return true;
+    	return editorView.menuHeaderHasDirection(d, fState);
     }
 
     function onEditing(val)
@@ -9577,66 +10016,10 @@ class myMenuItemHeader extends myMenuItem
 		{
 			fState = (fState+val+16)%16;
 		}
-    	else if (fState==100/*f_backgroundEdit*/)
-    	{
-    		editorView.headerBackgroundColorEditing(val);
-    	}
-    	else if (fState==101/*f_foregroundEdit*/)
-    	{
-    		editorView.headerForegroundColorEditing(val);
-    	}
-    	else if (fState==102/*f_menuColorEdit*/)
-    	{
-    		editorView.headerMenuColorEditing(val);
-    	}
-    	else if (fState==103/*f_menuBorderEdit*/)
-    	{
-    		editorView.headerMenuBorderColorEditing(val);
-    	}
-    	else if (fState==104/*f_fieldHighlightEdit*/)
-    	{
-    		editorView.headerFieldHighlightColorEditing(val);
-    	}
-    	else if (fState==105/*f_ElementHighlightEdit*/)
-    	{
-    		editorView.headerElementHighlightColorEditing(val);
-    	}
-    	else if (fState==106/*f_batteryHighEdit*/)
-    	{
-    		editorView.headerBatteryEditing(0, val);
-    	}
-    	else if (fState==107/*f_batteryLowEdit*/)
-    	{
-    		editorView.headerBatteryEditing(1, val);
-    	}
-    	else if (fState==108/*f_2ndTimeHourEdit*/)
-    	{
-    		editorView.header2ndTimeZoneEditingHour(val);
-    	}
-    	else if (fState==109/*f_2ndTimeMinuteEdit*/)
-    	{
-    		editorView.header2ndTimeZoneEditingMinute(val);
-    	}
-    	else if (fState==110/*f_moveBarAlertEdit*/)
-    	{
-    		editorView.headerMoveBarAlertEditing(val);
-    	}
-    	else if (fState==111/*f_dawnDuskModeEdit*/)
-    	{
-    		editorView.headerDawnDuskModeEditing(val);
-    	}
-    	else if (fState==112/*f_fontSystemCaseEdit*/)
-    	{
-    		editorView.headerFontSystemCaseEditing(val);
-    	}
-    	else if (fState==113/*f_fontUnsupportedEdit*/)
-    	{
-    		editorView.headerFontUnsupportedEditing(val);
-    	}
-    	else if (fState==114/*f_memoryDisplayEdit*/)
-    	{
-    		editorView.memoryDisplayMode = (editorView.memoryDisplayMode + val + 3)%3;
-    	}
+		else
+		{
+			editorView.menuHeaderOnEditing(val, fState);
+		}
     	
     	return null;
     }
@@ -10649,42 +11032,7 @@ class myMenuItemRectangle extends myMenuItem
     
     function getString()
     {
-    	if (fState==100/*r_typeEdit*/)
-    	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 1, editorView.rectangleGetType());
-    	}
-    	else if (fState==101/*r_directionEdit*/)
-    	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 2, editorView.rectangleGetDirection());
-    	}
-    	else if (fState==105/*r_wEdit*/)
-    	{
-    		return "w=" + editorView.rectangleGetWidth();
-    	}
-    	else if (fState==106/*r_hEdit*/)
-    	{
-    		return "h=" + editorView.rectangleGetHeight();
-    	}
-    	else if (fState==107/*r_visEdit*/)
-    	{
-    		return editorView.fieldVisibilityString();
-    	}
-    	else if (fState==111/*r_xEdit*/)
-    	{
-    		return "x=" + editorView.rectanglePositionGetX();
-    	}
-    	else if (fState==112/*r_yEdit*/)
-    	{
-    		return "y=" + editorView.rectanglePositionGetY();
-    	}
-		else if (fState<=15/*r_tap*/)
-		{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 0, fState);
- 		}
- 		else
- 		{
- 			return "editing...";	// for x, y, w, h
- 		}
+		return editorView.menuRectangleGetString(fState);
     }
     
     // up=0 down=1 left=2 right=3
@@ -10704,37 +11052,9 @@ class myMenuItemRectangle extends myMenuItem
     		//fState = (fState+val+5-11)%5 + 11;
     		fState = (fState+val+4-11)%4 + 11;		// removed tap for now
     	}
-    	else if (fState==100/*r_typeEdit*/)
+    	else
     	{
- 			editorView.rectangleTypeEditing(val);
-    	}
-    	else if (fState==101/*r_directionEdit*/)
-    	{
- 			editorView.rectangleDirectionEditing(val);
-    	}
-    	else if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
-    	{
-    		editorView.rectangleColorEditing(fState-102/*r_colorEdit*/, val);
-    	}
-    	else if (fState==105/*r_wEdit*/)
-    	{
-    		editorView.rectangleWidthEditing(val);
-    	}
-    	else if (fState==106/*r_hEdit*/)
-    	{
-    		editorView.rectangleHeightEditing(val);
-    	}
-    	else if (fState==107/*r_visEdit*/)
-    	{
-    		editorView.fieldVisibilityEditing(val);
-    	}
-    	else if (fState==111/*r_xEdit*/)
-    	{
-    		editorView.rectanglePositionXEditing(val);
-    	}
-    	else if (fState==112/*r_yEdit*/)
-    	{
-    		editorView.rectanglePositionYEditing(val);
+    		editorView.menuRectangleOnEditing(val, fState);
     	}
 
     	return null;
@@ -10746,40 +11066,16 @@ class myMenuItemRectangle extends myMenuItem
     	{
     		fState = 11/*r_x*/;
     	}
-    	else if (fState==8/*r_earlier*/)
-    	{
-    		editorView.fieldEarlier();
-    	}
-    	else if (fState==9/*r_later*/)
-    	{
-    		editorView.fieldLater();
-    	}
     	else if (fState==10/*r_delete*/)
     	{
     		editorView.fieldDelete();
     		return new myMenuItemFieldSelect();
     	}
-    	else if (fState==13/*r_xCentre*/)
+    	else
     	{
-    		editorView.rectanglePositionCentreX();
+    		fState = editorView.menuRectangleOnSelect(fState);
     	}
-    	else if (fState==14/*r_yCentre*/)
-    	{
-    		editorView.rectanglePositionCentreY();
-    	}
-    	else if (fState==15/*r_tap*/)
-    	{
-    	}
-    	else if (fState<100)
-    	{
-   			fState += 100;
-
-    		if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
-	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+fState-102/*r_colorEdit*/+2/*rect_filled*/);
-	    	}
-    	}
-
+    	
     	return null;
     }
     
@@ -10846,34 +11142,7 @@ class myMenuItemRing extends myMenuItem
     
     function getString()
     {
-    	if (fState==13/*r_typeEdit*/)
-    	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, editorView.ringGetType());    		
-    	}
-    	else if (fState==14/*r_fontEdit*/)
-    	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings3, -1, editorView.ringGetFont());    		
-    	}
-    	else if (fState==17/*r_directionEdit*/)
-    	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, editorView.ringGetDirectionAnti() ? 1 : 0);
-    	}
-    	else if (fState==18/*r_limitEdit*/)
-    	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, editorView.ringGetLimit100() ? 1 : 0);
-    	}
-    	else if (fState==22/*r_visEdit*/)
-    	{
-    		return editorView.fieldVisibilityString();
-    	}
-		else if (fState<=12/*r_delete*/)
-		{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_ringStrings, 0, fState);
-		}
-		else
-		{
-			return "editing...";	// for font, start, end
-		}
+		return editorView.menuRingGetString(fState);
     }
     
     // up=0 down=1 left=2 right=3
@@ -10888,45 +11157,9 @@ class myMenuItemRing extends myMenuItem
     	{
     		fState = (fState+val+13)%13;
     	}
-       	else if (fState==13/*r_typeEdit*/)
+       	else
     	{
-    		editorView.ringTypeEditing(val);
-    	}
-       	else if (fState==14/*r_fontEdit*/)
-    	{
-    		editorView.ringFontEditing(val);
-    	}
-       	else if (fState==15/*r_startEdit*/)
-    	{
-    		editorView.ringStartEditing(val);
-    	}
-       	else if (fState==16/*r_endEdit*/)
-    	{
-    		editorView.ringEndEditing(val);
-    	}
-       	else if (fState==17/*r_directionEdit*/)
-    	{
-    		editorView.ringDirectionEditing();
-    	}
-       	else if (fState==18/*r_limitEdit*/)
-    	{
-    		editorView.ringLimitEditing();
-    	}
-       	else if (fState==19/*r_colorFilledEdit*/)
-    	{
-    		editorView.ringColorEditing(0, val);
-    	}
-       	else if (fState==20/*r_colorValueEdit*/)
-    	{
-    		editorView.ringColorEditing(1, val);
-    	}
-       	else if (fState==21/*r_colorUnfilledEdit*/)
-    	{
-    		editorView.ringColorEditing(2, val);
-    	}
-       	else if (fState==22/*r_visEdit*/)
-    	{
-    		editorView.fieldVisibilityEditing(val);
+    		editorView.menuRingOnEditing(val, fState);
     	}
     
     	return null;
@@ -10937,27 +11170,9 @@ class myMenuItemRing extends myMenuItem
     	if (fState<=9/*r_vis*/)
     	{
     		fState += 13;
-
-	       	if (fState>=19/*r_colorFilledEdit*/ && fState<=21/*r_colorUnfilledEdit*/)
-	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+fState-19/*r_colorFilledEdit*/+5);
-	    	}
-    	}
-    	else if (fState==10/*r_earlier*/)
-    	{
-    		editorView.fieldEarlier();
-    	}
-    	else if (fState==11/*r_later*/)
-    	{
-    		editorView.fieldLater();
-    	}
-    	else if (fState==12/*r_delete*/)
-    	{
-    		editorView.fieldDelete();
-    		return new myMenuItemFieldSelect();
     	}
 
-    	return null;
+    	return editorView.menuRingOnSelect(fState);
     }
     
     function onBack()
@@ -11018,26 +11233,7 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-    	if (fState==100/*s_fontEdit*/)
-    	{
-			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings2, -1, editorView.secondsGetFont());
-    	}
-    	else if (fState==101/*s_refreshEdit*/)
-    	{
-			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, editorView.secondsGetRefresh());
-    	}
-    	else if (fState==107/*s_visEdit*/)
-    	{
-    		return editorView.fieldVisibilityString();
-    	}
- 		else if (fState<100/*s_fontEdit*/)
- 		{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 0, fState);
- 		}
- 		else
- 		{
- 			return "editing...";	// for font
- 		}
+    	return menuSecondsGetString(fState);
     }
     
     // up=0 down=1 left=2 right=3
@@ -11052,23 +11248,11 @@ class myMenuItemSeconds extends myMenuItem
     	{
     		fState = (fState+val+11)%11;
     	}
-    	else if (fState==100/*s_fontEdit*/)
-    	{
-    		editorView.secondsFontEditing(val);
-    	}
-    	else if (fState==101/*s_refreshEdit*/)
-    	{
-    		editorView.secondsRefreshEditing(val);
-    	}
-    	else if (fState==107/*s_visEdit*/)
-    	{
-    		editorView.fieldVisibilityEditing(val);
-    	}
     	else
     	{
-    		editorView.secondsColorEditing(fState-102/*s_colorEdit*/, val);
+    		editorView.menuSecondsOnEditing(val, fState);
     	}
-    	
+    	    	
     	return null;
     }
     
@@ -11077,27 +11261,9 @@ class myMenuItemSeconds extends myMenuItem
     	if (fState<=7/*s_vis*/)
     	{
     		fState += 100;
-
-	    	if (fState>=102/*s_colorEdit*/ && fState<=106/*s_color0Edit*/)
-	    	{
-	    		editorView.startColorEditing(editorView.menuFieldGfx+fState+2-102/*s_colorEdit*/);
-	    	}
-    	}
-    	else if (fState==8/*s_earlier*/)
-    	{
-    		editorView.fieldEarlier();
-    	}
-    	else if (fState==9/*s_later*/)
-    	{
-    		editorView.fieldLater();
-    	}
-    	else if (fState==10/*s_delete*/)
-    	{
-    		editorView.fieldDelete();
-    		return new myMenuItemFieldSelect();
-    	}
-    	
-    	return null;
+		}
+		
+    	return editorView.menuSecondsOnSelect(fState);
     }
     
     function onBack()
