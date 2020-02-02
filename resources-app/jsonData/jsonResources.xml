@@ -210,7 +210,8 @@
 			"dusk minute",
 			"next dawn/dusk\nhour",
 			"next dawn/dusk\nminute",
-			"2nd time minute"
+			"2nd time minute",
+			"training load"
 		]
 	</jsonData>
 		
@@ -671,6 +672,7 @@
 				48,		<!-- FIELD_CALORIES -->
 				49,		<!-- FIELD_ACTIVE_CALORIES -->
 				61,		<!-- FIELD_RESTING_CALORIES -->
+				111,	<!-- FIELD_TRAINING_LOAD -->
 				50,		<!-- FIELD_INTENSITY -->
 				51,		<!-- FIELD_INTENSITY_GOAL -->
 				52,		<!-- FIELD_SMART_GOAL -->
@@ -795,7 +797,8 @@
 		   		"dawn/dusk\n(midnight=start)",
 		   		"dawn/dusk\n(noon=start)",
 		   		"dawn/dusk\n(now=middle)",
-		   		"sunrise/set\n(now=middle)"
+		   		"sunrise/set\n(now=middle)",
+		   		"training load"
 			],
 			
 			[
@@ -823,6 +826,7 @@
 				11,		<!-- RING_SMART_INTENSITY -->
 				12,		<!-- RING_HEART -->
 				13,		<!-- RING_ACTIVE_CALORIES -->
+				30,		<!-- RING_TRAINING_LOAD -->
 				18,		<!-- RING_DAY_OF_WEEK -->
 				19,		<!-- RING_DAY_OF_MONTH -->
 				20,		<!-- RING_DAY_OF_YEAR -->
@@ -892,7 +896,10 @@
 			"ring (2nd\ntime minutes)",
 	   		"ring (dawn)",
 	   		"ring (dawn)",
-	   		"ring (dawn)"
+	   		"ring (dawn)",
+	   		"ring (dawn)",
+	   		"ring (sun)", 
+	   		"ring (training\nload)"
 		]
 	</jsonData>
 			

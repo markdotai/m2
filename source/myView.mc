@@ -2640,7 +2640,9 @@ class myView
 			heartDisplayBins[i/5/*heartBinSize*/] = 0;
 		}
 		
-		var heartRateZones = UserProfile.getHeartRateZones(0/*UserProfile.HR_ZONE_SPORT_GENERIC*/);
+		var userProfile = UserProfile.getProfile();
+
+		var heartRateZones = userProfile.getHeartRateZones(0/*UserProfile.HR_ZONE_SPORT_GENERIC*/);
 		if (heartRateZones!=null && (heartRateZones instanceof Array) && heartRateZones.size()>5)
 		{
 			heartMaxZone5 = heartRateZones[5];
@@ -2649,6 +2651,9 @@ class myView
 				heartMaxZone5 = 200;
 			}
 		}
+
+		//dailyRestCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
+		dailyRestCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(Time.Gregorian.info(Time.now(), Time.FORMAT_MEDIUM).year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
 	}
 
 	function sampleHeartRate(second, checkRequestUpdate)
@@ -2793,13 +2798,156 @@ class myView
 		}
 	}
 
-	function getRestCalories(timeNowInMinutesToday, currentYear)
+	var dailyRestCalories = 0;
+
+	function getRestCalories(timeNowInMinutesToday)
 	{
-		var userProfile = UserProfile.getProfile();
-		//var restCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
-		var restCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(currentYear-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
-		restCalories = ((restCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber();
-		return restCalories;  
+		return ((dailyRestCalories * timeNowInMinutesToday) / (24*60) + 0.5).toNumber();  
+	}
+
+	function getActiveCalories(calories, timeNowInMinutesToday)
+	{
+		return getMax(getNullCheckZero(calories) - getRestCalories(timeNowInMinutesToday), 0);
+	}
+	
+	var stlTrainingLoad = 1.0;
+	
+	var stlHistoryUpdate;
+	var stlHistoryCount;
+	var stlHistorySum;
+	
+	var stlAverage = 0;		// average number of active calories per day
+	var stlAverageUpdate;	// when average was last updated
+
+	function stlCalcHistory()
+	{
+		if (stlHistoryUpdate!=updateTimeTodayValue)		// new day
+		{
+			stlHistoryUpdate = updateTimeTodayValue;
+
+			stlHistoryCount = 0;
+			stlHistorySum = 0;
+	
+			var historyArray = ActivityMonitor.getHistory();	// most recent first, up to 7
+			if (historyArray!=null)
+			{
+				var nextDayStart = updateTimeTodayValue;
+				
+				for (var i=0; i<historyArray.size(); i++)
+				{
+					if (historyArray[i].startOfDay!=null)
+					{
+						var startOfDayValue = historyArray[i].startOfDay.value();
+						
+						var daysAgo = ((updateTimeTodayValue - startOfDayValue) + 720*60)/(1440*60);
+						if (daysAgo>0)			// not today
+						{
+							var timeToNextDay = (nextDayStart - startOfDayValue)/60;				// how long from day to next day
+							var activeCalories = getActiveCalories(historyArray[i].calories, timeToNextDay);
+							
+							// numDays==3 then want scale 5, 4, 3
+							// numDays==4 then want scale 5, 5, 4, 3
+							//var scale = getMinMax(3 + numDays - daysAgo, 0, 5) * 1440;
+							var scale = Math.pow(0.8, daysAgo) * 1440;
+							
+							stlHistorySum += activeCalories*scale;
+							stlHistoryCount += scale;
+						}
+						
+						nextDayStart = startOfDayValue;
+					}
+				}
+			}
+		}
+	}
+	
+	function stlCheckAverage()
+	{
+		// update rolling average when the day changes
+		if (stlAverageUpdate!=updateTimeTodayValue)
+		{
+			stlCalcHistory();
+			
+			if (stlHistoryCount>0)
+			{
+				var value = stlHistorySum/stlHistoryCount;	// active calories per day (over the history sample)
+				
+				if ((stlAverage<=0) ||										// no stored rolling average yet
+					((updateTimeTodayValue-stlAverageUpdate)>=60*1440*7))	// or more than 7 days since it was last updated
+				{
+					stlAverage = value;
+				}
+				else
+				{
+					stlAverage = stlAverage*(1.0-0.02) + value*0.02;
+				}
+			}
+
+			stlAverageUpdate = updateTimeTodayValue;
+		}
+	}
+	
+	function updateSmartTrainingLoad(secsBetween, activityMonitorInfo, timeNowInMinutesToday, currentYear)
+	{
+		//updateTimeNowValue = timeNow.value();
+		//updateTimeTodayValue = Time.today().value();
+
+		// last update (every 10 mins?)
+		// calories for last 4 days
+		// long term training load
+		//
+		// new day - combine last day into long term and reset it
+		// Scale by 0.96 and add new?
+		// 0.96 gives 25% for last week
+		// 19% for 2nd week
+		// 14% for 3rd week
+		// 10% for 4th week
+		// 8%
+		// 6%
+		// 4%
+		// 3%
+		// 0.96^56=0.10
+		//
+		// 0.97 gives 20% to current week
+		// 4% to week 8
+		// 0.97^56=0.19
+		//
+		// 0.98 gives 14% to current week
+		// 5% to week 8
+		// 0.98^56=0.32
+		//
+		// 0.99 gives 9% to current week
+		// 4% to week 8
+		// 0.99^56=0.57
+		//
+		// today (extrapolated) * 5
+		// yesterday * 5
+		// -2 * 4
+		// -3 * 3
+		//
+		// calculate a percentage 60% to 140% ?
+
+		var count = timeNowInMinutesToday*0.8;
+		var sum = getActiveCalories(activityMonitorInfo.calories, timeNowInMinutesToday) * count;		// active calories
+
+		stlCalcHistory();		// update history data which is used for todays calculation
+		
+		if (stlHistoryCount>0)
+		{
+			sum += stlHistorySum;
+			count += stlHistoryCount;
+
+			// DONT need to do this as average is calulated elsewhere now - it is just scaling up both sum and count the same amount
+			// average in rest of today based on sum so far
+			//var restOfToday = (1440-timeNowInMinutesToday)*5;
+			//sum += (sum * restOfToday) / count;
+			//count += restOfToday; 
+		}
+		
+		if (count>0 && stlAverage>0)
+		{
+			stlTrainingLoad = sum/(count*stlAverage);
+		}
 	}
 	
 	var positionGot = false;
@@ -3235,6 +3383,11 @@ class myView
 				// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
 				demoProfilesCurrentEnd = ((profileEnd <= (timeNowValue + (5+1)*60)) ? profileEnd : 0);
 			}
+			
+			//var betaValue = getNumberFromArray(memData, 12);
+			
+			stlAverage = getFloatFromArray(memData, 13);
+			stlAverageUpdate = getNumberFromArray(memData, 14);
 		}
 
 		if (profileTimeData==null || !(profileTimeData instanceof Array) || profileTimeData.size()!=(24/*PROFILE_NUM_USER*/*6))
@@ -3291,19 +3444,21 @@ class myView
 	function saveMemoryData()
 	{
 		var memData = [
-			profileTimeData,
-			positionGot,
-			positionLatitude,
-			positionLongitude,
-			positionAltitude,
-			profileActive,
-			profileDelayEnd,
-			profileRandom,
-			profileRandomEnd,
-			demoProfilesOn,
-			demoProfilesCurrentProfile,
-			demoProfilesCurrentEnd,
-			-1,
+			profileTimeData,				// 0
+			positionGot,					// 1
+			positionLatitude,				// 2
+			positionLongitude,				// 3
+			positionAltitude,				// 4
+			profileActive,					// 5
+			profileDelayEnd,				// 6
+			profileRandom,					// 7
+			profileRandomEnd,				// 8
+			demoProfilesOn,					// 9
+			demoProfilesCurrentProfile,		// 10
+			demoProfilesCurrentEnd,			// 11
+			-1,								// 12 (beta marker)
+			stlAverage,						// 13
+			stlAverageUpdate,				// 14
 		];
 		applicationStorage.setValue(0, memData);
 
@@ -4841,6 +4996,8 @@ class myView
 		
     	propSecondIndicatorOn = false;
 
+		stlCheckAverage();
+
 		var indexCurField = -1;
 		var fieldVisible = false;
 		
@@ -5121,7 +5278,7 @@ class myView
 							}
 						}
 					}
-					else if (eDisplay>=64 && eDisplay<=88)		// string (time advanced)
+					else if (eDisplay>=64 && eDisplay<=103)		// string (time advanced)
 					{
 						//64 "hour12",
 						//65 "hour24",
@@ -5475,12 +5632,18 @@ class myView
 							case 49/*FIELD_ACTIVE_CALORIES*/:
 							case 61/*FIELD_RESTING_CALORIES*/:
 							{
-								var restCalories = getRestCalories(timeNowInMinutesToday, dateInfoMedium.year);
-								var val = ((eDisplay==49/*FIELD_ACTIVE_CALORIES*/) ? (getNullCheckZero(activityMonitorInfo.calories) - restCalories) : restCalories);
+								var val = ((eDisplay==49/*FIELD_ACTIVE_CALORIES*/) ? getActiveCalories(activityMonitorInfo.calories, timeNowInMinutesToday) : getRestCalories(timeNowInMinutesToday));
 								eStr = "" + ((val<0) ? "0" : val);
 								break;
 							}
 	
+							case 111/*FIELD_TRAINING_LOAD*/:
+							{
+								updateSmartTrainingLoad(60, activityMonitorInfo, timeNowInMinutesToday, dateInfoMedium.year);
+								eStr = "" + getMinMax(stlTrainingLoad*100, 0, 1000).toNumber();
+								break;
+							}
+
 							case 50/*FIELD_INTENSITY*/:
 							{
 								eStr = "" + ((activityMonitorInfo.activeMinutesWeek!=null) ? activityMonitorInfo.activeMinutesWeek.total : 0);
@@ -6024,13 +6187,19 @@ class myView
 	   		
 			case 13/*RING_ACTIVE_CALORIES*/:
 			{
-				var restCalories = getRestCalories(timeNowInMinutesToday, dateInfoMedium.year);
 				var totalCalories = getNullCheckZero(activityMonitorInfo.calories);
-				var activeCalories = totalCalories - restCalories;
-				if (totalCalories>0 && activeCalories>0)
+				if (totalCalories>0)
 				{
-					fillEnd = (activeCalories * drawRange) / totalCalories - alignedAdjust;
+					fillEnd = (getActiveCalories(totalCalories, timeNowInMinutesToday) * drawRange) / totalCalories - alignedAdjust;
 				}
+				break;
+			}
+
+			case 30/*RING_TRAINING_LOAD*/:
+			{
+				updateSmartTrainingLoad(60, activityMonitorInfo, timeNowInMinutesToday, dateInfoMedium.year);
+				//fillEnd = (getMinMax(stlTrainingLoad-0.5, 0.0, 1.0) * drawRange).toNumber() - alignedAdjust;	// convert to range 0.5 to 1.5 (50% to 150%)
+				fillEnd = (stlTrainingLoad*0.5*drawRange).toNumber() - alignedAdjust;							// convert to range 0.0 to 2.0 (0% to 200%)
 				break;
 			}
 
