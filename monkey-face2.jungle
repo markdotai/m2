@@ -2,6 +2,8 @@ project.manifest = manifest-face2.xml
 
 
 
+
+
 #m2face2 jungle file
 
 base.resourcePath = $(base.resourcePath);resources-face;resources-face2

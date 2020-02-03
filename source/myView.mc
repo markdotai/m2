@@ -11497,7 +11497,7 @@ class myMenuItemSeconds extends myMenuItem
     
     function getString()
     {
-    	return menuSecondsGetString(fState);
+    	return editorView.menuSecondsGetString(fState);
     }
     
     // up=0 down=1 left=2 right=3
