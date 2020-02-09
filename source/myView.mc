@@ -2851,7 +2851,7 @@ class myView
 							// numDays==4 then want scale 5, 5, 4, 3
 							//var scale = getMinMax(3 + numDays - daysAgo, 0, 5) * 1440;
 							var scale = Math.pow(0.8, daysAgo) * 1440;
-							
+
 							stlHistorySum += activeCalories*scale;
 							stlHistoryCount += scale;
 						}
@@ -2869,9 +2869,9 @@ class myView
 //	var daysAgo = i+1;
 //	if (daysAgo>0)			// not today
 //	{
-//var activeCalories = [1200, 200, 800, 600, 400, 100, 100, 100, 100, 100][daysAgo-1];
+//		var activeCalories = [1200, 200, 800, 600, 400, 100, 100, 100, 100, 100][daysAgo-1];
 //						
-//						// numDays==3 then want scale 5, 4, 3
+//		// numDays==3 then want scale 5, 4, 3
 //		// numDays==4 then want scale 5, 5, 4, 3
 //		//var scale = getMinMax(3 + numDays - daysAgo, 0, 5) * 1440;
 //		var scale = Math.pow(0.8, daysAgo) * 1440;
@@ -2948,8 +2948,8 @@ class myView
 		//
 		// calculate a percentage 60% to 140% ?
 
-		var count = timeNowInMinutesToday*0.8;
-		var sum = getActiveCalories(activityMonitorInfo.calories, timeNowInMinutesToday) * count;		// active calories
+		var count = 1.0;
+		var sum = getActiveCalories(activityMonitorInfo.calories, timeNowInMinutesToday);		// active calories
 
 		stlCalcHistory();		// update history data which is used for todays calculation
 		
@@ -2959,6 +2959,16 @@ class myView
 //count = ttt*0.8;
 //sum = 1000*ttt/1440.0 + (stlHistorySum*(1440-ttt))/(stlHistoryCount*1440.0);
 //sum *= count;
+
+			// scale up our active calories so far today towards how many we would expect recently for the entire day 
+			var value = stlHistorySum/stlHistoryCount;	// active calories per day (over the history sample)
+			if (sum < value)
+			{
+				sum = (sum*timeNowInMinutesToday + value*(1440-timeNowInMinutesToday))/1440.0;
+			}
+
+			count = timeNowInMinutesToday*0.8;
+			sum *= count;
 
 			sum += stlHistorySum;
 			count += stlHistoryCount;
@@ -5678,7 +5688,7 @@ class myView
 							case 111/*FIELD_TRAINING_LOAD*/:
 							{
 								updateSmartTrainingLoad(60, activityMonitorInfo, timeNowInMinutesToday, dateInfoMedium.year);
-								eStr = "" + getMinMax(stlTrainingLoad*100, 0, 1000).toNumber();
+								eStr = "" + getMinMax(Math.round(stlTrainingLoad*100), 0, 1000).toNumber();
 								break;
 							}
 
