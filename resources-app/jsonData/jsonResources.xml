@@ -248,7 +248,14 @@
 		    "next sun event\n= rise",
 		    "next sun event\n= set",
 		    "next dawn/dusk\n= dawn",
-		    "next dawn/dusk\n= dusk"
+		    "next dawn/dusk\n= dusk",
+		    "HR no zone",
+		    "HR zone 1",
+		    "HR zone 2",
+		    "HR zone 3",
+		    "HR zone 4",
+		    "HR zone 5",
+		    "HR above max"
 		]
 	</jsonData>
 		

@@ -285,8 +285,15 @@ class myView
 	//	STATUS_SUNEVENT_SET = 24,
 	//	STATUS_DAWNDUSK_LIGHT = 25,
 	//	STATUS_DAWNDUSK_DARK = 26,
+	//	STATUS_HR_ZONE_0 = 27,
+	//	STATUS_HR_ZONE_1 = 28,
+	//	STATUS_HR_ZONE_2 = 29,
+	//	STATUS_HR_ZONE_3 = 30,
+	//	STATUS_HR_ZONE_4 = 31,
+	//	STATUS_HR_ZONE_5 = 32,
+	//	STATUS_HR_ZONE_6 = 33,
 	//
-	//	STATUS_NUM = 27
+	//	STATUS_NUM = 34
 	//}
 		
 	var colorArray = new[64]b;
@@ -2629,6 +2636,7 @@ class myView
 	var heartSampledSecond = 0;
 	var heartSamples = new[60]b;
 
+	var heartRateZones;
 	var heartMaxZone5 = 200;
 
 	function initHeartSamples(timeNow)
@@ -2643,7 +2651,7 @@ class myView
 		
 		var userProfile = UserProfile.getProfile();
 
-		var heartRateZones = userProfile.getHeartRateZones(0/*UserProfile.HR_ZONE_SPORT_GENERIC*/);
+		heartRateZones = userProfile.getHeartRateZones(0/*UserProfile.HR_ZONE_SPORT_GENERIC*/);
 		if (heartRateZones!=null && (heartRateZones instanceof Array) && heartRateZones.size()>5)
 		{
 			heartMaxZone5 = heartRateZones[5];
@@ -2651,6 +2659,10 @@ class myView
 			{
 				heartMaxZone5 = 200;
 			}
+		}
+		else
+		{
+			heartRateZones = [100, 120, 140, 160, 180, 200];
 		}
 
 		//dailyRestCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
@@ -4999,7 +5011,7 @@ class myView
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		
 		// calculate fields to display
-		var visibilityStatus = new[27/*STATUS_NUM*/];
+		var visibilityStatus = new[34/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -5032,6 +5044,13 @@ class myView
 	    //visibilityStatus[24/*STATUS_SUNEVENT_SET*/] = null;		// calculated on demand
 	    //visibilityStatus[25/*STATUS_DAWNDUSK_LIGHT*/] = null;		// calculated on demand
 	    //visibilityStatus[26/*STATUS_DAWNDUSK_DARK*/] = null;		// calculated on demand
+	    //visibilityStatus[27/*STATUS_HR_ZONE_0*/] = null;		// calculated on demand
+	    //visibilityStatus[28/*STATUS_HR_ZONE_1*/] = null;		// calculated on demand
+	    //visibilityStatus[29/*STATUS_HR_ZONE_2*/] = null;		// calculated on demand
+	    //visibilityStatus[30/*STATUS_HR_ZONE_3*/] = null;		// calculated on demand
+	    //visibilityStatus[31/*STATUS_HR_ZONE_4*/] = null;		// calculated on demand
+	    //visibilityStatus[32/*STATUS_HR_ZONE_5*/] = null;		// calculated on demand
+	    //visibilityStatus[33/*STATUS_HR_ZONE_6*/] = null;		// calculated on demand
 
 		fieldActivePhoneStatus = null;
 		fieldActiveNotificationsStatus = null;
@@ -5057,11 +5076,11 @@ class myView
 		{
 			//var id = getGfxId(index);
 			var id = (gfxData[index] & 0x0F);	// cheaper with no function call in loop
-			var eVisible = ((gfxData[index] >> 4) & 0x1F);
+			var eVisible = ((gfxData[index] >> 4) & 0x3F);
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<27/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<34/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -5090,6 +5109,17 @@ class myView
 		    				visibilityStatus[eVisible] = ((((eVisible-23/*STATUS_SUNEVENT_RISE*/)%2)==0) ? sunTimes7 : !sunTimes7);
 		    			}
 			    	}
+			    	else if (eVisible>=27/*STATUS_HR_ZONE_0*/ && eVisible<=33/*STATUS_HR_ZONE_6*/)
+			    	{
+						calculateHeartRate(minute, second);
+
+						visibilityStatus[27/*STATUS_HR_ZONE_0*/] = ((heartDisplayLatest==null) || (heartDisplayLatest<=heartRateZones[0]));
+						visibilityStatus[33/*STATUS_HR_ZONE_6*/] = ((heartDisplayLatest!=null) && (heartDisplayLatest>heartRateZones[5]));
+						for (var z=1; z<=5; z++)
+						{ 
+							visibilityStatus[z+27/*STATUS_HR_ZONE_0*/] = (heartDisplayLatest!=null) && (heartDisplayLatest>heartRateZones[z-1] && (heartDisplayLatest<=heartRateZones[z]));
+						}
+					}
 		    	}
 		    	
 		    	isVisible = (visibilityStatus[eVisible]!=null && visibilityStatus[eVisible]);
@@ -8359,7 +8389,7 @@ class myEditorView extends myView
 	function getVisibilityString(gfxIndex)
 	{
 		var rezArr = [Rez.JsonData.id_visibilityStrings, Rez.JsonData.id_visibilityStrings2];
-		return safeStringFromJsonDataMulti(rezArr, (gfxData[gfxIndex]>>4)&0x1F);
+		return safeStringFromJsonDataMulti(rezArr, (gfxData[gfxIndex]>>4)&0x3F);
 	}
 	
 	function fieldVisibilityString()
@@ -8369,14 +8399,14 @@ class myEditorView extends myView
 
 //	function fieldGetVisibility()
 //	{
-//		return ((gfxData[menuFieldGfx] >> 4) & 0x1F);
+//		return ((gfxData[menuFieldGfx] >> 4) & 0x3F);
 //	}
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (((gfxData[menuFieldGfx]>>4)&0x1F)+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
-		gfxData[menuFieldGfx] &= ~(0x1F << 4);
-		gfxData[menuFieldGfx] |= ((val & 0x1F) << 4);
+		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+34/*STATUS_NUM*/)%34/*STATUS_NUM*/;
+		gfxData[menuFieldGfx] &= ~(0x3F << 4);
+		gfxData[menuFieldGfx] |= ((val & 0x3F) << 4);
 	}
 
 //	function fieldPositionGetX()
@@ -9005,15 +9035,15 @@ class myEditorView extends myView
 
 //	function elementGetVisibility()
 //	{
-//		return ((gfxData[menuElementGfx] >> 4) & 0x1F);
+//		return ((gfxData[menuElementGfx] >> 4) & 0x3F);
 //	}
 
 	function elementVisibilityEditing(val)
 	{
-		val = (((gfxData[menuElementGfx]>>4)&0x1F)+val+27/*STATUS_NUM*/)%27/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+34/*STATUS_NUM*/)%34/*STATUS_NUM*/;
 
-		gfxData[menuElementGfx] &= ~(0x1F << 4);
-		gfxData[menuElementGfx] |= ((val & 0x1F) << 4);
+		gfxData[menuElementGfx] &= ~(0x3F << 4);
+		gfxData[menuElementGfx] |= ((val & 0x3F) << 4);
 	}
 
 	function elementSwap(prevElement, nextElement)
