@@ -254,6 +254,7 @@ class myView
 //	//	//!FIELD_SHAPE_SUN = 30,
 //	//	//!FIELD_SHAPE_MOON = 31,
 //	//	//!FIELD_SHAPE_MOUNTAIN = 32,
+//	//	//!FIELD_SHAPE_BATTERY_FILL = 33,
 
 	//enum
 	//{
@@ -1192,13 +1193,13 @@ class myView
 
 //System.println("Timer json2=" + (System.getTimer()-timeStamp) + "ms");
 
-		var timeNowValue = Time.now().value();
+		var timeNow = Time.now();
 
-		initHeartSamples(timeNowValue);
+		initHeartSamples(timeNow);
 
 		// remember which profile was active and also any profileDelayEnd value
 		// and all the profile times
-		loadMemoryData(timeNowValue);
+		loadMemoryData(timeNow.value());
 		
 //System.println("Timer loadmem=" + (System.getTimer()-timeStamp) + "ms");
 
@@ -2630,9 +2631,9 @@ class myView
 
 	var heartMaxZone5 = 200;
 
-	function initHeartSamples(timeNowValue)
+	function initHeartSamples(timeNow)
 	{
-		heartStarting = timeNowValue;	// set start time for initial frequent heart updates
+		heartStarting = timeNow.value();	// set start time for initial frequent heart updates
 
 		for (var i=0; i<60; i++)
 		{
@@ -2653,7 +2654,8 @@ class myView
 		}
 
 		//dailyRestCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
-		dailyRestCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(Time.Gregorian.info(Time.now(), Time.FORMAT_MEDIUM).year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
+		var currentYear = Time.Gregorian.info(timeNow, Time.FORMAT_MEDIUM).year;
+		dailyRestCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(currentYear-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
 	}
 
 	function sampleHeartRate(second, checkRequestUpdate)
@@ -2859,6 +2861,25 @@ class myView
 				}
 			}
 		}
+
+//stlHistoryCount = 0;
+//stlHistorySum = 0;
+//for (var i=0; i<7; i++)
+//{
+//	var daysAgo = i+1;
+//	if (daysAgo>0)			// not today
+//	{
+//var activeCalories = [1200, 200, 800, 600, 400, 100, 100, 100, 100, 100][daysAgo-1];
+//						
+//						// numDays==3 then want scale 5, 4, 3
+//		// numDays==4 then want scale 5, 5, 4, 3
+//		//var scale = getMinMax(3 + numDays - daysAgo, 0, 5) * 1440;
+//		var scale = Math.pow(0.8, daysAgo) * 1440;
+//		
+//		stlHistorySum += activeCalories*scale;
+//		stlHistoryCount += scale;
+//	}
+//}
 	}
 	
 	function stlCheckAverage()
@@ -2934,13 +2955,22 @@ class myView
 		
 		if (stlHistoryCount>0)
 		{
+//var ttt = 400;
+//count = ttt*0.8;
+//sum = 1000*ttt/1440.0 + (stlHistorySum*(1440-ttt))/(stlHistoryCount*1440.0);
+//sum *= count;
+
 			sum += stlHistorySum;
 			count += stlHistoryCount;
 
 			// DONT need to do this as average is calulated elsewhere now - it is just scaling up both sum and count the same amount
 			// average in rest of today based on sum so far
-			//var restOfToday = (1440-timeNowInMinutesToday)*5;
+			//var restOfToday = (1440-timeNowInMinutesToday)*0.8;
 			//sum += (sum * restOfToday) / count;
+			//count += restOfToday; 
+
+			//var restOfToday = (1440-timeNowInMinutesToday)*0.8;
+			//sum += (stlHistorySum * restOfToday) / stlHistoryCount;
 			//count += restOfToday; 
 		}
 		
@@ -3767,7 +3797,7 @@ class myView
 				// 0-9 a-z A-Z
 				// 10 +26 +26 =62
 				// 62*62=3844, so 0-3843				
-				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range is 0-1921)
+				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range is 0-1921 = 0x781)
 				
 				//System.print("" + val);
 
@@ -4526,8 +4556,12 @@ class myView
 			 	{
 			 		r = 0;
 			 	}
-			 	var fontListIndex = r + 93;
-				var resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
+				var resourceIndex = 30/*MAX_DYNAMIC_RESOURCES*/;
+				if (id==5 || (gfxData[index+1]>=0/*FIELD_SHAPE_CIRCLE*/ && gfxData[index+1]<=32/*FIELD_SHAPE_MOUNTAIN*/))
+				{
+				 	var fontListIndex = r + 93;
+					resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
+				}
 				gfxData[index+2/*icon_font*/] = r | ((resourceIndex & 0xFF) << 16);
 			}
 //			else if (id==5)		// movebar
@@ -5005,6 +5039,8 @@ class myView
 //		var prevLargeNumber = -1;
 //		var prevLargeFontKern = -1;
 	
+		var prevBatteryIndex = -1;
+	
 		gfxCharArrayLen = 0;
 	
 		for (var index=0; index<gfxNum; )
@@ -5082,6 +5118,8 @@ class myView
 					gfxData[index+5] = 0;	// ascent & descent
 					//gfxData[index+5] = 0;	// no x adjustment yet
 					
+					prevBatteryIndex = -1;
+
 					break;
 				}
 
@@ -5819,6 +5857,15 @@ class myView
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
 						updateFieldMaxAscentDescentResource(indexCurField+5, dynamicResource);		// store max ascent & descent in field
 						//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
+						
+						if (eDisplay==17/*FIELD_SHAPE_BATTERY*/ || eDisplay==18/*FIELD_SHAPE_BATTERY_SOLID*/)
+						{
+							prevBatteryIndex = index;
+						}
+				    }
+				    else
+				    {
+						gfxData[index+4] = prevBatteryIndex;		// index of battery icon (instead of character)
 				    }
 
 					break;
@@ -6440,6 +6487,49 @@ class myView
 									}
 									
 									dateX += w + ((i<4) ? -5 : 0);
+								}
+							}
+						}
+						else if (id==4 && (gfxData[index+1]==33/*FIELD_SHAPE_BATTERY_FILL*/))
+						{
+							var prevBatteryIndex = gfxData[index+4];		// index of battery icon (instead of character)
+							if (prevBatteryIndex>=0)
+							{
+								var dynamicResource = getDynamicResourceFromGfx(prevBatteryIndex+2/*string_font*/);		// 2/*icon_font*/ 2/*movebar_font*/				
+								if (dynamicResource!=null)
+								{
+									// full fill
+									//var y = fieldYStart - Graphics.getFontAscent(dynamicResource) + 3;		// subtract ascent
+									//var x = fieldX - gfxData[prevBatteryIndex+5] + 3;
+									//var w = gfxData[prevBatteryIndex+5] - 6;
+									//var h = Graphics.getFontAscent(dynamicResource) - 4;
+									//
+									//dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
+									//gfxDrawRectangle(dc, x, y, w, h, 2/*up*/, 0, h/2);
+									
+									// fill with 1 pixel gap
+									var iconH = Graphics.getFontAscent(dynamicResource);
+									var iconW = gfxData[prevBatteryIndex+5];
+									
+							        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
+
+									//var y = fieldYStart-iconH+4;
+									//var x = fieldX-iconW+4;
+									//var w = iconW-8;
+									//var h = iconH-6;
+									//gfxDrawRectangle(dc, x, y, w, h, 2/*up*/, 0, getMinMax(Math.round((h*updateBatteryLevel)/100.0).toNumber(), 0, h));
+
+									var h = iconH-6;
+									gfxDrawRectangle(dc, fieldX-iconW+4, fieldYStart-iconH+4, iconW-8, h, 2/*up*/, 0, getMinMax(Math.round((h*updateBatteryLevel)/100.0).toNumber(), 0, h));
+
+									// horizontal line
+									//var y = fieldYStart - Graphics.getFontAscent(dynamicResource) + 3 + 1 + (Graphics.getFontAscent(dynamicResource) - 4)/2;		// subtract ascent
+									//var x = fieldX - gfxData[prevBatteryIndex+5] + 3;
+									//var w = gfxData[prevBatteryIndex+5] - 6;
+									//var h = 1;
+									//
+									//dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
+									//gfxDrawRectangle(dc, x, y, w, h, 2/*up*/, 0, h);
 								}
 							}
 						}
@@ -9080,9 +9170,17 @@ class myEditorView extends myView
 		lastFontArray[1] = gfxData[menuElementGfx+2/*string_font*/];
 	}
 
+	function iconGetTypeName()
+	{
+		var rezArr = [Rez.JsonData.id_iconTypeStrings, Rez.JsonData.id_iconTypeStrings2];
+		return safeStringFromJsonDataMulti(rezArr, gfxData[menuElementGfx+1]);
+	}
+
 	function iconTypeEditing(val)
 	{
-		gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+32/*FIELD_SHAPE_MOUNTAIN*/+1)%(32/*FIELD_SHAPE_MOUNTAIN*/+1);
+		//gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+32/*FIELD_SHAPE_MOUNTAIN*/+1)%(32/*FIELD_SHAPE_MOUNTAIN*/+1);
+    	gfxData[menuElementGfx+1] = arrayTypeEditingValue(val, gfxData[menuElementGfx+1], Rez.JsonData.id_iconArray, 0);
+		reloadDynamicResources = true;		// for battery fill bodge icons
 	}
 
 	function iconColorEditing(val)
@@ -10742,6 +10840,10 @@ class myMenuItemElementEdit extends myMenuItem
 		{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings2, -1, editorView.stringGetFont());
 	    }
+		else if (fId==4 && fState==numTop)	// icon
+		{
+    		return editorView.iconGetTypeName();
+	    }
 		else if (fId==4 && fState==numTop+1)	// icon
 		{
     		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 0, editorView.iconGetFont());
@@ -11123,7 +11225,7 @@ class myMenuItemElementAdd extends myMenuItem
     	}
 		else if (fState==16/*s_iconEdit*/)
 		{
-			return "editing...";
+			return editorView.iconGetTypeName();
     	}
 
     	return null;

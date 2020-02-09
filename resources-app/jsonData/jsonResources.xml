@@ -704,6 +704,90 @@
 		]
 	</jsonData>
 		
+	<jsonData id="id_iconTypeStrings">
+		[
+			"circle",
+			"circle (solid)",
+			"rounded",
+			"rounded (solid)",
+			"square",
+			"square (solid)",
+			"triangle",
+			"triangle (solid)",
+			"diamond",
+			"diamond (solid)",
+			"star",
+			"star (solid)",
+			"alarm",
+			"lock",
+			"mobile",
+			"note",
+			"figure",
+			"battery",
+			"battery (solid)"
+		]
+	</jsonData>
+	<jsonData id="id_iconTypeStrings2">
+		[
+			"bed",
+			"flower",
+			"footsteps",
+			"network",
+			"stairs",
+			"handset",
+			"stopwatch",
+			"fire",
+			"heart",
+			"sunrise",
+			"sunset",
+			"sun",
+			"moon",
+			"mountain",
+			"battery % fill\n(after battery)"
+		]
+	</jsonData>
+
+	<jsonData id="id_iconArray">
+		[
+			[
+				0,		<!-- circle -->
+				1,		<!-- circle solid -->
+				2,		<!-- rounded -->
+				3,		<!-- rounded solid -->
+				4,		<!-- square -->
+				5,		<!-- square solid -->
+				6,		<!-- triangle -->
+				7,		<!-- triangle solid -->
+				8,		<!-- diamond -->
+				9,		<!-- diamond solid -->
+				10,		<!-- star -->
+				11,		<!-- star solid -->
+				12,		<!-- alarm -->
+				13,		<!-- lock -->
+				14,		<!-- mobile -->
+				15,		<!-- note -->
+				16,		<!-- figure -->
+				17,		<!-- battery -->
+				18,		<!-- battery solid -->
+				33,		<!-- battery % fill -->
+				19,		<!-- bed -->
+				20,		<!-- flower -->
+				21,		<!-- footsteps -->
+				22,		<!-- network -->
+				23,		<!-- stairs -->
+				24,		<!-- handset -->
+				25,		<!-- stopwatch -->
+				26,		<!-- fire -->
+				27,		<!-- heart -->
+				28,		<!-- sunrise -->
+				29,		<!-- sunset -->
+				30,		<!-- sun -->
+				31,		<!-- moon -->
+				32		<!-- mountain -->
+			]
+		]
+	</jsonData>
+
 	<!-- rectangle = 816 bytes -->
 	<jsonData id="id_rectangleStrings">
 		[
