@@ -7491,7 +7491,10 @@ class myEditorView extends myView
     {
     	if (!menuHide)
     	{
-			switchColorEditingMode();	// do this before menu handles select so that we don't change when first start editing a color
+			if (isColorEditing())
+			{
+				switchColorEditingMode();	// do this before menu handles select so that we don't change when first start editing a color
+			}
 	
 	    	var newMenuItem = menuItem.onSelect();
 	    	if (newMenuItem!=null)
@@ -7503,7 +7506,9 @@ class myEditorView extends myView
 		{
 			// for select this needs to be in an else switch
 			// - in order to handle selecting the "menu hide" menu option!
-			menuHide = false;
+			//menuHide = false;
+			
+			gfxVisibilityMode = (gfxVisibilityMode+1)%3;
 		}
 		
     	WatchUi.requestUpdate();
@@ -7665,6 +7670,9 @@ class myEditorView extends myView
 	// menu+gfx, menu+grid+gfx, grid+gfx, grid, gfx
 	var colorEditingMode = 1;
 
+	// normal, at least 1 element visible, all elements visible
+	var gfxVisibilityMode = 0;
+
 	var menuHide = false;
 	var menuY = 50;
 	
@@ -7748,7 +7756,7 @@ class myEditorView extends myView
 	{
 		if ((gfxData[index]&0x10000)==0)	// not visible
 		{
-			if (index==menuElementGfx || index==menuFieldGfx)
+			if (index==menuElementGfx || index==menuFieldGfx || (menuHide && gfxVisibilityMode==2))
 			{
 				gfxData[index] |= 0x10000; 	// make the element temporarily visible
 			}
@@ -7763,7 +7771,7 @@ class myEditorView extends myView
 					if (nextIndex<0 || gfxIsField(nextIndex))
 					{
 						var tempIndex = prevGfxField(index);
-						if (tempIndex==menuFieldGfx)	// check in highlighted field
+						if (tempIndex==menuFieldGfx || (menuHide && gfxVisibilityMode==1))	// check in highlighted field
 						{
 							for (;;)
 							{
@@ -8147,10 +8155,7 @@ class myEditorView extends myView
 
 	function switchColorEditingMode()
 	{
-		if (isColorEditing())
-		{
-			colorEditingMode = (colorEditingMode+1)%5;
-		}
+		colorEditingMode = (colorEditingMode+1)%5;
 	}
 
 	function endColorEditing()
