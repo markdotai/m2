@@ -2666,8 +2666,11 @@ class myView
 		}
 
 		//dailyRestCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
-		var currentYear = Time.Gregorian.info(timeNow, Time.FORMAT_MEDIUM).year;
-		dailyRestCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(currentYear-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
+		if (userProfile.weight!=null && userProfile.height!=null && userProfile.birthYear!=null && userProfile.gender!=null)
+		{
+			var currentYear = Time.Gregorian.info(timeNow, Time.FORMAT_MEDIUM).year;
+			dailyRestCalories = (12.2/1000.0)*userProfile.weight + 7.628*userProfile.height - 6.116*(currentYear-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5.2:(-197.6));
+		}
 	}
 
 	function sampleHeartRate(second, checkRequestUpdate)
