@@ -2665,6 +2665,7 @@ class myView
 			heartRateZones = [100, 120, 140, 160, 180, 200];
 		}
 
+		// ERA reporting a crash here ... so add some checks
 		//dailyRestCalories = 1.2*((10.0/1000.0)*userProfile.weight + 6.25*userProfile.height - 5.0*(dateInfoMedium.year-userProfile.birthYear) + ((userProfile.gender==1/*GENDER_MALE*/)?5:(-161)));
 		if (userProfile.weight!=null && userProfile.height!=null && userProfile.birthYear!=null && userProfile.gender!=null)
 		{
