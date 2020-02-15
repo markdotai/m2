@@ -5015,9 +5015,7 @@ class myView
 //		var indexPrevLargeWidth = -1;
 //		var prevLargeNumber = -1;
 //		var prevLargeFontKern = -1;
-	
-		var prevBatteryIndex = -1;
-	
+		
 		gfxCharArrayLen = 0;
 	
 		for (var index=0; index<gfxNum; )
@@ -5106,8 +5104,6 @@ class myView
 					gfxData[index+5] = 0;	// ascent & descent
 					//gfxData[index+5] = 0;	// no x adjustment yet
 					
-					prevBatteryIndex = -1;
-
 					break;
 				}
 
@@ -5845,15 +5841,6 @@ class myView
 						gfxData[indexCurField+4] += gfxData[index+5];	// total width					
 						updateFieldMaxAscentDescentResource(indexCurField+5, dynamicResource);		// store max ascent & descent in field
 						//gfxData[indexCurField+5] = 0;	// remove existing x adjustment
-						
-						if (eDisplay==17/*FIELD_SHAPE_BATTERY*/ || eDisplay==18/*FIELD_SHAPE_BATTERY_SOLID*/)
-						{
-							prevBatteryIndex = index;
-						}
-				    }
-				    else
-				    {
-						gfxData[index+4] = prevBatteryIndex;		// index of battery icon (instead of character)
 				    }
 
 					break;
@@ -6306,6 +6293,9 @@ class myView
 		var dcWidth = dc.getWidth();
 		var dcHeight = dc.getHeight();
 
+		var prevBatteryIndex = -1;
+		var prevBatteryX = 0;
+
 		for (var index=0; index<gfxNum; )
 		{
 			//var id = getGfxId(index);
@@ -6350,6 +6340,8 @@ class myView
 			
 					fieldX = fieldXStart;
 	
+					prevBatteryIndex = -1;
+
 					if (isEditor)
 					{
 						gfxFieldHighlight(dc, index, fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
@@ -6372,6 +6364,31 @@ class myView
 					else if (id==4)
 					{
 						thisWidth = gfxData[index+5];
+
+						var eDisplay = gfxData[index+1];
+						if (eDisplay==17/*FIELD_SHAPE_BATTERY*/ || eDisplay==18/*FIELD_SHAPE_BATTERY_SOLID*/)
+						{
+							prevBatteryIndex = index;
+							prevBatteryX = fieldX;
+						}
+						else if (eDisplay==33/*FIELD_SHAPE_BATTERY_FILL*/)
+						{
+							if (prevBatteryIndex>=0)
+							{
+								var dynamicResource = getDynamicResourceFromGfx(prevBatteryIndex+2/*string_font*/);		// 2/*icon_font*/ 2/*movebar_font*/				
+								if (dynamicResource!=null)
+								{
+									// fill with 1 pixel gap
+									var iconH = Graphics.getFontAscent(dynamicResource);
+									var iconW = gfxData[prevBatteryIndex+5];
+									
+							        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
+
+									var h = iconH-6;
+									gfxDrawRectangle(dc, prevBatteryX+4, fieldYStart-iconH+4, iconW-8, h, 2/*up*/, 0, getMinMax(Math.round((h*updateBatteryLevel)/100.0).toNumber(), 0, h));
+								}
+							}
+						}
 					}
 					else if (id==5)
 					{
@@ -6475,49 +6492,6 @@ class myView
 									}
 									
 									dateX += w + ((i<4) ? -5 : 0);
-								}
-							}
-						}
-						else if (id==4 && (gfxData[index+1]==33/*FIELD_SHAPE_BATTERY_FILL*/))
-						{
-							var prevBatteryIndex = gfxData[index+4];		// index of battery icon (instead of character)
-							if (prevBatteryIndex>=0)
-							{
-								var dynamicResource = getDynamicResourceFromGfx(prevBatteryIndex+2/*string_font*/);		// 2/*icon_font*/ 2/*movebar_font*/				
-								if (dynamicResource!=null)
-								{
-									// full fill
-									//var y = fieldYStart - Graphics.getFontAscent(dynamicResource) + 3;		// subtract ascent
-									//var x = fieldX - gfxData[prevBatteryIndex+5] + 3;
-									//var w = gfxData[prevBatteryIndex+5] - 6;
-									//var h = Graphics.getFontAscent(dynamicResource) - 4;
-									//
-									//dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
-									//gfxDrawRectangle(dc, x, y, w, h, 2/*up*/, 0, h/2);
-									
-									// fill with 1 pixel gap
-									var iconH = Graphics.getFontAscent(dynamicResource);
-									var iconW = gfxData[prevBatteryIndex+5];
-									
-							        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
-
-									//var y = fieldYStart-iconH+4;
-									//var x = fieldX-iconW+4;
-									//var w = iconW-8;
-									//var h = iconH-6;
-									//gfxDrawRectangle(dc, x, y, w, h, 2/*up*/, 0, getMinMax(Math.round((h*updateBatteryLevel)/100.0).toNumber(), 0, h));
-
-									var h = iconH-6;
-									gfxDrawRectangle(dc, fieldX-iconW+4, fieldYStart-iconH+4, iconW-8, h, 2/*up*/, 0, getMinMax(Math.round((h*updateBatteryLevel)/100.0).toNumber(), 0, h));
-
-									// horizontal line
-									//var y = fieldYStart - Graphics.getFontAscent(dynamicResource) + 3 + 1 + (Graphics.getFontAscent(dynamicResource) - 4)/2;		// subtract ascent
-									//var x = fieldX - gfxData[prevBatteryIndex+5] + 3;
-									//var w = gfxData[prevBatteryIndex+5] - 6;
-									//var h = 1;
-									//
-									//dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
-									//gfxDrawRectangle(dc, x, y, w, h, 2/*up*/, 0, h);
 								}
 							}
 						}
