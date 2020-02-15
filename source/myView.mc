@@ -3840,7 +3840,6 @@ class myView
 
 		for (var index=0; index<charArraySize && !gotError; )
 		{
-			var id = 0;
 			var itemSize = 0;
 			
 			var saveSize = 1;
@@ -3872,7 +3871,7 @@ class myView
 
 				if (i==0)
 				{
-					id = (v & 0x0F);
+					var id = (v & 0x0F);
 
 					if (isOldVersion0)
 					{
@@ -7387,6 +7386,10 @@ class myEditorView extends myView
 		}
 		menuHide = false;
 
+		// make sure "EP" is up to date whenever you press a button
+   		// Also note that reloading the dynamic resources causes the gfx to be read from "EP" so update it first!
+		copyGfxToPropertyString();
+
     	WatchUi.requestUpdate();
 
         return true;
@@ -7403,6 +7406,10 @@ class myEditorView extends myView
 	    	}
 		}    
 		menuHide = false;
+
+		// make sure "EP" is up to date whenever you press a button
+   		// Also note that reloading the dynamic resources causes the gfx to be read from "EP" so update it first!
+		copyGfxToPropertyString();
 
     	WatchUi.requestUpdate();
     
@@ -7433,6 +7440,10 @@ class myEditorView extends myView
 			gfxVisibilityMode = (gfxVisibilityMode+1)%3;
 		}
 		
+		// make sure "EP" is up to date whenever you press a button
+   		// Also note that reloading the dynamic resources causes the gfx to be read from "EP" so update it first!
+		copyGfxToPropertyString();
+
     	WatchUi.requestUpdate();
     
         return true;
@@ -7455,6 +7466,10 @@ class myEditorView extends myView
 		}
 		menuHide = false;
 		
+		// make sure "EP" is up to date whenever you press a button
+   		// Also note that reloading the dynamic resources causes the gfx to be read from "EP" so update it first!
+		copyGfxToPropertyString();
+
     	WatchUi.requestUpdate();
     
         return true;
@@ -7624,22 +7639,10 @@ class myEditorView extends myView
 	
     function onUpdate(dc)
     {
-    	if (reloadDynamicResources)
-    	{
-    		// reloading the dynamic resources causes the gfx to be read from "EP" so update it first!
-			copyGfxToPropertyString();
-    	}
-    
     	doDrawGfx = (!isColorEditing() || (colorEditingMode!=3));
     
     	myView.onUpdate(dc);	// draw the normal watchface
     	
-    	if (true)
-    	{
-    		// make sure "EP" is up to date at the end of every frame!
-    		copyGfxToPropertyString();
-		}
-
 		//drawAbc(dc);
 
     	if (!menuHide)
