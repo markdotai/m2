@@ -3381,6 +3381,8 @@ class myView
 	//
 	// 12 number = honesty count (or -1 if disabled)
 	//
+	// 13 float = stlAverage
+	// 14 float = stlAverageUpdate
 	(:m2face)
 	function loadMemoryData(timeNowValue)
 	{
@@ -3454,46 +3456,6 @@ class myView
 				profileTimeData[i] = 0;
 			}
 		}
-
-//		var charArray = propertiesGetCharArray("sd");
-//		valDecodeArray(profileTimeData, 24/*PROFILE_NUM_USER*/*6, charArray, charArray.size());
-//		//System.println("profileTimeData=" + profileTimeData.toString());
-	
-//		positionGot = propertiesGetBoolean("pg");
-//		positionLatitude = propertiesGetFloat("la"); 
-//		positionLongitude = propertiesGetFloat("lo");
-//		positionAltitude = propertiesGetFloat("al");
-//
-//		var profileNumber;
-//		var profileEnd;
-//
-//		profileNumber = propertiesGetNumber("ap");
-//		profileEnd = propertiesGetNumber("ae");
-//		if (profileNumber>=0 && profileNumber<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET))
-//		{
-//			profileActive = profileNumber;
-//			// verify that profileDelayEnd is not too far in the future ... just in case (should be 2+1 minutes or less)
-//			profileDelayEnd = ((profileEnd <= (timeNowValue + (2+1)*60)) ? profileEnd : 0);
-//		}
-//
-//		profileNumber = propertiesGetNumber("rp");
-//		profileEnd = propertiesGetNumber("re");
-//		if (profileNumber>=0 && profileNumber<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET))
-//		{
-//			profileRandom = profileNumber;
-//			// verify that profileRandomEnd is not too far in the future ... just in case (should be 20+1 minutes or less)
-//			profileRandomEnd = ((profileEnd <= (timeNowValue + (20+1)*60)) ? profileEnd : 0);
-//		}
-//
-//		demoProfilesOn = propertiesGetBoolean("do");
-//		profileNumber = propertiesGetNumber("dp");
-//		profileEnd = propertiesGetNumber("de");
-//		if (profileNumber>=0 && profileNumber<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET))
-//		{
-//			demoProfilesCurrentProfile = profileNumber;
-//			// verify that demoProfilesCurrentEnd is not too far in the future ... just in case (should be 5+1 minutes or less)
-//			demoProfilesCurrentEnd = ((profileEnd <= (timeNowValue + (5+1)*60)) ? profileEnd : 0);
-//		}
 	}
 	
 	(:m2face)
@@ -3517,33 +3479,15 @@ class myView
 			stlAverageUpdate,				// 14
 		];
 		applicationStorage.setValue(0, memData);
-
-//		var tempCharArray = new[24/*PROFILE_NUM_USER*/*6*2];	// 288
-//		valEncodeArray(profileTimeData, 24/*PROFILE_NUM_USER*/*6, tempCharArray, 24/*PROFILE_NUM_USER*/*6*2);
-//		applicationProperties.setValue("sd", StringUtil.charArrayToString(tempCharArray));
-
-//		applicationProperties.setValue("pg", positionGot);
-//		applicationProperties.setValue("la", positionLatitude);
-//		applicationProperties.setValue("lo", positionLongitude);
-//		applicationProperties.setValue("al", positionAltitude);
-//
-//		applicationProperties.setValue("ap", profileActive);
-//		applicationProperties.setValue("ae", profileDelayEnd);
-//
-//		applicationProperties.setValue("rp", profileRandom);
-//		applicationProperties.setValue("re", profileRandomEnd);
-//
-//		applicationProperties.setValue("do", demoProfilesOn);
-//		applicationProperties.setValue("dp", demoProfilesCurrentProfile);
-//		applicationProperties.setValue("de", demoProfilesCurrentEnd);
 	}
 
 	// app memory data format
 	// boolean = positionGot
-	// float = positionLatitude  
-	// float = positionLongitude  
-	// float = positionAltitude  
-
+	// float = positionLatitude
+	// float = positionLongitude
+	// float = positionAltitude
+	// float = stlAverage
+	// float = stlAverageUpdate
 	(:m2app)
 	function loadMemoryData(timeNowValue)
 	{
@@ -3554,24 +3498,24 @@ class myView
 			positionLatitude = getFloatFromArray(memData, 1);
 			positionLongitude = getFloatFromArray(memData, 2);
 			positionAltitude = getFloatFromArray(memData, 3);
+
+			stlAverage = getFloatFromArray(memData, 4);
+			stlAverageUpdate = getNumberFromArray(memData, 5);
 		}
-	
-//		positionGot = propertiesGetBoolean("pg");
-//		positionLatitude = propertiesGetFloat("la"); 
-//		positionLongitude = propertiesGetFloat("lo");
-//		positionAltitude = propertiesGetFloat("al");
 	}
 	
 	(:m2app)
 	function saveMemoryData()
 	{
-		var memData = [positionGot, positionLatitude, positionLongitude, positionAltitude];
+		var memData = [
+			positionGot,					// 0
+			positionLatitude,				// 1
+			positionLongitude,				// 2
+			positionAltitude,				// 3
+			stlAverage,						// 4
+			stlAverageUpdate,				// 5
+		];
 		applicationStorage.setValue(0, memData);
-
-//		applicationProperties.setValue("pg", positionGot);
-//		applicationProperties.setValue("la", positionLatitude);
-//		applicationProperties.setValue("lo", positionLongitude);
-//		applicationProperties.setValue("al", positionAltitude);
 	}
 	
 /*
