@@ -50,7 +50,11 @@
 				"hour24 0# (1st)",
 				"hour24 0# (2nd)",
 				"second (cheap)",
-				"second (true)"
+				"second (true)",
+				"day # in month",
+				"day ## in\nmonth",
+				"month #",
+				"month ##"
 			],
 
 			[
@@ -77,7 +81,11 @@
 				18,		<!-- BIG_HOUR_24_2ND -->
 				19,		<!-- BIG_HOUR_24_0 -->
 				20,		<!-- BIG_HOUR_24_0_1ST -->
-				21		<!-- BIG_HOUR_24_0_2ND -->
+				21,		<!-- BIG_HOUR_24_0_2ND -->
+				24,		<!-- BIG_DAY_OF_MONTH -->
+				25,		<!-- BIG_DAY_OF_MONTH_XX -->
+				26,		<!-- BIG_MONTH_OF_YEAR -->
+				27		<!-- BIG_MONTH_OF_YEAR_XX -->
 			]
 		]
 	</jsonData>

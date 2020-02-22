@@ -5205,6 +5205,10 @@ class myView
 						//21		<!-- BIG_HOUR_24_0_2ND -->
 						//22,		<!-- BIG_SECOND_CHEAP -->
 						//23		<!-- BIG_SECOND_TRUE -->
+						//24,		<!-- BIG_DAY_OF_MONTH -->
+						//25,		<!-- BIG_DAY_OF_MONTH_XX -->
+						//26,		<!-- BIG_MONTH_OF_YEAR -->
+						//27		<!-- BIG_MONTH_OF_YEAR_XX -->
 	
 						if (eDisplay==2/*BIG_COLON*/)
 						{
@@ -5239,6 +5243,15 @@ class myView
 							{
 								propSecondIndicatorOn = true;
 							}
+						}
+						else if (eDisplay>=24/*BIG_DAY_OF_MONTH*/ && eDisplay<=27/*BIG_MONTH_OF_YEAR_XX*/)
+						{
+							//24,		<!-- BIG_DAY_OF_MONTH -->
+							//25,		<!-- BIG_DAY_OF_MONTH_XX -->
+							//26,		<!-- BIG_MONTH_OF_YEAR -->
+							//27		<!-- BIG_MONTH_OF_YEAR_XX -->
+
+							eStr = ((eDisplay<=25/*BIG_DAY_OF_MONTH_XX*/) ? dateInfoMedium.day : dateInfoShort.month).format(((eDisplay%2)==0) ? "%d" : "%02d");
 						}
 						else // hours
 						{
