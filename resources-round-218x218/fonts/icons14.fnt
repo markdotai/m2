@@ -1,7 +1,7 @@
 info face="Icons" size=20 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=4 padding=0,0,0,0 spacing=1,1 outline=0
 common lineHeight=14 base=14 scaleW=256 scaleH=256 pages=1 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0
 page id=0 file="icons14_0.png"
-chars count=35
+chars count=36
 
 char id=65   x=0     y=16    width=14    height=14    xoffset=2     yoffset=0     xadvance=18    page=0  chnl=15
 char id=66   x=30    y=16    width=14    height=14    xoffset=2     yoffset=0     xadvance=18    page=0  chnl=15
@@ -44,3 +44,4 @@ char id=95   x=180   y=136   width=14    height=14    xoffset=2     yoffset=0   
 char id=96   x=210   y=136   width=12    height=14    xoffset=2     yoffset=0     xadvance=16    page=0  chnl=15
 
 char id=97   x=0     y=166   width=15    height=14    xoffset=2     yoffset=0     xadvance=19    page=0  chnl=15
+char id=99   x=30    y=173   width=14    height=7     xoffset=2     yoffset=7     xadvance=18    page=0  chnl=15

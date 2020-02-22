@@ -758,7 +758,8 @@
 			"sun",
 			"moon",
 			"mountain",
-			"battery % fill\n(after battery)"
+			"battery % fill\n(after battery)",
+			"battery\n(horizontal)"
 		]
 	</jsonData>
 
@@ -784,6 +785,7 @@
 				16,		<!-- figure -->
 				17,		<!-- battery -->
 				18,		<!-- battery solid -->
+				34,		<!-- battery horizontal -->
 				33,		<!-- battery % fill -->
 				19,		<!-- bed -->
 				20,		<!-- flower -->

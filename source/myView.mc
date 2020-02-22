@@ -255,6 +255,7 @@ class myView
 //	//	//!FIELD_SHAPE_MOON = 31,
 //	//	//!FIELD_SHAPE_MOUNTAIN = 32,
 //	//	//!FIELD_SHAPE_BATTERY_FILL = 33,
+//	//	//!FIELD_SHAPE_BATTERY_HORIZONTAL = 34,
 
 	//enum
 	//{
@@ -4526,7 +4527,7 @@ class myView
 			 		r = 0;
 			 	}
 				var resourceIndex = 30/*MAX_DYNAMIC_RESOURCES*/;
-				if (id==5 || (gfxData[index+1]>=0/*FIELD_SHAPE_CIRCLE*/ && gfxData[index+1]<=32/*FIELD_SHAPE_MOUNTAIN*/))
+				if (id==5 || (gfxData[index+1]>=0/*FIELD_SHAPE_CIRCLE*/ && gfxData[index+1]<=34/*FIELD_SHAPE_BATTERY_HORIZONTAL*/ && gfxData[index+1]!=33/*FIELD_SHAPE_BATTERY_FILL*/))
 				{
 				 	var fontListIndex = r + 93;
 					resourceIndex = addDynamicResource(fontList[fontListIndex], dynResSizeArray[fontListIndex]);
@@ -5833,7 +5834,7 @@ class myView
 
 					var eDisplay = gfxData[index+1];
 
-				    if (eDisplay>=0/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=32/*FIELD_SHAPE_MOUNTAIN*/)
+				    if (eDisplay>=0/*FIELD_SHAPE_CIRCLE*/ && eDisplay<=34/*FIELD_SHAPE_BATTERY_HORIZONTAL*/)
 				    {
 						//var iconsString = "ABCDEFGHIJKLMNOPQRSTUVWX";
 						//eStr = iconsString.substring(e-FIELD_SHAPE_CIRCLE, e-FIELD_SHAPE_CIRCLE+1);
@@ -6378,7 +6379,7 @@ class myView
 						thisWidth = gfxData[index+5];
 
 						var eDisplay = gfxData[index+1];
-						if (eDisplay==17/*FIELD_SHAPE_BATTERY*/ || eDisplay==18/*FIELD_SHAPE_BATTERY_SOLID*/)
+						if (eDisplay==17/*FIELD_SHAPE_BATTERY*/ || eDisplay==18/*FIELD_SHAPE_BATTERY_SOLID*/ || eDisplay==34/*FIELD_SHAPE_BATTERY_HORIZONTAL*/)
 						{
 							prevBatteryIndex = index;
 							prevBatteryX = fieldX;
@@ -6396,8 +6397,19 @@ class myView
 									
 							        dc.setColor(getColor64FromGfx(gfxData[index+3/*icon_color*/]), -1/*COLOR_TRANSPARENT*/);
 
-									var h = iconH-6;
-									gfxDrawRectangle(dc, prevBatteryX+4, fieldYStart-iconH+4, iconW-8, h, 2/*up*/, 0, getMinMax(Math.round((h*updateBatteryLevel)/100.0).toNumber(), 0, h));
+									var isHorizontal = (gfxData[prevBatteryIndex+1]==34/*FIELD_SHAPE_BATTERY_HORIZONTAL*/);
+									var l = (isHorizontal ? (iconW-6-4) : (iconH-6));
+									var lFill = getMinMax(Math.round((l*updateBatteryLevel)/100.0).toNumber(), 0, l);
+
+									if (isHorizontal)
+									{
+										iconH = (iconH+1)/2;	// don't know actual height of character ...
+										gfxDrawRectangle(dc, prevBatteryX+4, fieldYStart-iconH+2, l, iconH-4, 0/*right*/, 0, lFill);
+									}
+									else
+									{
+										gfxDrawRectangle(dc, prevBatteryX+4, fieldYStart-iconH+4, iconW-8, l, 2/*up*/, 0, lFill);
+									}
 								}
 							}
 						}
@@ -8590,6 +8602,8 @@ class myEditorView extends myView
 					var elementIndex = gfxAddString(gfxNum, 3, 36/*FIELD_BATTERYPERCENTAGE*/);
 					gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
 					elementIndex = gfxAddIcon(gfxNum, 17/*FIELD_SHAPE_BATTERY*/);
+					gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
+					elementIndex = gfxAddIcon(gfxNum, 33/*FIELD_SHAPE_BATTERY_FILL*/);
 					gfxData[elementIndex] |= (16/*STATUS_BATTERY_LOW*/<<4);
 				}
 				else if (fState==4)	// alarm (when set)
