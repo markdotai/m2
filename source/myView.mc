@@ -4876,7 +4876,7 @@ class myView
 	        	col = secondColorIndex;		// second color
 	        }
 	        
-	        propSecondColorIndexArray[(i+ringAdjustIndex)%60] = col;
+	        propSecondColorIndexArray[(i+ringAdjustIndex)%60] = (col&0xFF);
 	    }
 
 		//this test code now works out exactly the same size as the original above!
