@@ -2251,8 +2251,9 @@ class myView
 					var profileActiveGlanceProfile = profileTimeData[profileActive*6 + 5];
 					if (profileActiveGlanceProfile>0 && profileActiveGlanceProfile<=(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET))
 					{
-						doActivate = profileActiveGlanceProfile-1;
+						profileGlance = profileActiveGlanceProfile-1;		// remember we are glancing at this profile
 						profileGlanceReturn = profileActive;	// return to this profile after glance 
+						doActivate = profileGlance;
 					}
 				}
 			}
@@ -2270,6 +2271,8 @@ class myView
 			}
 		}
 		
+//System.println("profileActive=" + profileActive + " doActivate=" + doActivate + " glanceActive=" + glanceActive + " profileGlance=" + profileGlance + " profileGlanceReturn=" + profileGlanceReturn);
+
 		var timeNowValue = timeNow.value();
 		
 		if (!(glanceActive && profileGlance>=0) && timeNowValue>=profileDelayEnd)
@@ -2428,6 +2431,8 @@ class myView
 				}
 			}
 		}
+
+//System.println("return doActivate=" + doActivate);
 
 		return doActivate;
 	}
@@ -3468,7 +3473,7 @@ class myView
 			positionLatitude,				// 2
 			positionLongitude,				// 3
 			positionAltitude,				// 4
-			profileActive,					// 5
+			((glanceActive && profileGlance>=0 && profileGlanceReturn>=0) ? profileGlanceReturn : profileActive),					// 5
 			profileDelayEnd,				// 6
 			profileRandom,					// 7
 			profileRandomEnd,				// 8
