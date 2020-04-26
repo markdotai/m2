@@ -1,54 +1,8 @@
-project.manifest = manifest-face.xml
+project.manifest = manifest-beta.xml
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#m2face jungle file
+#m2beta jungle file
 
 base.resourcePath = $(base.resourcePath);resources-face
 

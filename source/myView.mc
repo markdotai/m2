@@ -1214,10 +1214,23 @@ class myView
 		//gfxDemo();
     }
 
+	function switchToProfile(p)
+	{
+		releaseDynamicResources();
+		loadProfile(p);
+		profileActive = p;		// set the active profile number
+		applicationProperties.setValue("PN", p+1);		// set the profile number
+	}
+	
 	// called from the app when it is being ended
 	function onStop()
 	{
         //System.println("onStop");
+
+		if (glanceActive && profileGlance>=0 && profileGlanceReturn>=0)
+		{
+			switchToProfile(profileGlanceReturn);
+		}
 
 		// remember the active profile and profileDelayEnd and other variables we want to save between runs
 		saveMemoryData();
@@ -1623,14 +1636,13 @@ class myView
 		{
 			//System.println("profileToActivate=" + profileToActivate);
 			
-			releaseDynamicResources();
 			doLoadDynamicResources = true;
+			switchToProfile(profileToActivate);
 
-			loadProfile(profileToActivate);
-
-			profileActive = profileToActivate;		// set the active profile number
-
-			applicationProperties.setValue("PN", profileToActivate+1);		// set the profile number
+			//releaseDynamicResources();
+			//loadProfile(profileToActivate);
+			//profileActive = profileToActivate;		// set the active profile number
+			//applicationProperties.setValue("PN", profileToActivate+1);		// set the profile number
 
 //if (showTimer)
 //{
@@ -2237,7 +2249,7 @@ class myView
 		return time;
 	}
 
-	(:m2face)	
+	(:m2face)
 	function checkProfileToActivate(timeNow)
 	{
 		var doActivate = profileActive;		// stick with current profile until told otherwise
@@ -3473,7 +3485,7 @@ class myView
 			positionLatitude,				// 2
 			positionLongitude,				// 3
 			positionAltitude,				// 4
-			((glanceActive && profileGlance>=0 && profileGlanceReturn>=0) ? profileGlanceReturn : profileActive),					// 5
+			profileActive,					// 5
 			profileDelayEnd,				// 6
 			profileRandom,					// 7
 			profileRandomEnd,				// 8
