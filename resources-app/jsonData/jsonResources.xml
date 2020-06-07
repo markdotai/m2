@@ -816,6 +816,8 @@
 				"position",
 				"width",
 				"height",
+				"width (10)",
+				"height (10)",
 				"visibility",
 				"move earlier",
 				"move later",
