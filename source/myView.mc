@@ -8466,28 +8466,32 @@ class myEditorView extends myView
 
 	function menuFieldEditGetString(fState)
 	{
-		if (fState==12/*f_xEdit*/)
+		if (fState==300/*f_xEdit*/ || fState==302/*f_xEdit10*/)
     	{
     		//return "x=" + fieldPositionGetX();
     		return "x=" + gfxData[menuFieldGfx+1];
     	}
-		else if (fState==13/*f_yEdit*/)
+		else if (fState==301/*f_yEdit*/ || fState==303/*f_yEdit10*/)
     	{
     		//return "y=" + fieldPositionGetY();
     		return "y=" + gfxData[menuFieldGfx+2];
     	}
-    	else if (fState==14/*f_alignEdit*/)
+    	else if (fState==202/*f_alignEdit*/)
     	{
     		//return safeStringFromJsonData(:id_fieldEditStrings, 1, fieldGetAlignment());
-    		return safeStringFromJsonData(:id_fieldEditStrings, 1, gfxData[menuFieldGfx+3]);
+    		return safeStringFromJsonData(:id_fieldEditStrings, 2, gfxData[menuFieldGfx+3]);
     	}
-    	else if (fState==15/*f_visEdit*/)
+    	else if (fState==203/*f_visEdit*/)
     	{
     		return fieldVisibilityString();
     	}
-    	else if (fState<=11/*f_tap*/)
+    	else if (fState<=6/*f_delete*/)
     	{
     		return safeStringFromJsonData(:id_fieldEditStrings, 0, fState);
+    	}
+    	else if (fState<=106/*f_tap*/)
+    	{
+    		return safeStringFromJsonData(:id_fieldEditStrings, 1, fState-100/*f_xEdit*/);
     	}
     	else
     	{
@@ -8497,22 +8501,22 @@ class myEditorView extends myView
 
 	function menuFieldEditOnEditing(fState, val)
 	{
-		if (fState==12/*f_xEdit*/)
+		if (fState==300/*f_xEdit*/ || fState==302/*f_xEdit10*/)
     	{
     		//fieldPositionXEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+1, val, 0, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+1, val * ((fState==302/*f_xEdit10*/)?10:1), 0, displaySize);
     	}
-		else if (fState==13/*f_yEdit*/)
+		else if (fState==301/*f_yEdit*/ || fState==303/*f_yEdit10*/)
     	{
     		//fieldPositionYEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+2, val, 0, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+2, val * ((fState==303/*f_yEdit10*/)?10:1), 0, displaySize);
     	}
-		else if (fState==14/*f_alignEdit*/)
+		else if (fState==202/*f_alignEdit*/)
     	{
     		//fieldAlignmentEditing(val);
 			gfxData[menuFieldGfx+3] = (gfxData[menuFieldGfx+3]+val+3)%3;
     	}
-		else if (fState==15/*f_visEdit*/)
+		else if (fState==203/*f_visEdit*/)
     	{
     		fieldVisibilityEditing(val);
     	}
@@ -10465,24 +10469,29 @@ class myMenuItemFieldEdit extends myMenuItem
 {
 //	enum
 //	{
-//		f_elements,
-//		f_position,
-//		f_align,
-//		f_vis,
-//		f_earlier,
-//		f_later,
-//		f_delete,
+//		f_elements,		0
+//		f_position,		1
+//		f_align,		2
+//		f_vis,			3
+//		f_earlier,		4
+//		f_later,		5
+//		f_delete,		6
 //
-//		f_x,
-//		f_y,
-//		f_xCentre,
-//		f_yCentre,
-//		f_tap,
+//		f_x,			100
+//		f_y,			101
+//		f_x10,			102
+//		f_y10,			103
+//		f_xCentre,		104
+//		f_yCentre,		105
+//		f_tap,			106
 //
-//		f_xEdit,
-//		f_yEdit,
-//		f_alignEdit,
-//		f_visEdit,
+//		f_alignEdit,	202
+//		f_visEdit,		203
+//
+//		f_xEdit,		300
+//		f_yEdit,		301
+//		f_xEdit10,		302
+//		f_yEdit10,		303
 //	}
 
 	var fState;
@@ -10528,7 +10537,7 @@ class myMenuItemFieldEdit extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<11/*f_tap*/);
+    	return (d!=3 || fState<106/*f_tap*/);
     }
 
     function onEditing(val)
@@ -10537,10 +10546,10 @@ class myMenuItemFieldEdit extends myMenuItem
     	{
     		fState = (fState+val+7)%7;
     	}
-		else if (fState<=11/*f_tap*/)
+		else if (fState<=106/*f_tap*/)
     	{
     		//fState = (fState+val+5-7)%5 + 7;
-    		fState = (fState+val+4-7)%4 + 7;		// removed tap for now
+    		fState = (fState+val+6-100)%6 + 100;		// removed tap for now
     	}
     	else
     	{
@@ -10586,15 +10595,7 @@ class myMenuItemFieldEdit extends myMenuItem
 		}
 		else if (fState==1/*f_position*/)
 		{
-			fState = 7/*f_x*/;
-		}
-		else if (fState==2/*f_align*/)
-		{
-			fState = 14/*f_alignEdit*/;
-		}
-		else if (fState==3/*f_vis*/)
-		{
-			fState = 15/*f_visEdit*/;
+			fState = 100/*f_x*/;
 		}
 		else if (fState==4/*f_earlier*/)
 		{
@@ -10609,19 +10610,15 @@ class myMenuItemFieldEdit extends myMenuItem
 			editorView.fieldDelete();
 			return new myMenuItemFieldSelect();
 		}
-		else if (fState==7/*f_x*/)
+		else if (fState<=103/*f_yEdit10*/)
 		{
-			fState = 12/*f_xEdit*/;
+			fState += 200;
 		}
-		else if (fState==8/*f_y*/)
-		{
-			fState = 13/*f_yEdit*/;
-		}
-		else if (fState==9/*f_xCentre*/)
+		else if (fState==104/*f_xCentre*/)
 		{
 			editorView.fieldPositionCentreX();
 		}
-		else if (fState==10/*f_yCentre*/)
+		else if (fState==105/*f_yCentre*/)
 		{
 			editorView.fieldPositionCentreY();
 		}
@@ -10635,25 +10632,13 @@ class myMenuItemFieldEdit extends myMenuItem
 		{
 			return new myMenuItemFieldSelect();
 		}
-		else if (fState<=11/*f_tap*/)
+		else if (fState<=106/*f_tap*/)
 		{
 			fState = 1/*f_position*/;
 		}
-		else if (fState==12/*f_xEdit*/)
+		else
 		{
-			fState = 7/*f_x*/;
-		}
-		else if (fState==13/*f_yEdit*/)
-		{
-			fState = 8/*f_y*/;
-		}
-		else if (fState==14/*f_alignEdit*/)
-		{
-			fState = 2/*f_align*/;
-		}
-		else if (fState==15/*f_visEdit*/)
-		{
-			fState = 3/*f_vis*/;
+			fState -= 200;
 		}
 
    		return null;
