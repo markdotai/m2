@@ -1305,9 +1305,27 @@ class myView
 	
 	function getPresetProfileString(profileIndex, n)
 	{
-		var jsonData = Rez.JsonData;
-		var loadPreset = [jsonData.id_preset0, jsonData.id_preset1, jsonData.id_preset2, jsonData.id_preset3, jsonData.id_preset4, jsonData.id_preset5, jsonData.id_preset6, jsonData.id_preset7, jsonData.id_preset8, jsonData.id_preset9, jsonData.id_preset10, jsonData.id_preset11, jsonData.id_preset12, jsonData.id_preset13, jsonData.id_preset14, jsonData.id_preset15, jsonData.id_preset16];
-		return ((profileIndex>=24/*PROFILE_NUM_USER*/ && profileIndex<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET)) ? WatchUi.loadResource(loadPreset[profileIndex - 24/*PROFILE_NUM_USER*/])[n] : "");
+		var loadPreset =
+		[
+			:id_preset0,
+			:id_preset1,
+			:id_preset2,
+			:id_preset3,
+			:id_preset4,
+			:id_preset5,
+			:id_preset6,
+			:id_preset7,
+			:id_preset8,
+			:id_preset9,
+			:id_preset10,
+			:id_preset11,
+			:id_preset12,
+			:id_preset13,
+			:id_preset14,
+			:id_preset15,
+			:id_preset16
+		];
+		return ((profileIndex>=24/*PROFILE_NUM_USER*/ && profileIndex<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET)) ? WatchUi.loadResource(Rez.JsonData[loadPreset[profileIndex - 24/*PROFILE_NUM_USER*/]])[n] : "");
 	}
 
 	function getProfileString(profileIndex)
@@ -4199,8 +4217,8 @@ class myView
 	function gfxAddDynamicResources(fontIndex)
 	{	
     	var fonts = Rez.Fonts;
-    	var jsonData = Rez.JsonData;
 		var graphics = Graphics;
+    	//var jsonData = Rez.JsonData;
 
 		// size rounded up in 50 byte blocks
 		// also see System.getSystemStats().freeMemory
@@ -4350,7 +4368,7 @@ class myView
 		
 		if (fontIndex>=0)
 		{
-			var fontId = fontList[fontIndex];
+			var fontId = fontList[fontIndex];			
 			var resourceIndex = addDynamicResource(fontId, dynResSizeArray[fontIndex]);
 			if (resourceIndex>=0 && resourceIndex<dynResNum && dynResResource[resourceIndex]==null && isDynamicResourceSystemFont(fontId))
 			{
@@ -4361,66 +4379,66 @@ class myView
 		
 		var outerList = [
 			fonts.id_seconds_tri,			// SECONDFONT_TRI
-			jsonData.id_secondArray,
+			:id_secondArray,
 			
 			fonts.id_seconds_tri_in,		// SECONDFONT_TRI_IN
-			jsonData.id_secondInArray,
+			:id_secondInArray,
 			
 			fonts.id_seconds_v,				// SECONDFONT_V
-			jsonData.id_secondArray,
+			:id_secondArray,
 			
 			fonts.id_seconds_v_in,			// SECONDFONT_V_IN
-			jsonData.id_secondInArray,
+			:id_secondInArray,
 			
 			fonts.id_seconds_line,			// SECONDFONT_LINE
-			jsonData.id_secondArray,
+			:id_secondArray,
 			
 			fonts.id_seconds_linethin,		// SECONDFONT_LINETHIN
-			jsonData.id_secondArray,
+			:id_secondArray,
 			
 			fonts.id_seconds_circular,		// SECONDFONT_CIRCULAR
-			jsonData.id_secondCircularArray,			
+			:id_secondCircularArray,			
 			fonts.id_seconds_circular_a,
-			jsonData.id_secondCircularAArray,
+			:id_secondCircularAArray,
 			fonts.id_seconds_circular_b,
-			jsonData.id_secondCircularBArray,
+			:id_secondCircularBArray,
 			fonts.id_seconds_circular_c,
-			jsonData.id_secondCircularCArray,
+			:id_secondCircularCArray,
 			
 			fonts.id_seconds_circular_wide,
-			jsonData.id_secondArrayWide,
+			:id_secondArrayWide,
 			
 			fonts.id_ring_circular,
-			jsonData.id_ringCircularArray,
+			:id_ringCircularArray,
 			fonts.id_ring_circular_a,
-			jsonData.id_ringCircularAArray,
+			:id_ringCircularAArray,
 			fonts.id_ring_circular_b,
-			jsonData.id_ringCircularBArray,
+			:id_ringCircularBArray,
 			fonts.id_ring_circular_c,
-			jsonData.id_ringCircularCArray,
+			:id_ringCircularCArray,
 
 			fonts.id_ring_circular_wide,
-			jsonData.id_ringWideArray,
+			:id_ringWideArray,
 			fonts.id_ring_circular_wide_a,
-			jsonData.id_ringWideAArray,
+			:id_ringWideAArray,
 
 			fonts.id_ring_slashclock,
-			jsonData.id_ringWideArray,
+			:id_ringWideArray,
 			fonts.id_ring_slashclock_a,
-			jsonData.id_ringWideAArray,
+			:id_ringWideAArray,
 			fonts.id_ring_slashanti,
-			jsonData.id_ringWideArray,
+			:id_ringWideArray,
 			fonts.id_ring_slashanti_a,
-			jsonData.id_ringWideAArray,
+			:id_ringWideAArray,
 
 			fonts.id_ring_triclock,
-			jsonData.id_ringWideArray,
+			:id_ringWideArray,
 			fonts.id_ring_triclock_a,
-			jsonData.id_ringWideAArray,
+			:id_ringWideAArray,
 			fonts.id_ring_trianti,
-			jsonData.id_ringWideArray,
+			:id_ringWideArray,
 			fonts.id_ring_trianti_a,
-			jsonData.id_ringWideAArray,
+			:id_ringWideAArray,
 		];
 		
 		var origSize = 240;
@@ -4584,7 +4602,7 @@ class myView
 				var resourceIndex = addDynamicResource(outerList[outerListIndex], dynResOuterSizeArray[r]);
 				gfxData[index+2/*ring_font*/] = r | ((resourceIndex & 0xFF) << 16);
 				
-				gfxData[index+9] = addDynamicResource(outerList[outerListIndex+1], 7);
+				gfxData[index+9] = addDynamicResource(Rez.JsonData[outerList[outerListIndex+1]], 7);
 
 				//printRingArray(2);	// 218 ring
 				//printRingFont(2, 8);
@@ -4651,7 +4669,7 @@ class myView
 			 	
 			 	var outerListIndex = r*2;
 				propSecondResourceIndex = addDynamicResource(outerList[outerListIndex], dynResOuterSizeArray[r]);
-				propSecondPositionsIndex = addDynamicResource(outerList[outerListIndex+1], 7);
+				propSecondPositionsIndex = addDynamicResource(Rez.JsonData[outerList[outerListIndex+1]], 7);
 				
 		    	propSecondRefreshStyle = ((gfxData[index+1] >> 8) & 0x03);	// refresh style
 		    	if (propSecondRefreshStyle!=1/*REFRESH_EVERY_MINUTE*/)
@@ -7794,7 +7812,7 @@ class myEditorView extends myView
     	
     	if (isColorEditing())
     	{
-    		eStr = geColorName();
+    		eStr = getColorName();
     	}
     	
 		if (eStr != null)
@@ -8178,11 +8196,11 @@ class myEditorView extends myView
 		}
 	}
 
-	function geColorName()
+	function getColorName()
 	{
 		var colorNum = ((getColorGfxIndex>=0) ? gfxData[getColorGfxIndex] : 0);
 
-		var rezArr = [Rez.JsonData.id_colorStrings, Rez.JsonData.id_colorStrings2, Rez.JsonData.id_colorStrings3];
+		var rezArr = [:id_colorStrings, :id_colorStrings2, :id_colorStrings3];
 		return safeStringFromJsonDataMulti(rezArr, colorNum);
 	}
 
@@ -8288,7 +8306,7 @@ class myEditorView extends myView
 
 	function safeStringFromJsonData(r1, index1, index2)
 	{
-		var tempArray = WatchUi.loadResource(r1);
+		var tempArray = WatchUi.loadResource(Rez.JsonData[r1]);
 		if (tempArray!=null)
 		{
 			if (index1>=0 && index1<tempArray.size())
@@ -8312,7 +8330,7 @@ class myEditorView extends myView
 		{
 			for (var i=0; i<rezArr.size(); i++)
 			{
-				var tempArray = WatchUi.loadResource(rezArr[i]);
+				var tempArray = WatchUi.loadResource(Rez.JsonData[rezArr[i]]);
 				if (tempArray!=null && index<tempArray.size())
 				{
 					return tempArray[index];
@@ -8339,28 +8357,28 @@ class myEditorView extends myView
 		}
 		else if (id==8)		// ring
 		{
- 			return safeStringFromJsonData(Rez.JsonData.id_ringNameStrings, -1, ringGetTypeFromGfxIndex(index));    		
+ 			return safeStringFromJsonData(:id_ringNameStrings, -1, ringGetTypeFromGfxIndex(index));    		
 		}
 		else
 		{
-			return safeStringFromJsonData(Rez.JsonData.id_gfxNameStrings, -1, id);
+			return safeStringFromJsonData(:id_gfxNameStrings, -1, id);
 		}
 	}
 
 	function getLargeTypeName(eDisplay)
 	{
-		return safeStringFromJsonData(Rez.JsonData.id_largeTypeStrings, 0, eDisplay);
+		return safeStringFromJsonData(:id_largeTypeStrings, 0, eDisplay);
 	}
 
 	function getStringTypeName(eDisplay)
 	{
-		var rezArr = [Rez.JsonData.id_stringTypeStrings, Rez.JsonData.id_stringTypeStrings2, Rez.JsonData.id_stringTypeStrings3, Rez.JsonData.id_stringTypeStrings4, Rez.JsonData.id_stringTypeStrings5];
+		var rezArr = [:id_stringTypeStrings, :id_stringTypeStrings2, :id_stringTypeStrings3, :id_stringTypeStrings4, :id_stringTypeStrings5];
 		return safeStringFromJsonDataMulti(rezArr, (eDisplay&0x7F)-1);
 	}
 
 	function getVisibilityString(gfxIndex)
 	{
-		var rezArr = [Rez.JsonData.id_visibilityStrings, Rez.JsonData.id_visibilityStrings2];
+		var rezArr = [:id_visibilityStrings, :id_visibilityStrings2];
 		return safeStringFromJsonDataMulti(rezArr, (gfxData[gfxIndex]>>4)&0x3F);
 	}
 	
@@ -8460,8 +8478,8 @@ class myEditorView extends myView
     	}
     	else if (fState==14/*f_alignEdit*/)
     	{
-    		//return safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, fieldGetAlignment());
-    		return safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, gfxData[menuFieldGfx+3]);
+    		//return safeStringFromJsonData(:id_fieldEditStrings, 1, fieldGetAlignment());
+    		return safeStringFromJsonData(:id_fieldEditStrings, 1, gfxData[menuFieldGfx+3]);
     	}
     	else if (fState==15/*f_visEdit*/)
     	{
@@ -8469,7 +8487,7 @@ class myEditorView extends myView
     	}
     	else if (fState<=11/*f_tap*/)
     	{
-    		return safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
+    		return safeStringFromJsonData(:id_fieldEditStrings, 0, fState);
     	}
     	else
     	{
@@ -8815,23 +8833,23 @@ class myEditorView extends myView
     	}
     	else if (fState==111/*f_dawnDuskModeEdit*/)
     	{
-    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 3, propDawnDuskMode-1);
+    		return safeStringFromJsonData(:id_headerStrings2, 3, propDawnDuskMode-1);
     	}
     	else if (fState==112/*f_fontSystemCaseEdit*/)
     	{
-    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 0, propFieldFontSystemCase);
+    		return safeStringFromJsonData(:id_headerStrings2, 0, propFieldFontSystemCase);
     	}
     	else if (fState==113/*f_fontUnsupportedEdit*/)
     	{
-    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 1, propFieldFontUnsupported);
+    		return safeStringFromJsonData(:id_headerStrings2, 1, propFieldFontUnsupported);
     	}
     	else if (fState==114/*f_memoryDisplayEdit*/)
     	{
-    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings2, 2, memoryDisplayMode);
+    		return safeStringFromJsonData(:id_headerStrings2, 2, memoryDisplayMode);
     	}
     	else if (fState<100/*f_backgroundEdit*/)
     	{
-    		return safeStringFromJsonData(Rez.JsonData.id_headerStrings, -1, fState);
+    		return safeStringFromJsonData(:id_headerStrings, -1, fState);
     	}
     	//else
     	//{
@@ -9087,7 +9105,7 @@ class myEditorView extends myView
     {
     	var newType = idArrayValue;
     
-		var tempArray = WatchUi.loadResource(rezId);
+		var tempArray = WatchUi.loadResource(Rez.JsonData[rezId]);
     	if (tempArray!=null)
     	{
 	    	tempArray = tempArray[rezArrayIndex];
@@ -9121,7 +9139,7 @@ class myEditorView extends myView
 		
     function largeTypeEditingValue(val, idArrayValue)
     {
-    	return arrayTypeEditingValue(val, idArrayValue, Rez.JsonData.id_largeTypeStrings, 1);
+    	return arrayTypeEditingValue(val, idArrayValue, :id_largeTypeStrings, 1);
     }
     
     function largeTypeEditing(val)
@@ -9163,7 +9181,7 @@ class myEditorView extends myView
 		
     function stringTypeEditing(val, idArrayValue, idArray)
     {
-    	return arrayTypeEditingValue(val, idArrayValue, Rez.JsonData.id_addStringArrays, idArray);
+    	return arrayTypeEditingValue(val, idArrayValue, :id_addStringArrays, idArray);
     }
     
 	function stringColorEditing(val)
@@ -9186,14 +9204,14 @@ class myEditorView extends myView
 
 	function iconGetTypeName()
 	{
-		var rezArr = [Rez.JsonData.id_iconTypeStrings, Rez.JsonData.id_iconTypeStrings2];
+		var rezArr = [:id_iconTypeStrings, :id_iconTypeStrings2];
 		return safeStringFromJsonDataMulti(rezArr, gfxData[menuElementGfx+1]);
 	}
 
 	function iconTypeEditing(val)
 	{
 		//gfxData[menuElementGfx+1] = (gfxData[menuElementGfx+1]+val+32/*FIELD_SHAPE_MOUNTAIN*/+1)%(32/*FIELD_SHAPE_MOUNTAIN*/+1);
-    	gfxData[menuElementGfx+1] = arrayTypeEditingValue(val, gfxData[menuElementGfx+1], Rez.JsonData.id_iconArray, 0);
+    	gfxData[menuElementGfx+1] = arrayTypeEditingValue(val, gfxData[menuElementGfx+1], :id_iconArray, 0);
 		reloadDynamicResources = true;		// for battery fill bodge icons
 	}
 
@@ -9335,11 +9353,11 @@ class myEditorView extends myView
 	{
     	if (fState==100/*r_typeEdit*/)
     	{
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, rectangleGetType());
+ 			return safeStringFromJsonData(:id_ringStrings2, 0, rectangleGetType());
     	}
     	else if (fState==101/*r_directionEdit*/)
     	{
- 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 1, rectangleGetDirection());
+ 			return safeStringFromJsonData(:id_rectangleStrings, 1, rectangleGetDirection());
     	}
     	else if (fState==105/*r_wEdit*/)
     	{
@@ -9367,7 +9385,7 @@ class myEditorView extends myView
     	}
 		else if (fState<=15/*r_tap*/)
 		{
- 			return safeStringFromJsonData(Rez.JsonData.id_rectangleStrings, 0, fState);
+ 			return safeStringFromJsonData(:id_rectangleStrings, 0, fState);
  		}
  		else
  		{
@@ -9381,7 +9399,7 @@ class myEditorView extends myView
     	{
  			//rectangleTypeEditing(val);
 			//var eDisplay = (rectangleGetType() + val + 1)%1;
-	    	var eDisplay = arrayTypeEditingValue(val, rectangleGetType(), Rez.JsonData.id_ringStrings2, 1);
+	    	var eDisplay = arrayTypeEditingValue(val, rectangleGetType(), :id_ringStrings2, 1);
 			gfxData[menuFieldGfx+1] &= ~0x3F;
 			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F);
     	}
@@ -9472,7 +9490,7 @@ class myEditorView extends myView
 //	function ringTypeEditing(val)
 //	{
 //		//var eDisplay = ((gfxData[menuFieldGfx+1]&0x3F) + val + 14)%14;
-//    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 1);
+//    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), :id_ringStrings2, 1);
 //		gfxData[menuFieldGfx+1] &= ~0x3F; 
 //		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
 //    }
@@ -9532,21 +9550,21 @@ class myEditorView extends myView
 	{
     	if (fState==13/*r_typeEdit*/)
     	{
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings2, 0, ringGetType());    		
+ 			return safeStringFromJsonData(:id_ringStrings2, 0, ringGetType());    		
     	}
     	else if (fState==14/*r_fontEdit*/)
     	{
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings3, -1, ringGetFont());    		
+ 			return safeStringFromJsonData(:id_ringStrings3, -1, ringGetFont());    		
     	}
     	else if (fState==17/*r_directionEdit*/)
     	{
- 			//return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, ringGetDirectionAnti() ? 1 : 0);
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 1, ((gfxData[menuFieldGfx+1]&0x40)!=0) ? 1 : 0);
+ 			//return safeStringFromJsonData(:id_ringStrings, 1, ringGetDirectionAnti() ? 1 : 0);
+ 			return safeStringFromJsonData(:id_ringStrings, 1, ((gfxData[menuFieldGfx+1]&0x40)!=0) ? 1 : 0);
     	}
     	else if (fState==18/*r_limitEdit*/)
     	{
- 			//return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, ringGetLimit100() ? 1 : 0);
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 2, ((gfxData[menuFieldGfx+1]&0x80)!=0) ? 1 : 0);
+ 			//return safeStringFromJsonData(:id_ringStrings, 2, ringGetLimit100() ? 1 : 0);
+ 			return safeStringFromJsonData(:id_ringStrings, 2, ((gfxData[menuFieldGfx+1]&0x80)!=0) ? 1 : 0);
     	}
     	else if (fState==22/*r_visEdit*/)
     	{
@@ -9554,7 +9572,7 @@ class myEditorView extends myView
     	}
 		else if (fState<=12/*r_delete*/)
 		{
- 			return safeStringFromJsonData(Rez.JsonData.id_ringStrings, 0, fState);
+ 			return safeStringFromJsonData(:id_ringStrings, 0, fState);
 		}
 		else
 		{
@@ -9567,7 +9585,7 @@ class myEditorView extends myView
        	if (fState==13/*r_typeEdit*/)
     	{
     		//ringTypeEditing(val);
-	    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), Rez.JsonData.id_ringStrings2, 1);
+	    	var eDisplay = arrayTypeEditingValue(val, ringGetType(), :id_ringStrings2, 1);
 			gfxData[menuFieldGfx+1] &= ~0x3F; 
 			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
     	}
@@ -9683,11 +9701,11 @@ class myEditorView extends myView
 	{
     	if (fState==100/*s_fontEdit*/)
     	{
-			return safeStringFromJsonData(Rez.JsonData.id_secondsStrings2, -1, secondsGetFont());
+			return safeStringFromJsonData(:id_secondsStrings2, -1, secondsGetFont());
     	}
     	else if (fState==101/*s_refreshEdit*/)
     	{
-			return safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 1, secondsGetRefresh());
+			return safeStringFromJsonData(:id_secondsStrings, 1, secondsGetRefresh());
     	}
     	else if (fState==107/*s_visEdit*/)
     	{
@@ -9695,7 +9713,7 @@ class myEditorView extends myView
     	}
  		else if (fState<100/*s_fontEdit*/)
  		{
- 			return safeStringFromJsonData(Rez.JsonData.id_secondsStrings, 0, fState);
+ 			return safeStringFromJsonData(:id_secondsStrings, 0, fState);
  		}
  		else
  		{
@@ -9948,7 +9966,7 @@ class myMenuItemFieldAdd extends myMenuItem
     
     function getString()
     {
-    	return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldAddStrings, -1, fState);
+    	return editorView.safeStringFromJsonData(:id_fieldAddStrings, -1, fState);
     }
 
     // up=0 down=1 left=2 right=3
@@ -10075,7 +10093,7 @@ class myMenuItemQuickAdd extends myMenuItem
     {
     	if (fState>=0)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_quickAddStrings, -1, fState);
+    		return editorView.safeStringFromJsonData(:id_quickAddStrings, -1, fState);
     	}
     	
     	return "quick add";
@@ -10181,7 +10199,7 @@ class myMenuItemSaveLoadProfile extends myMenuItem
 		else
 		{
     		//return ["save profile", "load profile", "load preset"][type];
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_saveLoadStrings, -1, type);
+    		return editorView.safeStringFromJsonData(:id_saveLoadStrings, -1, type);
     	}
     }
     
@@ -10490,7 +10508,7 @@ class myMenuItemFieldEdit extends myMenuItem
 //    	}
 //    	else if (fState==14/*f_alignEdit*/)
 //    	{
-//    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 1, editorView.fieldGetAlignment());
+//    		return editorView.safeStringFromJsonData(:id_fieldEditStrings, 1, editorView.fieldGetAlignment());
 //    	}
 //    	else if (fState==15/*f_visEdit*/)
 //    	{
@@ -10498,7 +10516,7 @@ class myMenuItemFieldEdit extends myMenuItem
 //    	}
 //    	else if (fState<=11/*f_tap*/)
 //    	{
-//    		return editorView.safeStringFromJsonData(Rez.JsonData.id_fieldEditStrings, 0, fState);
+//    		return editorView.safeStringFromJsonData(:id_fieldEditStrings, 0, fState);
 //    	}
 //    	else
 //    	{
@@ -10828,7 +10846,7 @@ class myMenuItemElementEdit extends myMenuItem
     	}
     	else if (fState<numTop)
     	{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings, fStringsIndex, fState);
+    		return editorView.safeStringFromJsonData(:id_editElementStrings, fStringsIndex, fState);
     	}
 		else if (fId==2 && fState==numTop)	// large type
 		{
@@ -10836,14 +10854,14 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==2 && fState==numTop+1)	// large font
 		{
-			var rezArr = [Rez.JsonData.id_editElementLargeFontStrings, Rez.JsonData.id_editElementLargeFontStrings2];
+			var rezArr = [:id_editElementLargeFontStrings, :id_editElementLargeFontStrings2];
 			return editorView.safeStringFromJsonDataMulti(rezArr, editorView.stringGetFont());
 	    }
 		else if (fId==3 && fState==numTop)	// string type
 		{
 			if (!editingArrayValue)
 			{
-    			return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 2, idArray);
+    			return editorView.safeStringFromJsonData(:id_editElementStrings3, 2, idArray);
 			}
 			else
 			{
@@ -10852,7 +10870,7 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==3 && fState==numTop+1)	// string font
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings2, -1, editorView.stringGetFont());
+    		return editorView.safeStringFromJsonData(:id_editElementStrings2, -1, editorView.stringGetFont());
 	    }
 		else if (fId==4 && fState==numTop)	// icon
 		{
@@ -10860,11 +10878,11 @@ class myMenuItemElementEdit extends myMenuItem
 	    }
 		else if (fId==4 && fState==numTop+1)	// icon
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 0, editorView.iconGetFont());
+    		return editorView.safeStringFromJsonData(:id_editElementStrings3, 0, editorView.iconGetFont());
 	    }
 		else if (fId==5 && fState==numTop)	// movebar
 		{
-    		return editorView.safeStringFromJsonData(Rez.JsonData.id_editElementStrings3, 1, editorView.moveBarGetFont());
+    		return editorView.safeStringFromJsonData(:id_editElementStrings3, 1, editorView.moveBarGetFont());
 	    }
     	else
     	{
@@ -11227,7 +11245,7 @@ class myMenuItemElementAdd extends myMenuItem
     {
     	if (fState<=9/*s_chart*/)
     	{
- 			return editorView.safeStringFromJsonData(Rez.JsonData.id_addElementStrings, -1, fState);
+ 			return editorView.safeStringFromJsonData(:id_addElementStrings, -1, fState);
 		}
     	else if (fState==10/*s_largeEdit*/)
     	{
