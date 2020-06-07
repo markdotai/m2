@@ -822,6 +822,8 @@
 				"delete rect",
 				"x",
 				"y",
+				"x (10)",
+				"y (10)",
 				"centre x",
 				"centre y",
 				"tap"

@@ -9373,17 +9373,17 @@ class myEditorView extends myView
     	{
     		return fieldVisibilityString();
     	}
-    	else if (fState==111/*r_xEdit*/)
+    	else if (fState==111/*r_xEdit*/ || fState==113/*r_xEdit10*/)
     	{
     		//return "x=" + rectanglePositionGetX();
     		return "x=" + gfxData[menuFieldGfx+4/*rect_x*/];
     	}
-    	else if (fState==112/*r_yEdit*/)
+    	else if (fState==112/*r_yEdit*/ || fState==114/*r_yEdit10*/)
     	{
     		//return "y=" + rectanglePositionGetY();
     		return "y=" + gfxData[menuFieldGfx+5/*rect_y*/];
     	}
-		else if (fState<=15/*r_tap*/)
+		else if (fState<=17/*r_tap*/)
 		{
  			return safeStringFromJsonData(:id_rectangleStrings, 0, fState);
  		}
@@ -9429,15 +9429,15 @@ class myEditorView extends myView
     	{
     		fieldVisibilityEditing(val);
     	}
-    	else if (fState==111/*r_xEdit*/)
+    	else if (fState==111/*r_xEdit*/ || fState==113/*r_xEdit10*/)
     	{
     		//rectanglePositionXEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val, 0, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val * ((fState==113)?10:1), 0, displaySize);
     	}
-    	else if (fState==112/*r_yEdit*/)
+    	else if (fState==112/*r_yEdit*/ || fState==114/*r_yEdit10*/)
     	{
     		//rectanglePositionYEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val, 0, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val * ((fState==114)?10:1), 0, displaySize);
     	}
 	}
 	
@@ -9451,17 +9451,17 @@ class myEditorView extends myView
     	{
     		fieldLater();
     	}
-    	else if (fState==13/*r_xCentre*/)
+    	else if (fState==15/*r_xCentre*/)
     	{
     		//rectanglePositionCentreX();
 			gfxData[menuFieldGfx+4/*rect_x*/] = displayHalf;
     	}
-    	else if (fState==14/*r_yCentre*/)
+    	else if (fState==16/*r_yCentre*/)
     	{
     		//rectanglePositionCentreY();
 			gfxData[menuFieldGfx+5/*rect_y*/] = displayHalf;
     	}
-    	else if (fState==15/*r_tap*/)
+    	else if (fState==17/*r_tap*/)
     	{
     	}
     	else if (fState<100)
@@ -11403,9 +11403,11 @@ class myMenuItemRectangle extends myMenuItem
 //
 //		r_x,			11
 //		r_y,			12
-//		r_xCentre,		13
-//		r_yCentre,		14
-//		r_tap,			15
+//		r_x10,			13
+//		r_y10,			14
+//		r_xCentre,		15
+//		r_yCentre,		16
+//		r_tap,			17
 //
 //		r_typeEdit,		100
 //		r_directionEdit,101
@@ -11417,6 +11419,8 @@ class myMenuItemRectangle extends myMenuItem
 //
 //		r_xEdit,		111
 //		r_yEdit,		112
+//		r_xEdit10,		113
+//		r_yEdit10,		114
 //	}
 
 	var fState;
@@ -11436,7 +11440,7 @@ class myMenuItemRectangle extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<15/*r_tap*/);
+    	return (d!=3 || fState<17/*r_tap*/);
     }
 
     function onEditing(val)
@@ -11445,10 +11449,10 @@ class myMenuItemRectangle extends myMenuItem
     	{
     		fState = (fState+val+11)%11;
     	}
-    	else if (fState>=11/*r_x*/ && fState<=15/*r_tap*/)
+    	else if (fState>=11/*r_x*/ && fState<=17/*r_tap*/)
     	{
     		//fState = (fState+val+5-11)%5 + 11;
-    		fState = (fState+val+4-11)%4 + 11;		// removed tap for now
+    		fState = (fState+val+6-11)%6 + 11;		// removed tap for now
     	}
     	else
     	{
