@@ -209,6 +209,8 @@
 				9,		<!-- rectangle -->
 				10,		<!-- ring -->
 				8, 		<!-- seconds -->
+				1,		<!-- unused -->
+				7,		<!-- alpha string -->
 
 				<!-- Sizes when saved --> 
 				16,		<!-- header -->
@@ -220,7 +222,9 @@
 				4,		<!-- chart -->
 				8,		<!-- rectangle -->
 				8,		<!-- ring -->
-				7  		<!-- seconds -->
+				7, 		<!-- seconds -->
+				1,		<!-- unused -->
+				4		<!-- alpha string -->
 			],
 			
 			<!-- ================== -->

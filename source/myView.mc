@@ -1184,7 +1184,7 @@ class myView
 						{
 							dynResOuterSizeArray[i] = dataResource[7][i];
 
-							if (i<10/*GFX_SIZE_NUM*/*2)
+							if (i<12/*GFX_SIZE_NUM*/*2)
 							{
 								gfxSizeArray[i] = dataResource[4][i];
 							}
@@ -3791,11 +3791,11 @@ class myView
 			var curLen = charArrayLen;
 		
 			//var saveSize = gfxSizeSave(id);
-			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			if (id<0 || id>=12/*GFX_SIZE_NUM*/)
 			{
 				break;
 			}
-			var saveSize =  gfxSizeArray[id + 10/*GFX_SIZE_NUM*/];	// cheaper with no function call in loop
+			var saveSize =  gfxSizeArray[id + 12/*GFX_SIZE_NUM*/];	// cheaper with no function call in loop
 			for (var i=0; i<saveSize; i++)
 			{
 				var val = gfxData[index+i] & 0xFFFF;
@@ -3839,7 +3839,7 @@ class myView
 				charArrayLen = curLen;
 				
 				//index += gfxSize(id);
-				//if (id<0 || id>=10/*GFX_SIZE_NUM*/)	this is checked above already
+				//if (id<0 || id>=12/*GFX_SIZE_NUM*/)	this is checked above already
 				//{
 				//	break;
 				//}
@@ -3917,7 +3917,7 @@ class myView
 //System.println("id=" + id);
 
 					//itemSize = gfxSize(id);		// total item size in gfxData array
-					if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+					if (id<0 || id>=12/*GFX_SIZE_NUM*/)
 					{
 //System.println("error1");
 						gotError = true;
@@ -3926,7 +3926,7 @@ class myView
 					itemSize = gfxSizeArray[id]; 	// cheaper with no function call in loop
 					
 					//saveSize = gfxSizeSave(id);	// number of bytes to read from saved data
-					saveSize = gfxSizeArray[id + 10/*GFX_SIZE_NUM*/];	// cheaper with no function call in loop
+					saveSize = gfxSizeArray[id + 12/*GFX_SIZE_NUM*/];	// cheaper with no function call in loop
 
 					if (itemSize<=0)
 					{
@@ -3963,17 +3963,17 @@ class myView
 		return (gfxData[index] & 0x0F);
 	}
 
-	//const GFX_SIZE_NUM = 10;
-	var gfxSizeArray = new[10/*GFX_SIZE_NUM*/*2]b;
+	//const GFX_SIZE_NUM = 12;
+	var gfxSizeArray = new[12/*GFX_SIZE_NUM*/*2]b;
 
 	function gfxSize(id)
 	{
-		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id]); 
+		return ((id<0 || id>=12/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id]); 
 	}
 
 	function gfxSizeSave(id)
 	{
-		return ((id<0 || id>=10/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id + 10/*GFX_SIZE_NUM*/]);
+		return ((id<0 || id>=12/*GFX_SIZE_NUM*/) ? 0 : gfxSizeArray[id + 12/*GFX_SIZE_NUM*/]);
 	}
 
 	// gfxAddHeader
@@ -4490,7 +4490,7 @@ class myView
 				gfxScalePositionSize(index+1, origSize);	// x from left
 				gfxScalePositionSize(index+2, origSize);	// y from bottom
 			}
-			else if (id==2 || id==3)	// large or string
+			else if (id==2 || (id&0x07)==0x03)	// large or string/alpha
 			{ 
 				var r = (gfxData[index+2/*string_font*/] & 0xFF);
 				var fontListIndex;
@@ -4525,13 +4525,21 @@ class myView
 						setSecondTextMode = eDisplay-22+1;		// 0=off, 1=cheap, 2=true
 					}
 				}
-				else			// string
+				else			// string/alpha
 				{
 				 	if (r<0 || r>19)	// 0-14 (s,m,l fonts), 15-19 (5 system fonts)
 				 	{
 				 		r = 7/*m regular*/;
 				 	}
-				 	var useNumFont = ((gfxData[index+1]&0x80)==0);
+				 	var useNumFont;
+					if (id==11)
+					{
+						useNumFont = (eDisplay<=9);
+					}
+					else
+					{
+				 		useNumFont = ((gfxData[index+1]&0x80)==0);
+				 	}
 				 	fontListIndex = ((r<15) ? (r + (useNumFont?63:78)) : (r-15+0));
 
 					if (eDisplay==62/*FIELD_SECOND_CHEAP*/ || eDisplay==63/*FIELD_SECOND_TRUE*/)
@@ -4739,7 +4747,7 @@ class myView
 			}
 			
 			//index += gfxSize(id);
-			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			if (id<0 || id>=12/*GFX_SIZE_NUM*/)
 			{
 				break;
 			}
@@ -5144,6 +5152,7 @@ class myView
 
 				case 2:		// large (hour, minute, colon)
 				case 3:		// string
+				case 11:	// alpha string
 				{
 					if (!(fieldVisible && isVisible))
 					{
@@ -5166,7 +5175,14 @@ class myView
 					var checkDiacritics = false;
 					var useUnsupportedFont = false;
 					
-					if (id==2)		// large
+					if (id==11)		// alpha string
+					{
+						if (eDisplay<=35)
+						{
+							eStr = (eDisplay + ((eDisplay<=9) ? 48/*0*/ : (65/*A*/-10))).toChar().toString();
+						}
+					}
+					else if (id==2)		// large
 					{
 						//var narrowKern = false;
 						//
@@ -6011,10 +6027,14 @@ class myView
 					}
 					break;
 				}
+				
+				//case 10: // unused
+				//{
+				//}
 			}
 			
 			//index += gfxSize(id);
-			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			if (id<0 || id>=12/*GFX_SIZE_NUM*/)
 			{
 				break;
 			}
@@ -6399,13 +6419,13 @@ class myView
 					//	dc.fillRectangle(fieldXStart, fieldYStart-fieldAscent, totalWidth, fieldAscent+fieldDescent);
 				}
 			}
-			else if (id>=2 && id<=5)
+			else if ((id>=2 && id<=5) || (id==11))
 			{
 				if (fieldDraw && isVisible)
 				{
 					var thisWidth = 0;
 					
-					if (id==2 || id==3)
+					if (id==2 || (id&0x07)==0x03)	// alpha string
 					{
 						thisWidth = gfxData[index+6];
 					}
@@ -6471,7 +6491,7 @@ class myView
 	
 						if (dynamicResource!=null)
 						{
-							if (id==2 || id==3)		// large or string
+							if (id==2 || (id&0x07)==0x03)		// large or string or alpha
 							{
 								var sLen = gfxData[index+4];
 								var eLen = gfxData[index+5];
@@ -6502,6 +6522,7 @@ class myView
 										}
 				
 										var s = StringUtil.charArrayToString(gfxCharArray.slice(sLen, eLen));
+				    					//System.println("s=" + s);
 				
 								        dc.setColor(getColor64FromGfx(gfxData[index+3/*string_color*/]), bgColor);
 						        		dc.drawText(fieldX, dateY - 1, dynamicResource, s, 2/*TEXT_JUSTIFY_LEFT*/);		// need to draw 1 pixel higher than expected ...
@@ -6868,9 +6889,12 @@ class myView
 //			else if (id==9)	// seconds
 //			{
 //			}
+//			else if (id==10) // unused
+//			{
+//			}
 
 			//index += gfxSize(id);
-			if (id<0 || id>=10/*GFX_SIZE_NUM*/)
+			if (id<0 || id>=12/*GFX_SIZE_NUM*/)
 			{
 				break;
 			}
@@ -7101,7 +7125,7 @@ class myEditorView extends myView
 			//gfxData[index+2/*string_font*/] = ((gfxType==2) ? getLastFontLarge(index) : getLastFontString(index));
 			gfxData[index+2/*string_font*/] = ((gfxType==2) ? 
 						getLastFont(index, 2, -1, 2/*large_font*/, 25/*m regular*/, 0) : 		// 0-9 (half fonts), 10-45 (s,m,l fonts), 46-49 (4 system number fonts) + resourceIndex + fontIndex
-						getLastFont(index, 3, -1, 2/*string_font*/, 7/*m_regular*/, 1));		// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
+						getLastFont(index, 3, 11, 2/*string_font*/, 7/*m_regular*/, 1));		// 0-14 (s,m,l fonts), 15-19 (5 system fonts) + diacritics
 			gfxData[index+3/*string_color*/] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// color
 			// string start
 			// string end
@@ -7360,7 +7384,7 @@ class myEditorView extends myView
 	function gfxIsField(index)
 	{
 		var id = getGfxId(index);
-		return (id<=1 || id>=7);
+		return (id<=1 || (id>=7 && id<=9));
 		
 //		switch(id)
 //		{
@@ -7375,9 +7399,11 @@ class myEditorView extends myView
 //
 //			case 2:		// large (hour, minute, colon)
 //			case 3:		// string
+//			case 11:	// alpha
 //			case 4:		// icon
 //			case 5:		// movebar
 //			case 6:		// chart
+//			case 10:	// unused
 //			{
 //				break;
 //			}
@@ -8094,9 +8120,9 @@ class myEditorView extends myView
 			var w = 1;
 			var h = 1;
 			var id = getGfxId(index);
-			if (id>=2 && id<=5)
+			if ((id>=2 && id<=5) || id==11)
 			{
-				if (id==2 || id==3)		// large or string
+				if (id==2 || (id&0x07)==0x03)		// large or string or alpha
 				{
 					w = gfxData[index+6];
 					//h = getResourceFontHeightFromGfx(index+2/*string_font*/);
@@ -8359,6 +8385,10 @@ class myEditorView extends myView
 		{
  			return safeStringFromJsonData(:id_ringNameStrings, -1, ringGetTypeFromGfxIndex(index));    		
 		}
+		else if (id==11)	// alpha string
+		{
+			return getAlphaTypeName(gfxData[index+1]);
+		}
 		else
 		{
 			return safeStringFromJsonData(:id_gfxNameStrings, -1, id);
@@ -8375,6 +8405,11 @@ class myEditorView extends myView
 		var rezArr = [:id_stringTypeStrings, :id_stringTypeStrings2, :id_stringTypeStrings3, :id_stringTypeStrings4, :id_stringTypeStrings5];
 		return safeStringFromJsonDataMulti(rezArr, (eDisplay&0x7F)-1);
 	}
+
+	function getAlphaTypeName(eDisplay)
+	{
+		return (eDisplay + ((eDisplay<=9) ? 48/*0*/ : (65/*A*/-10))).toChar().toString();
+	}							
 
 	function getVisibilityString(gfxIndex)
 	{
@@ -9206,6 +9241,17 @@ class myEditorView extends myView
 		lastFontArray[1] = gfxData[menuElementGfx+2/*string_font*/];
 	}
 
+	function alphaLetterEditing(val)
+	{
+		gfxSubtractValModuloInPlace(menuElementGfx+1, val, 0, 35);
+		reloadDynamicResources = true;		// when switch between number or letter fonts
+	}
+		
+	function alphaGetLetter()
+	{
+		return getAlphaTypeName(gfxData[menuElementGfx+1]&0x7F);
+	}
+		
 	function iconGetTypeName()
 	{
 		var rezArr = [:id_iconTypeStrings, :id_iconTypeStrings2];
@@ -10703,11 +10749,12 @@ class myMenuItemElementSelect extends myMenuItem
     {
     	var id = editorView.getGfxId(editorView.menuElementGfx);
 
-		if (id>=2 &&		// large (hour, minute, colon)
+		if ((id>=2 &&		// large (hour, minute, colon)
 			//case 3:		// string
 			//case 4:		// icon
 			//case 5:		// movebar
-			id<=6)		// chart
+			id<=6) ||		// chart
+			(id==11))		// alpha
 		{
 				return new myMenuItemElementEdit(id);
 		}
@@ -10785,10 +10832,15 @@ class myMenuItemElementEdit extends myMenuItem
     	fState = 0;
     	fId = id;
     	
+    	if (id==11)		// alpha
+    	{
+    		id = 3;		// string
+    	}
+
     	//fStringsIndex = [0, 1, 2, 3, 4][fId-2];
-    	fStringsIndex = fId-2;
-		fNumCustom = [3, 3, 3, 7, 3][fId-2];
-    	
+    	fStringsIndex = id-2;
+		fNumCustom = [3, 3, 3, 7, 3][id-2];
+		    	
 //    	if (fId==2)	// large (hour, minute, colon)
 //    	{
 //    		fStringsIndex = 0;
@@ -10853,7 +10905,7 @@ class myMenuItemElementEdit extends myMenuItem
 				return editorView.getStringTypeName(idArrayValue);
 			}
 	    }
-		else if (fId==3 && fState==numTop+1)	// string font
+		else if ((fId==3 || fId==11) && fState==numTop+1)	// string font
 		{
     		return editorView.safeStringFromJsonData(:id_editElementStrings2, -1, editorView.stringGetFont());
 	    }
@@ -10869,6 +10921,10 @@ class myMenuItemElementEdit extends myMenuItem
 		{
     		return editorView.safeStringFromJsonData(:id_editElementStrings3, 1, editorView.moveBarGetFont());
 	    }
+		else if (fId==11 && fState==numTop)	// string type
+		{
+			return editorView.alphaGetLetter();
+		}
     	else
     	{
     		return "editing...";
@@ -10878,7 +10934,7 @@ class myMenuItemElementEdit extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<(fNumCustom+4) || ((fId==2 || fId==3) && fState==(fNumCustom+4)));
+    	return (d!=3 || fState<(fNumCustom+4) || ((fId==2 || fId==3 || fId==11) && fState==(fNumCustom+4)));
     }
 
     function onEditing(val)
@@ -10974,6 +11030,21 @@ class myMenuItemElementEdit extends myMenuItem
 		    		editorView.chartColorEditing(fState-(numTop+1), val);
 		    	}
 		    }
+    		else if (fId==11)	// alpha
+    		{
+		    	if (fState==numTop)
+		    	{
+	    			editorView.alphaLetterEditing(val);
+		    	}
+		    	else if (fState==numTop+1)
+		    	{
+	    			editorView.stringFontEditing(val);
+		    	}
+		    	else if (fState==numTop+2)
+		    	{
+		    		editorView.stringColorEditing(val);
+		    	}
+		    }
 		}
 		    
    		return null;
@@ -10987,7 +11058,7 @@ class myMenuItemElementEdit extends myMenuItem
     	{
 			fState += numTop;
 
-    		if (fId==2)	// large (hour, minute, colon)
+    		if (fId==2 || fId==11)	// large (hour, minute, colon) or alpha
     		{
 		    	if (fState==numTop+2)
 		    	{
@@ -11053,7 +11124,7 @@ class myMenuItemElementEdit extends myMenuItem
     	}
 		else if (fState==numTop)
 		{
-    		if (fId==2)	// large (hour, minute, colon)
+    		if (fId==2 || fId==11)	// large (hour, minute, colon) or alpha
     		{
 				return onBack();	// selected by user so go back
 		    }
@@ -11194,25 +11265,27 @@ class myMenuItemElementAdd extends myMenuItem
 	
 //	enum
 //	{
-//		s_top,
+//		s_top,			0
 //		
-//		s_timeLarge,
-//		s_time,
-//		s_advanced
-//		s_separator,
-//		s_date,
-//		s_value,
-//		s_icon,
-//		s_moveBar,
-//		s_chart,
+//		s_timeLarge,	1
+//		s_time,			2
+//		s_advanced		3
+//		s_separator,	4
+//		s_date,			5
+//		s_value,		6
+//		s_icon,			7
+//		s_moveBar,		8
+//		s_chart,		9
+//		s_letter,		10
 //
-//		s_largeEdit,
-//		s_timeEdit,
-//		s_advancedEdit,
-//		s_separatorEdit,
-//		s_dateEdit,
-//		s_valueEdit,
-//		s_iconEdit,
+//		s_largeEdit,	101
+//		s_timeEdit,		102
+//		s_advancedEdit,	103
+//		s_separatorEdit,104
+//		s_dateEdit,		105
+//		s_valueEdit,	106
+//		s_iconEdit,		107
+//		s_letterEdit,	110
 //	}
 
 	var fState;
@@ -11228,21 +11301,25 @@ class myMenuItemElementAdd extends myMenuItem
     
     function getString()
     {
-    	if (fState<=9/*s_chart*/)
+    	if (fState<=10/*s_letter*/)
     	{
  			return editorView.safeStringFromJsonData(:id_addElementStrings, -1, fState);
 		}
-    	else if (fState==10/*s_largeEdit*/)
+    	else if (fState==101/*s_largeEdit*/)
     	{
  			return editorView.getLargeTypeName(idArrayValue);
 		}
-		else if (fState<=15/*s_valueEdit*/)
+		else if (fState<=106/*s_valueEdit*/)
 		{
 			return editorView.getStringTypeName(idArrayValue);
     	}
-		else if (fState==16/*s_iconEdit*/)
+		else if (fState==107/*s_iconEdit*/)
 		{
 			return editorView.iconGetTypeName();
+    	}
+		else if (fState==110/*s_letterEdit*/)
+		{
+			return editorView.getAlphaTypeName(idArrayValue);							
     	}
 
     	return null;
@@ -11263,22 +11340,26 @@ class myMenuItemElementAdd extends myMenuItem
     			return new myMenuItemElementSelect();
     		}
     	}
-    	else if (fState<=9/*s_chart*/)
+    	else if (fState<=10/*s_letter*/)
     	{
-    		fState = (fState+val+9-1)%9 + 1;
+    		fState = (fState+val+10-1)%10 + 1;
     	}
-    	else if (fState==10/*s_largeEdit*/)
+    	else if (fState==101/*s_largeEdit*/)
     	{
     		//idArrayValue = (idArrayValue+val+3)%3;
     		idArrayValue = editorView.largeTypeEditingValue(val, idArrayValue);
     	}
-		else if (fState<=15/*s_valueEdit*/)
+		else if (fState<=106/*s_valueEdit*/)
 		{
     		idArrayValue = editorView.stringTypeEditing(val, idArrayValue, idArray);
     	}
-		else if (fState==16/*s_iconEdit*/)
+		else if (fState==107/*s_iconEdit*/)
 		{
 			editorView.iconTypeEditing(val);
+    	}
+		else if (fState==110/*s_letterEdit*/)
+		{
+			idArrayValue = editorView.gfxSubtractValModulo(idArrayValue, val, 0, 35);
     	}
     
     	return null;
@@ -11298,13 +11379,13 @@ class myMenuItemElementAdd extends myMenuItem
 		{
 			//idArrayValue = 0;	// this is just the hour
     		idArrayValue = editorView.largeTypeEditingValue(0, 0);
-			fState = 10/*s_largeEdit*/;
+			fState = 101/*s_largeEdit*/;
 		}
 		else if (fState<=6/*s_value*/)
 		{
 			idArray = fState-2;
     		idArrayValue = editorView.stringTypeEditing(0, 0, idArray);		// first value in sub array
-			fState += 9;
+			fState += 100;
 		}
 		else if (fState==7/*s_icon*/)
 		{
@@ -11313,7 +11394,7 @@ class myMenuItemElementAdd extends myMenuItem
 			if (temp>=0)
 			{
 				editorView.menuElementGfx = temp;
-				fState += 9;
+				fState = 107;
 			}
 		}
 		else if (fState==8/*s_moveBar*/)
@@ -11324,17 +11405,26 @@ class myMenuItemElementAdd extends myMenuItem
 		{
 			index = editorView.gfxAddChart(afterIndex);
 		}
-		else if (fState==10/*s_largeEdit*/)
+		else if (fState==10/*s_letter*/)
+		{
+			idArrayValue = 10; /* A */
+			fState += 100;
+		}
+		else if (fState==101/*s_largeEdit*/)
 		{
 			index = editorView.gfxAddString(afterIndex, 2, idArrayValue);
 		}
-		else if (fState<=15/*s_valueEdit*/)
+		else if (fState<=106/*s_valueEdit*/)
 		{
 			index = editorView.gfxAddString(afterIndex, 3, idArrayValue);
     	}
-		else if (fState<=16/*s_iconEdit*/)
+		else if (fState<=107/*s_iconEdit*/)
 		{
     		return new myMenuItemElementSelect();
+    	}
+		else if (fState==110/*s_letterEdit*/)
+		{
+			index = editorView.gfxAddString(afterIndex, 11, idArrayValue);
     	}
 
     	if (index>=0)
@@ -11352,17 +11442,17 @@ class myMenuItemElementAdd extends myMenuItem
 		{
 			return new myMenuItemFieldEdit();
 		}
-		else if (fState<=9/*s_chart*/)
+		else if (fState<=10/*s_letter*/)
 		{
 			fState = 0;
 		}
-		else if (fState<=15/*s_valueEdit*/)
-		{
-			fState -= 9;			
-		}
-		else if (fState==16/*s_iconEdit*/)
+		else if (fState==107/*s_iconEdit*/)
 		{
 			return new myMenuItemElementSelect();			
+		}
+		else if (fState<=110/*s_letterEdit*/)
+		{
+			fState -= 100;
 		}
 
     	return null;

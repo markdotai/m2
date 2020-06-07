@@ -19,7 +19,9 @@
 			"HR chart",
 			"rect",
 			"ring",
-			"seconds\nindicator"
+			"seconds\nindicator",
+			"unused",
+			"letter"
 		]
 	</jsonData>
 		
@@ -720,7 +722,8 @@
 			"add value",
 			"add icon",
 			"add movebar",
-			"add chart"
+			"add chart",
+			"add letter"
 		]
 	</jsonData>
 		
