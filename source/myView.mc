@@ -6048,7 +6048,7 @@ class myView
 	function calculateDataFillValues(eDisplay, drawStart, drawRange, alignedAdjust, minute, timeNowInMinutesToday, activityMonitorInfo, dateInfoShort, dateInfoMedium)
 	{
 		// calculate fill amounts from 0 to drawRange
-		var noFill = false;
+		var extraFlags = 0;		// noFill 0x1000000 and overLimit 0x2000000 flags
 		var fillStart = 0;		// first segment of outer ring to draw as filled (0 to 59)
 		var fillEnd = drawRange-1;		// last segment of outer ring to draw as filled (0 to 59)
 
@@ -6143,6 +6143,8 @@ class myView
 						//var multiple = val / goal;
 						fillStart = (fillEnd + (val/goal))%60;
 						fillEnd = (fillEnd + 59)%60;	// same as -1
+						
+						extraFlags |= 0x2000000;	// overLimit
 					}
 				}
 				
@@ -6302,7 +6304,7 @@ class myView
 		
 		if (fillEnd < 0)
 		{
-			noFill = true;
+			extraFlags |= 0x1000000;	// noFill
 			fillEnd = 0;
 		}
 		else if (fillEnd > drawRange-1)
@@ -6326,7 +6328,7 @@ class myView
 			fillEnd = (drawStart + fillEnd) % 60;
 		}
 
-		return (fillStart & 0xFFF) | ((fillEnd & 0xFFF) << 12) | (noFill ? 0x1000000 : 0);	// start fill, end fill and no fill flag
+		return (fillStart & 0xFFF) | ((fillEnd & 0xFFF) << 12) | extraFlags;	// start fill, end fill and noFill flag and overLimit flag
 	}
 	
 	function gfxFieldHighlight(dc, index, x, y, w, h)
@@ -6614,11 +6616,11 @@ class myView
 						var fillGfxData = gfxData[index+8/*rect_fill*/];
 						var fillStart = (fillGfxData&0xFFF);
 						var fillEnd = ((fillGfxData>>12)&0xFFF);
-						var noFill = ((fillGfxData&0x1000000)!=0);
+						//var noFill = ((fillGfxData&0x1000000)!=0);
 
 						var colUnfilled = getColor64FromGfx(gfxData[index+3/*rect_unfilled*/]);
 						var colFilled = getColor64FromGfx(gfxData[index+2/*rect_filled*/]);
-						if (noFill)
+						if ((fillGfxData&0x1000000)!=0 /*noFill*/)
 						{
 							colFilled = colUnfilled;
 						}
@@ -6687,7 +6689,8 @@ class myView
 						var fillGfxData = gfxData[index+8];
 						var fillStart = (fillGfxData&0xFFF);
 						var fillEnd = ((fillGfxData>>12)&0xFFF);
-						var noFill = ((fillGfxData&0x1000000)!=0);
+						//var noFill = ((fillGfxData&0x1000000)!=0);
+						//var overLimit = ((fillGfxData&0x2000000)!=0);
 						var fillValue = fillEnd;
 		
 						var eDirAnti = ((gfxData[index+1] & 0x40) != 0);	// false==clockwise
@@ -6799,18 +6802,26 @@ class myView
 						{
 							var colFilled = getColor64FromGfx(gfxData[index+5]);
 							var colValue = getColor64FromGfx(gfxData[index+6]);
+							var colUnfilled = getColor64FromGfx(gfxData[index+7]);
+
 							if (colValue==-2/*COLOR_NOTSET*/)
 							{
 								colValue = colFilled;
 							}
-							var colUnfilled = getColor64FromGfx(gfxData[index+7]);
+							else
+							{
+								if ((fillGfxData&0x2000000)!=0 /*overLimit*/)
+								{
+									colUnfilled = colValue;
+								}
+							}
 							
-							if (noFill)
+							if ((fillGfxData&0x1000000)!=0 /*noFill*/)
 							{
 								colFilled = colUnfilled;
 								colValue = colUnfilled;
 							}
-			
+						
 							//var outerSizeHalf = getOuterSizeHalf(arrayResource);
 							var outerSizeHalf = arrayResource[61];
 							var bufferXMin = bufferX - outerSizeHalf;
@@ -7198,7 +7209,7 @@ class myEditorView extends myView
 			gfxData[index+5/*rect_y*/] = displayHalf;	// y from bottom
 			gfxData[index+6/*rect_w*/] = 20;	// width
 			gfxData[index+7/*rect_h*/] = 20;	// height
-			// start fill, end fill & no fill flag
+			// start fill, end fill & noFill flag
 		}
 		return index;
 	}
@@ -7215,7 +7226,7 @@ class myEditorView extends myView
 			gfxData[index+5] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// color filled
 			gfxData[index+6] = -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/;	// color value
 			gfxData[index+7] = -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/;	// color unfilled
-			// start fill, end fill & no fill flag
+			// start fill, end fill & noFill flag & overLimit flag
 			// xy array resource index
 
 			reloadDynamicResources = true;
