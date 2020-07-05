@@ -1509,7 +1509,7 @@ class myView
 			s = null;
 
 			getProfileTimeDataFromPropertiesFaceOrApp(profileNumber);
-			saveMemoryData();		// remember new values
+			saveTimeData();		// remember new values
 		}
 	}
 	
@@ -1544,8 +1544,8 @@ class myView
 
 			applicationProperties.setValue("PN", profileActive+1);		// set the profile number
 
-			getProfileTimeDataFromPropertiesFaceOrApp(profileActive);
-			saveMemoryData();		// remember new values
+			//getProfileTimeDataFromPropertiesFaceOrApp(profileActive);		don't save profile time data for current profile
+			//saveMemoryDataOld();		// remember new values
 		}
 		else
 		{
@@ -3484,21 +3484,46 @@ class myView
 			stlAverageUpdate = getNumberFromArray(memData, 14);
 		}
 
-		if (profileTimeData==null || !(profileTimeData instanceof Array) || profileTimeData.size()!=(24/*PROFILE_NUM_USER*/*6))
+		if (invalidTimeData())
 		{
-			profileTimeData = new[24/*PROFILE_NUM_USER*/*6];	// 144
-			for (var i=0; i<(24/*PROFILE_NUM_USER*/*6); i++)
+			// try loading from new separate storage
+			profileTimeData = applicationStorage.getValue(1);
+		
+			if (invalidTimeData())
 			{
-				profileTimeData[i] = 0;
+				// create new blank time data
+				profileTimeData = new[24/*PROFILE_NUM_USER*/*6];	// 144
+				for (var i=0; i<(24/*PROFILE_NUM_USER*/*6); i++)
+				{
+					profileTimeData[i] = 0;
+				}
 			}
+		}
+		else
+		{
+			// successfully loaded time data from old format (with all data in one save) 
+			// now convert to new format - with time data saved separately
+			saveTimeData();
 		}
 	}
 	
 	(:m2face)
+	function invalidTimeData()
+	{
+		return (profileTimeData==null || !(profileTimeData instanceof Array) || profileTimeData.size()!=(24/*PROFILE_NUM_USER*/*6));
+	}
+	
+	(:m2face)
+	function saveTimeData()
+	{
+		applicationStorage.setValue(1, profileTimeData);
+	}
+
+	(:m2face)
 	function saveMemoryData()
 	{
 		var memData = [
-			profileTimeData,				// 0
+			0,								// 0 (was profileTimeData)
 			positionGot,					// 1
 			positionLatitude,				// 2
 			positionLongitude,				// 3
@@ -3538,6 +3563,11 @@ class myView
 			stlAverage = getFloatFromArray(memData, 4);
 			stlAverageUpdate = getNumberFromArray(memData, 5);
 		}
+	}
+	
+	(:m2app)
+	function saveTimeData()
+	{
 	}
 	
 	(:m2app)

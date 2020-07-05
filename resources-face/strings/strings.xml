@@ -11,15 +11,15 @@
     <string id="ProfileNumberTitle">Profile Number (to save/load 1-24) (or presets 25+)</string>
 
     <string id="ProfileCurrent">Current Profile</string>
-    <string id="ProfileLoad">Load Profile</string>
-    <string id="ProfileSave">Save Profile</string>
+    <string id="ProfileLoad">Load Profile (and *)</string>
+    <string id="ProfileSave">Save Profile (and *)</string>
     
-    <string id="ProfileDaysTitle">Profile Activation Days (of week 1-7, e.g. 456 or 71 or 1234567)</string>
-    <string id="ProfileStartTimeTitle">Profile Start Time [Sunrise+-] HH:MM (activate from this time)</string>
-    <string id="ProfileEndTimeTitle">Profile End Time [Sunset+-] HH:MM (activate until this time)</string>
-    <string id="GlanceProfileTitle">Gesture Profile (0 for none, or profile number for gesture)</string>
-    <string id="ProfileBlockTitle">Profile Block Random (while this profile is active, block random events)</string>
-    <string id="ProfileRandomTitle">Profile Random Events (number per day for this profile)</string>
+    <string id="ProfileDaysTitle">* Profile Activation Days (of week 1-7, e.g. 456 or 71 or 1234567)</string>
+    <string id="ProfileStartTimeTitle">* Profile Start Time [Sunrise+-] HH:MM (activate from this time)</string>
+    <string id="ProfileEndTimeTitle">* Profile End Time [Sunset+-] HH:MM (activate until this time)</string>
+    <string id="GlanceProfileTitle">* Gesture Profile (0 for none, or profile number for gesture)</string>
+    <string id="ProfileBlockTitle">* Profile Block Random (while this profile is active, block random events)</string>
+    <string id="ProfileRandomTitle">* Profile Random Events (number per day for this profile)</string>
 
     <string id="DemoProfilesTitle">Demo Profiles (cycle profiles in specified range, if no other profile active)</string>
     <string id="DemoProfilesRangeTitle">Demo Profiles Start And End (e.g. 25-99 for preset profiles)</string>
@@ -33,7 +33,7 @@
     <string id="Status30">30</string>
     <string id="Status60">60</string>
 
-    <string id="HonestyTitle">Honesty Checkbox - YES, I have donated OR posted a photo and profile text of my design to the forum</string>
-    <string id="H2Title">Forum link</string>
+    <string id="HonestyTitle">Honesty Checkbox - yes, I have donated OR posted a photo and profile text of my design to the forum</string>
+    <string id="H2Title">Forum Link</string>
 
 </strings>
