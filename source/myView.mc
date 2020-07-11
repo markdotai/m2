@@ -293,8 +293,13 @@ class myView
 	//	STATUS_HR_ZONE_4 = 31,
 	//	STATUS_HR_ZONE_5 = 32,
 	//	STATUS_HR_ZONE_6 = 33,
+	//	STATUS_STEPS_25 = 34,
+	//	STATUS_STEPS_50 = 35,
+	//	STATUS_STEPS_75 = 36,
+	//	STATUS_STEPS_100 = 37,
+	//	STATUS_STEPS_PLUS = 38,
 	//
-	//	STATUS_NUM = 34
+	//	STATUS_NUM = 39
 	//}
 		
 	var colorArray = new[64]b;
@@ -5028,7 +5033,7 @@ class myView
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		
 		// calculate fields to display
-		var visibilityStatus = new[34/*STATUS_NUM*/];
+		var visibilityStatus = new[39/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -5068,6 +5073,15 @@ class myView
 	    //visibilityStatus[31/*STATUS_HR_ZONE_4*/] = null;		// calculated on demand
 	    //visibilityStatus[32/*STATUS_HR_ZONE_5*/] = null;		// calculated on demand
 	    //visibilityStatus[33/*STATUS_HR_ZONE_6*/] = null;		// calculated on demand
+		var activitySteps = getNullCheckZero(activityMonitorInfo.steps);
+		var activityStepGoal = getNullCheckZero(activityMonitorInfo.stepGoal);
+		var stepIndex = getMinMax((activitySteps*4) / activityStepGoal, 0, 4);
+	    //visibilityStatus[34/*STATUS_STEPS_25*/] = false;		// set to null by default
+	    //visibilityStatus[35/*STATUS_STEPS_50*/] = false;		// set to null by default
+	    //visibilityStatus[36/*STATUS_STEPS_75*/] = false;		// set to null by default
+	    //visibilityStatus[37/*STATUS_STEPS_100*/] = false;		// set to null by default
+	    //visibilityStatus[38/*STATUS_STEPS_PLUS*/] = false;		// set to null by default
+	    visibilityStatus[34/*STATUS_STEPS_25*/+stepIndex] = true;	// just one steps index gets set to true
 
 		fieldActivePhoneStatus = null;
 		fieldActiveNotificationsStatus = null;
@@ -5095,7 +5109,7 @@ class myView
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<34/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<39/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -5687,13 +5701,13 @@ class myView
 	
 							case 31/*FIELD_STEPSCOUNT*/:
 							{
-								eStr = "" + getNullCheckZero(activityMonitorInfo.steps);
+								eStr = "" + activitySteps;
 								break;
 							}
 	
 							case 32/*FIELD_STEPSGOAL*/:
 							{
-								eStr = "" + getNullCheckZero(activityMonitorInfo.stepGoal);
+								eStr = "" + activityStepGoal;
 								break;
 							}
 	
@@ -8469,7 +8483,7 @@ class myEditorView extends myView
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+34/*STATUS_NUM*/)%34/*STATUS_NUM*/;
+		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+39/*STATUS_NUM*/)%39/*STATUS_NUM*/;
 		gfxData[menuFieldGfx] &= ~(0x3F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x3F) << 4);
 	}
@@ -9111,7 +9125,7 @@ class myEditorView extends myView
 
 	function elementVisibilityEditing(val)
 	{
-		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+34/*STATUS_NUM*/)%34/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+39/*STATUS_NUM*/)%39/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x3F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x3F) << 4);

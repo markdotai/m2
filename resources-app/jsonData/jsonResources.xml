@@ -244,13 +244,13 @@
 		    "battery\nhigh/medium",
 		    "battery high",
 		    "battery\nmedium",
-		    "battery low"
+		    "battery low",
+		    "movebar alert\ntriggered",
+		    "movebar alert\nnot triggered"
 		]
 	</jsonData>
 	<jsonData id="id_visibilityStrings2">
 		[
-		    "movebar alert\ntriggered",
-		    "movebar alert\nnot triggered",
 		    "AM",
 		    "PM",
 		    "2nd time AM",
@@ -265,7 +265,12 @@
 		    "HR zone 3",
 		    "HR zone 4",
 		    "HR zone 5",
-		    "HR above max"
+		    "HR above max",
+		    "steps 0-25%",
+		    "steps 25-50%",
+		    "steps 50-75%",
+		    "steps 75-100%",
+		    "steps 100%"
 		]
 	</jsonData>
 		
