@@ -2574,77 +2574,73 @@ class myView
 		var checkWeeksLessThan1 = (index==1 && weeks<1);		// only for ISO
 		var checkWeeksGreaterThan52 = (weeks>52);
 
-		if (checkWeeksLessThan1)		// check to find last week of previous year
+		if (checkWeeksLessThan1 ||		// check to find last week of previous year
+			checkWeeksGreaterThan52)	// check to see if in first week of next year
 		{
-			var prevYear = dateInfoMedium.year-1;
+			var testYear = dateInfoMedium.year + (checkWeeksLessThan1 ? -1 : 1);
 			tempYear.remove(:year);
-			tempYear.put(:year, prevYear);
-			var startOfPrevYearNoon = gregorian.moment(tempYear).subtract(timeZoneOffsetDuration);
-			//var startOfPrevYearNoon = gregorian.moment({:year => prevYear, :month => 1, :day => 1, :hour => 12, :minute => 0, :second => 0}).subtract(timeZoneOffsetDuration);
-			var dateInfoStartOfPrevYear = gregorian.info(startOfPrevYearNoon, Time.FORMAT_SHORT);	// get date info for noon to be safe
-			var numberInWeekOfJan1PrevYear = ((dateInfoStartOfPrevYear.day_of_week - updateFirstDayOfWeek + 7) % 7);	// 0-6
-			
-			var durationToJan1PrevYear = todayNoon.subtract(startOfPrevYearNoon);
-			var daysToJan1PrevYear = Math.round(durationToJan1PrevYear.value() / 86400.0).toNumber();
-			var daysToStartOfWeekYear = daysToJan1PrevYear + numberInWeekOfJan1PrevYear;
-			weeks = daysToStartOfWeekYear / 7;
-			year = prevYear;
+			tempYear.put(:year, testYear);
+			var startOfTestYearNoon = gregorian.moment(tempYear).subtract(timeZoneOffsetDuration);
+			//var startOfTestYearNoon = gregorian.moment({:year => testYear, :month => 1, :day => 1, :hour => 12, :minute => 0, :second => 0}).subtract(timeZoneOffsetDuration);
+			var dateInfoStartOfTestYear = gregorian.info(startOfTestYearNoon, Time.FORMAT_SHORT);	// get date info for noon to be safe
+			var numberInWeekOfJan1TestYear = ((dateInfoStartOfTestYear.day_of_week - updateFirstDayOfWeek + 7) % 7);	// 0-6
 
-			if (numberInWeekOfJan1PrevYear<=numberInWeekOfThu)
-			{
-				// jan1 prev year is in week 1 of the year
-				weeks += 1;
-			}
-			//else
-			//{
-			//	// jan1 prev year is not in week 1 of the year - so our calculated week number is fine
-			//}
-		}
-		else if (checkWeeksGreaterThan52)	// check to see if in first week of next year
-		{
-			var nextYear = dateInfoMedium.year+1;
-			tempYear.remove(:year);
-			tempYear.put(:year, nextYear);
-			var startOfNextYearNoon = gregorian.moment(tempYear).subtract(timeZoneOffsetDuration);
-			//var startOfNextYearNoon = gregorian.moment({:year => nextYear, :month => 1, :day => 1, :hour => 12, :minute => 0, :second => 0}).subtract(timeZoneOffsetDuration);
-			var dateInfoStartOfNextYear = gregorian.info(startOfNextYearNoon, Time.FORMAT_SHORT);	// get date info for noon to be safe
-			var numberInWeekOfJan1NextYear = ((dateInfoStartOfNextYear.day_of_week - updateFirstDayOfWeek + 7) % 7);	// 0-6
-			
-			var checkInFirstWeek;
-			
-			if (index==1)
-			{
-				checkInFirstWeek = (numberInWeekOfJan1NextYear<=numberInWeekOfThu);
-
-				//if (numberInWeekOfJan1NextYear<=numberInWeekOfThu)
+			if (checkWeeksLessThan1)		// check to find last week of previous year
+			{				
+				var durationToJan1TestYear = todayNoon.subtract(startOfTestYearNoon);
+				var daysToJan1TestYear = Math.round(durationToJan1TestYear.value() / 86400.0).toNumber();
+				var daysToStartOfWeekYear = daysToJan1TestYear + numberInWeekOfJan1TestYear;
+				weeks = daysToStartOfWeekYear / 7;
+				year = testYear;
+	
+				if (numberInWeekOfJan1TestYear<=numberInWeekOfThu)
+				{
+					// jan1 prev year is in week 1 of the year
+					weeks += 1;
+				}
+				//else
 				//{
-				//	// jan1 next year is in week 1 of the year
-				//	checkInFirstWeek = true;
+				//	// jan1 prev year is not in week 1 of the year - so our calculated week number is fine
+				//}
+			}
+			else	// if (checkWeeksGreaterThan52)	// check to see if in first week of next year
+			{
+				//var checkInFirstWeek;
+				//if (index==1)
+				//{
+				//	checkInFirstWeek = (numberInWeekOfJan1TestYear<=numberInWeekOfThu);
+				//
+				//	//if (numberInWeekOfJan1TestYear<=numberInWeekOfThu)
+				//	//{
+				//	//	// jan1 next year is in week 1 of the year
+				//	//	checkInFirstWeek = true;
+				//	//}
+				//	//else
+				//	//{
+				//	//	// jan1 next year is in last week of previous year - so our calculated week number is fine
+				//	//	checkInFirstWeek = false;
+				//	//}
 				//}
 				//else
 				//{
-				//	// jan1 next year is in last week of previous year - so our calculated week number is fine
-				//	checkInFirstWeek = false;
+				//	checkInFirstWeek = true;
 				//}
-			}
-			else
-			{
-				checkInFirstWeek = true;
-			}
-
-			if (checkInFirstWeek)
-			{
-				// so see if we are in the same week as jan1 next year
-				var durationToJan1NextYear = startOfNextYearNoon.subtract(todayNoon);
-				var daysToJan1NextYear = Math.round(durationToJan1NextYear.value() / 86400.0).toNumber();
-				if (daysToJan1NextYear <= numberInWeekOfJan1NextYear)
+				//if (checkInFirstWeek)
+				
+				if ((index!=1) || (numberInWeekOfJan1TestYear<=numberInWeekOfThu))
 				{
-					 weeks = 1;		// in first week of next year
-					 year = nextYear;
+					// so see if we are in the same week as jan1 next year
+					var durationToJan1TestYear = startOfTestYearNoon.subtract(todayNoon);
+					var daysToJan1TestYear = Math.round(durationToJan1TestYear.value() / 86400.0).toNumber();
+					if (daysToJan1TestYear <= numberInWeekOfJan1TestYear)
+					{
+						 weeks = 1;		// in first week of next year
+						 year = testYear;
+					}
 				}
 			}
 		}
-
+		
 		dayWeekYearCalculatedDay[index] = todayNoonValue;
 		if (index==1)
 		{
@@ -7727,6 +7723,9 @@ class myEditorView extends myView
 		
 		applicationProperties.setValue("EP", s);
 		applicationProperties.setValue("EP2", s2);
+
+		//applicationStorage.setValue("Profile Text 1st half", s);
+		//applicationStorage.setValue("Profile Text 2nd half", s2);
 	}
 
 	var getColorGfxIndex = -1;

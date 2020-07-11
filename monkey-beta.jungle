@@ -1,7 +1,5 @@
 project.manifest = manifest-beta.xml
 
-
-
 #m2beta jungle file
 
 base.resourcePath = $(base.resourcePath);resources-face
