@@ -298,8 +298,10 @@ class myView
 	//	STATUS_STEPS_75 = 36,
 	//	STATUS_STEPS_100 = 37,
 	//	STATUS_STEPS_PLUS = 38,
+	//	STATUS_WALKING = 39,
+	//	STATUS_NOT_WALKING = 40,
 	//
-	//	STATUS_NUM = 39
+	//	STATUS_NUM = 41
 	//}
 		
 	var colorArray = new[64]b;
@@ -4999,6 +5001,10 @@ class myView
 	var updateIs24Hour;
 	var updateTime2ndInMinutes;
 
+	var lastMinuteSteps;
+	var previousStepCount;
+	var isWalking;
+
 	function gfxOnUpdate(dc, clockTime, timeNow)
 	{
         var hour = clockTime.hour;
@@ -5033,7 +5039,7 @@ class myView
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		
 		// calculate fields to display
-		var visibilityStatus = new[39/*STATUS_NUM*/];
+		var visibilityStatus = new[41/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -5083,6 +5089,22 @@ class myView
 	    //visibilityStatus[38/*STATUS_STEPS_PLUS*/] = false;		// set to null by default
 	    visibilityStatus[34/*STATUS_STEPS_25*/+stepIndex] = true;	// just one steps index gets set to true
 
+		if (second==0)
+		{
+			if (previousStepCount!=null)
+			{
+				var thisMinuteSteps = activitySteps - previousStepCount;
+				
+				isWalking = (lastMinuteSteps!=null && lastMinuteSteps>=30 && thisMinuteSteps>=30);
+				
+				lastMinuteSteps = thisMinuteSteps;
+			}
+
+			previousStepCount = activitySteps;
+		}
+		visibilityStatus[39/*STATUS_WALKING*/] = isWalking;
+		visibilityStatus[40/*STATUS_NOT_WALKING*/] = (isWalking!=true);
+
 		fieldActivePhoneStatus = null;
 		fieldActiveNotificationsStatus = null;
 		fieldActiveNotificationsCount = null;
@@ -5109,7 +5131,7 @@ class myView
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<39/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<41/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -8483,7 +8505,7 @@ class myEditorView extends myView
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+39/*STATUS_NUM*/)%39/*STATUS_NUM*/;
+		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+41/*STATUS_NUM*/)%41/*STATUS_NUM*/;
 		gfxData[menuFieldGfx] &= ~(0x3F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x3F) << 4);
 	}
@@ -9125,7 +9147,7 @@ class myEditorView extends myView
 
 	function elementVisibilityEditing(val)
 	{
-		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+39/*STATUS_NUM*/)%39/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+41/*STATUS_NUM*/)%41/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x3F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x3F) << 4);

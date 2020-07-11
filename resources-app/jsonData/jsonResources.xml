@@ -270,7 +270,9 @@
 		    "steps 25-50%",
 		    "steps 50-75%",
 		    "steps 75-100%",
-		    "steps 100%"
+		    "steps 100%",
+		    "walking",
+		    "not walking"
 		]
 	</jsonData>
 		
