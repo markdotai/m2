@@ -6187,13 +6187,17 @@ class myView
 				{
 					val = getNullCheckZero(activityMonitorInfo.steps);
 					goal = getNullCheckZero(activityMonitorInfo.stepGoal);
+					
+					// test increasing values ...
+					//val = calcSecond;
+					//goal = 20;
 				}
 				
 				fillEnd = ((goal>0) ? ((drawRange * val) / goal - alignedAdjust) : -1);
 				
 				if (fillEnd>=drawRange)
 				{
-					if (drawRange<60 || calcDataLimit100)
+					if (/*drawRange<60 ||*/ calcDataLimit100)
 					{
 						fillEnd = drawRange;
 					}
@@ -6203,8 +6207,10 @@ class myView
 						
 						// once past val goal then use a different style - draw just two unfilled blocks moving around
 						//var multiple = val / goal;
-						fillStart = (fillEnd + (val/goal))%60;
-						fillEnd = (fillEnd + 59)%60;	// same as -1
+						//fillStart = (fillEnd + (val/goal))%60;
+						//fillEnd = (fillEnd + 59)%60;	// same as -1
+						fillStart = (fillEnd + (val/goal))%drawRange;
+						fillEnd = (fillEnd + drawRange - 1)%drawRange;	// same as -1
 						
 						extraFlags |= 0x2000000;	// overLimit
 					}
