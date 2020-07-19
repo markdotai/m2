@@ -1,4 +1,6 @@
-project.manifest = manifest-app.xml
+project.manifest = manifest-appsim.xml
+
+
 
 
 
@@ -16,7 +18,7 @@ project.manifest = manifest-app.xml
 
 base.resourcePath = $(base.resourcePath);resources-app
 
-base.excludeAnnotations = exclude;m2face;m2appsim
+base.excludeAnnotations = exclude;m2face;m2appwatch
 #fenix5xplus.excludeAnnotations = older
 
 

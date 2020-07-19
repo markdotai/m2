@@ -1,10 +1,12 @@
 project.manifest = manifest-beta.xml
 
+
+
 #m2beta jungle file
 
 base.resourcePath = $(base.resourcePath);resources-face
 
-base.excludeAnnotations = exclude;m2app
+base.excludeAnnotations = exclude;m2app;m2appwatch;m2appsim
 #fenix5xplus.excludeAnnotations = older
 
 

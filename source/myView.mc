@@ -1483,6 +1483,45 @@ class myView
 	{
 	}
 	
+	(:m2face)
+	function setProfileText(s, s2)
+	{
+		applicationProperties.setValue("EP", s);
+		applicationProperties.setValue("EP2", s2);
+	}
+	
+	(:m2appwatch)
+	function setProfileText(s, s2)
+	{
+		applicationProperties.setValue("EP", s);
+		applicationProperties.setValue("EP2", s2);
+	}
+	
+	(:m2appsim)
+	function setProfileText(s, s2)
+	{
+		applicationStorage.setValue("Profile 1st half", s);
+		applicationStorage.setValue("Profile 2nd half", s2);
+	}
+	
+	(:m2face)
+	function getProfileText()
+	{
+		return propertiesGetString("EP") + propertiesGetString("EP2");
+	}
+	
+	(:m2appwatch)
+	function getProfileText()
+	{
+		return propertiesGetString("EP") + propertiesGetString("EP2");
+	}
+	
+	(:m2appsim)
+	function getProfileText()
+	{
+		return getSafeString(applicationStorage.getValue("Profile 1st half")) + getSafeString(applicationStorage.getValue("Profile 2nd half"));
+	}
+	
 	function loadProfile(profileNumber)
 	{
 		if (profileNumber>=0 && profileNumber<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET))
@@ -1490,17 +1529,15 @@ class myView
 			var s = getProfileString(profileNumber);
 			if (s!=null && (s instanceof String))
 			{
+				var s2 = "";
+			
 				if (s.length()>255)
 				{
-					applicationProperties.setValue("EP2", s.substring(255, s.length()));					
+					s2 = s.substring(255, s.length());					
 					s = s.substring(0, 255);
 				}
-				else
-				{ 				
-					applicationProperties.setValue("EP2", "");
-				}
 			
-				applicationProperties.setValue("EP", s);
+				setProfileText(s, s2);
 			}
 
 			setProfilePropertiesFaceOrApp(profileNumber);
@@ -1511,7 +1548,7 @@ class myView
 	{
 		if (profileNumber>=0 && profileNumber<24/*PROFILE_NUM_USER*/)
 		{
-			var s = propertiesGetString("EP") + propertiesGetString("EP2");
+			var s = getProfileText();
 			applicationStorage.setValue("P" + profileNumber, s);
 			s = null;
 
@@ -1523,7 +1560,7 @@ class myView
 	function copyPropertyStringToGfx()
 	{
 		// load the Gfx from our property strings
-		var s = propertiesGetString("EP") + propertiesGetString("EP2");
+		var s = getProfileText();
 
 //		// hyper
 //		s = "01YW2552Vy11WDPO1011WlVv03VV2VV4L0G3N213Ve2Vm4R0Vw1WjWI020Vj522Vj121Vj19dXO00Vf01WjYB03Va2Vp4I0Vq1WlVe03Vr213Xw213N213Vt213Xy211WlO0ZT001111101WlXZ036213N213XD213N213D213N213X7211WlXt03Vf21";
@@ -7763,11 +7800,7 @@ class myEditorView extends myView
 
 		charArray = null;	// free up memory as no longer needed
 		
-		applicationProperties.setValue("EP", s);
-		applicationProperties.setValue("EP2", s2);
-
-		//applicationStorage.setValue("Profile Text 1st half", s);
-		//applicationStorage.setValue("Profile Text 2nd half", s2);
+		setProfileText(s, s2);
 	}
 
 	var getColorGfxIndex = -1;
