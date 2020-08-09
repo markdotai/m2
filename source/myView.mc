@@ -55,6 +55,8 @@ class myView
 
 	var glanceActive = false;
 	
+	var checkedLoadMemoryData = false;
+	
 	var systemNumberMaxAscent;
 	
 	//enum
@@ -146,8 +148,8 @@ class myView
 	var profileRandomEnd = 0;
 	var profileRandomLastMin = -1;		// last minute number that we did the random checks
 
-    (:m2face)
-	var honestyCheckbox = false;
+    //(:m2face)
+	//var honestyCheckbox = false;
 
 	var demoProfilesOn = false;
 	var demoProfilesFirst = 24/*PROFILE_NUM_USER*/;
@@ -1215,6 +1217,7 @@ class myView
 		// remember which profile was active and also any profileDelayEnd value
 		// and all the profile times
 		loadMemoryData(timeNow.value());
+		checkedLoadMemoryData = true;
 		
 //System.println("Timer loadmem=" + (System.getTimer()-timeStamp) + "ms");
 
@@ -1240,7 +1243,10 @@ class myView
 		}
 
 		// remember the active profile and profileDelayEnd and other variables we want to save between runs
-		saveMemoryData();
+		if (checkedLoadMemoryData)
+		{
+			saveMemoryData();
+		}
 	}
 
     // Called when this View is brought to the foreground.
@@ -1293,7 +1299,7 @@ class myView
     (:m2face)
 	function getSettingsForFaceOrApp()
 	{
-		honestyCheckbox = propertiesGetBoolean("H");
+		//honestyCheckbox = propertiesGetBoolean("H");
 	
 		demoProfilesOn = propertiesGetBoolean("DP");
 
