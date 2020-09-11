@@ -302,8 +302,12 @@ class myView
 	//	STATUS_STEPS_PLUS = 38,
 	//	STATUS_WALKING = 39,
 	//	STATUS_NOT_WALKING = 40,
+	//	STATUS_ACTIVITY_OFF = 41,
+	//	STATUS_ACTIVITY_ON = 42,
+	//	STATUS_ACTIVITY_PAUSED = 43,
+	//	STATUS_ACTIVITY_STOPPED = 44
 	//
-	//	STATUS_NUM = 41
+	//	STATUS_NUM = 45
 	//}
 		
 	var colorArray = new[64]b;
@@ -5082,7 +5086,7 @@ class myView
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		
 		// calculate fields to display
-		var visibilityStatus = new[41/*STATUS_NUM*/];
+		var visibilityStatus = new[45/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -5174,7 +5178,7 @@ class myView
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<41/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<45/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -5214,6 +5218,19 @@ class myView
 							visibilityStatus[z+27/*STATUS_HR_ZONE_0*/] = (heartDisplayLatest!=null) && (heartDisplayLatest>heartRateZones[z-1] && (heartDisplayLatest<=heartRateZones[z]));
 						}
 					}
+			    	else if (eVisible>=41/*STATUS_ACTIVITY_OFF*/ && eVisible<=44/*STATUS_ACTIVITY_STOPPED*/)
+			    	{
+						visibilityStatus[41/*STATUS_ACTIVITY_OFF*/] = true;
+
+			    		var activityInfo = Activity.getActivityInfo();
+			    		if (activityInfo!=null && activityInfo.timerState!=null && activityInfo.timerState!=0/*TIMER_STATE_OFF*/)
+			    		{
+							visibilityStatus[41/*STATUS_ACTIVITY_OFF*/] = false;
+							visibilityStatus[42/*STATUS_ACTIVITY_ON*/] = (activityInfo.timerState==3/*TIMER_STATE_ON*/);
+							visibilityStatus[43/*STATUS_ACTIVITY_PAUSED*/] = (activityInfo.timerState==2/*TIMER_STATE_PAUSED*/);
+							visibilityStatus[44/*STATUS_ACTIVITY_STOPPED*/] = (activityInfo.timerState==1/*TIMER_STATE_STOPPED*/);
+			    		}
+					}					
 		    	}
 		    	
 		    	isVisible = (visibilityStatus[eVisible]!=null && visibilityStatus[eVisible]);
@@ -8550,7 +8567,7 @@ class myEditorView extends myView
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+41/*STATUS_NUM*/)%41/*STATUS_NUM*/;
+		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+45/*STATUS_NUM*/)%45/*STATUS_NUM*/;
 		gfxData[menuFieldGfx] &= ~(0x3F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x3F) << 4);
 	}
@@ -9192,7 +9209,7 @@ class myEditorView extends myView
 
 	function elementVisibilityEditing(val)
 	{
-		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+41/*STATUS_NUM*/)%41/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+45/*STATUS_NUM*/)%45/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x3F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x3F) << 4);

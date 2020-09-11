@@ -246,13 +246,13 @@
 		    "battery\nmedium",
 		    "battery low",
 		    "movebar alert\ntriggered",
-		    "movebar alert\nnot triggered"
+		    "movebar alert\nnot triggered",
+		    "AM",
+		    "PM"
 		]
 	</jsonData>
 	<jsonData id="id_visibilityStrings2">
 		[
-		    "AM",
-		    "PM",
 		    "2nd time AM",
 		    "2nd time PM",
 		    "next sun event\n= rise",
@@ -272,7 +272,11 @@
 		    "steps 75-100%",
 		    "steps 100%",
 		    "walking",
-		    "not walking"
+		    "not walking",
+		    "activity off",
+		    "activity on",
+		    "activity\npaused",
+		    "activity\nstopped"
 		]
 	</jsonData>
 		
