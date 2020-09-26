@@ -75,7 +75,7 @@ class myView
 	//var propMenuBorder = 0x000000;	// menu border editor only
 	//var propFieldHighlight = 0xFFFFFF;	editor only
 	//var propElementHighlight = 0xFFFFFF;	editor only
-	var propKerningOn = false;
+	//var propKerningOn = false;
 	var propDawnDuskMode = 1;		// 1==civil, 2==nautical, 3==astronomical 
     var propBatteryHighPercentage = 75;
 	var propBatteryLowPercentage = 25;
@@ -514,116 +514,116 @@ class myView
 	//	APPCHAR_CLOSE_SQUARE_BRACKET = 93,
 	//}
 	
-	var kernTable;
+//	var kernTable;
 	
-	function getKern(cur, next, appFontCur, appFontNext, narrow)
-	{
-		var val = 0;
-		
-//		var kernTable = [		// 480 bytes of code to initialize (136 byte array)
-//						/*76543210    3210 :98     :987654 */
-//			/* 0 & 1 */	0x10F01010, 0x01010000, 0x04218104,
-//			/* 2 & 3 */	0x10F20000, 0x10100100, 0x000010F0,
-//			/* 4 & 5 */	0x30001020, 0x10100110, 0x011010F0,
-//			/* 6 & 7 */	0x10F01010, 0x12400110, 0x020010F6,
-//			/* 8 & 9 */	0x10F01010, 0x10100000, 0x000010F0,
-//			/* :     */	0x00012140, 0x00000000,
-//						/* NARROW / COLON */
-//						/*76543210    3210 :98     :987654 */
-//			/* 0 & 1 */	0x10000010, 0x00010000, 0x02217104,
-//			/* 2 & 3 */	0x10020000, 0x00100000, 0x00001000,
-//			/* 4 & 5 */	0x30102020, 0x00100030, 0x00201000,
-//			/* 6 & 7 */	0x10000010, 0x12400010, 0x01001006,
-//			/* 8 & 9 */	0x10000010, 0x00100000, 0x00001000,
-//			/* :     */	0x00001020, 0x00000000,
-//		];
-	
-		var bits = cur*48 + next*4;
-		var byte4 = bits/32;
-	
-		// make sure index inside array
-		if (byte4>=0 && byte4<17)
-		{
-			bits = bits%32;
-			
-			val = (kernTable[byte4 + (narrow?17:0)] >> bits) & 0xF;
-			if (val > 0x8)
-			{
-				val -= 0x10;
-			}
-		}
-		
-//for (var i=0; i<6; i++)
-//{
-//	for (var j=0; j<2; j++)
+//	function getKern(cur, next, appFontCur, appFontNext, narrow)
 //	{
-//		cur = 1;		// 1 or 2
-//		next = 4;
-//		appFontCur = i;
-//		narrow = (j==0);
-//
-//var tempVal1 = val;
-	
-		// special case code for different weights
-		// saves 100 bytes compared to version below
-		if (next==4 && (cur==1 || cur==2))
-		{
-			var adjust = ((((
-			// cur==1	ultralight +2	extralight +2	light +1		regular 0		bold -1			heavy -2     
-						(0x6l<<0) | 	(0x6l<<3) | 	(0x5l<<6) | 	(0x4l<<9) | 	(0x3l<<12) | 	(0x2l<<15) | 
-			// cur==2	ultralight +1	extralight +1	light 0			regular 0		bold 0			heavy -1     
-						(0x5l<<18) | 	(0x5l<<21) | 	(0x4l<<24) | 	(0x4l<<27) | 	(0x4l<<30) | 	(0x3l<<33) 
-					) >> (appFontCur*3 + (cur-1)*18)) & 0x07) - 4).toNumber();	// make sure not still a long
-					
-			val += ((narrow && adjust>0) ? 0 : adjust);
-		}
-
-//var tempVal2 = val;
-//val = tempVal1;
-//
-		// special case code for different weights
-//		if (cur==1 && next==4)	// 1-4
-//		{
-//			if (appFontCur<=1/*APPFONT_EXTRA_LIGHT*/ && !narrow)
-//			{
-//				val += 2;
-//			}
-//			else if (appFontCur==2/*APPFONT_LIGHT*/ && !narrow)
-//			{
-//				val += 1;
-//			}
-//			else if (appFontCur==4/*APPFONT_BOLD*/)
-//			{
-//				val -= 1;
-//			}
-//			else if (appFontCur==5/*APPFONT_HEAVY*/)
-//			{
-//				val -= 2;
-//			}
-//		}
-//		else if (cur==2 && next==4)	// 2-4
-//		{
-//			if (appFontCur<=1/*APPFONT_EXTRA_LIGHT*/ && !narrow)
-//			{
-//				val += 1;
-//			}
-//			else if (appFontCur==5/*APPFONT_HEAVY*/)
-//			{
-//				val -= 1;
-//			}
-//		}
-	
-//tempVal1 = val;
-//if (tempVal1 != tempVal2)
-//{
-//	System.println("mismatch appFontCur=" + appFontCur + " narrow=" + narrow);
-//}
+//		var val = 0;
+//		
+//		//var kernTable = [		// 480 bytes of code to initialize (136 byte array)
+//		//				/*76543210    3210 :98     :987654 */
+//		//	/* 0 & 1 */	0x10F01010, 0x01010000, 0x04218104,
+//		//	/* 2 & 3 */	0x10F20000, 0x10100100, 0x000010F0,
+//		//	/* 4 & 5 */	0x30001020, 0x10100110, 0x011010F0,
+//		//	/* 6 & 7 */	0x10F01010, 0x12400110, 0x020010F6,
+//		//	/* 8 & 9 */	0x10F01010, 0x10100000, 0x000010F0,
+//		//	/* :     */	0x00012140, 0x00000000,
+//		//				/* NARROW / COLON */
+//		//				/*76543210    3210 :98     :987654 */
+//		//	/* 0 & 1 */	0x10000010, 0x00010000, 0x02217104,
+//		//	/* 2 & 3 */	0x10020000, 0x00100000, 0x00001000,
+//		//	/* 4 & 5 */	0x30102020, 0x00100030, 0x00201000,
+//		//	/* 6 & 7 */	0x10000010, 0x12400010, 0x01001006,
+//		//	/* 8 & 9 */	0x10000010, 0x00100000, 0x00001000,
+//		//	/* :     */	0x00001020, 0x00000000,
+//		//];
 //	
+//		var bits = cur*48 + next*4;
+//		var byte4 = bits/32;
+//	
+//		// make sure index inside array
+//		if (byte4>=0 && byte4<17)
+//		{
+//			bits = bits%32;
+//			
+//			val = (kernTable[byte4 + (narrow?17:0)] >> bits) & 0xF;
+//			if (val > 0x8)
+//			{
+//				val -= 0x10;
+//			}
+//		}
+//		
+////for (var i=0; i<6; i++)
+////{
+////	for (var j=0; j<2; j++)
+////	{
+////		cur = 1;		// 1 or 2
+////		next = 4;
+////		appFontCur = i;
+////		narrow = (j==0);
+////
+////var tempVal1 = val;
+//	
+//		// special case code for different weights
+//		// saves 100 bytes compared to version below
+//		if (next==4 && (cur==1 || cur==2))
+//		{
+//			var adjust = ((((
+//			// cur==1	ultralight +2	extralight +2	light +1		regular 0		bold -1			heavy -2     
+//						(0x6l<<0) | 	(0x6l<<3) | 	(0x5l<<6) | 	(0x4l<<9) | 	(0x3l<<12) | 	(0x2l<<15) | 
+//			// cur==2	ultralight +1	extralight +1	light 0			regular 0		bold 0			heavy -1     
+//						(0x5l<<18) | 	(0x5l<<21) | 	(0x4l<<24) | 	(0x4l<<27) | 	(0x4l<<30) | 	(0x3l<<33) 
+//					) >> (appFontCur*3 + (cur-1)*18)) & 0x07) - 4).toNumber();	// make sure not still a long
+//					
+//			val += ((narrow && adjust>0) ? 0 : adjust);
+//		}
+//
+////var tempVal2 = val;
+////val = tempVal1;
+////
+//		// special case code for different weights
+////		if (cur==1 && next==4)	// 1-4
+////		{
+////			if (appFontCur<=1/*APPFONT_EXTRA_LIGHT*/ && !narrow)
+////			{
+////				val += 2;
+////			}
+////			else if (appFontCur==2/*APPFONT_LIGHT*/ && !narrow)
+////			{
+////				val += 1;
+////			}
+////			else if (appFontCur==4/*APPFONT_BOLD*/)
+////			{
+////				val -= 1;
+////			}
+////			else if (appFontCur==5/*APPFONT_HEAVY*/)
+////			{
+////				val -= 2;
+////			}
+////		}
+////		else if (cur==2 && next==4)	// 2-4
+////		{
+////			if (appFontCur<=1/*APPFONT_EXTRA_LIGHT*/ && !narrow)
+////			{
+////				val += 1;
+////			}
+////			else if (appFontCur==5/*APPFONT_HEAVY*/)
+////			{
+////				val -= 1;
+////			}
+////		}
+//	
+////tempVal1 = val;
+////if (tempVal1 != tempVal2)
+////{
+////	System.println("mismatch appFontCur=" + appFontCur + " narrow=" + narrow);
+////}
+////	
+////	}
+////}
+//
+//		return val + (narrow?3:0);
 //	}
-//}
-
-		return val + (narrow?3:0);
-	}
 	
     var bitsSupported;
 
@@ -1177,7 +1177,7 @@ class myView
 			var dataResource = watchUi.loadResource(Rez.JsonData.id_data);
 			
 			// keep pointers to permanent arrays
-			kernTable = dataResource[0];
+			//kernTable = dataResource[0];
 			bitsSupported = dataResource[1];
 
 			// copy byte data into byte arrays (to save memory) 			
@@ -4542,7 +4542,7 @@ class myView
 			// propElementHighlight editor only
 
 			gfxMinMaxInPlace(0+9, 0, 8);		// propKerningOn (0x01) and dawn/dusk mode (0x06) 
-			propKerningOn = ((gfxData[0+9]&0x01)==0);
+			//propKerningOn = ((gfxData[0+9]&0x01)==0);
 			propDawnDuskMode = ((gfxData[0+9]&0x06)>>1)%3 + 1;		// 1, 2, 3
 			
 			propBatteryHighPercentage = gfxMinMaxInPlace(0+10, 0, 100);				// 0 to 100
@@ -7886,6 +7886,83 @@ class myEditorView extends myView
 		    	drawMemory(dc, x, y);	// draw a memory indicator
 			}
 		}
+		
+//		dc.setAntiAlias(true);
+//		//dc.fillRectangle(100.5, 100, 50.5, 50);
+//		var x = 100;
+//		var y = 100;
+//		var w = 50;
+//		var h = 50;
+//		//var pts = [[x,y],[x+w,y],[x+w,y+w],[x,y+w]];
+//		var pts = [[x,y],[x+w,y+1],[x+w,y+h]];
+//		dc.fillPolygon(pts);
+//		
+//		dc.fillCircle(100, 150, 10);
+//
+//		x = 100;
+//		y = 200;
+//		w = 100;
+//		h = 1;
+//		pts = [[x,y],[x+w,y+1],[x+w,y+h+1],[x,y+h]];
+//		dc.fillPolygon(pts);
+		
+//		for (var i=0; i<30; i++)
+//		{
+//			var a = i * 3.14159265368979 / 30.0;
+//			x = Math.sin(a);
+//			y = Math.cos(a);
+//			var r = 134;
+//			h = 10;
+//			w = 5;
+//			pts = [
+//				[140 + Math.round(x*r), 140 + Math.round(y*r)],
+//				[140 + Math.round(x*(r-h) - y*w), 140 + Math.round(y*(r-h) + x*w)],
+//				[140 + Math.round(x*(r-h) + y*w), 140 + Math.round(y*(r-h) - x*w)]
+//			];
+//			dc.fillPolygon(pts);
+//		}
+
+//		for (var i=0; i<30; i++)
+//		{
+//			var a = i * 3.14159265368979 / 30.0;
+//			x = Math.sin(a);
+//			y = Math.cos(a);
+//			var r = 120;
+//			h = 10;
+//			w = 1;
+//			pts = [
+//				[140 + Math.round(x*r - y*w), 140 + Math.round(y*r + x*w)],
+//				[140 + Math.round(x*r + y*w), 140 + Math.round(y*r - x*w)],
+//				[140 + Math.round(x*(r-h) + y*w), 140 + Math.round(y*(r-h) - x*w)],
+//				[140 + Math.round(x*(r-h) - y*w), 140 + Math.round(y*(r-h) + x*w)]
+//			];
+//			dc.fillPolygon(pts);
+//		}
+
+//		for (var i=0; i<30; i++)
+//		{
+//			var a = i * 3.14159265368979 / 30.0;
+//			x = Math.sin(a);
+//			y = Math.cos(a);
+//			var r = 134;
+//			h = 10;
+//			w = 2;
+//			dc.setPenWidth(w);
+//			dc.drawLine(140 + Math.round(x*r), 140 + Math.round(y*r), 140 + Math.round(x*(r-h)), 140 + Math.round(y*(r-h)));
+//		}
+
+//		for (var i=0; i<30; i++)
+//		{
+//			var a = i * 3.14159265368979 / 30.0;
+//			x = Math.sin(a);
+//			y = Math.cos(a);
+//			var r = 134;
+//			h = 10;
+//			w = 0.5;
+//			dc.setPenWidth(1);
+//			dc.drawLine(140 + Math.round(x*r - y*w), 140 + Math.round(y*r + x*w), 140 + Math.round(x*(r-h) - y*w), 140 + Math.round(y*(r-h) + x*w));
+//			dc.drawLine(140 + Math.round(x*r + y*w), 140 + Math.round(y*r - x*w), 140 + Math.round(x*(r-h) + y*w), 140 + Math.round(y*(r-h) - x*w));
+//		}
     }
 
 	function gfxAddDynamicResources(fontIndex)
