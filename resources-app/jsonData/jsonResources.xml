@@ -221,7 +221,8 @@
 			"next dawn/dusk\nhour",
 			"next dawn/dusk\nminute",
 			"2nd time minute",
-			"training load"
+			"training load",
+			"body weight"
 		]
 	</jsonData>
 		
@@ -704,6 +705,7 @@
 				39,		<!-- FIELD_HEART_AVERAGE -->
 				37,		<!-- FIELD_HEART_MIN -->
 				38,		<!-- FIELD_HEART_MAX -->
+				112,	<!-- FIELD_BODY_WEIGHT -->
 				48,		<!-- FIELD_CALORIES -->
 				49,		<!-- FIELD_ACTIVE_CALORIES -->
 				61,		<!-- FIELD_RESTING_CALORIES -->

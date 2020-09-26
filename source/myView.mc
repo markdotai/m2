@@ -5108,6 +5108,7 @@ class myView
 		var distanceUnits = deviceSettings.distanceUnits;
 		var elevationUnits = deviceSettings.elevationUnits;
 		var temperatureUnits = deviceSettings.temperatureUnits;
+		var weightUnits = deviceSettings.weightUnits;
 		deviceSettings = null;
 		
 		var activityMonitorInfo = ActivityMonitor.getInfo();  	// 560 bytes, but uses less code memory
@@ -5870,6 +5871,13 @@ class myView
 								break;
 							}
 	
+							case 112/*FIELD_BODY_WEIGHT*/:
+							{
+								var d = getNullCheckZero(UserProfile.getProfile().weight) / ((weightUnits==System.UNIT_STATUTE) ? 453.59237 : 1000.0);	// grams to pounds or kilograms
+								eStr = d.format("%.1f");
+								break;
+							}
+
 							case 48/*FIELD_CALORIES*/:
 							{
 								eStr = "" + getNullCheckZero(activityMonitorInfo.calories);
