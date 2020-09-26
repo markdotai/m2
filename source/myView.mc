@@ -124,6 +124,7 @@ class myView
 
 	var hasDoNotDisturb;
 	var hasLTE;
+	var hasWifi;
 	var hasElevationHistory;
 	var hasPressureHistory;
 	var hasTemperatureHistory;
@@ -135,10 +136,16 @@ class myView
 		return (hasLTE && (System.getDeviceSettings().connectionInfo[:lte].state==System.CONNECTION_STATE_CONNECTED));
     }
     
+	function wifiConnected()
+	{
+		return (hasWifi && (System.getDeviceSettings().connectionInfo[:wifi].state==System.CONNECTION_STATE_CONNECTED));
+    }
+    
 	var fieldActivePhoneStatus = null;
 	var fieldActiveNotificationsStatus = null;
 	var fieldActiveNotificationsCount = null;
 	var fieldActiveLTEStatus = null;
+	var fieldActiveWifiStatus = null;
 
 	var profileActive = 0;		// currently active profile
 	var profileDelayEnd = 0;	// after manually changing settings then any automatic profile loads get delayed until this moment
@@ -306,8 +313,10 @@ class myView
 	//	STATUS_ACTIVITY_ON = 42,
 	//	STATUS_ACTIVITY_PAUSED = 43,
 	//	STATUS_ACTIVITY_STOPPED = 44
+	//	STATUS_WIFI_CONNECTED = 45,
+	//	STATUS_WIFI_NOT = 46,
 	//
-	//	STATUS_NUM = 45
+	//	STATUS_NUM = 47
 	//}
 		
 	var colorArray = new[64]b;
@@ -1130,6 +1139,7 @@ class myView
         var deviceSettings = System.getDeviceSettings();	// 960 bytes, but uses less code memory 
 		hasDoNotDisturb = (deviceSettings has :doNotDisturb);
 		hasLTE = (deviceSettings.connectionInfo[:lte]!=null);
+		hasWifi = (deviceSettings.connectionInfo[:wifi]!=null);
 		hasElevationHistory = SensorHistory has :getElevationHistory;
 		hasPressureHistory = SensorHistory has :getPressureHistory;
 		hasTemperatureHistory = SensorHistory has :getTemperatureHistory;
@@ -1177,29 +1187,49 @@ class myView
 			var dataResource = watchUi.loadResource(Rez.JsonData.id_data);
 			
 			// keep pointers to permanent arrays
+
 			//kernTable = dataResource[0];
-			bitsSupported = dataResource[1];
+			//<!-- kernTable -->
+			//[
+			//<!--              76543210    3210 :98     :987654 -->
+			//<!-- 0 & 1 -->	284168208, 16842752, 69304580,
+			//<!-- 2 & 3 -->	284295168, 269484288, 4336,
+			//<!-- 4 & 5 -->	805310496, 269484304, 17830128,
+			//<!-- 6 & 7 -->	284168208, 306184464, 33558774,
+			//<!-- 8 & 9 -->	284168208, 269484032, 4336,
+			//<!-- :     -->	74048, 0,
+			//<!-- 			NARROW / COLON -->
+			//<!--              76543210    3210 :98     :987654 -->
+			//<!-- 0 & 1 -->	268435472, 65536, 35746052,
+			//<!-- 2 & 3 -->	268566528, 1048576, 4096,
+			//<!-- 4 & 5 -->	806363168, 1048624, 2101248,
+			//<!-- 6 & 7 -->	268435472, 306184208, 16781318,
+			//<!-- 8 & 9 -->	268435472, 1048576, 4096,
+			//<!-- :     -->	4128, 0
+			//],
+									
+			bitsSupported = dataResource[0];
 
 			// copy byte data into byte arrays (to save memory) 			
 			for (var i=0; i<95; i++)
 			{
-				dynResSizeArray[i] = dataResource[6][i];
+				dynResSizeArray[i] = dataResource[5][i];
 
 				if (i<78)
 				{
-					myChars[i] = dataResource[2][i];	// table for characters with diacritics
+					myChars[i] = dataResource[1][i];	// table for characters with diacritics
 	
 					if (i<64)
 					{
-						colorArray[i] = dataResource[3][i];
+						colorArray[i] = dataResource[2][i];
 	
 						if (i<25/*SECONDFONT_UNUSED*/)
 						{
-							dynResOuterSizeArray[i] = dataResource[7][i];
+							dynResOuterSizeArray[i] = dataResource[6][i];
 
 							if (i<12/*GFX_SIZE_NUM*/*2)
 							{
-								gfxSizeArray[i] = dataResource[4][i];
+								gfxSizeArray[i] = dataResource[3][i];
 							}
 						}
 					}
@@ -1207,7 +1237,7 @@ class myView
 			}
 			
 			// copy single value
-			systemNumberMaxAscent = dataResource[5][0];
+			systemNumberMaxAscent = dataResource[4][0];
 
 			dataResource = null;	// release the memory
 		}
@@ -2050,7 +2080,8 @@ class myView
 	    	if ((fieldActivePhoneStatus!=null && (fieldActivePhoneStatus != deviceSettings.phoneConnected)) ||
 	    		(fieldActiveNotificationsStatus!=null && (fieldActiveNotificationsStatus != (deviceSettings.notificationCount > 0))) ||
 	    		(fieldActiveNotificationsCount!=null && (fieldActiveNotificationsCount != deviceSettings.notificationCount)) ||
-	    		(fieldActiveLTEStatus!=null && (fieldActiveLTEStatus != lteConnected())) )
+	    		(fieldActiveLTEStatus!=null && (fieldActiveLTEStatus != lteConnected())) ||
+	    		(fieldActiveWifiStatus!=null && (fieldActiveWifiStatus != wifiConnected())) )
 	    	{
 	        	WatchUi.requestUpdate();
 	    	}
@@ -5086,7 +5117,7 @@ class myView
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		
 		// calculate fields to display
-		var visibilityStatus = new[45/*STATUS_NUM*/];
+		var visibilityStatus = new[47/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -5098,9 +5129,6 @@ class myView
 	    visibilityStatus[8/*STATUS_NOTIFICATIONS_NONE*/] = (updateNotificationCount == 0);
 	    visibilityStatus[9/*STATUS_PHONE_CONNECTED*/] = phoneConnected;
 	    visibilityStatus[10/*STATUS_PHONE_NOT*/] = !phoneConnected;
-	    var lteState = lteConnected();
-	    visibilityStatus[11/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
-	    visibilityStatus[12/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
 	    visibilityStatus[14/*STATUS_BATTERY_HIGH*/] = (updateBatteryLevel>=propBatteryHighPercentage);
 	    visibilityStatus[16/*STATUS_BATTERY_LOW*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && updateBatteryLevel<=propBatteryLowPercentage);
 	    visibilityStatus[15/*STATUS_BATTERY_MEDIUM*/] = (!visibilityStatus[14/*STATUS_BATTERY_HIGH*/] && !visibilityStatus[16/*STATUS_BATTERY_LOW*/]);
@@ -5156,6 +5184,7 @@ class myView
 		fieldActiveNotificationsStatus = null;
 		fieldActiveNotificationsCount = null;
 		fieldActiveLTEStatus = null;
+		fieldActiveWifiStatus = null;
 		
     	propSecondIndicatorOn = false;
 
@@ -5178,7 +5207,7 @@ class myView
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<45/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<47/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -5192,7 +5221,17 @@ class myView
 				} 
 				else if (eVisible==11/*STATUS_LTE_CONNECTED*/ || eVisible==12/*STATUS_LTE_NOT*/)
 				{
+	    			var lteState = lteConnected();
+				    visibilityStatus[11/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
+				    visibilityStatus[12/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
 					fieldActiveLTEStatus = lteState;
+				}
+				else if (eVisible==45/*STATUS_WIFI_CONNECTED*/ || eVisible==46/*STATUS_WIFI_NOT*/)
+				{
+	    			var wifiState = wifiConnected();
+				    visibilityStatus[45/*STATUS_WIFI_CONNECTED*/] = (hasWifi && wifiState);
+				    visibilityStatus[46/*STATUS_WIFI_NOT*/] = (hasWifi && !wifiState);
+					fieldActiveWifiStatus = wifiState;
 				}
 
 		    	if (visibilityStatus[eVisible]==null)
@@ -8644,7 +8683,7 @@ class myEditorView extends myView
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+45/*STATUS_NUM*/)%45/*STATUS_NUM*/;
+		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+47/*STATUS_NUM*/)%47/*STATUS_NUM*/;
 		gfxData[menuFieldGfx] &= ~(0x3F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x3F) << 4);
 	}
@@ -9286,7 +9325,7 @@ class myEditorView extends myView
 
 	function elementVisibilityEditing(val)
 	{
-		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+45/*STATUS_NUM*/)%45/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+47/*STATUS_NUM*/)%47/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x3F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x3F) << 4);

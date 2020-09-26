@@ -248,13 +248,13 @@
 		    "movebar alert\ntriggered",
 		    "movebar alert\nnot triggered",
 		    "AM",
-		    "PM"
+		    "PM",
+		    "2nd time AM",
+		    "2nd time PM"
 		]
 	</jsonData>
 	<jsonData id="id_visibilityStrings2">
 		[
-		    "2nd time AM",
-		    "2nd time PM",
 		    "next sun event\n= rise",
 		    "next sun event\n= set",
 		    "next dawn/dusk\n= dawn",
@@ -276,7 +276,9 @@
 		    "activity off",
 		    "activity on",
 		    "activity\npaused",
-		    "activity\nstopped"
+		    "activity\nstopped",
+		    "wifi connected",
+		    "wifi not\nconnected"
 		]
 	</jsonData>
 		
