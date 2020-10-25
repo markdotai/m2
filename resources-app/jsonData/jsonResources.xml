@@ -277,9 +277,7 @@
 		    "activity off",
 		    "activity on",
 		    "activity\npaused",
-		    "activity\nstopped",
-		    "wifi connected",
-		    "wifi not\nconnected"
+		    "activity\nstopped"
 		]
 	</jsonData>
 		

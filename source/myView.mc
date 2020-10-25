@@ -124,7 +124,6 @@ class myView
 
 	var hasDoNotDisturb;
 	var hasLTE;
-	var hasWifi;
 	var hasElevationHistory;
 	var hasPressureHistory;
 	var hasTemperatureHistory;
@@ -136,16 +135,10 @@ class myView
 		return (hasLTE && (System.getDeviceSettings().connectionInfo[:lte].state==System.CONNECTION_STATE_CONNECTED));
     }
     
-	function wifiConnected()
-	{
-		return (hasWifi && (System.getDeviceSettings().connectionInfo[:wifi].state==System.CONNECTION_STATE_CONNECTED));
-    }
-    
 	var fieldActivePhoneStatus = null;
 	var fieldActiveNotificationsStatus = null;
 	var fieldActiveNotificationsCount = null;
 	var fieldActiveLTEStatus = null;
-	var fieldActiveWifiStatus = null;
 
 	var profileActive = 0;		// currently active profile
 	var profileDelayEnd = 0;	// after manually changing settings then any automatic profile loads get delayed until this moment
@@ -313,10 +306,8 @@ class myView
 	//	STATUS_ACTIVITY_ON = 42,
 	//	STATUS_ACTIVITY_PAUSED = 43,
 	//	STATUS_ACTIVITY_STOPPED = 44
-	//	STATUS_WIFI_CONNECTED = 45,
-	//	STATUS_WIFI_NOT = 46,
 	//
-	//	STATUS_NUM = 47
+	//	STATUS_NUM = 45
 	//}
 		
 	var colorArray = new[64]b;
@@ -1139,7 +1130,6 @@ class myView
         var deviceSettings = System.getDeviceSettings();	// 960 bytes, but uses less code memory 
 		hasDoNotDisturb = (deviceSettings has :doNotDisturb);
 		hasLTE = (deviceSettings.connectionInfo[:lte]!=null);
-		hasWifi = (deviceSettings.connectionInfo[:wifi]!=null);
 		hasElevationHistory = SensorHistory has :getElevationHistory;
 		hasPressureHistory = SensorHistory has :getPressureHistory;
 		hasTemperatureHistory = SensorHistory has :getTemperatureHistory;
@@ -2080,8 +2070,7 @@ class myView
 	    	if ((fieldActivePhoneStatus!=null && (fieldActivePhoneStatus != deviceSettings.phoneConnected)) ||
 	    		(fieldActiveNotificationsStatus!=null && (fieldActiveNotificationsStatus != (deviceSettings.notificationCount > 0))) ||
 	    		(fieldActiveNotificationsCount!=null && (fieldActiveNotificationsCount != deviceSettings.notificationCount)) ||
-	    		(fieldActiveLTEStatus!=null && (fieldActiveLTEStatus != lteConnected())) ||
-	    		(fieldActiveWifiStatus!=null && (fieldActiveWifiStatus != wifiConnected())) )
+	    		(fieldActiveLTEStatus!=null && (fieldActiveLTEStatus != lteConnected())) )
 	    	{
 	        	WatchUi.requestUpdate();
 	    	}
@@ -5118,7 +5107,7 @@ class myView
 		var dateInfoMedium = gregorian.info(timeNow, Time.FORMAT_MEDIUM);
 		
 		// calculate fields to display
-		var visibilityStatus = new[47/*STATUS_NUM*/];
+		var visibilityStatus = new[45/*STATUS_NUM*/];
 		visibilityStatus[0/*STATUS_ALWAYSON*/] = true;
 	    visibilityStatus[1/*STATUS_GLANCE_ON*/] = glanceActive;
 	    visibilityStatus[2/*STATUS_GLANCE_OFF*/] = !glanceActive;
@@ -5185,7 +5174,6 @@ class myView
 		fieldActiveNotificationsStatus = null;
 		fieldActiveNotificationsCount = null;
 		fieldActiveLTEStatus = null;
-		fieldActiveWifiStatus = null;
 		
     	propSecondIndicatorOn = false;
 
@@ -5208,7 +5196,7 @@ class myView
 
 			var isVisible = true;
 			
-			if (eVisible>=0 && eVisible<47/*STATUS_NUM*/)
+			if (eVisible>=0 && eVisible<45/*STATUS_NUM*/)
 			{
 				// these fieldActiveXXXStatus flags need setting whether or not the field element using them is visible!!
 				// So make sure to do these tests before the visibility test
@@ -5226,13 +5214,6 @@ class myView
 				    visibilityStatus[11/*STATUS_LTE_CONNECTED*/] = (hasLTE && lteState);
 				    visibilityStatus[12/*STATUS_LTE_NOT*/] = (hasLTE && !lteState);
 					fieldActiveLTEStatus = lteState;
-				}
-				else if (eVisible==45/*STATUS_WIFI_CONNECTED*/ || eVisible==46/*STATUS_WIFI_NOT*/)
-				{
-	    			var wifiState = wifiConnected();
-				    visibilityStatus[45/*STATUS_WIFI_CONNECTED*/] = (hasWifi && wifiState);
-				    visibilityStatus[46/*STATUS_WIFI_NOT*/] = (hasWifi && !wifiState);
-					fieldActiveWifiStatus = wifiState;
 				}
 
 		    	if (visibilityStatus[eVisible]==null)
@@ -8691,7 +8672,7 @@ class myEditorView extends myView
 
 	function fieldVisibilityEditing(val)
 	{
-		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+47/*STATUS_NUM*/)%47/*STATUS_NUM*/;
+		val = (((gfxData[menuFieldGfx]>>4)&0x3F)+val+45/*STATUS_NUM*/)%45/*STATUS_NUM*/;
 		gfxData[menuFieldGfx] &= ~(0x3F << 4);
 		gfxData[menuFieldGfx] |= ((val & 0x3F) << 4);
 	}
@@ -9333,7 +9314,7 @@ class myEditorView extends myView
 
 	function elementVisibilityEditing(val)
 	{
-		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+47/*STATUS_NUM*/)%47/*STATUS_NUM*/;
+		val = (((gfxData[menuElementGfx]>>4)&0x3F)+val+45/*STATUS_NUM*/)%45/*STATUS_NUM*/;
 
 		gfxData[menuElementGfx] &= ~(0x3F << 4);
 		gfxData[menuElementGfx] |= ((val & 0x3F) << 4);
