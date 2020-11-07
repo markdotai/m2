@@ -56,7 +56,8 @@
 				"day # in month",
 				"day ## in\nmonth",
 				"month #",
-				"month ##"
+				"month ##",
+				"HR"
 			],
 
 			[
@@ -87,7 +88,8 @@
 				24,		<!-- BIG_DAY_OF_MONTH -->
 				25,		<!-- BIG_DAY_OF_MONTH_XX -->
 				26,		<!-- BIG_MONTH_OF_YEAR -->
-				27		<!-- BIG_MONTH_OF_YEAR_XX -->
+				27,		<!-- BIG_MONTH_OF_YEAR_XX -->
+				28		<!-- BIG_HR -->
 			]
 		]
 	</jsonData>
@@ -222,7 +224,9 @@
 			"next dawn/dusk\nminute",
 			"2nd time minute",
 			"training load",
-			"body weight"
+			"body weight",
+			"steps count\n(k)",
+			"steps goal\n(k)"
 		]
 	</jsonData>
 		
@@ -694,6 +698,8 @@
 			[
 				31,		<!-- FIELD_STEPSCOUNT -->
 				32,		<!-- FIELD_STEPSGOAL -->
+				113,	<!-- FIELD_STEPSCOUNT_K -->
+				114,	<!-- FIELD_STEPSGOAL_K -->
 				33,		<!-- FIELD_FLOORSCOUNT -->
 				34,		<!-- FIELD_FLOORSGOAL -->
 				35,		<!-- FIELD_NOTIFICATIONSCOUNT -->

@@ -5404,6 +5404,7 @@ class myView
 						//25,		<!-- BIG_DAY_OF_MONTH_XX -->
 						//26,		<!-- BIG_MONTH_OF_YEAR -->
 						//27		<!-- BIG_MONTH_OF_YEAR_XX -->
+						//28		<!-- BIG_HR -->
 	
 						if (eDisplay==2/*BIG_COLON*/)
 						{
@@ -5447,6 +5448,11 @@ class myView
 							//27		<!-- BIG_MONTH_OF_YEAR_XX -->
 
 							eStr = ((eDisplay<=25/*BIG_DAY_OF_MONTH_XX*/) ? dateInfoMedium.day : dateInfoShort.month).format(((eDisplay%2)==0) ? "%d" : "%02d");
+						}
+						else if (eDisplay==28/*BIG_HR*/)
+						{
+							calculateHeartRate(minute, second);
+							eStr = (heartDisplayLatest!=null) ? heartDisplayLatest.format("%d") : "";
 						}
 						else // hours
 						{
@@ -5811,6 +5817,18 @@ class myView
 							case 32/*FIELD_STEPSGOAL*/:
 							{
 								eStr = "" + activityStepGoal;
+								break;
+							}
+	
+							case 113/*FIELD_STEPSCOUNT_K*/:
+							{
+								eStr = (activitySteps/1000.0).format("%.1f");
+								break;
+							}
+	
+							case 114/*FIELD_STEPSGOAL_K*/:
+							{
+								eStr = (activityStepGoal/1000.0).format("%.1f");
 								break;
 							}
 	
