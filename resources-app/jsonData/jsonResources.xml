@@ -17,7 +17,7 @@
 			"icon",
 			"movebar",
 			"HR chart",
-			"rect",
+			"dial",
 			"ring",
 			"seconds\nindicator",
 			"unused",
@@ -290,7 +290,7 @@
 		[
 			"add new",
 			"add field",
-			"add rect",
+			"add dial",
 			"add ring",
 			"add seconds"
 		]
@@ -848,7 +848,7 @@
 				"visibility",
 				"move earlier",
 				"move later",
-				"delete rect",
+				"delete dial",
 				"x",
 				"y",
 				"x (10)",
