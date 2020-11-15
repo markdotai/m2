@@ -3903,7 +3903,7 @@ class myView
 				// 0-9 a-z A-Z
 				// 10 +26 +26 =62
 				// 62*62=3844, so 0-3843				
-				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range is 0-1921 = 0x781)
+				// but use the top bit to indicate if it is 1 or 2 bytes (so half that range is 0-1921 = 0x781) - 0x3FF seems ok then ...
 				
 				//System.print("" + val);
 
@@ -7934,6 +7934,7 @@ class myEditorView extends myView
 		}
 		
 //		dc.setAntiAlias(true);
+//
 //		//dc.fillRectangle(100.5, 100, 50.5, 50);
 //		var x = 100;
 //		var y = 100;
@@ -8009,6 +8010,26 @@ class myEditorView extends myView
 //			dc.drawLine(140 + Math.round(x*r - y*w), 140 + Math.round(y*r + x*w), 140 + Math.round(x*(r-h) - y*w), 140 + Math.round(y*(r-h) + x*w));
 //			dc.drawLine(140 + Math.round(x*r + y*w), 140 + Math.round(y*r - x*w), 140 + Math.round(x*(r-h) + y*w), 140 + Math.round(y*(r-h) - x*w));
 //		}
+
+//		// draw a circle
+//		dc.setAntiAlias(true);
+//		var x = 100;
+//		var y = 100;
+//		var n = 60;
+//		var pts = new [n];
+//		for (var i=0; i<n; i++)
+//		{
+//			var a = i * 2.0 * 3.14159265368979 / n;
+//			x = Math.sin(a);
+//			y = Math.cos(a);
+//			var r = 60;
+//			x = x*r;
+//			y = y*r;
+//			x = Math.round(x);
+//			y = Math.round(y);
+//			pts[i] = [140 + x, 140 + y];
+//		}
+//		dc.fillPolygon(pts);
     }
 
 	function gfxAddDynamicResources(fontIndex)

@@ -18,6 +18,6 @@
     <property id="SA" type="boolean">false</property>		<!-- sun altitude adjustment -->
     <property id="SU" type="number">15</property>			<!-- status update rate -->
 
-    <property id="H" type="boolean">false</property>		<!-- honesty checkbox -->
+    <property id="H" type="boolean">false</property>		<!-- honesty -->
     <property id="H2" type="boolean">false</property>		<!-- honesty 2 -->
 </properties>
