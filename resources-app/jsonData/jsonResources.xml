@@ -837,6 +837,7 @@
 		[
 			[
 				"data",
+				"style",
 				"direction",
 				"color filled",
 				"color unfilled",
@@ -863,6 +864,14 @@
 				"left",
 				"up",
 				"down"
+			],
+
+			[
+				"rectangle",
+				"bar",
+				"arc",
+				"circle",
+				"hand"
 			]
 		]
 	</jsonData>

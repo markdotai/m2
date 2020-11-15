@@ -320,6 +320,8 @@ class myView
 	
 	function getColor64FromGfx(i)
 	{
+		i &= 0x7F;	// needed to add this for rect style (stored in upper bits of fill color)
+	
 		i -= 2/*COLOR_SAVE*/;
 	
 		if (i<0 || i>=64)
@@ -6144,8 +6146,18 @@ class myView
 						break;
 					}
 
+					var style = ((gfxData[index+2/*rect_filled*/]&0x3F0)>>7);	// 0=rect, 1=bar, 2=arc, 3=circle, 4=hand 
 					var direction = ((gfxData[index+1/*rect_type*/]&0xC0)>>6);	// 0=right, 1=left, 2=up, 3=down 
-					var drawRange = gfxData[index + ((direction<=1) ? 6/*rect_w*/ : 7/*rect_h*/)];
+					var drawRange;
+					
+					if (style<=1)	// rect or bar
+					{
+						drawRange = gfxData[index + ((direction<=1) ? 6/*rect_w*/ : 7/*rect_h*/)];
+					}
+					else
+					{
+						drawRange = 360;	// for degrees
+					}
 					
 					calcDataLimit100 = true;
 					calcDirAnti = -1;
@@ -6540,6 +6552,11 @@ class myView
 		var prevBatteryIndex = -1;
 		var prevBatteryX = 0;
 
+		if (dc has :setAntiAlias)
+		{
+			dc.setAntiAlias(true);
+		}
+
 		for (var index=0; index<gfxNum; )
 		{
 			//var id = getGfxId(index);
@@ -6780,11 +6797,19 @@ class myView
 			{
 				if (isVisible)
 				{
+					var style = ((gfxData[index+2/*rect_filled*/]&0x3F0)>>7);	// 0=rect, 1=bar, 2=arc, 3=circle, 4=hand 
 					var w = gfxData[index+6/*rect_w*/];
 					var h = gfxData[index+7/*rect_h*/];
+					
+					var pw = w;
+					if (style>1)
+					{
+						w = h;	// arc, circle, hand all have same width as height (set for highlighting)
+					}
+					
 					var x = gfxData[index+4/*rect_x*/] - dcX - w/2;
 					var y = displaySize - gfxData[index+5/*rect_y*/] - dcY - h/2;
-	
+
 					if (x<=dcWidth && (x+w)>=0 && y<=dcHeight && (y+h)>=0)
 					{
 						var fillGfxData = gfxData[index+8/*rect_fill*/];
@@ -6812,30 +6837,140 @@ class myView
 						
 						var direction = ((gfxData[index+1/*rect_type*/]&0xC0)>>6);	// 0=right, 1=left, 2=up, 3=down
 						
-						if (colFilled!=-2/*COLOR_NOTSET*/)
+						if (style<=1)	// rect or bar
 						{
-					        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
-							gfxDrawRectangle(dc, x, y, w, h, direction, fillStart, fillEnd+1);
-						}
-
-						if (colUnfilled!=-2/*COLOR_NOTSET*/)
-						{
-							var l = ((direction<=1) ? w : h);
-							if (fillStart>0 || fillEnd<l)
+							if (colFilled!=-2/*COLOR_NOTSET*/)
 							{
-						        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
+						        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+								gfxDrawRectangle(dc, x, y, w, h, direction, fillStart, fillEnd+1);
+							}
 	
-								if (fillStart>0)
+							if (colUnfilled!=-2/*COLOR_NOTSET*/)
+							{
+								var l = ((direction<=1) ? w : h);
+								if (fillStart>0 || fillEnd<l)
 								{
-									gfxDrawRectangle(dc, x, y, w, h, direction, 0, fillStart);
-								}
-								
-								if ((fillEnd+1)<l)
-								{
-									gfxDrawRectangle(dc, x, y, w, h, direction, fillEnd+1, l);
+							        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
+		
+									if (fillStart>0)
+									{
+										gfxDrawRectangle(dc, x, y, w, h, direction, 0, fillStart);
+									}
+									
+									if ((fillEnd+1)<l)
+									{
+										gfxDrawRectangle(dc, x, y, w, h, direction, fillEnd+1, l);
+									}
 								}
 							}
 						}
+						else
+						{
+							// subtract 1 when aa on, and less than about 20 degree for centre of circle?
+							// for full circle might need to draw dot in centre too
+							//var width = 30;
+
+							var cx = x + w/2;
+							var cy = y + h/2;
+							
+							if (style==3)	// circle - set width to make filled circle
+							{
+								pw = (h+1)/2;
+							}
+													
+					        dc.setPenWidth(pw);
+
+							var r = (h-pw)/2;							
+							
+ 							var a = (fillEnd+1);
+							if ((fillGfxData&0x1000000)!=0/*noFill*/)
+							{
+								a = 0.0;
+							}
+
+ 							if (style<=3)	// arc or circle
+ 							{
+								if (a<360 && colUnfilled!=-2/*COLOR_NOTSET*/)
+								{
+							        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
+									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 450-a, 90);
+								}
+	
+								if (a>0 && colFilled!=-2/*COLOR_NOTSET*/)
+								{
+							        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 90, 450-a);
+								}
+							}
+							else	// hand
+							{
+								a *= (2.0 * 3.14159265368979 / 360.0);	// convert to radians
+								
+								var px = Math.round(Math.sin(a) * r);
+								var py = Math.round(Math.cos(a) * r);
+					        	dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+								dc.drawLine(cx, cy, cx+px, cy-py);
+							}
+						}
+//						else	// hand
+//						{
+//							var cx = x + w/2;
+//							var cy = y + h/2;
+//													
+//							if (hasAntiAlias)
+//							{
+//								dc.setAntiAlias(true);
+//							}
+//					        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+//					        dc.setPenWidth(pw);
+//
+//							// draw hand
+//							var r = (h-pw)/2;
+//							
+//							var a = (fillEnd+1) * 2.0 * 3.14159265368979 / 60;
+//							if ((fillGfxData&0x1000000)!=0/*noFill*/)
+//							{
+//								a = 0.0;
+//							}
+//							
+//							var px = Math.round(Math.sin(a) * r);
+//							var py = Math.round(Math.cos(a) * r);
+//							dc.drawLine(cx, cy, cx+px, cy-py);
+//						}
+//						else
+//						{
+//							var cx = x + w/2;
+//							var cy = y + h/2;
+//													
+//							if (hasAntiAlias)
+//							{
+//								dc.setAntiAlias(true);
+//							}
+//					        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+//
+//							// draw circle
+//							var r = h/2;
+//							var n = fillEnd+1;
+//							if (n<60)
+//							{
+//								var pts = new [n+1];
+//								pts[0] = [cx, cy];
+//								for (var i=0; i<n; i++)
+//								{
+//									var a = i * 2.0 * 3.14159265368979 / 60;
+//									var px = Math.sin(a) * (r+0.5) + 0.5;
+//									var py = Math.cos(a) * (r+0.5) - 0.5;
+//									px = Math.round(px);
+//									py = Math.round(py);
+//									pts[1+i] = [cx+px, cy-py];
+//								}
+//								dc.fillPolygon(pts);
+//							}
+//							else
+//							{
+//								dc.fillCircle(cx, cy, r);
+//							}
+//						}
 					}
 	
 					if (isEditor)
@@ -7376,8 +7511,8 @@ class myEditorView extends myView
 		index = gfxInsert(index, 7);
 		if (index>=0)
 		{
-			gfxData[index+1/*rect_type*/] = 0;	// type & direction
-			gfxData[index+2/*rect_filled*/] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// color filled
+			gfxData[index+1/*rect_type*/] = 0;	// type & direction 0xC0
+			gfxData[index+2/*rect_filled*/] = -1/*COLOR_FOREGROUND*/+2/*COLOR_SAVE*/;	// color filled & style 0x380
 			gfxData[index+3/*rect_unfilled*/] = -2/*COLOR_NOTSET*/+2/*COLOR_SAVE*/;	// color unfilled
 			gfxData[index+4/*rect_x*/] = displayHalf;	// x from left
 			gfxData[index+5/*rect_y*/] = displayHalf;	// y from bottom
@@ -8467,7 +8602,7 @@ class myEditorView extends myView
 		var colorGridArray = WatchUi.loadResource(Rez.JsonData.id_colorGridArray);
 		if (colorGridArray!=null)
 		{
-			var highlightGrid = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]-2/*COLOR_SAVE*/) : -1);
+			var highlightGrid = ((getColorGfxIndex>=0) ? ((gfxData[getColorGfxIndex]&0x7F)-2/*COLOR_SAVE*/) : -1);
 		
 			var rScale = (displaySize*14 + 120)/240;
 			var cScaleHighlight = (displaySize*7 + 120)/240;
@@ -8506,7 +8641,7 @@ class myEditorView extends myView
 
 	function getColorName()
 	{
-		var colorNum = ((getColorGfxIndex>=0) ? gfxData[getColorGfxIndex] : 0);
+		var colorNum = ((getColorGfxIndex>=0) ? (gfxData[getColorGfxIndex]&0x7F) : 0);
 
 		var rezArr = [:id_colorStrings, :id_colorStrings2, :id_colorStrings3];
 		return safeStringFromJsonDataMulti(rezArr, colorNum);
@@ -9614,6 +9749,11 @@ class myEditorView extends myView
 //		gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F); 
 //	}
 	
+//	function rectangleGetStyle(index)
+//	{
+//		return ((gfxData[index+2/*rect_filled*/]&0x3F0)>>7); 
+//	}
+	
 	function rectangleGetDirection()
 	{
 		return ((gfxData[menuFieldGfx+1]&0xC0)>>6); 
@@ -9687,35 +9827,39 @@ class myEditorView extends myView
     	{
  			return safeStringFromJsonData(:id_ringStrings2, 0, rectangleGetType());
     	}
-    	else if (fState==101/*r_directionEdit*/)
+    	else if (fState==101/*r_styleEdit*/)
+    	{
+ 			return safeStringFromJsonData(:id_rectangleStrings, 2, ((gfxData[menuFieldGfx+2/*rect_filled*/]&0x3F0)>>7));
+    	}
+    	else if (fState==102/*r_directionEdit*/)
     	{
  			return safeStringFromJsonData(:id_rectangleStrings, 1, rectangleGetDirection());
     	}
-    	else if (fState==105/*r_wEdit*/ || fState==107/*r_wEdit10*/)
+    	else if (fState==106/*r_wEdit*/ || fState==108/*r_wEdit10*/)
     	{
     		//return "w=" + rectangleGetWidth();
     		return "w=" + gfxData[menuFieldGfx+6/*rect_w*/];
     	}
-    	else if (fState==106/*r_hEdit*/ || fState==108/*r_hEdit10*/)
+    	else if (fState==107/*r_hEdit*/ || fState==109/*r_hEdit10*/)
     	{
     		//return "h=" + rectangleGetHeight();
     		return "h=" + gfxData[menuFieldGfx+7/*rect_h*/];
     	}
-    	else if (fState==109/*r_visEdit*/)
+    	else if (fState==110/*r_visEdit*/)
     	{
     		return fieldVisibilityString();
     	}
-    	else if (fState==113/*r_xEdit*/ || fState==115/*r_xEdit10*/)
+    	else if (fState==114/*r_xEdit*/ || fState==116/*r_xEdit10*/)
     	{
     		//return "x=" + rectanglePositionGetX();
     		return "x=" + gfxData[menuFieldGfx+4/*rect_x*/];
     	}
-    	else if (fState==114/*r_yEdit*/ || fState==116/*r_yEdit10*/)
+    	else if (fState==115/*r_yEdit*/ || fState==117/*r_yEdit10*/)
     	{
     		//return "y=" + rectanglePositionGetY();
     		return "y=" + gfxData[menuFieldGfx+5/*rect_y*/];
     	}
-		else if (fState<=19/*r_tap*/)
+		else if (fState<=20/*r_tap*/)
 		{
  			return safeStringFromJsonData(:id_rectangleStrings, 0, fState);
  		}
@@ -9735,74 +9879,84 @@ class myEditorView extends myView
 			gfxData[menuFieldGfx+1] &= ~0x3F;
 			gfxData[menuFieldGfx+1] |= (eDisplay & 0x3F);
     	}
-    	else if (fState==101/*r_directionEdit*/)
+    	else if (fState==101/*r_styleEdit*/)
+    	{
+			var temp = gfxSubtractValModulo(((gfxData[menuFieldGfx+2/*rect_filled*/]&0x3F0)>>7), val, 0, 4);
+			gfxData[menuFieldGfx+2/*rect_filled*/] &= ~0x380;
+			gfxData[menuFieldGfx+2/*rect_filled*/] |= ((temp<<7)&0x380);
+    	}
+    	else if (fState==102/*r_directionEdit*/)
     	{
  			//rectangleDirectionEditing(val);
 			var temp = gfxSubtractValModulo(rectangleGetDirection(), val, 0, 3);
 			gfxData[menuFieldGfx+1] &= ~0xC0;
 			gfxData[menuFieldGfx+1] |= ((temp<<6)&0xC0);
     	}
-    	else if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
+    	else if (fState==103/*r_colorEdit*/ || fState==104/*r_unfilledEdit*/)
     	{
     		//rectangleColorEditing(fState-102/*r_colorEdit*/, val);
-			gfxSubtractValModuloInPlace(menuFieldGfx+fState-102/*r_colorEdit*/+2/*rect_filled*/, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65
+			//gfxSubtractValModuloInPlace(menuFieldGfx+fState-103/*r_colorEdit*/+2/*rect_filled*/, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65
+			var index = menuFieldGfx+fState-103/*r_colorEdit*/+2/*rect_filled*/; 
+			var temp = gfxSubtractValModulo(gfxData[index]&0x7F, val, 0, 65);	// allow for COLOR_NOTSET (-2) so 0 to 65 
+			gfxData[index] &= ~0x7F;
+			gfxData[index] |= (temp&0x7F);
     	}
-    	else if (fState==105/*r_wEdit*/ || fState==107/*r_wEdit10*/)
+    	else if (fState==106/*r_wEdit*/ || fState==108/*r_wEdit10*/)
     	{
     		//rectangleWidthEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+6/*rect_w*/, val * ((fState==107/*r_wEdit10*/)?10:1), 1, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+6/*rect_w*/, val * ((fState==108/*r_wEdit10*/)?10:1), 1, displaySize);
     	}
-    	else if (fState==106/*r_hEdit*/ || fState==108/*r_hEdit10*/)
+    	else if (fState==107/*r_hEdit*/ || fState==109/*r_hEdit10*/)
     	{
     		//rectangleHeightEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+7/*rect_h*/, val * ((fState==108/*r_hEdit10*/)?10:1), 1, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+7/*rect_h*/, val * ((fState==109/*r_hEdit10*/)?10:1), 1, displaySize);
     	}
-    	else if (fState==109/*r_visEdit*/)
+    	else if (fState==110/*r_visEdit*/)
     	{
     		fieldVisibilityEditing(val);
     	}
-    	else if (fState==113/*r_xEdit*/ || fState==115/*r_xEdit10*/)
+    	else if (fState==114/*r_xEdit*/ || fState==116/*r_xEdit10*/)
     	{
     		//rectanglePositionXEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val * ((fState==115/*r_xEdit10*/)?10:1), 0, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+4/*rect_x*/, val * ((fState==116/*r_xEdit10*/)?10:1), 0, displaySize);
     	}
-    	else if (fState==114/*r_yEdit*/ || fState==116/*r_yEdit10*/)
+    	else if (fState==115/*r_yEdit*/ || fState==117/*r_yEdit10*/)
     	{
     		//rectanglePositionYEditing(val);
-			gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val * ((fState==116/*r_yEdit10*/)?10:1), 0, displaySize);
+			gfxSubtractValInPlace(menuFieldGfx+5/*rect_y*/, val * ((fState==117/*r_yEdit10*/)?10:1), 0, displaySize);
     	}
 	}
 	
 	function menuRectangleOnSelect(fState)
 	{
-    	if (fState==10/*r_earlier*/)
+    	if (fState==11/*r_earlier*/)
     	{
     		fieldEarlier();
     	}
-    	else if (fState==11/*r_later*/)
+    	else if (fState==12/*r_later*/)
     	{
     		fieldLater();
     	}
-    	else if (fState==17/*r_xCentre*/)
+    	else if (fState==18/*r_xCentre*/)
     	{
     		//rectanglePositionCentreX();
 			gfxData[menuFieldGfx+4/*rect_x*/] = displayHalf;
     	}
-    	else if (fState==18/*r_yCentre*/)
+    	else if (fState==19/*r_yCentre*/)
     	{
     		//rectanglePositionCentreY();
 			gfxData[menuFieldGfx+5/*rect_y*/] = displayHalf;
     	}
-    	else if (fState==19/*r_tap*/)
+    	else if (fState==20/*r_tap*/)
     	{
     	}
     	else if (fState<100)
     	{
    			fState += 100;
 
-    		if (fState==102/*r_colorEdit*/ || fState==103/*r_unfilledEdit*/)
+    		if (fState==103/*r_colorEdit*/ || fState==104/*r_unfilledEdit*/)
 	    	{
-	    		startColorEditing(menuFieldGfx+fState-102/*r_colorEdit*/+2/*rect_filled*/);
+	    		startColorEditing(menuFieldGfx+fState-103/*r_colorEdit*/+2/*rect_filled*/);
 	    	}
     	}
     	
@@ -11801,19 +11955,19 @@ class myMenuItemRectangle extends myMenuItem
     // up=0 down=1 left=2 right=3
     function hasDirection(d)
     {
-    	return (d!=3 || fState<19/*r_tap*/);
+    	return (d!=3 || fState<20/*r_tap*/);
     }
 
     function onEditing(val)
     {
-    	if (fState<=12/*r_delete*/)
+    	if (fState<=13/*r_delete*/)
     	{
-    		fState = (fState+val+13)%13;
+    		fState = (fState+val+14)%14;
     	}
-    	else if (fState>=13/*r_x*/ && fState<=19/*r_tap*/)
+    	else if (fState>=14/*r_x*/ && fState<=20/*r_tap*/)
     	{
     		//fState = (fState+val+5-11)%5 + 11;
-    		fState = (fState+val+6-13)%6 + 13;		// removed tap for now
+    		fState = (fState+val+6-14)%6 + 14;		// removed tap for now
     	}
     	else
     	{
@@ -11825,11 +11979,11 @@ class myMenuItemRectangle extends myMenuItem
     
     function onSelect()
     {
-    	if (fState==4/*r_position*/)
+    	if (fState==5/*r_position*/)
     	{
-    		fState = 13/*r_x*/;
+    		fState = 14/*r_x*/;
     	}
-    	else if (fState==12/*r_delete*/)
+    	else if (fState==13/*r_delete*/)
     	{
     		editorView.fieldDelete();
     		return new myMenuItemFieldSelect();
@@ -11844,7 +11998,7 @@ class myMenuItemRectangle extends myMenuItem
     
     function onBack()
     {
-    	if (fState<=12/*r_delete*/)
+    	if (fState<=13/*r_delete*/)
     	{
     		return new myMenuItemFieldSelect();
     	}
@@ -11854,9 +12008,9 @@ class myMenuItemRectangle extends myMenuItem
 
     		fState -= 100;
     	}
-    	else if (fState>=13/*r_x*/)
+    	else if (fState>=14/*r_x*/)
     	{
-    		fState = 4/*r_position*/;
+    		fState = 5/*r_position*/;
     	}
 
     	return null;
