@@ -6882,32 +6882,28 @@ class myView
 
 							var r = (h-pw)/2;							
 							
- 							var a = (fillEnd+1);
-							if ((fillGfxData&0x1000000)!=0/*noFill*/)
-							{
-								a = 0.0;
-							}
+ 							var aEnd = (fillEnd+1);
 
  							if (style<=3)	// arc or circle
  							{
-								if (a<360 && colUnfilled!=-2/*COLOR_NOTSET*/)
+								if (aEnd!=(fillStart+360) && colUnfilled!=-2/*COLOR_NOTSET*/)
 								{
 							        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
-									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 450-a, 90);
+									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 450-aEnd+((aEnd!=360)?1:0), 90-fillStart);
 								}
 	
-								if (a>0 && colFilled!=-2/*COLOR_NOTSET*/)
+								if (aEnd!=fillStart && colFilled!=-2/*COLOR_NOTSET*/)
 								{
 							        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
-									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 90, 450-a);
+									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 90-fillStart+((fillStart!=0)?1:0), 450-aEnd);
 								}
 							}
 							else	// hand
 							{
-								a *= (2.0 * 3.14159265368979 / 360.0);	// convert to radians
+								aEnd *= (2.0 * 3.14159265368979 / 360.0);	// convert to radians
 								
-								var px = Math.round(Math.sin(a) * r);
-								var py = Math.round(Math.cos(a) * r);
+								var px = Math.round(Math.sin(aEnd) * r);
+								var py = Math.round(Math.cos(aEnd) * r);
 					        	dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
 								dc.drawLine(cx, cy, cx+px, cy-py);
 							}
