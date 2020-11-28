@@ -6882,7 +6882,8 @@ class myView
 
 							var r = (h-pw)/2;							
 							
- 							var aEnd = (fillEnd+1);
+							// when get here fillStart<=fillEnd
+							var aEnd = fillEnd+1;
 
  							if (style==3)	// hand
  							{
@@ -6895,13 +6896,14 @@ class myView
 							}
 							else	// circle or arc
 							{
+							
 								if (aEnd!=(fillStart+360) && colUnfilled!=-2/*COLOR_NOTSET*/)
 								{
 							        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
 									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 450-aEnd+((aEnd!=360)?1:0), 90-fillStart);
 								}
 	
-								if (aEnd!=fillStart && colFilled!=-2/*COLOR_NOTSET*/)
+								if (colFilled!=-2/*COLOR_NOTSET*/)
 								{
 							        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
 									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 90-fillStart+((fillStart!=0)?1:0), 450-aEnd);
