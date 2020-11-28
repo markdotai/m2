@@ -6146,11 +6146,11 @@ class myView
 						break;
 					}
 
-					var style = ((gfxData[index+2/*rect_filled*/]&0x3F0)>>7);	// 0=rect, 1=bar, 2=arc, 3=circle, 4=hand 
+					var style = ((gfxData[index+2/*rect_filled*/]&0x380)>>7);	// 0=rect, 1=arc, 2=circle, 3=hand 
 					var direction = ((gfxData[index+1/*rect_type*/]&0xC0)>>6);	// 0=right, 1=left, 2=up, 3=down 
 					var drawRange;
 					
-					if (style<=1)	// rect or bar
+					if (style==0)	// rect
 					{
 						drawRange = gfxData[index + ((direction<=1) ? 6/*rect_w*/ : 7/*rect_h*/)];
 					}
@@ -6797,12 +6797,12 @@ class myView
 			{
 				if (isVisible)
 				{
-					var style = ((gfxData[index+2/*rect_filled*/]&0x3F0)>>7);	// 0=rect, 1=bar, 2=arc, 3=circle, 4=hand 
+					var style = ((gfxData[index+2/*rect_filled*/]&0x380)>>7);	// 0=rect, 1=arc, 2=circle, 3=hand 
 					var w = gfxData[index+6/*rect_w*/];
 					var h = gfxData[index+7/*rect_h*/];
 					
 					var pw = w;
-					if (style>1)
+					if (style>0)
 					{
 						w = h;	// arc, circle, hand all have same width as height (set for highlighting)
 					}
@@ -6837,7 +6837,7 @@ class myView
 						
 						var direction = ((gfxData[index+1/*rect_type*/]&0xC0)>>6);	// 0=right, 1=left, 2=up, 3=down
 						
-						if (style<=1)	// rect or bar
+						if (style==0)	// rect
 						{
 							if (colFilled!=-2/*COLOR_NOTSET*/)
 							{
@@ -6873,7 +6873,7 @@ class myView
 							var cx = x + w/2;
 							var cy = y + h/2;
 							
-							if (style==3)	// circle - set width to make filled circle
+							if (style==2)	// circle - set width to make filled circle
 							{
 								pw = (h+1)/2;
 							}
@@ -6884,8 +6884,17 @@ class myView
 							
  							var aEnd = (fillEnd+1);
 
- 							if (style<=3)	// arc or circle
+ 							if (style==3)	// hand
  							{
+								aEnd *= (2.0 * 3.14159265368979 / 360.0);	// convert to radians
+								
+								var px = Math.round(Math.sin(aEnd) * r);
+								var py = Math.round(Math.cos(aEnd) * r);
+					        	dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
+								dc.drawLine(cx, cy, cx+px, cy-py);
+							}
+							else	// circle or arc
+							{
 								if (aEnd!=(fillStart+360) && colUnfilled!=-2/*COLOR_NOTSET*/)
 								{
 							        dc.setColor(colUnfilled, -1/*COLOR_TRANSPARENT*/);
@@ -6897,15 +6906,6 @@ class myView
 							        dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
 									dc.drawArc(cx, cy, r, 1/*ARC_CLOCKWISE*/, 90-fillStart+((fillStart!=0)?1:0), 450-aEnd);
 								}
-							}
-							else	// hand
-							{
-								aEnd *= (2.0 * 3.14159265368979 / 360.0);	// convert to radians
-								
-								var px = Math.round(Math.sin(aEnd) * r);
-								var py = Math.round(Math.cos(aEnd) * r);
-					        	dc.setColor(colFilled, -1/*COLOR_TRANSPARENT*/);
-								dc.drawLine(cx, cy, cx+px, cy-py);
 							}
 						}
 //						else	// hand
@@ -9747,7 +9747,7 @@ class myEditorView extends myView
 	
 //	function rectangleGetStyle(index)
 //	{
-//		return ((gfxData[index+2/*rect_filled*/]&0x3F0)>>7); 
+//		return ((gfxData[index+2/*rect_filled*/]&0x380)>>7); 
 //	}
 	
 	function rectangleGetDirection()
@@ -9825,7 +9825,7 @@ class myEditorView extends myView
     	}
     	else if (fState==101/*r_styleEdit*/)
     	{
- 			return safeStringFromJsonData(:id_rectangleStrings, 2, ((gfxData[menuFieldGfx+2/*rect_filled*/]&0x3F0)>>7));
+ 			return safeStringFromJsonData(:id_rectangleStrings, 2, ((gfxData[menuFieldGfx+2/*rect_filled*/]&0x380)>>7));
     	}
     	else if (fState==102/*r_directionEdit*/)
     	{
@@ -9877,7 +9877,7 @@ class myEditorView extends myView
     	}
     	else if (fState==101/*r_styleEdit*/)
     	{
-			var temp = gfxSubtractValModulo(((gfxData[menuFieldGfx+2/*rect_filled*/]&0x3F0)>>7), val, 0, 4);
+			var temp = gfxSubtractValModulo(((gfxData[menuFieldGfx+2/*rect_filled*/]&0x380)>>7), val, 0, 3);
 			gfxData[menuFieldGfx+2/*rect_filled*/] &= ~0x380;
 			gfxData[menuFieldGfx+2/*rect_filled*/] |= ((temp<<7)&0x380);
     	}
