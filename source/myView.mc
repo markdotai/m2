@@ -3167,6 +3167,7 @@ class myView
 //			//positionLongitude = -2.907530;
 //			
 //			// Windermere
+//			positionGot = true;
 //			positionLatitude = 54.3787142d;	// 54 22 43
 //			positionLongitude = -2.9044238d;	// -2 54 16
 //			//positionAltitude = 140.0;	// m
@@ -5633,6 +5634,24 @@ class myView
 								break;
 							}
 	
+							case 115/*FIELD_MINS_SUNEVENT*/:
+							case 116/*FIELD_MINS_DAWNDUSK*/:
+							{
+								calculateSun(dateInfoShort);
+
+								var t = sunTimes[6 + ((eDisplay==116/*FIELD_MINS_DAWNDUSK*/)?8:0)];	// null or time of next sun event
+								if (t!=null)
+								{
+									t = (t - timeNowInMinutesToday + 24*60)%(24*60);	// positive within 24 hours 
+									eStr = t.format("%d");
+								}
+								else
+								{
+									eStr = "--";
+								}
+								break;
+							}
+							
 							case 3/*FIELD_DAY_NAME*/:		// day name
 							case 9/*FIELD_MONTH_NAME*/:		// month name
 						    {

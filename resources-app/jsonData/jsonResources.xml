@@ -118,14 +118,14 @@
 			"AM",
 			"PM",
 			"A",
-			"P"
+			"P",
+	    	"space",
+	    	"/",
+	    	"\\"
 		]
 	</jsonData>
 	<jsonData id="id_stringTypeStrings2">
 		[
-	    	"space",
-	    	"/",
-	    	"\\",
 	    	":",
 	    	"-",
 	    	".",
@@ -146,14 +146,14 @@
 			"sunset hour",
 			"sunset minute",
 			"next sun event\nhour",
-			"next sun event\nminute"
+			"next sun event\nminute",
+			"2nd time hour",
+			"calories",
+			"active calories"
 		]
 	</jsonData>
 	<jsonData id="id_stringTypeStrings3">
 		[
-			"2nd time hour",
-			"calories",
-			"active calories",
 			"intensity\nminutes",
 			"intensity goal",
 			"smart intensity\ngoal",
@@ -172,15 +172,15 @@
 			"hour24",
 			"hour 0#",
 			"hour12 0#",
-			"hour24 0#"
+			"hour24 0#",
+			"2nd hour12",
+			"2nd hour24",
+			"2nd hour 0#",
+			"2nd hour12 0#"
 		]	
 	</jsonData>
 	<jsonData id="id_stringTypeStrings4">
 		[
-			"2nd hour12",
-			"2nd hour24",
-			"2nd hour 0#",
-			"2nd hour12 0#",
 			"2nd hour24 0#",
 			"sunrise hour12",
 			"sunrise hour24",
@@ -196,16 +196,16 @@
 			"next sun event\nhour24",
 			"next sun event\nhour 0#",
 			"next sun event\nhour12 0#",
-			"next sun event\nhour24 0#"
-		]
-	</jsonData>
-	<jsonData id="id_stringTypeStrings5">
-		[
+			"next sun event\nhour24 0#",
 			"dawn hour12",
 			"dawn hour24",
 			"dawn hour 0#",
 			"dawn\nhour12 0#",
-			"dawn\nhour24 0#",
+			"dawn\nhour24 0#"
+		]
+	</jsonData>
+	<jsonData id="id_stringTypeStrings5">
+		[
 			"dusk hour12",
 			"dusk hour24",
 			"dusk hour 0#",
@@ -226,7 +226,9 @@
 			"training load",
 			"body weight",
 			"steps count\n(k)",
-			"steps goal\n(k)"
+			"steps goal\n(k)",
+			"mins to next\nsun event",
+			"mins to next\ndawn/dusk"
 		]
 	</jsonData>
 		
@@ -600,7 +602,9 @@
 				106,	<!-- FIELD_DUSK_HOUR -->
 				107,	<!-- FIELD_DUSK_MINUTE -->
 				108,	<!-- FIELD_DAWNDUSK_HOUR -->
-				109		<!-- FIELD_DAWNDUSK_MINUTE -->
+				109,	<!-- FIELD_DAWNDUSK_MINUTE -->
+				115,	<!-- FIELD_MINS_SUNEVENT -->
+				116		<!-- FIELD_MINS_DAWNDUSK -->
 			],
 
 			<!-- advancedIds -->
