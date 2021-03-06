@@ -1559,18 +1559,20 @@ class myView
 		if (profileNumber>=0 && profileNumber<(24/*PROFILE_NUM_USER*/+PROFILE_NUM_PRESET))
 		{
 			var s = getProfileString(profileNumber);
-			if (s!=null && (s instanceof String))
+			if ((s==null) || !(s instanceof String))
 			{
-				var s2 = "";
-			
-				if (s.length()>255)
-				{
-					s2 = s.substring(255, s.length());					
-					s = s.substring(0, 255);
-				}
-			
-				setProfileText(s, s2);
+				s = "";
 			}
+			
+			var s2 = "";
+		
+			if (s.length()>255)
+			{
+				s2 = s.substring(255, s.length());					
+				s = s.substring(0, 255);
+			}
+		
+			setProfileText(s, s2);
 
 			setProfilePropertiesFaceOrApp(profileNumber);
 		}
